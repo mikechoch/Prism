@@ -23,6 +23,7 @@ import com.bumptech.glide.request.target.Target;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,7 @@ public class UserPostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<Use
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView userPostImageView;
+        private ImageView userPostRepostedIcon;
         private ProgressBar progressBar;
 
         private PrismPost prismPost;
@@ -72,6 +74,7 @@ public class UserPostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<Use
         public ViewHolder(View itemView) {
             super(itemView);
             userPostImageView = itemView.findViewById(R.id.user_post_image_view);
+            userPostRepostedIcon = itemView.findViewById(R.id.user_post_reposted_indicator);
             progressBar = itemView.findViewById(R.id.user_post_progress_bar);
         }
 
@@ -112,6 +115,9 @@ public class UserPostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<Use
                         }
                     })
                     .into(userPostImageView);
+
+            int repostIconVisible = prismPost.isReposted() ? View.VISIBLE : View.GONE;
+            userPostRepostedIcon.setVisibility(repostIconVisible);
 
             userPostImageView.setOnClickListener(new View.OnClickListener() {
                 @Override

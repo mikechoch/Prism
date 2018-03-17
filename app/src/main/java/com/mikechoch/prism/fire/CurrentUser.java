@@ -182,6 +182,9 @@ public class CurrentUser {
     static void repostPosts(ArrayList<PrismPost> repostedPosts, HashMap<String, Long> repostedPostsMap) {
         reposted_posts.addAll(repostedPosts);
         reposted_posts_map.putAll(repostedPostsMap);
+        for (PrismPost prismPost : repostedPosts) {
+            prismPost.setIsReposted(true);
+        }
     }
 
     /**

@@ -327,6 +327,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                             if (dataSnapshot.exists()) {
                                 for (PrismPost prismPost : prismUserUploadedAndRepostedPostsArrayList) {
                                     if (Helper.isPostReposted(prismPost, prismUser)) {
+                                        prismPost.setIsReposted(true);
                                         DataSnapshot userSnapshot = dataSnapshot.child(prismPost.getUid());
                                         if (userSnapshot.exists()) {
                                             PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
@@ -337,6 +338,13 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                            Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
+                                @Override
+                                public int compare(PrismPost p1, PrismPost p2) {
+                                    return (int) (p1.getTimestamp() - p2.getTimestamp());
+                                }
+                            });
+                            setupUserPostsUIElements();
                         }
 
                         @Override
@@ -345,13 +353,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                         }
                     });
 
-                    Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
-                        @Override
-                        public int compare(PrismPost p1, PrismPost p2) {
-                            return (int) (p1.getTimestamp() - p2.getTimestamp());
-                        }
-                    });
-                    setupUserPostsUIElements();
+
                 }
             }
 

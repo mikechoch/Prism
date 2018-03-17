@@ -21,6 +21,7 @@ public class PrismPost implements Parcelable {
     private Integer reposts;
     private String postId;
     private PrismUser prismUser;
+    private Boolean isReposted;
 
     // Empty Constructor required by Firebase to convert DataSnapshot to PrismPost.class
     public PrismPost() { }
@@ -70,6 +71,10 @@ public class PrismPost implements Parcelable {
         return prismUser;
     }
 
+    public Boolean isReposted() {
+        return isReposted == null ? false : isReposted;
+    }
+
     // Setters for attributes not saved in cloud
     public void setLikes(int likes) {
         this.likes = likes;
@@ -87,6 +92,9 @@ public class PrismPost implements Parcelable {
         this.postId = postId;
     }
 
+    public void setIsReposted(boolean isReposted) {
+        this.isReposted = isReposted;
+    }
 
     @Override
     public int describeContents() {
