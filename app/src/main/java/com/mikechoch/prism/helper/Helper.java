@@ -162,7 +162,7 @@ public class Helper {
                 message += " started following you";
                 break;
         }
-        message += notification.getPrismPost().getCaption();
+        // message += notification.getPrismPost().getCaption();
         return message;
     }
 

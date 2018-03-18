@@ -1,7 +1,11 @@
 package com.mikechoch.prism.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +13,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.constants.Key;
@@ -83,6 +95,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
         private ImageView userProfilePicImageView;
         private TextView notificationDescriptionTextView;
+        private ImageView prismPostThumbnailImageView;
 
         private Notification notification;
 
@@ -98,6 +111,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
             userProfilePicImageView = itemView.findViewById(R.id.notification_item_prism_profile_image_view);
             notificationDescriptionTextView = itemView.findViewById(R.id.notification_item_description_text_view);
+            prismPostThumbnailImageView = itemView.findViewById(R.id.notification_item_post_thumbnail_image_view);
         }
 
         /**
@@ -114,6 +128,49 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private void populateUIElements() {
             String notificationMessage = Helper.constructNotificationMessage(notification);
             notificationDescriptionTextView.setText(notificationMessage);
+            notificationDescriptionTextView.setTypeface(sourceSansProLight);
+            populateProfilePic();
+            populatePrismPostThumbnail();
+
+        }
+
+        private void populatePrismPostThumbnail() {
+            PrismPost notificationPost = notification.getPrismPost();
+            Glide.with(context)
+                    .asBitmap()
+                    .thumbnail(0.05f)
+                    .load(notificationPost.getImage())
+                    .apply(new RequestOptions().centerCrop())
+                    .into(prismPostThumbnailImageView);
+        }
+
+        private void populateProfilePic() {
+            PrismUser mostRecentPrismUser = notification.getMostRecentUser();
+            if (mostRecentPrismUser.getProfilePicture() != null) {
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(mostRecentPrismUser.getProfilePicture().lowResUri)
+                        .into(new BitmapImageViewTarget(userProfilePicImageView) {
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                if (!mostRecentPrismUser.getProfilePicture().isDefault) {
+                                    int whiteOutlinePadding = (int) (1 * scale);
+                                    userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_frame));
+                                } else {
+                                    userProfilePicImageView.setPadding(0, 0, 0, 0);
+                                    userProfilePicImageView.setBackground(null);
+                                }
+
+                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                                drawable.setCircular(true);
+                                userProfilePicImageView.setImageDrawable(drawable);
+                            }
+                        });
+            }
         }
     }
+
+
 }
