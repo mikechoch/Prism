@@ -130,10 +130,10 @@ public class MainActivity extends FragmentActivity {
         sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
         sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
+        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         TextView toolbarTextView = findViewById(R.id.prism_toolbar_title);
         toolbarTextView.setTypeface(sourceSansProBold);
-
         params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
         // Initialize all UI elements
@@ -315,20 +315,8 @@ public class MainActivity extends FragmentActivity {
                     case 2:
                         break;
 
-                    // PROFILE tab will bring the user back to the top of the profileScrollView
+                    // PROFILE tab will...
                     case 3:
-//                        ScrollView profileScrollView = MainActivity.this.findViewById(R.id.profile_scroll_view);
-//                        RecyclerView profilePostsRecyclerView = MainActivity.this.findViewById(R.id.user_posts_recycler_view);
-//                        StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) profilePostsRecyclerView.getLayoutManager();
-//                        if (profileScrollView != null && profilePostsRecyclerView != null) {
-//                            int[] positions = new int[staggeredGridLayoutManager.getSpanCount()];
-//                            staggeredGridLayoutManager.findFirstVisibleItemPositions(positions);
-//                            if (positions[0] < 10) {
-//                                profileScrollView.smoothScrollTo(0, 0);
-//                            } else {
-//                                profileScrollView.scrollTo(0, 0);
-//                            }
-//                        }
                         break;
 
                     case 4:

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -23,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.ZoomControlLinearLayout;
 import com.mikechoch.prism.attribute.PrismUser;
 
 import java.text.DecimalFormat;
@@ -46,15 +48,10 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private RelativeLayout dismissClickRelativeLayout;
-    private LinearLayout userProfilePictureLinearLayout;
+    private ZoomControlLinearLayout userProfilePictureZoomControlLinearLayout;
     private ImageView largeUserProfilePictureImageView;
 
     private PrismUser prismUser;
-
-    private ScaleGestureDetector mScaleDetector;
-    private float startDistanceChange;
-    private float totalDistanceChange;
-    private boolean isZooming = false;
 
 
     @Override
@@ -93,17 +90,16 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
         sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
-        // Initialize all UI elements
+        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.app_bar_layout);
 
+        // Initialize all UI elements
         dismissClickRelativeLayout = findViewById(R.id.show_user_profile_picture_coordinate_layout);
-        userProfilePictureLinearLayout = findViewById(R.id.user_profile_picture_linear_layout);
+        userProfilePictureZoomControlLinearLayout = findViewById(R.id.user_profile_picture_linear_layout);
         largeUserProfilePictureImageView = findViewById(R.id.large_user_profile_picture_image_view);
 
         prismUser = getIntent().getParcelableExtra("PrismUser");
-
-        mScaleDetector = new ScaleGestureDetector(this, new ShowUserProfilePictureActivity.MyPinchListener());
 
         setupUIElements();
     }
@@ -113,12 +109,11 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         toolbar.setTitle("");
-
         setSupportActionBar(toolbar);
     }
 
     /**
-     *
+     * Setup the status bar so that it is transparent
      */
     private void setupStatusBar() {
         getWindow().setStatusBarColor(Color.TRANSPARENT);
@@ -127,7 +122,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Dismiss the activity if the background is pressed
      */
     private void setupDismissClickCoordinateLayout() {
         dismissClickRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +134,8 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Use Glide to populate the largeUserProfilePictureImageView
+     * Setup the zoom control and also set postponed shared transition
      */
     private void setupUserProfilePicture() {
         supportStartPostponedEnterTransition();
@@ -168,81 +164,10 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
                     }
                 });
 
-        userProfilePictureLinearLayout.getLayoutParams().height = (int) (screenWidth * 0.8);
-        userProfilePictureLinearLayout.getLayoutParams().width = (int) (screenWidth * 0.8);
-        userProfilePictureLinearLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-//                        System.out.println("DOWN");
-                        break;
-                    case MotionEvent.ACTION_UP:
-//                        System.out.println("UP");
-                        isZooming = false;
-                        largeUserProfilePictureImageView.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(150);
-                        totalDistanceChange = 0;
-                        break;
-                }
-
-                if (event.getPointerCount() == 2 && !isZooming) {
-                    isZooming = true;
-                    float firstTouchX = event.getX(0);
-                    float firstTouchY = event.getY(0);
-                    float secondTouchX = event.getX(1);
-                    float secondTouchY = event.getY(1);
-
-                    float pivotPointX;
-                    if (firstTouchX < secondTouchX) {
-                        pivotPointX = firstTouchX + Math.abs(firstTouchX - secondTouchX);
-                    } else {
-                        pivotPointX = firstTouchX - Math.abs(firstTouchX - secondTouchX);
-                    }
-
-                    float pivotPointY;
-                    if (firstTouchY < secondTouchY) {
-                        pivotPointY = firstTouchY + Math.abs(firstTouchY - secondTouchY);
-                    } else {
-                        pivotPointY = firstTouchY - Math.abs(firstTouchY - secondTouchY);
-                    }
-                    largeUserProfilePictureImageView.setPivotX(pivotPointX);
-                    largeUserProfilePictureImageView.setPivotY(pivotPointY);
-
-                    double distanceX = Math.pow(Math.abs(firstTouchX - secondTouchX), 2);
-                    double distanceY = Math.pow(Math.abs(firstTouchY - secondTouchY), 2);
-                    startDistanceChange = (float) Math.sqrt(distanceX + distanceY);
-                }
-
-                mScaleDetector.onTouchEvent(event);
-                return true;
-            }
-        });
-    }
-
-    /**
-     *
-     */
-    public class MyPinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-//            Log.d("TAG", "PINCH! OUCH!");
-            if (startDistanceChange > 0) {
-                totalDistanceChange += (detector.getCurrentSpan() - detector.getPreviousSpan());
-//                System.out.println(startDistanceChange);
-//                System.out.println(totalDistanceChange);
-                DecimalFormat df = new DecimalFormat("0.##");
-                float imageScale = Float.parseFloat(df.format((double) ((startDistanceChange + totalDistanceChange) / startDistanceChange)));
-//            System.out.println(imageScale);
-                if (imageScale >= 1) {
-                    largeUserProfilePictureImageView.setScaleX(imageScale);
-                    largeUserProfilePictureImageView.setScaleY(imageScale);
-                }
-            }
-            return true;
-        }
+        userProfilePictureZoomControlLinearLayout.getLayoutParams().height = (int) (screenWidth * 0.8);
+        userProfilePictureZoomControlLinearLayout.getLayoutParams().width = (int) (screenWidth * 0.8);
+        userProfilePictureZoomControlLinearLayout.addContext(this);
+        userProfilePictureZoomControlLinearLayout.addImageView(largeUserProfilePictureImageView);
     }
 
     /**
