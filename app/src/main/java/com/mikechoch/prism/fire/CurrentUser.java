@@ -3,6 +3,7 @@ package com.mikechoch.prism.fire;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
@@ -249,30 +250,30 @@ public class CurrentUser {
 
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addChildEventListener(new ChildEventListener() {
+                    /* Invoked when app loads and when a new notification is created */
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         generateNotification(dataSnapshot, true);
-
                     }
 
+                    /* Invoked when an old notification gets updated */
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        generateNotification(dataSnapshot, true);
-
+                        generateNotification(dataSnapshot, false);
                     }
 
+                    /* Invoked when a notification is deleted */
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
                         String notificationId = dataSnapshot.getKey();
                         Notification notification = notifications_map.get(notificationId);
                         notifications_map.remove(notificationId);
                         notifications.remove(notification);
-                        refreshNotificationRecyclerViewAdapter();
                     }
 
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                        dataSnapshot.exists();
+                        // Not sure what to do here
                     }
 
                     @Override
@@ -280,6 +281,17 @@ public class CurrentUser {
                         Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
                     }
                 });
+
+        // TODO: Find a better place to put this code
+        Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                Log.i(Default.TAG_DEBUG, "Fetching notifications");
+                refreshNotificationRecyclerViewAdapter();
+                handler.postDelayed(this, Default.NOTIFICATION_UPDATE_INTERVAL);
+            }
+        };
+        handler.postDelayed(r, Default.NOTIFICATION_UPDATE_INTERVAL);
     }
 
     private static void refreshNotificationRecyclerViewAdapter() {
@@ -288,6 +300,11 @@ public class CurrentUser {
         }
     }
 
+    /**
+     *
+     * @param dataSnapshot
+     * @param isNewNotification
+     */
     private static void generateNotification(DataSnapshot dataSnapshot, boolean isNewNotification) {
         String notificationId = dataSnapshot.getKey();
         NotificationType type = NotificationType.getNotificationType(notificationId);
@@ -324,7 +341,6 @@ public class CurrentUser {
                             notifications.add(0, notification);
                             notifications_map.put(notificationId, notification);
 
-                            refreshNotificationRecyclerViewAdapter();
                         }
 
                         @Override public void onCancelled(DatabaseError databaseError) { }
