@@ -119,7 +119,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         *
+         * If the user RelativeLayout is clicked, intent to the profile of the user
          */
         private void setupUserRelativeLayout() {
             userRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +141,8 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         *
+         *  Setup follow button initial state and onClickListener
+         *  Handle toggling the follow button
          */
         private void setupUserFollowButton() {
             if (!Helper.isPrismUserCurrentUser(prismUser)) {
@@ -160,7 +161,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         *
+         * Toggle method for UI of follow buttons
          */
         private void toggleFollowButtons(boolean showFollowing) {
             int buttonWidth = (int) (scale * (showFollowing ? 80 : 60));
@@ -179,7 +180,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         *
+         * Handle the follow button when clicked to update firebase
          * @param performFollow
          */
         private void handleFollowButtonClick(boolean performFollow) {

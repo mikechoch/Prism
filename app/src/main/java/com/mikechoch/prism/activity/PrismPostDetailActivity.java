@@ -22,18 +22,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.transition.Transition;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -49,12 +44,11 @@ import com.bumptech.glide.request.target.Target;
 import com.mikechoch.prism.InterfaceAction;
 import com.mikechoch.prism.ToolbarPullDownLayout;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.ZoomControlLinearLayout;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
-
-import java.text.DecimalFormat;
 
 
 /**
@@ -68,9 +62,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private int scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED;
     private int noScrollFlags = 0;
-
-    private String[] morePostOptionsCurrentUser = {"Report post", "Share", "Delete"};
-    private String[] morePostOptions = {"Report post", "Share"};
 
     private float scale;
     private Typeface sourceSansProLight;
@@ -98,7 +89,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private TextView likesCountTextView;
     private ImageView repostActionButton;
     private TextView repostCountTextView;
-    private LinearLayout detailImageLinearLayout;
+    private ZoomControlLinearLayout detailZoomControlLinearLayout;
     private ImageView detailImageView;
     private RelativeLayout userRelativeLayout;
     private ImageView detailUserProfilePictureImageView;
@@ -110,11 +101,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private ImageView collapsingToolbarDragArrow;
 
     private PrismPost prismPost;
-
-    private ScaleGestureDetector mScaleDetector;
-    private float startDistanceChange;
-    private float totalDistanceChange;
-    private boolean isZooming = false;
 
     private Handler collapseUpButtonHandler = new Handler();
     private Runnable showCollapseUpButtonRunnable;
@@ -176,12 +162,13 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
-        // Initialize all UI elements
+        // Initialize all toolbar elements
         appBarLayout = findViewById(R.id.prism_post_detail_app_bar_layout);
         toolbar = findViewById(R.id.toolbar);
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-
         toolbarPullDownLayout = findViewById(R.id.pull_down_relative_layout);
+
+        // Initialize all UI elements
         prismPostDetailCoordinateLayout = findViewById(R.id.prism_post_detail_coordinate_layout);
         prismPostDetailNestedScrollView = findViewById(R.id.prism_post_detail_nested_scroll_view);
         prismPostDetailScrollView = findViewById(R.id.prism_post_detail_scroll_view);
@@ -190,7 +177,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         likesCountTextView = findViewById(R.id.prism_post_detail_like_count);
         repostActionButton = findViewById(R.id.prism_post_detail_repost_action_button);
         repostCountTextView = findViewById(R.id.prism_post_detail_repost_count);
-        detailImageLinearLayout = findViewById(R.id.prism_post_detail_image_linear_layout);
+        detailZoomControlLinearLayout = findViewById(R.id.prism_post_detail_zoom_control_linear_layout);
         detailImageView = findViewById(R.id.prism_post_detail_image_view);
         userRelativeLayout = findViewById(R.id.prism_post_detail_user_relative_layout);
         detailUserProfilePictureImageView = findViewById(R.id.prism_post_detail_user_profile_picture_image_view);
@@ -201,9 +188,23 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
+        getAllPrismPostData();
+
+        setupUIElements();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    /**
+     * Get the Intent and then get the PrismPost parcelable
+     * Set all of the global variables associated with the PrismPost
+     */
+    private void getAllPrismPostData() {
         Bundle extras = getIntent().getExtras();
         prismPost = extras.getParcelable("PrismPostDetail");
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
@@ -219,9 +220,13 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         if (likeCount == null) likeCount = 0;
         if (repostCount == null) repostCount = 0;
+    }
 
-        setupUIElements();
-
+    /**
+     * Only necessary listener here is the onTransitionEnd
+     * Shows the animations and menu items after the ImageView shared transition has occurred
+     */
+    private void setupSharedTransitionListener() {
         Transition sharedElementEnterTransition = getWindow().getSharedElementEnterTransition();
         sharedElementEnterTransition.addListener(new Transition.TransitionListener() {
             @Override
@@ -257,11 +262,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     /**
@@ -301,23 +301,18 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup the addOnOffsetChangedListener so when the appBarLayout is expanded or collapsed,
+     * the drag and scroll animations will show accordingly
      */
     private void setupAppBarLayout() {
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-
-//                System.out.println(Math.abs(verticalOffset));
-//                System.out.println(appBarLayout.getTotalScrollRange());
-
                 if ((Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()) == 0) {
                     // Collapsed
-//                    toast("Collapsed");
                     hideCollapseUpButton(0);
                 } else if (Math.abs(verticalOffset) == 0) {
                     // Expanded
-//                    toast("Expanded");
                     if (shouldCollapseUpButtonShow) {
                         shouldCollapseUpButtonShow = false;
                         showCollapseUpButton(0);
@@ -325,7 +320,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                     }
                 } else {
                     // Between
-//                    toast("Between");
                     shouldCollapseUpButtonShow = true;
                     hideCollapseUpButton(0);
                 }
@@ -334,7 +328,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup the toolbar and back button to return to MainActivity
+     * Setup the toolbar and back button to return to PrismUserProfileActivity
      */
     private void setupToolbar() {
         toolbar.setTitle("");
@@ -345,7 +339,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup the status bar so that it is transparent
      */
     private void setupStatusBar() {
         getWindow().setStatusBarColor(Color.TRANSPARENT);
@@ -365,11 +359,25 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup the PrismPostImageView so that postponed shared transition is supported
+     * Populate the ImageVie with Glide
+     * The image size dictates functionality for the toolbar, collapsingToolbar, statusBar, and appBarLayout
+     * ZoomControlLinearLayout is setup for the ImageView, which controls all zoom functionality
      */
     private void setupPrismPostImageView() {
         supportStartPostponedEnterTransition();
+        populatePrismPostImageView();
 
+        detailZoomControlLinearLayout.addContext(this);
+        detailZoomControlLinearLayout.addImageView(detailImageView);
+        detailZoomControlLinearLayout.addToolbarPullDownLayout(toolbarPullDownLayout);
+        detailZoomControlLinearLayout.addScrollViews(new ViewGroup[]{prismPostDetailNestedScrollView, prismPostDetailScrollView});
+    }
+
+    /**
+     * Method to populate and constrain all elements around the PrismPostImageView
+     */
+    private void populatePrismPostImageView() {
         Glide.with(this)
                 .asBitmap()
                 .load(prismPost.getImage())
@@ -431,91 +439,13 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                     }
                 })
                 .into(detailImageView);
-
-        mScaleDetector = new ScaleGestureDetector(this, new MyPinchListener());
-        detailImageLinearLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-//                        System.out.println("DOWN");
-                        break;
-                    case MotionEvent.ACTION_UP:
-//                        System.out.println("UP");
-                        isZooming = false;
-                        detailImageView.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(150);
-                        totalDistanceChange = 0;
-                        toolbarPullDownLayout.disable(false);
-                        prismPostDetailScrollView.requestDisallowInterceptTouchEvent(false);
-                        prismPostDetailNestedScrollView.requestDisallowInterceptTouchEvent(false);
-                        break;
-                }
-
-                if (event.getPointerCount() == 2 && !isZooming) {
-                    toolbarPullDownLayout.disable(true);
-                    prismPostDetailScrollView.requestDisallowInterceptTouchEvent(true);
-                    prismPostDetailNestedScrollView.requestDisallowInterceptTouchEvent(true);
-                    isZooming = true;
-                    float firstTouchX = event.getX(0);
-                    float firstTouchY = event.getY(0);
-                    float secondTouchX = event.getX(1);
-                    float secondTouchY = event.getY(1);
-
-                    float pivotPointX;
-                    if (firstTouchX < secondTouchX) {
-                        pivotPointX = firstTouchX + Math.abs(firstTouchX - secondTouchX);
-                    } else {
-                        pivotPointX = firstTouchX - Math.abs(firstTouchX - secondTouchX);
-                    }
-
-                    float pivotPointY;
-                    if (firstTouchY < secondTouchY) {
-                        pivotPointY = firstTouchY + Math.abs(firstTouchY - secondTouchY);
-                    } else {
-                        pivotPointY = firstTouchY - Math.abs(firstTouchY - secondTouchY);
-                    }
-                    detailImageView.setPivotX(pivotPointX);
-                    detailImageView.setPivotY(pivotPointY);
-
-                    double distanceX = Math.pow(Math.abs(firstTouchX - secondTouchX), 2);
-                    double distanceY = Math.pow(Math.abs(firstTouchY - secondTouchY), 2);
-                    startDistanceChange = (float) Math.sqrt(distanceX + distanceY);
-                }
-
-                mScaleDetector.onTouchEvent(event);
-                return true;
-            }
-        });
     }
 
     /**
-     *
-     */
-    public class MyPinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-//            Log.d("TAG", "PINCH! OUCH!");
-            if (startDistanceChange > 0) {
-                totalDistanceChange += (detector.getCurrentSpan() - detector.getPreviousSpan());
-//            System.out.println(startDistanceChange);
-//            System.out.println(totalDistanceChange);
-                DecimalFormat df = new DecimalFormat("0.##");
-                float imageScale = Float.parseFloat(df.format((double) ((startDistanceChange + totalDistanceChange) / startDistanceChange)));
-//            System.out.println(imageScale);
-                if (imageScale >= 1) {
-                    detailImageView.setScaleX(imageScale);
-                    detailImageView.setScaleY(imageScale);
-                }
-            }
-            return true;
-        }
-    }
-
-    /**
-     *
+     * Setup all prismPostUserInfo
+     * Use Glide to populate the profilePicture
+     * Add a clickListener to the view so it takes you to the user profile
+     * Populate the prismPost description
      */
     private void setupPrismPostUserInfo() {
         userRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -561,17 +491,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-     */
-    private void intentToUserProfileActivity() {
-        Intent prismUserProfileIntent = new Intent(PrismPostDetailActivity.this, PrismUserProfileActivity.class);
-        prismUserProfileIntent.putExtra("PrismUser", prismPost.getPrismUser());
-        startActivity(prismUserProfileIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     *
+     * Setup the like action button for the PrismPost
      */
     private void setupLikeActionButton() {
         InterfaceAction.setupLikeActionButton(this, null, likeActionButton, isPostLiked);
@@ -586,11 +506,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         likesCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent userLikesIntent = new Intent(PrismPostDetailActivity.this, DisplayUsersActivity.class);
-                userLikesIntent.putExtra("UsersInt", 0);
-                userLikesIntent.putExtra("UsersDataId", prismPost.getPostId());
-                startActivity(userLikesIntent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                intentToDisplayUsersActivity(0);
             }
         });
     }
@@ -618,7 +534,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Using InterfaceAction, start the animation for liking an image
+     * Update the likes TextView locally
      * @param performLike
      */
     private void performUIActivitiesForLike(boolean performLike) {
@@ -630,7 +547,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup the repost action button for the PrismPost
      */
     private void setupRepostActionButton() {
         InterfaceAction.setupRepostActionButton(this, repostActionButton, isPostReposted);
@@ -651,11 +568,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent userLikesIntent = new Intent(PrismPostDetailActivity.this, DisplayUsersActivity.class);
-                userLikesIntent.putExtra("UsersInt", 1);
-                userLikesIntent.putExtra("UsersDataId", prismPost.getPostId());
-                startActivity(userLikesIntent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                intentToDisplayUsersActivity(1);
             }
         });
     }
@@ -682,6 +595,11 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Using InterfaceAction, start the animation for reposting an image
+     * Update the reposts TextView locally
+     * @param performRepost
+     */
     private void performUIActivitiesForRepost(boolean performRepost) {
         InterfaceAction.startRepostActionButtonAnimation(this, repostActionButton, performRepost);
 
@@ -690,17 +608,31 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCountTextView.setText(String.valueOf(repostCount));
     }
 
-    //TODO: Handle other UI for deleting a post
-    private void handleDeletionOfPost() {
-//        if (getItemCount() == 0) {
-//            RelativeLayout noMainPostsRelativeLayout = ((Activity) context)
-//                    .findViewById(R.id.no_main_posts_relative_layout);
-//            noMainPostsRelativeLayout.setVisibility(View.VISIBLE);
-//        }
+    /**
+     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
+     */
+    private void intentToUserProfileActivity() {
+        Intent prismUserProfileIntent = new Intent(PrismPostDetailActivity.this, PrismUserProfileActivity.class);
+        prismUserProfileIntent.putExtra("PrismUser", prismPost.getPrismUser());
+        startActivity(prismUserProfileIntent);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
-     *
+     * Intent to DisplayUserActivity with the correct intentType code
+     * 0: Likes
+     * 1: Reposts
+     */
+    private void intentToDisplayUsersActivity(int intentType) {
+        Intent userLikesIntent = new Intent(PrismPostDetailActivity.this, DisplayUsersActivity.class);
+        userLikesIntent.putExtra("UsersInt", intentType);
+        userLikesIntent.putExtra("UsersDataId", prismPost.getPostId());
+        startActivity(userLikesIntent);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Method to setup the collapse up button onClickListener
      */
     private void setupCollapseUpButton() {
         collapsingToolbarCollapseUpButton.setOnClickListener(new View.OnClickListener() {
@@ -713,7 +645,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to animate the drag arrow animation
      */
     private void animateCollapseUpButton() {
         collapsingToolbarCollapseUpButton.animate()
@@ -740,7 +672,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to show the collapse up animation
+     * @param millis
      */
     private void showCollapseUpButton(int millis) {
         collapseUpButtonHandler.removeCallbacks(showCollapseUpButtonRunnable);
@@ -762,7 +695,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to hide the collapse up animation
+     * @param millis
      */
     private void hideCollapseUpButton(int millis) {
         collapseUpButtonHandler.removeCallbacks(hideCollapseUpButtonRunnable);
@@ -783,7 +717,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to setup the drag arrow UI
+     * Adds a margin to the top of the arrow
      */
     private void setupDragArrow() {
         CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) collapsingToolbarDragArrow.getLayoutParams();;
@@ -792,7 +727,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to animate the drag arrow animation
      */
     private void animateDragArrow() {
         collapsingToolbarDragArrow.animate()
@@ -823,7 +758,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to show the drag arrow animation
+     * @param millis
      */
     private void showDragArrow(int millis) {
         dragArrowHandler.removeCallbacks(showDragArrowRunnable);
@@ -845,7 +781,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Method to hide the drag arrow animation
+     * @param millis
      */
     private void hideDragArrow(int millis) {
         dragArrowHandler.removeCallbacks(hideDragArrowRunnable);
@@ -883,6 +820,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setupUIElements() {
+        setupSharedTransitionListener();
         setupAppBarLayout();
         setupToolbar();
         setupStatusBar();

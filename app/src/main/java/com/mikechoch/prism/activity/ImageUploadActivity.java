@@ -92,9 +92,11 @@ public class ImageUploadActivity extends AppCompatActivity {
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
-        // Initialize all UI elements
+        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
+
+        // Initialize all UI elements
         imageDescriptionTextInputLayout = findViewById(R.id.image_description_title_text_input_layout);
         imageDescriptionEditText = findViewById(R.id.image_description_edit_text);
         uploadedImageImageView = findViewById(R.id.uploaded_image_image_view);
@@ -147,19 +149,22 @@ public class ImageUploadActivity extends AppCompatActivity {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                 * When the uploadButton is clicked, a new Intent is created
-                 * This passes the uploaded image data (image and description) back to MainActivity
-                 * Then ImageUploadActivity is finished
-                 */
-                Intent data = new Intent();
-                data.putExtra("ImageUri", imageUri.toString());
-                data.putExtra("ImageDescription", imageDescriptionEditText.getText().toString().trim());
-                setResult(RESULT_OK, data);
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                intentBackToMainActivitySuccess();
             }
         });
+    }
+
+    /**
+     * This passes the uploaded image data (image and description) back to MainActivity
+     * Then ImageUploadActivity is finished with success
+     */
+    private void intentBackToMainActivitySuccess() {
+        Intent data = new Intent();
+        data.putExtra("ImageUri", imageUri.toString());
+        data.putExtra("ImageDescription", imageDescriptionEditText.getText().toString().trim());
+        setResult(RESULT_OK, data);
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -201,7 +206,6 @@ public class ImageUploadActivity extends AppCompatActivity {
                     try {
                         InputStream inputStream = getContentResolver().openInputStream(imageUri);
                         bitmap = BitmapFactory.decodeStream(inputStream);
-//                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -227,11 +231,10 @@ public class ImageUploadActivity extends AppCompatActivity {
 
     /**
      * Pass in a local Bitmap from Gallery and get the URI of the Bitmap
+     * Recreated the insertImage method and placed in our own BitmapHelper
+     * Original insertImage method compressed images 50% at all times, but we want control of that
      */
     private Uri getImageUri(Bitmap inBitmap) {
-//        ByteArrayOutputStream bytes = new ByteArrayOutputStream(inBitmap.getByteCount());
-//        inBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
-//        String path = MediaStore.Images.Media.insertImage(this.getContentResolver(), inBitmap, null, null);
         String path = BitmapHelper.insertImage(this.getContentResolver(), inBitmap, null, null);
         return Uri.parse(path);
     }

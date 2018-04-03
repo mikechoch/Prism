@@ -101,6 +101,7 @@ public class ToolbarPullDownLayout extends RelativeLayout {
                     toggleClickEventsOfViewGroup(parentView, false);
                     break;
                 case MotionEvent.ACTION_UP:
+                    performClick();
                     // Check that the screen drag Y percentage threshold and velocity threshold booleans
                     boolean isOverDragThreshold = (1 - Math.abs(viewMovingY * 1.0f / parentView.getHeight() * 1.0f)) < 0.60f;
                     boolean isOverVelocityThreshold = velocityTracker.getYVelocity() > 1250;

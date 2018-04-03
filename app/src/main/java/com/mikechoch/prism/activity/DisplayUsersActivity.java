@@ -89,8 +89,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.users_activity_layout);
 
-        // TODO better documentation and organize this method
-
         // Create two typefaces
         sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
         sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
@@ -101,7 +99,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
         likeRepostProgressBar = findViewById(R.id.like_repost_progress_bar);
         usersRecyclerView = findViewById(R.id.like_repost_users_recycler_view);
 
-        // Setup data structure to be populated with users who liked/reposted the post
+        // Setup data structure to be populated with users who liked/reposted the post or following/followers the user
         prismUserArrayList = new ArrayList<>();
 
         // getIntent and grab the String to populate the Toolbar title
@@ -323,7 +321,9 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
 
     /**
-     * TODO: @Mike any way to sexify this
+     * Hide the likeRepostProgressBar
+     * Show the usersRecyclerView and notifyDataSetChanged on the adapter
+     * Update the toolbarTitle and toolbarTextView (handle singular/ plural title)
      */
     private void finishUIActivities() {
         usersRecyclerView.setVisibility(View.VISIBLE);
@@ -334,7 +334,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
         // Once data is populated set title to the number likes or reposts
         toolbarTitle = prismUserArrayList.size() + " " + toolbarTitle;
         // Make it plural
-        if (!toolbarTitle.equals("Following") && prismUserArrayList.size() > 1) {
+        if (!toolbarTitle.equals("Following") && prismUserArrayList.size() != 1) {
             toolbarTitle += "s";
         }
         toolbarTextView.setText(toolbarTitle);

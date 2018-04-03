@@ -77,7 +77,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
 
-        // Initialize all UI elements
+        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
 
