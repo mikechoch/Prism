@@ -43,6 +43,7 @@ import com.mikechoch.prism.helper.Helper;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+
 public class RegisterActivity extends AppCompatActivity {
 
     /*

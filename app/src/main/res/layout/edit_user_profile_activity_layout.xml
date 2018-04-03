@@ -66,98 +66,169 @@
         <RelativeLayout
             android:id="@+id/edit_account_fields_relative_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="top|center_horizontal"
             android:layout_gravity="top|center_horizontal"
-            android:background="@android:color/transparent">
+            android:background="@android:color/transparent"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/edit_account_name_text_input_layout"
+            <LinearLayout
+                android:id="@+id/edit_account_name_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:theme="@style/TextLabel">
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/edit_account_name_edit_text"
+                <ImageView
+                    android:id="@+id/edit_account_name_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_face_white_36dp"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/edit_account_name_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Full name"
-                    android:inputType="textCapWords"
-                    android:textColor="@android:color/white"/>
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:theme="@style/TextLabel">
 
-            </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/edit_account_name_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Full name"
+                        android:inputType="textCapWords"
+                        android:textColor="@android:color/white"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/edit_account_username_text_input_layout"
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/edit_account_username_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_name_text_input_layout"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:theme="@style/TextLabel">
+                android:layout_below="@id/edit_account_name_linear_layout"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/edit_account_username_edit_text"
+                <ImageView
+                    android:id="@+id/edit_account_username_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_account_white_36dp"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/edit_account_username_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Username"
-                    android:inputType="text"
-                    android:textColor="@android:color/white" />
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:theme="@style/TextLabel">
 
-            </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/edit_account_username_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Username"
+                        android:inputType="text"
+                        android:textColor="@android:color/white" />
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/edit_account_email_text_input_layout"
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/edit_account_password_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_username_text_input_layout"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:theme="@style/TextLabel">
+                android:layout_below="@+id/edit_account_username_linear_layout"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/edit_account_email_edit_text"
+                <ImageView
+                    android:id="@+id/edit_account_password_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_lock_white_36dp"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/edit_account_password_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Email"
-                    android:inputType="textEmailAddress"
-                    android:textColor="@android:color/white"/>
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:theme="@style/TextLabel">
 
-            </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/edit_account_password_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Password"
+                        android:inputType="textPassword"
+                        android:textColor="@android:color/white"
+                        android:longClickable="false"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/edit_account_password_text_input_layout"
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/edit_account_email_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@+id/edit_account_email_text_input_layout"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:theme="@style/TextLabel">
+                android:layout_below="@id/edit_account_password_linear_layout"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/edit_account_password_edit_text"
+                <ImageView
+                    android:id="@+id/edit_account_email_text_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_email_white_36dp"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/edit_account_email_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Password"
-                    android:inputType="textPassword"
-                    android:textColor="@android:color/white"/>
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:theme="@style/TextLabel">
 
-            </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/edit_account_email_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@android:color/white"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/edit_account_submit_button"
@@ -165,7 +236,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_password_text_input_layout"
+                android:layout_below="@id/edit_account_email_linear_layout"
                 android:layout_marginBottom="24dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
@@ -181,7 +252,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_password_text_input_layout"
+                android:layout_below="@id/edit_account_email_linear_layout"
                 android:layout_marginTop="28dp"
                 android:visibility="invisible"
                 android:indeterminate="true"
