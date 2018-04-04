@@ -27,7 +27,7 @@
                     android:id="@+id/toolbar_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/toolbar_image_view"
+                    android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:textSize="20sp"
                     android:textStyle="bold"

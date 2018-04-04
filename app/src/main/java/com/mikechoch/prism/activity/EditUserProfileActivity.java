@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private TextInputLayout emailTextInputLayout;
     private EditText emailEditText;
+    private LinearLayout passwordLinearLayout;
     private TextInputLayout passwordTextInputLayout;
     private EditText passwordEditText;
     private Button editAccountButton;
@@ -94,6 +96,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         fullNameEditText = findViewById(R.id.edit_account_name_edit_text);
         usernameTextInputLayout = findViewById(R.id.edit_account_username_text_input_layout);
         usernameEditText = findViewById(R.id.edit_account_username_edit_text);
+        passwordLinearLayout = findViewById(R.id.edit_account_password_linear_layout);
         passwordTextInputLayout = findViewById(R.id.edit_account_password_text_input_layout);
         passwordEditText = findViewById(R.id.edit_account_password_edit_text);
         emailTextInputLayout = findViewById(R.id.edit_account_email_text_input_layout);
@@ -101,7 +104,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         editAccountButton = findViewById(R.id.edit_account_submit_button);
         editAccountProgressBar = findViewById(R.id.edit_account_progress_bar);
 
-        passwordEditText.setOnClickListener(new View.OnClickListener() {
+        passwordLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.println("Click");
