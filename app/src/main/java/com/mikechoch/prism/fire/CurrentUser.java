@@ -308,8 +308,8 @@ public class CurrentUser {
     private static void generateNotification(DataSnapshot dataSnapshot, boolean isNewNotification) {
         String notificationId = dataSnapshot.getKey();
         NotificationType type = NotificationType.getNotificationType(notificationId);
-        String postId = NotificationType.getNotificationPostId(type, notificationId);
         String mostRecentUid = (String) dataSnapshot.child(Key.NOTIFICATION_MOST_RECENT_USER).getValue();
+
 
         long actionTimestamp = (long) dataSnapshot
                 .child(Key.NOTIFICATION_ACTION_TIMESTAMP).getValue();
@@ -317,40 +317,69 @@ public class CurrentUser {
                 .child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
         boolean viewed = viewedTimestamp > actionTimestamp;
 
+        switch (type) {
+            case LIKE:
+            case REPOST:
+                String postId = NotificationType.getNotificationPostId(type, notificationId);
+                allPostReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot postSnapshot) {
+                        if (postSnapshot.exists()) {
+                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                            prismPost.setPrismUser(CurrentUser.prismUser);
+                            DatabaseReference mostRecentUserRef = Default.USERS_REFERENCE.child(mostRecentUid);
+                            mostRecentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot userSnapshot) {
+                                    PrismUser mostRecentUser = Helper.constructPrismUserObject(userSnapshot);
 
-        allPostReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot postSnapshot) {
-                if (postSnapshot.exists()) {
-                    PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                    prismPost.setPrismUser(CurrentUser.prismUser);
-                    DatabaseReference mostRecentUserRef = Default.USERS_REFERENCE.child(mostRecentUid);
-                    mostRecentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot userSnapshot) {
-                            PrismUser mostRecentUser = Helper.constructPrismUserObject(userSnapshot);
+                                    if (!isNewNotification) {
+                                        Notification oldNotification = notifications_map.get(notificationId);
+                                        notifications.remove(oldNotification);
+                                    }
 
-                            if (!isNewNotification) {
-                                Notification oldNotification = notifications_map.get(notificationId);
-                                notifications.remove(oldNotification);
-                            }
+                                    Notification notification = new Notification(
+                                            type, prismPost, mostRecentUser, actionTimestamp, viewed);
 
-                            Notification notification = new Notification(
-                                    type, prismPost, mostRecentUser, actionTimestamp, viewed);
+                                    notifications.add(0, notification);
+                                    notifications_map.put(notificationId, notification);
 
-                            notifications.add(0, notification);
-                            notifications_map.put(notificationId, notification);
+                                }
+
+                                @Override public void onCancelled(DatabaseError databaseError) { }
+                            });
 
                         }
+                    }
 
-                        @Override public void onCancelled(DatabaseError databaseError) { }
-                    });
+                    @Override public void onCancelled(DatabaseError databaseError) { }
+                });
+                break;
+            case FOLLOW:
+                DatabaseReference mostRecentUserRef = Default.USERS_REFERENCE.child(mostRecentUid);
+                mostRecentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot userSnapshot) {
+                        PrismUser mostRecentUser = Helper.constructPrismUserObject(userSnapshot);
 
-                }
-            }
+                        if (!isNewNotification) {
+                            Notification oldNotification = notifications_map.get(notificationId);
+                            notifications.remove(oldNotification);
+                        }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
-        });
+                        Notification notification = new Notification (
+                                type, null, mostRecentUser, actionTimestamp, viewed);
+
+                        notifications.add(0, notification);
+                        notifications_map.put(notificationId, notification);
+
+                    }
+
+                    @Override public void onCancelled(DatabaseError databaseError) { }
+                });
+                break;
+        }
+
     }
 
 

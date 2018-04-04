@@ -239,7 +239,7 @@ public class DatabaseAction {
 
                     CurrentUser.unfollowUser(prismUser);
 
-                    updateUserNotificaiton(NotificationType.FOLLOW, prismUser, timestamp);
+                    updateUserNotificaiton(NotificationType.UNFOLLOW, prismUser, timestamp);
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
                 }

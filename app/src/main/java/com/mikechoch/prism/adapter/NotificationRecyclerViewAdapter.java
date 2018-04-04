@@ -30,6 +30,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.constants.Key;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 
@@ -130,18 +131,23 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             notificationDescriptionTextView.setText(notificationMessage);
             notificationDescriptionTextView.setTypeface(sourceSansProLight);
             populateProfilePic();
-            populatePrismPostThumbnail();
+
+            if (!notification.getType().equals(NotificationType.FOLLOW)) {
+                populatePrismPostThumbnail();
+            }
 
         }
 
         private void populatePrismPostThumbnail() {
             PrismPost notificationPost = notification.getPrismPost();
-            Glide.with(context)
-                    .asBitmap()
-                    .thumbnail(0.05f)
-                    .load(notificationPost.getImage())
-                    .apply(new RequestOptions().centerCrop())
-                    .into(prismPostThumbnailImageView);
+            if (notificationPost != null) {
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(notificationPost.getImage())
+                        .apply(new RequestOptions().centerCrop())
+                        .into(prismPostThumbnailImageView);
+            }
         }
 
         private void populateProfilePic() {
