@@ -56,5 +56,10 @@ public class Default {
     public static final String BUTTON_DELETE = "DELETE";
     public static final String BUTTON_REPOST = "REPOST";
 
+    // Log Message Tags
     public static final String TAG_DB = "Firebase Database";
+    public static final String TAG_DEBUG = "Debug Output";
+
+    // Timer intervals
+    public static final int NOTIFICATION_UPDATE_INTERVAL = 5000; // milliseconds
 }

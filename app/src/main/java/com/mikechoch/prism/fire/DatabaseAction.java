@@ -59,59 +59,7 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
-        updateNotification(NotificationType.LIKE, prismPost, actionTimestamp);
-    }
-
-    private static void updateNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
-        DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
-                .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
-        String DB_REF = type.getDatabaseRefKey();
-        switch (type) {
-            case LIKE:
-            case REPOST:
-                // like or repost
-                notificationReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        long viewedTimestamp = 0;
-                        if (dataSnapshot.hasChild(Key.NOTIFICATION_VIEWED_TIMESTAMP)) {
-                            viewedTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
-                        }
-                        HashMap<String, Object> notification = new HashMap<>();
-                        notification.put(Key.NOTIFICATION_MOST_RECENT_USER, CurrentUser.prismUser.getUid());
-                        notification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, actionTimestamp);
-                        notification.put(Key.NOTIFICATION_VIEWED_TIMESTAMP, viewedTimestamp);
-                        notificationReference.setValue(notification);
-                    }
-
-                    @Override public void onCancelled(DatabaseError databaseError) { }
-                });
-                break;
-            case UNLIKE:
-            case UNREPOST:
-                allPostsReference.child(prismPost.getPostId()).child(DB_REF).orderByValue().limitToLast(1)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.exists()) {
-                                    String previousRecentUid = dataSnapshot
-                                            .getChildren().iterator().next().getKey();
-                                    long previousActionTimestamp = (long) dataSnapshot
-                                            .getChildren().iterator().next().getValue();
-                                    HashMap<String, Object> updatedNotification = new HashMap<>();
-                                    updatedNotification.put(Key.NOTIFICATION_MOST_RECENT_USER, previousRecentUid);
-                                    updatedNotification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, previousActionTimestamp);
-                                    notificationReference.updateChildren(updatedNotification);
-                                } else {
-                                    notificationReference.removeValue();
-                                }
-                            }
-
-                            @Override public void onCancelled(DatabaseError databaseError) { }
-                        });
-                break;
-        }
+        updatePostNotification(NotificationType.LIKE, prismPost, actionTimestamp);
     }
 
     /**
@@ -133,7 +81,7 @@ public class DatabaseAction {
 
         CurrentUser.unlikePost(prismPost);
 
-        updateNotification(NotificationType.UNLIKE, prismPost, timestamp);
+        updatePostNotification(NotificationType.UNLIKE, prismPost, timestamp);
     }
 
     /**
@@ -155,6 +103,8 @@ public class DatabaseAction {
                 .setValue(timestamp);
 
         CurrentUser.repostPost(prismPost);
+
+        updatePostNotification(NotificationType.REPOST, prismPost, timestamp);
     }
 
     /**
@@ -164,6 +114,7 @@ public class DatabaseAction {
      */
     public static void performUnrepost(PrismPost prismPost) {
         String postId = prismPost.getPostId();
+        long timestamp = Calendar.getInstance().getTimeInMillis();
         DatabaseReference postReference = allPostsReference.child(postId);
 
         postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
@@ -175,6 +126,8 @@ public class DatabaseAction {
                 .removeValue();
 
         CurrentUser.unrepostPost(prismPost);
+
+        updatePostNotification(NotificationType.UNREPOST, prismPost, timestamp);
     }
 
     /**
@@ -251,6 +204,8 @@ public class DatabaseAction {
 
                     CurrentUser.followUser(prismUser);
 
+                    updateUserNotificaiton(NotificationType.FOLLOW, prismUser, timestamp);
+
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
                 }
@@ -269,6 +224,7 @@ public class DatabaseAction {
      */
     public static void unfollowUser(PrismUser prismUser) {
         DatabaseReference userReference = usersReference.child(prismUser.getUid());
+        long timestamp = Calendar.getInstance().getTimeInMillis();
         userReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -283,6 +239,7 @@ public class DatabaseAction {
 
                     CurrentUser.unfollowUser(prismUser);
 
+                    updateUserNotificaiton(NotificationType.FOLLOW, prismUser, timestamp);
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
                 }
@@ -293,6 +250,123 @@ public class DatabaseAction {
                 Log.wtf(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
             }
         });
+    }
+
+    /**
+     * Creates/Updates Notification for LIKE, REPOST
+     * @param type
+     * @param prismPost
+     * @param actionTimestamp
+     */
+    private static void updatePostNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
+        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+        DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
+                .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
+        String DB_REF = type.getDatabaseRefKey();
+        switch (type) {
+            case LIKE:
+            case REPOST:
+                // like or repost
+                notificationReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        long viewedTimestamp = 0;
+                        if (dataSnapshot.hasChild(Key.NOTIFICATION_VIEWED_TIMESTAMP)) {
+                            viewedTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
+                        }
+                        HashMap<String, Object> notification = new HashMap<>();
+                        notification.put(Key.NOTIFICATION_MOST_RECENT_USER, CurrentUser.prismUser.getUid());
+                        notification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, actionTimestamp);
+                        notification.put(Key.NOTIFICATION_VIEWED_TIMESTAMP, viewedTimestamp);
+                        notificationReference.setValue(notification);
+                    }
+
+                    @Override public void onCancelled(DatabaseError databaseError) { }
+                });
+                break;
+
+            case UNLIKE:
+            case UNREPOST:
+                allPostsReference.child(prismPost.getPostId()).child(DB_REF).orderByValue().limitToLast(1)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    String previousRecentUid = dataSnapshot
+                                            .getChildren().iterator().next().getKey();
+                                    long previousActionTimestamp = (long) dataSnapshot
+                                            .getChildren().iterator().next().getValue();
+                                    HashMap<String, Object> updatedNotification = new HashMap<>();
+                                    updatedNotification.put(Key.NOTIFICATION_MOST_RECENT_USER, previousRecentUid);
+                                    updatedNotification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, previousActionTimestamp);
+                                    notificationReference.updateChildren(updatedNotification);
+                                } else {
+                                    notificationReference.removeValue();
+                                }
+                            }
+
+                            @Override public void onCancelled(DatabaseError databaseError) { }
+                        });
+                break;
+        }
+    }
+
+    /**
+     * Creates/Updates for FOLLOW
+     * @param type
+     * @param prismUser
+     * @param actionTimestamp
+     */
+    private static void updateUserNotificaiton(NotificationType type, PrismUser prismUser, long actionTimestamp) {
+        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
+        DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
+                .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
+        String DB_REF = type.getDatabaseRefKey();
+        switch (type) {
+            case FOLLOW:
+                notificationReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        long viewedTimestamp = 0;
+                        if (dataSnapshot.hasChild(Key.NOTIFICATION_VIEWED_TIMESTAMP)) {
+                            viewedTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
+                        }
+                        HashMap<String, Object> notification = new HashMap<>();
+                        notification.put(Key.NOTIFICATION_MOST_RECENT_USER, CurrentUser.prismUser.getUid());
+                        notification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, actionTimestamp);
+                        notification.put(Key.NOTIFICATION_VIEWED_TIMESTAMP, viewedTimestamp);
+                        notificationReference.setValue(notification);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+                break;
+
+            case UNFOLLOW:
+                usersReference.child(prismUser.getUid()).child(DB_REF).orderByValue().limitToLast(1)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    String previousRecentUid = dataSnapshot
+                                            .getChildren().iterator().next().getKey();
+                                    long previousActionTimestamp = (long) dataSnapshot
+                                            .getChildren().iterator().next().getValue();
+                                    HashMap<String, Object> updatedNotification = new HashMap<>();
+                                    updatedNotification.put(Key.NOTIFICATION_MOST_RECENT_USER, previousRecentUid);
+                                    updatedNotification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, previousActionTimestamp);
+                                    notificationReference.updateChildren(updatedNotification);
+                                } else {
+                                    notificationReference.removeValue();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) { }
+                        });
+                break;
+        }
     }
 
     /**
