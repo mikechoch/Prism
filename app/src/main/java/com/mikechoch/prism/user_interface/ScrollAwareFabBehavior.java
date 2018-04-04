@@ -1,4 +1,4 @@
-package com.mikechoch.prism;
+package com.mikechoch.prism.user_interface;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

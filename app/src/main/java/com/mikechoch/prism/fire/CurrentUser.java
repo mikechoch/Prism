@@ -248,19 +248,6 @@ public class CurrentUser {
         notifications = new ArrayList<>();
 
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -326,17 +313,15 @@ public class CurrentUser {
                         public void onDataChange(DataSnapshot userSnapshot) {
                             PrismUser mostRecentUser = Helper.constructPrismUserObject(userSnapshot);
 
+                            if (!isNewNotification) {
+                                Notification oldNotification = notifications_map.get(notificationId);
+                                notifications.remove(oldNotification);
+                            }
+
                             Notification notification = new Notification(
                                     type, prismPost, mostRecentUser, actionTimestamp, viewed);
 
-                            if (isNewNotification) {
-                                notifications.add(0, notification);
-                            } else {
-                                Notification oldNotification = notifications_map.get(notificationId);
-                                notifications.remove(oldNotification);
-                                notifications.add(0, notification);
-                            }
-
+                            notifications.add(0, notification);
                             notifications_map.put(notificationId, notification);
 
                             refreshNotificationRecyclerViewAdapter();

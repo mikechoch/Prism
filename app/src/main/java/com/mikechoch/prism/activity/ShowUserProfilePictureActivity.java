@@ -11,12 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -24,10 +20,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.ZoomControlLinearLayout;
+import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 import com.mikechoch.prism.attribute.PrismUser;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by mikechoch on 3/10/18.

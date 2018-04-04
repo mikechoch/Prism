@@ -4,17 +4,12 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,11 +17,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.mikechoch.prism.CustomAlertDialogBuilder;
+import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.fire.CurrentUser;
-
-import static java.security.AccessController.getContext;
 
 /**
  * Created by mikechoch on 2/18/18.

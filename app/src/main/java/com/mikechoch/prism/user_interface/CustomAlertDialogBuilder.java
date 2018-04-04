@@ -1,12 +1,13 @@
-package com.mikechoch.prism;
+package com.mikechoch.prism.user_interface;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+
+import com.mikechoch.prism.R;
 
 /**
  * Created by mikechoch on 3/20/18.

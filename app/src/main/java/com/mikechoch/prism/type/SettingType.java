@@ -1,12 +1,13 @@
-package com.mikechoch.prism;
+package com.mikechoch.prism.type;
 
+import com.mikechoch.prism.R;
 import com.mikechoch.prism.constants.Default;
 
 /**
  * Created by mikechoch on 2/16/18.
  */
 
-public enum SettingsOption {
+public enum SettingType {
 
     APP("App Settings", R.drawable.ic_settings_white_36dp, Default.SETTINGS_OPTION_APP),
     NOTIFICATION("Notification Settings",  R.drawable.ic_bell_white_36dp, Default.SETTINGS_OPTION_NOTIFICATION),
@@ -19,7 +20,7 @@ public enum SettingsOption {
     private final int optionIcon;
     private final int optionId;
 
-    SettingsOption(String title, int icon, int id) {
+    SettingType(String title, int icon, int id) {
         this.optionTitle = title;
         this.optionIcon = icon;
         this.optionId = id;

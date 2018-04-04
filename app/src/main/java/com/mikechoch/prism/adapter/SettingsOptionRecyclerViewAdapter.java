@@ -14,17 +14,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.SettingsOption;
+import com.mikechoch.prism.type.SettingType;
 import com.mikechoch.prism.activity.LoginActivity;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constants.Default;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by mikechoch on 2/7/18.
@@ -59,12 +53,12 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setData(SettingsOption.values()[position]);
+        holder.setData(SettingType.values()[position]);
     }
 
     @Override
     public int getItemCount() {
-        return SettingsOption.values().length;
+        return SettingType.values().length;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -73,7 +67,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         private TextView settingsOptionTextView;
         private ImageView settingsOptionImageView;
 
-        private SettingsOption settingsOption;
+        private SettingType settingType;
 
 
         public ViewHolder(View itemView) {
@@ -88,20 +82,20 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         /**
          * Set data for the ViewHolder UI elements
          */
-        public void setData(SettingsOption settingsOption) {
-            this.settingsOption = settingsOption;
+        public void setData(SettingType settingType) {
+            this.settingType = settingType;
             populateUIElements();
         }
 
         /**
          * settingsOptionRelativeLayout
-         * Set the onClickListener switch statement for each SettingsOption
+         * Set the onClickListener switch statement for each SettingType
          */
         private void setupSettingsOptionRelativeLayout() {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int settingOptionId = settingsOption.getOptionId();
+                    int settingOptionId = settingType.getOptionId();
                     switch(settingOptionId) {
                         case Default.SETTINGS_OPTION_APP:
                             break;
@@ -129,18 +123,18 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
 
         /**
          * settingsOptionTextView
-         * Get the SettingsOption enum title and populate the TextView
+         * Get the SettingType enum title and populate the TextView
          */
         private void setupSettingsOptionTextView() {
-            settingsOptionTextView.setText(settingsOption.getOptionTitle());
+            settingsOptionTextView.setText(settingType.getOptionTitle());
         }
 
         /**
          * settingsOptionImageView
-         * Get the SettingsOption enum icon and populate the ImageView
+         * Get the SettingType enum icon and populate the ImageView
          */
         private void setupSettingsOptionImageView() {
-            Drawable settingsIcon = context.getResources().getDrawable(settingsOption.getOptionIcon());
+            Drawable settingsIcon = context.getResources().getDrawable(settingType.getOptionIcon());
             settingsIcon.setTint(Color.WHITE);
             settingsOptionImageView.setImageDrawable(settingsIcon);
         }

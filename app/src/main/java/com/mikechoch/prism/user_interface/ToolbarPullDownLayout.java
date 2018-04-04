@@ -1,4 +1,4 @@
-package com.mikechoch.prism;
+package com.mikechoch.prism.user_interface;
 
 import android.app.Activity;
 import android.content.Context;
