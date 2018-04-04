@@ -104,12 +104,23 @@ public class EditUserProfileActivity extends AppCompatActivity {
         editAccountButton = findViewById(R.id.edit_account_submit_button);
         editAccountProgressBar = findViewById(R.id.edit_account_progress_bar);
 
-        passwordLinearLayout.setOnClickListener(new View.OnClickListener() {
+        passwordEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Click");
+                System.out.println("Clicked");
                 CustomAlertDialogBuilder changePasswordAlertDialog = createSetPasswordAlertDialog();
                 changePasswordAlertDialog.show();
+            }
+        });
+
+        passwordEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    System.out.println("Focused");
+                    CustomAlertDialogBuilder changePasswordAlertDialog = createSetPasswordAlertDialog();
+                    changePasswordAlertDialog.show();
+                }
             }
         });
 
