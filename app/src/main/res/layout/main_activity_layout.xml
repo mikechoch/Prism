@@ -141,6 +141,6 @@
         app:layout_anchorGravity="bottom|right|end"
         app:rippleColor="@android:color/white"
         app:borderWidth="0dp"
-        app:layout_behavior="com.mikechoch.prism.ScrollAwareFabBehavior"/>
+        app:layout_behavior="com.mikechoch.prism.user_interface.ScrollAwareFabBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>

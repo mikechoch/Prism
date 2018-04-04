@@ -35,18 +35,18 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:layout_collapseMode="pin">
 
-                <com.mikechoch.prism.ToolbarPullDownLayout
+                <com.mikechoch.prism.user_interface.ToolbarPullDownLayout
                     android:id="@+id/pull_down_relative_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="start|top"
                     android:background="@null">
 
-                </com.mikechoch.prism.ToolbarPullDownLayout>
+                </com.mikechoch.prism.user_interface.ToolbarPullDownLayout>
 
             </android.support.v7.widget.Toolbar>
 
-            <com.mikechoch.prism.ZoomControlLinearLayout
+            <com.mikechoch.prism.user_interface.ZoomControlLinearLayout
                 android:id="@+id/prism_post_detail_zoom_control_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -62,7 +62,7 @@
                     android:layout_gravity="center"
                     app:layout_collapseMode="parallax"/>
 
-            </com.mikechoch.prism.ZoomControlLinearLayout>
+            </com.mikechoch.prism.user_interface.ZoomControlLinearLayout>
 
             <ImageView
                 android:id="@+id/collapsing_toolbar_drag_arrow"

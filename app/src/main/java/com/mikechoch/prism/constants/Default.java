@@ -37,7 +37,7 @@ public class Default {
     public static final int USER_POSTS_VIEW_PAGER_POSTS = 0;
     public static final int USER_POSTS_VIEW_PAGER_LIKES = 1;
 
-    // SettingsOption
+    // SettingType
     public static final int SETTINGS_OPTION_APP = 0;
     public static final int SETTINGS_OPTION_NOTIFICATION = 1;
     public static final int SETTINGS_OPTION_ACCOUNT = 2;

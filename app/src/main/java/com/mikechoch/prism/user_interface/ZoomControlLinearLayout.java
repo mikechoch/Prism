@@ -1,17 +1,14 @@
-package com.mikechoch.prism;
+package com.mikechoch.prism.user_interface;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.VelocityTracker;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+
+import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 
 import java.text.DecimalFormat;
 

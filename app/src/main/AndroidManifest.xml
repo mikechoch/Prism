@@ -68,7 +68,6 @@
 
         <activity
             android:name=".activity.PrismPostDetailActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/PullLayoutAppTheme"/>
 
     </application>
