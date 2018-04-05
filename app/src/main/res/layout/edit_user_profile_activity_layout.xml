@@ -95,7 +95,10 @@
                         android:layout_height="wrap_content"
                         android:hint="Full name"
                         android:inputType="textCapWords"
-                        android:textColor="@android:color/white"/>
+                        android:textColor="@android:color/white"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:longClickable="false"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -134,7 +137,10 @@
                         android:layout_height="wrap_content"
                         android:hint="Username"
                         android:inputType="text"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:longClickable="false"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -217,7 +223,10 @@
                         android:layout_height="wrap_content"
                         android:hint="Email"
                         android:inputType="textEmailAddress"
-                        android:textColor="@android:color/white"/>
+                        android:textColor="@android:color/white"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:longClickable="false"/>
 
                 </android.support.design.widget.TextInputLayout>
 

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
@@ -187,7 +188,7 @@ public class InterfaceAction {
      * AlertDialog to confirm the repost of a post
      */
     public static AlertDialog createRepostConfirmationAlertDialog(Context context, PrismPost prismPost, ImageView repostActionButton, TextView repostCountTextView) {
-        AlertDialog.Builder repostConfirmationAlertDialogBuilder = new AlertDialog.Builder(context);
+        AlertDialog.Builder repostConfirmationAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         repostConfirmationAlertDialogBuilder.setTitle("This post will be shown on your profile, do you want to repost?");
         repostConfirmationAlertDialogBuilder
                 .setPositiveButton(Default.BUTTON_REPOST, new DialogInterface.OnClickListener() {
@@ -220,9 +221,13 @@ public class InterfaceAction {
      * AlertDialog that shows several options to the user when the moreActionButton is clicked
      * Report and SHare will show for all users
      * Delete will only show for user who posted the post
+     * @param context
+     * @param prismPost
+     * @param isCurrentUser
+     * @return finalized AlertDialog for more button click
      */
     public static AlertDialog createMorePrismPostAlertDialog(Context context, PrismPost prismPost, boolean isCurrentUser) {
-        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(context);
+        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         profilePictureAlertDialog.setItems(isCurrentUser ? morePostOptionsCurrentUser : morePostOptions, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -250,9 +255,12 @@ public class InterfaceAction {
 
     /**
      * AlertDialog to confirm the deletion of a post
+     * @param context
+     * @param prismPost
+     * @return finalized AlertDialog for deleting a post
      */
     private static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
-        AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(context);
+        AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         exitAlertDialogBuilder.setTitle("Are you sure you want to delete this post?");
         exitAlertDialogBuilder.setPositiveButton(Default.BUTTON_DELETE, new DialogInterface.OnClickListener() {
             @Override
@@ -267,6 +275,30 @@ public class InterfaceAction {
             }
         });
         return exitAlertDialogBuilder.create();
+    }
+
+    /**
+     * AlertDialog to confirm the unfollowing a PrismUser
+     * @param context
+     * @param prismUser
+     * @return finalized AlertDialog for unfollowing a PrismUser
+     */
+    public static AlertDialog createUnfollowConfirmationAlertDialog(Context context, PrismUser prismUser) {
+        AlertDialog.Builder unfollowAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
+        unfollowAlertDialogBuilder.setTitle("Are you sure you want to unfollow this user?");
+        unfollowAlertDialogBuilder.setPositiveButton(Default.BUTTON_UNFOLLOW, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        return unfollowAlertDialogBuilder.create();
     }
 
 }

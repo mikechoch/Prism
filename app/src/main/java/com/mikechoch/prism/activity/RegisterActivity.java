@@ -468,7 +468,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
         usernameTextInputLayout.setErrorEnabled(false);
         return true;
-
     }
 
     /**

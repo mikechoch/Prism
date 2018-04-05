@@ -52,9 +52,12 @@ public class Default {
     public static final String USERNAME_PERIOD_REPLACE = "-";
 
     // Button Strings
+    public static final String BUTTON_OK = "OK";
+    public static final String BUTTON_SAVE = "SAVE";
     public static final String BUTTON_CANCEL = "CANCEL";
     public static final String BUTTON_DELETE = "DELETE";
     public static final String BUTTON_REPOST = "REPOST";
+    public static final String BUTTON_UNFOLLOW = "UNFOLLOW";
 
     // Log Message Tags
     public static final String TAG_DB = "Firebase Database";
