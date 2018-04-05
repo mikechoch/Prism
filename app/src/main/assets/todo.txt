@@ -25,3 +25,58 @@
 - Image title/caption on main page
 - Tags
 
+
+DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
+        accountReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(newUsername)) {
+                    usernameTextInputLayout.setError("Username is taken. Try again");
+                    return;
+                }
+                String email = (String) dataSnapshot.child(oldUsername).getValue();
+                accountReference.child(oldUsername).removeValue();
+                accountReference.child(newUsername).setValue(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            currentUserReference.child(Key.USER_PROFILE_USERNAME).setValue(newUsername)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(newUsername)
+                                                        .build();
+                                                CurrentUser.firebaseUser.updateProfile(profileUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            usernameEditText.setText(newUsername);
+                                                            CurrentUser.prismUser.setUsername(newUsername);
+                                                            toast(Message.USERNAME_UPDATE_SUCCESS);
+                                                        } else {
+                                                            Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
+                                                            toast(Message.USERNAME_UPDATE_FAIL);
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+
+                                                Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
+                                                toast(Message.USERNAME_UPDATE_FAIL);
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
+                            toast(Message.USERNAME_UPDATE_FAIL);
+                        }
+                    }
+                });
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
