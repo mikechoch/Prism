@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,10 +37,11 @@ import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.constants.Key;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constants.Message;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.ProfileHelper;
 
 import java.util.Random;
-import java.util.regex.Pattern;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -133,7 +133,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isFullNameValid(s.toString().trim());
+                            ProfileHelper.isFullNameValid(s.toString().trim(), fullNameTextInputLayout);
                         }
                     }
                 }, 2000);
@@ -158,7 +158,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isUsernameValid(s.toString().trim());
+                            ProfileHelper.isUsernameValid(s.toString().trim(), usernameTextInputLayout);
                         }
                     }
                 }, 2000);
@@ -185,7 +185,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isEmailValid(s.toString().trim());
+                            ProfileHelper.isEmailValid(s.toString().trim(), emailTextInputLayout);
                         }
                     }
                 }, 2000);
@@ -212,7 +212,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isPasswordValid(s.toString().trim());
+                            ProfileHelper.isPasswordValid(s.toString().trim(), passwordTextInputLayout);
                         }
                     }
                 }, 2000);
@@ -389,115 +389,11 @@ public class RegisterActivity extends AppCompatActivity {
      * Verify that all inputs to the EditText fields are valid
      */
     private boolean areInputsValid(String fullName, String username, String email, String password) {
-        boolean isFullNameValid = isFullNameValid(fullName);
-        boolean isUsernameValid = isUsernameValid(username);
-        boolean isEmailValid = isEmailValid(email);
-        boolean isPasswordValid = isPasswordValid(password);
+        boolean isFullNameValid = ProfileHelper.isFullNameValid(fullName, fullNameTextInputLayout);
+        boolean isUsernameValid = ProfileHelper.isUsernameValid(username, usernameTextInputLayout);
+        boolean isEmailValid = ProfileHelper.isEmailValid(email, emailTextInputLayout);
+        boolean isPasswordValid = ProfileHelper.isPasswordValid(password, passwordTextInputLayout);
         return isFullNameValid && isUsernameValid && isEmailValid && isPasswordValid;
-    }
-
-    /**
-     * @param fullName
-     * @return: runs the current fullName through several checks to verify it is valid
-     */
-    private boolean isFullNameValid(String fullName) {
-        if (fullName.length() < 2) {
-            fullNameTextInputLayout.setError("Name must be at least 2 characters long");
-            return false;
-        }
-        if (fullName.length() > 70) {
-            fullNameTextInputLayout.setError("Name cannot be longer than 70 characters");
-            return false;
-        }
-        if (!Pattern.matches("^[a-zA-Z ']+", fullName)) {
-            fullNameTextInputLayout.setError("Name can only contain letters, space, and apostrophe");
-            return false;
-        }
-        if (Pattern.matches(".*(.)\\1{3,}.*", fullName)) {
-            fullNameTextInputLayout.setError("Name cannot contain more than 3 repeating characters");
-            return false;
-        }
-        if (Pattern.matches(".*(['])\\1{1,}.*", fullName)) {
-            fullNameTextInputLayout.setError("Name cannot contain more than 1 apostrophe");
-            return false;
-        }
-        if (!Character.isAlphabetic(fullName.charAt(0))) {
-            fullNameTextInputLayout.setError("Name must start with a letter");
-            return false;
-        }
-        if (fullName.endsWith("'")) {
-            fullNameTextInputLayout.setError("Name must end with a letter");
-            return false;
-        }
-        fullNameTextInputLayout.setErrorEnabled(false);
-        return true;
-    }
-
-    /**
-     * @param username
-     * @return: runs the current username through several checks to verify it is valid
-     */
-    private boolean isUsernameValid(String username) {
-        if (username.length() < 5) {
-            usernameTextInputLayout.setError("Username must be as least 5 characters long");
-            return false;
-        }
-        if (username.length() > 30) {
-            usernameTextInputLayout.setError("Username cannot be longer than 30 characters");
-            return false;
-        }
-        if (!Pattern.matches("^[a-z0-9._']+", username)) {
-            usernameTextInputLayout.setError("Username can only contain lowercase letters, numbers, period, and underscore");
-            return false;
-        }
-        if (Pattern.matches(".*([a-z0-9])\\1{5,}.*", username)) {
-            usernameTextInputLayout.setError("Username cannot contain more than 3 repeating characters");
-            return false;
-        }
-        if (Pattern.matches(".*([._]){2,}.*", username)) {
-            usernameTextInputLayout.setError("Username cannot contain more than 1 repeating symbol");
-            return false;
-        }
-        if (!Character.isAlphabetic(username.charAt(0))) {
-            usernameTextInputLayout.setError("Username must start with a letter");
-            return false;
-        }
-        if (username.endsWith("_") || username.endsWith(".")) {
-            usernameTextInputLayout.setError("Username must end with a letter or number");
-            return false;
-        }
-        usernameTextInputLayout.setErrorEnabled(false);
-        return true;
-
-    }
-
-    /**
-     * @param email
-     * @return: runs the current email through several checks to verify it is valid
-     */
-    private boolean isEmailValid(String email) {
-        if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailTextInputLayout.setErrorEnabled(false);
-            return true;
-        } else {
-            emailTextInputLayout.setError("Invalid email");
-            return false;
-        }
-    }
-
-    /**
-     * @param password
-     * @return: runs the current password through several checks to verify it is valid
-     */
-    private boolean isPasswordValid(String password) {
-        // TODO: Add more checks for valid password?
-        if (password.length() > 5) {
-            passwordTextInputLayout.setErrorEnabled(false);
-            return true;
-        } else {
-            passwordTextInputLayout.setError("Password must be at least 6 characters long");
-            return false;
-        }
     }
 
     /**

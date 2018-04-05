@@ -209,8 +209,36 @@ public class EditUserProfileActivity extends AppCompatActivity {
         fullNameEditText.setText(CurrentUser.prismUser.getFullName());
         usernameEditText.setText(CurrentUser.prismUser.getUsername());
         passwordEditText.setText("********");
-//        emailEditText.setText();
+        emailEditText.setText(CurrentUser.firebaseUser.getEmail());
 
+    }
+
+
+    private void updateFullName(String newFullName) {
+        // TODO update in
+        // 1) USERS -> CurrentUser.uid -> "fullname"
+        
+    }
+
+    private void updateUsername(String newUsername) {
+        // TODO check new username isn't taken
+        // TODO update in
+        // 1) ACCOUNTS -> CurrentUser.username
+        // 2) USERS -> CurrentUser.uid -> "username"
+        // 3) FirebaseUser.displayname
+    }
+
+    private void updatePassword(String newPassword) {
+        // TODO update in
+        // 1) FirebaseUser.newPassword
+    }
+
+    private void updateEmail(String newEmail) {
+        // TODO check new email isn't taken
+        // TODO update in
+        // TODO ReAuthenticate
+        // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
+        // 2) FirebaseUser.newEmail
     }
 
 }
