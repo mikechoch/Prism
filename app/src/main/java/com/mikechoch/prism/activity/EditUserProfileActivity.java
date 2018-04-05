@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -104,11 +105,37 @@ public class EditUserProfileActivity extends AppCompatActivity {
         editAccountButton = findViewById(R.id.edit_account_submit_button);
         editAccountProgressBar = findViewById(R.id.edit_account_progress_bar);
 
+        // Focusable is set false in XML for passwordEditText
+        // When clicked an AlertDialog will be opened for changing the user's password
+        fullNameEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CustomAlertDialogBuilder changeFullNameAlertDialog = createSetFullNameAlertDialog();
+                changeFullNameAlertDialog.show();
+            }
+        });
+
+        usernameEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CustomAlertDialogBuilder changeUsernameAlertDialog = createSetUsernameAlertDialog();
+                changeUsernameAlertDialog.show();
+            }
+        });
+
         passwordEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CustomAlertDialogBuilder changePasswordAlertDialog = createSetPasswordAlertDialog();
                 changePasswordAlertDialog.show();
+            }
+        });
+
+        emailEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CustomAlertDialogBuilder changeEmailAlertDialog = createSetEmailAlertDialog();
+                changeEmailAlertDialog.show();
             }
         });
 
@@ -119,6 +146,113 @@ public class EditUserProfileActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     */
+    private CustomAlertDialogBuilder createSetFullNameAlertDialog() {
+        View changeFullNameView = getLayoutInflater().inflate(R.layout.change_full_name_alert_dialog_layout, null);
+        RelativeLayout changeFullNameRelativeLayout = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_relative_layout);
+
+        TextInputLayout fullNameTextInputLayout = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_text_input_layout);
+        EditText fullNameEditText = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_edit_text);
+        ProgressBar changeFullNameProgressBar = changeFullNameView.findViewById(R.id.change_full_name_progress_bar);
+
+        fullNameTextInputLayout.setTypeface(sourceSansProLight);
+        fullNameEditText.setTypeface(sourceSansProLight);
+
+        String fullNameString = this.fullNameEditText.getText().toString();
+        fullNameEditText.setText(fullNameString);
+        fullNameEditText.setSelection(fullNameString.length());
+
+        //TODO: Add TextWatcher and error checking here for fullNameEditText
+
+        CustomAlertDialogBuilder changeFullNameAlertDialog = new CustomAlertDialogBuilder(this, changeFullNameRelativeLayout);
+        changeFullNameAlertDialog.setView(changeFullNameRelativeLayout);
+        changeFullNameAlertDialog.setIsCancelable(true);
+        changeFullNameAlertDialog.setCanceledOnTouchOutside(false);
+        changeFullNameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO: add error checking for Old Password
+
+                changeFullNameProgressBar.setVisibility(View.VISIBLE);
+
+                fullNameTextInputLayout.setEnabled(false);
+                fullNameEditText.setEnabled(false);
+                changeFullNameAlertDialog.getPositiveButtonElement().setEnabled(false);
+                changeFullNameAlertDialog.getNegativeButtonElement().setEnabled(false);
+
+                changeFullNameAlertDialog.setIsCancelable(false);
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, null
+        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+            }
+        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+            }
+        });
+        return changeFullNameAlertDialog;
+    }
+
+    /**
+     *
+     */
+    private CustomAlertDialogBuilder createSetUsernameAlertDialog() {
+        View changeUsernameView = getLayoutInflater().inflate(R.layout.change_username_alert_dialog_layout, null);
+        RelativeLayout changeUsernameRelativeLayout = changeUsernameView.findViewById(R.id.change_username_alert_dialog_relative_layout);
+
+        TextInputLayout usernameTextInputLayout = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_text_input_layout);
+        EditText usernameEditText = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_edit_text);
+        ProgressBar changeUsernameProgressBar = changeUsernameView.findViewById(R.id.change_username_progress_bar);
+
+        usernameTextInputLayout.setTypeface(sourceSansProLight);
+        usernameEditText.setTypeface(sourceSansProLight);
+
+        String usernameString = this.usernameEditText.getText().toString();
+        usernameEditText.setText(usernameString);
+        usernameEditText.setSelection(usernameString.length());
+
+        //TODO: Add TextWatcher and error checking here for usernameEditText
+
+        CustomAlertDialogBuilder changeUsernameAlertDialog = new CustomAlertDialogBuilder(this, changeUsernameRelativeLayout);
+        changeUsernameAlertDialog.setView(changeUsernameRelativeLayout);
+        changeUsernameAlertDialog.setIsCancelable(true);
+        changeUsernameAlertDialog.setCanceledOnTouchOutside(false);
+        changeUsernameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO: add error checking for Old Password
+
+                changeUsernameProgressBar.setVisibility(View.VISIBLE);
+
+                usernameTextInputLayout.setEnabled(false);
+                usernameEditText.setEnabled(false);
+                changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(false);
+                changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(false);
+
+                changeUsernameAlertDialog.setIsCancelable(false);
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, null
+        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+            }
+        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+            }
+        });
+
+        return changeUsernameAlertDialog;
     }
 
     /**
@@ -146,25 +280,29 @@ public class EditUserProfileActivity extends AppCompatActivity {
         newPasswordTextInputLayout.setTypeface(sourceSansProLight);
         newPasswordEditText.setTypeface(sourceSansProLight);
 
-        CustomAlertDialogBuilder profilePictureAlertDialog = new CustomAlertDialogBuilder(this, changePasswordRelativeLayout);
-        profilePictureAlertDialog.setView(changePasswordRelativeLayout);
-        profilePictureAlertDialog.setIsCancelable(true);
-        profilePictureAlertDialog.setCanceledOnTouchOutside(false);
-        profilePictureAlertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        //TODO: Add TextWatcher and error checking here for passwords?????
+
+        CustomAlertDialogBuilder changePasswordAlertDialog = new CustomAlertDialogBuilder(this, changePasswordRelativeLayout);
+        changePasswordAlertDialog.setView(changePasswordRelativeLayout);
+        changePasswordAlertDialog.setIsCancelable(true);
+        changePasswordAlertDialog.setCanceledOnTouchOutside(false);
+        changePasswordAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //TODO: add error checking for Old Password
+
                 changePasswordProgressBar.setVisibility(View.VISIBLE);
 
                 oldPasswordTextInputLayout.setEnabled(false);
                 oldPasswordEditText.setEnabled(false);
                 newPasswordTextInputLayout.setEnabled(false);
                 newPasswordEditText.setEnabled(false);
-                profilePictureAlertDialog.getPositiveButtonElement().setEnabled(false);
-                profilePictureAlertDialog.getNegativeButtonElement().setEnabled(false);
+                changePasswordAlertDialog.getPositiveButtonElement().setEnabled(false);
+                changePasswordAlertDialog.getNegativeButtonElement().setEnabled(false);
 
-                profilePictureAlertDialog.setIsCancelable(false);
+                changePasswordAlertDialog.setIsCancelable(false);
             }
-        }).setNegativeButton("CANCEL", null
+        }).setNegativeButton(Default.BUTTON_CANCEL, null
         ).setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -177,7 +315,61 @@ public class EditUserProfileActivity extends AppCompatActivity {
             }
         });
 
-        return profilePictureAlertDialog;
+        return changePasswordAlertDialog;
+    }
+
+    /**
+     *
+     */
+    private CustomAlertDialogBuilder createSetEmailAlertDialog() {
+        View changeEmailView = getLayoutInflater().inflate(R.layout.change_email_alert_dialog_layout, null);
+        RelativeLayout changeEmailRelativeLayout = changeEmailView.findViewById(R.id.change_email_alert_dialog_relative_layout);
+
+        TextInputLayout emailTextInputLayout = changeEmailView.findViewById(R.id.change_email_alert_dialog_email_text_input_layout);
+        EditText emailEditText = changeEmailView.findViewById(R.id.change_email_alert_dialog_email_edit_text);
+        ProgressBar changeEmailProgressBar = changeEmailView.findViewById(R.id.change_email_progress_bar);
+
+        emailTextInputLayout.setTypeface(sourceSansProLight);
+        emailEditText.setTypeface(sourceSansProLight);
+
+        String emailString = this.emailEditText.getText().toString();
+        emailEditText.setText(emailString);
+        emailEditText.setSelection(emailString.length());
+
+        //TODO: Add TextWatcher and error checking here for emailEditText
+
+        CustomAlertDialogBuilder changeEmailAlertDialog = new CustomAlertDialogBuilder(this, changeEmailRelativeLayout);
+        changeEmailAlertDialog.setView(changeEmailRelativeLayout);
+        changeEmailAlertDialog.setIsCancelable(true);
+        changeEmailAlertDialog.setCanceledOnTouchOutside(false);
+        changeEmailAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO: add error checking for Old Password
+
+                changeEmailProgressBar.setVisibility(View.VISIBLE);
+
+                emailTextInputLayout.setEnabled(false);
+                emailEditText.setEnabled(false);
+                changeEmailAlertDialog.getPositiveButtonElement().setEnabled(false);
+                changeEmailAlertDialog.getNegativeButtonElement().setEnabled(false);
+
+                changeEmailAlertDialog.setIsCancelable(false);
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, null
+        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+            }
+        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+            }
+        });
+
+        return changeEmailAlertDialog;
     }
 
     /**

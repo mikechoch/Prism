@@ -59,6 +59,7 @@ import com.mikechoch.prism.constants.Key;
 import com.mikechoch.prism.constants.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -507,7 +508,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Gives the option to take a picture or select one from gallery
      */
     private AlertDialog createSetProfilePictureAlertDialog() {
-        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
         profilePictureAlertDialog.setTitle("Set profile picture");
         profilePictureAlertDialog.setItems(setProfilePicStrings, new DialogInterface.OnClickListener() {
             @Override
@@ -778,6 +779,9 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         } else {
             toggleFollowButtons(false);
             DatabaseAction.unfollowUser(prismUser);
+
+            AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(this, prismUser);
+            unfollowAlertDialog.show();
         }
     }
 
