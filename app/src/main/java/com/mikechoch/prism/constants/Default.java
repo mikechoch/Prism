@@ -65,4 +65,6 @@ public class Default {
 
     // Timer intervals
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000; // milliseconds
+
+    public static final String HIDDEN_PASSWORD = "********";
 }

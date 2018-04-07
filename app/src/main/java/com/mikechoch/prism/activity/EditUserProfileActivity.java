@@ -23,6 +23,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,6 +73,16 @@ public class EditUserProfileActivity extends AppCompatActivity {
     private ProgressBar editAccountProgressBar;
 
     private DatabaseReference currentUserReference;
+    private TextInputLayout usernameTextInputLayout1;
+    private EditText usernameEditText1;
+    private ProgressBar changeUsernameProgressBar;
+    private CustomAlertDialogBuilder changeUsernameAlertDialog;
+    private ProgressBar changePasswordProgressBar;
+    private TextInputLayout oldPasswordTextInputLayout;
+    private EditText oldPasswordEditText;
+    private TextInputLayout newPasswordTextInputLayout;
+    private EditText newPasswordEditText;
+    private CustomAlertDialogBuilder changePasswordAlertDialog;
 
 
     @Override
@@ -231,55 +244,68 @@ public class EditUserProfileActivity extends AppCompatActivity {
         View changeUsernameView = getLayoutInflater().inflate(R.layout.change_username_alert_dialog_layout, null);
         RelativeLayout changeUsernameRelativeLayout = changeUsernameView.findViewById(R.id.change_username_alert_dialog_relative_layout);
 
-        TextInputLayout usernameTextInputLayout = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_text_input_layout);
-        EditText usernameEditText = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_edit_text);
-        ProgressBar changeUsernameProgressBar = changeUsernameView.findViewById(R.id.change_username_progress_bar);
+        usernameTextInputLayout1 = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_text_input_layout);
+        usernameEditText1 = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_edit_text);
+        changeUsernameProgressBar = changeUsernameView.findViewById(R.id.change_username_progress_bar);
 
-        usernameTextInputLayout.setTypeface(sourceSansProLight);
-        usernameEditText.setTypeface(sourceSansProLight);
+        usernameTextInputLayout1.setTypeface(sourceSansProLight);
+        usernameEditText1.setTypeface(sourceSansProLight);
 
         String usernameString = this.usernameEditText.getText().toString();
-        usernameEditText.setText(usernameString);
-        usernameEditText.setSelection(usernameString.length());
+        usernameEditText1.setText(usernameString);
+        usernameEditText1.setSelection(usernameString.length());
 
         //TODO: Add TextWatcher and error checking here for usernameEditText
 
-        CustomAlertDialogBuilder changeUsernameAlertDialog = new CustomAlertDialogBuilder(this, changeUsernameRelativeLayout);
+        changeUsernameAlertDialog = new CustomAlertDialogBuilder(this, changeUsernameRelativeLayout);
         changeUsernameAlertDialog.setView(changeUsernameRelativeLayout);
         changeUsernameAlertDialog.setIsCancelable(true);
         changeUsernameAlertDialog.setCanceledOnTouchOutside(false);
         changeUsernameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO: add error checking for Old Password
-                String newUsername = usernameEditText.getText().toString().trim();
-                if (!newUsername.equals(usernameString) && ProfileHelper.isUsernameValid(newUsername, usernameTextInputLayout)) {
-                    changeUsernameProgressBar.setVisibility(View.VISIBLE);
-                    usernameTextInputLayout.setEnabled(false);
-                    usernameEditText.setEnabled(false);
-                    changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(false);
-                    changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(false);
-                    changeUsernameAlertDialog.setIsCancelable(false);
-
-                    updateUsername(usernameString, newUsername, dialog);
+                String newUsername = usernameEditText1.getText().toString().trim();
+                if (!newUsername.equals(usernameString) && ProfileHelper.isUsernameValid(newUsername, usernameTextInputLayout1)) {
+                    toggleUsernameAlertDialogAttributes(true);
+                    updateUsername(usernameString, newUsername, dialog, usernameTextInputLayout1);
                 } else {
                     dialog.dismiss();
                 }
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null
-        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
+        });
+        changeUsernameAlertDialog.setNegativeButton(Default.BUTTON_CANCEL, null);
+        changeUsernameAlertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onDismiss(DialogInterface dialog) {
-
-            }
-        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onDismiss(DialogInterface dialog) { }
+        });
+        changeUsernameAlertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
-            public void onCancel(DialogInterface dialog) {
-
-            }
+            public void onCancel(DialogInterface dialog) { }
         });
 
         return changeUsernameAlertDialog;
+    }
+
+    private void toggleUsernameAlertDialogAttributes(boolean disableAttributes) {
+        int visibility = disableAttributes ? View.VISIBLE : View.GONE;
+        changeUsernameProgressBar.setVisibility(visibility);
+        usernameTextInputLayout1.setEnabled(!disableAttributes);
+        usernameEditText1.setEnabled(!disableAttributes);
+        changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(!disableAttributes);
+        changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(!disableAttributes);
+        changeUsernameAlertDialog.setIsCancelable(!disableAttributes);
+    }
+
+    private void togglePasswordAlertDialogAttributes(boolean disableAttributes) {
+        int visibility = disableAttributes ? View.VISIBLE : View.GONE;
+        changePasswordProgressBar.setVisibility(visibility);
+        oldPasswordTextInputLayout.setEnabled(!disableAttributes);
+        oldPasswordEditText.setEnabled(!disableAttributes);
+        newPasswordTextInputLayout.setEnabled(!disableAttributes);
+        newPasswordEditText.setEnabled(!disableAttributes);
+        changePasswordAlertDialog.getPositiveButtonElement().setEnabled(!disableAttributes);
+        changePasswordAlertDialog.getNegativeButtonElement().setEnabled(!disableAttributes);
+        changePasswordAlertDialog.setIsCancelable(!disableAttributes);
     }
 
     /**
@@ -291,11 +317,11 @@ public class EditUserProfileActivity extends AppCompatActivity {
         View changePasswordView = getLayoutInflater().inflate(R.layout.change_password_alert_dialog_layout, null);
         RelativeLayout changePasswordRelativeLayout = changePasswordView.findViewById(R.id.change_password_alert_dialog_relative_layout);
 
-        TextInputLayout oldPasswordTextInputLayout = changePasswordView.findViewById(R.id.change_password_alert_dialog_old_password_text_input_layout);
-        EditText oldPasswordEditText = changePasswordView.findViewById(R.id.change_password_alert_dialog_old_password_edit_text);
-        TextInputLayout newPasswordTextInputLayout = changePasswordView.findViewById(R.id.change_password_alert_dialog_new_password_text_input_layout);
-        EditText newPasswordEditText = changePasswordView.findViewById(R.id.change_password_alert_dialog_new_password_edit_text);
-        ProgressBar changePasswordProgressBar = changePasswordView.findViewById(R.id.change_password_progress_bar);
+        oldPasswordTextInputLayout = changePasswordView.findViewById(R.id.change_password_alert_dialog_old_password_text_input_layout);
+        oldPasswordEditText = changePasswordView.findViewById(R.id.change_password_alert_dialog_old_password_edit_text);
+        newPasswordTextInputLayout = changePasswordView.findViewById(R.id.change_password_alert_dialog_new_password_text_input_layout);
+        newPasswordEditText = changePasswordView.findViewById(R.id.change_password_alert_dialog_new_password_edit_text);
+        changePasswordProgressBar = changePasswordView.findViewById(R.id.change_password_progress_bar);
 
         oldPasswordTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         oldPasswordTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
@@ -309,7 +335,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
         //TODO: Add TextWatcher and error checking here for passwords?????
 
-        CustomAlertDialogBuilder changePasswordAlertDialog = new CustomAlertDialogBuilder(this, changePasswordRelativeLayout);
+        changePasswordAlertDialog = new CustomAlertDialogBuilder(this, changePasswordRelativeLayout);
         changePasswordAlertDialog.setView(changePasswordRelativeLayout);
         changePasswordAlertDialog.setIsCancelable(true);
         changePasswordAlertDialog.setCanceledOnTouchOutside(false);
@@ -317,17 +343,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //TODO: add error checking for Old Password
-
-                changePasswordProgressBar.setVisibility(View.VISIBLE);
-
-                oldPasswordTextInputLayout.setEnabled(false);
-                oldPasswordEditText.setEnabled(false);
-                newPasswordTextInputLayout.setEnabled(false);
-                newPasswordEditText.setEnabled(false);
-                changePasswordAlertDialog.getPositiveButtonElement().setEnabled(false);
-                changePasswordAlertDialog.getNegativeButtonElement().setEnabled(false);
-
-                changePasswordAlertDialog.setIsCancelable(false);
+                togglePasswordAlertDialogAttributes(true);
+                updatePassword();
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null
         ).setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -427,7 +444,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
         fullNameEditText.setText(CurrentUser.prismUser.getFullName());
         usernameEditText.setText(CurrentUser.prismUser.getUsername());
-        passwordEditText.setText("********");
+        passwordEditText.setText(Default.HIDDEN_PASSWORD);
         emailEditText.setText(CurrentUser.firebaseUser.getEmail());
 
     }
@@ -456,7 +473,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         
     }
 
-    private void updateUsername(String oldUsername, String newUsername, DialogInterface dialog) {
+    private void updateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
         // TODO check new username isn't taken
         // TODO update in
         // 1) ACCOUNTS -> CurrentUser.username
@@ -474,6 +491,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(newUsername)) {
                     usernameTextInputLayout.setError("Username is taken. Try again");
+                    toggleUsernameAlertDialogAttributes(false);
                     return;
                 }
                 String email = (String) dataSnapshot.child(oldUsername).getValue();
@@ -497,9 +515,10 @@ public class EditUserProfileActivity extends AppCompatActivity {
                             Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
                             toast(Message.USERNAME_UPDATE_FAIL);
                         }
+                        dialog.dismiss();
                     }
                 });
-                dialog.dismiss();
+
             }
 
             @Override
@@ -508,15 +527,51 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
     }
 
-    private void updatePassword(String newPassword) {
+    private void updatePassword(String oldPassword, String newPassword, DialogInterface dialog) {
         // TODO update in
         // 1) FirebaseUser.newPassword
+        String email = CurrentUser.firebaseUser.getEmail();
+        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
+        CurrentUser.firebaseUser.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            CurrentUser.firebaseUser.updatePassword(newPassword)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                CurrentUser.updateLocalCurrentUser();
+                                                passwordEditText.setText(Default.HIDDEN_PASSWORD);
+                                                toast(Message.PASSWORD_UPDATE_SUCCESS);
+                                            } else {
+                                                Log.e(Default.TAG_DB, Message.PASSWORD_UPDATE_FAIL, task.getException());
+                                                toast(Message.PASSWORD_UPDATE_FAIL);
+                                                try {
+                                                    throw task.getException();
+                                                } catch (FirebaseAuthWeakPasswordException weakPassword) {
+                                                    passwordTextInputLayout.setError("Password is too weak");
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                            dialog.dismiss();
+                                        }
+                                    });
+                        } else {
+                            Log.e(Default.TAG_DB, Message.REAUTH_FAIL);
+                            dialog.dismiss();
+                        }
+                    }
+                });
+
     }
 
     private void updateEmail(String newEmail) {
         // TODO check new email isn't taken
         // TODO update in
-        // TODO ReAuthenticate
+        // TODO ReAuthenticate and update CurrentUser.firebaseUser
         // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
         // 2) FirebaseUser.newEmail
     }
