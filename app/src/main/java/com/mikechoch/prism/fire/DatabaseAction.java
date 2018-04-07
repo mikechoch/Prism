@@ -204,7 +204,7 @@ public class DatabaseAction {
 
                     CurrentUser.followUser(prismUser);
 
-                    updateUserNotificaiton(NotificationType.FOLLOW, prismUser, timestamp);
+                    updateUserNotification(NotificationType.FOLLOW, prismUser, timestamp);
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
@@ -239,7 +239,7 @@ public class DatabaseAction {
 
                     CurrentUser.unfollowUser(prismUser);
 
-                    updateUserNotificaiton(NotificationType.UNFOLLOW, prismUser, timestamp);
+                    updateUserNotification(NotificationType.UNFOLLOW, prismUser, timestamp);
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
                 }
@@ -317,8 +317,8 @@ public class DatabaseAction {
      * @param prismUser
      * @param actionTimestamp
      */
-    private static void updateUserNotificaiton(NotificationType type, PrismUser prismUser, long actionTimestamp) {
-        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
+    private static void updateUserNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
+        String notificationId = CurrentUser.prismUser.getUid() + type.getNotifIdSuffix();
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
         String DB_REF = type.getDatabaseRefKey();

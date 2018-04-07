@@ -3,7 +3,6 @@ package com.mikechoch.prism.activity;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -466,7 +465,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (1 * scale);
                             detailUserProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            detailUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_frame));
+                            detailUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
                             detailUserProfilePictureImageView.setPadding(0, 0, 0, 0);
                             detailUserProfilePictureImageView.setBackground(null);

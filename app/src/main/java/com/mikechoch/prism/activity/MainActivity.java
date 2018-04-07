@@ -119,8 +119,9 @@ public class MainActivity extends FragmentActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Default.MY_PERMISSIONS_REQUEST_READ_MEDIA);
         }
 
-        // Get the screen density of the current phone for later UI element scaling
-        scale = getResources().getDisplayMetrics().density;
+        // Get the screen density of the current phone and assign it to Default.SCALE
+        // Used for later UI element scaling
+        Default.SCALE = getResources().getDisplayMetrics().density;
 
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);

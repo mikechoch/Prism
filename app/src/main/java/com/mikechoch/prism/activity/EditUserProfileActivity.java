@@ -50,8 +50,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
     private LinearLayout passwordLinearLayout;
     private TextInputLayout passwordTextInputLayout;
     private EditText passwordEditText;
-    private Button editAccountButton;
-    private ProgressBar editAccountProgressBar;
 
 
     @Override
@@ -102,8 +100,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.edit_account_password_edit_text);
         emailTextInputLayout = findViewById(R.id.edit_account_email_text_input_layout);
         emailEditText = findViewById(R.id.edit_account_email_edit_text);
-        editAccountButton = findViewById(R.id.edit_account_submit_button);
-        editAccountProgressBar = findViewById(R.id.edit_account_progress_bar);
 
         // Focusable is set false in XML for passwordEditText
         // When clicked an AlertDialog will be opened for changing the user's password
@@ -396,12 +392,11 @@ public class EditUserProfileActivity extends AppCompatActivity {
         passwordEditText.setTypeface(sourceSansProLight);
         emailTextInputLayout.setTypeface(sourceSansProLight);
         emailEditText.setTypeface(sourceSansProLight);
-        editAccountButton.setTypeface(sourceSansProLight);
 
         fullNameEditText.setText(CurrentUser.prismUser.getFullName());
         usernameEditText.setText(CurrentUser.prismUser.getUsername());
         passwordEditText.setText("********");
-//        emailEditText.setText();
+        emailEditText.setText(CurrentUser.firebaseUser.getEmail());
 
     }
 

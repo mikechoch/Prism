@@ -1,29 +1,33 @@
 package com.mikechoch.prism.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.DisplayUsersActivity;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
+import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -95,7 +99,9 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private DatabaseReference allPostsReference;
 
         private ImageView userProfilePicImageView;
-        private TextView notificationDescriptionTextView;
+        private ImageView notificationTypeImageView;
+        private LinearLayout notificationDescriptionLinearLayout;
+        private TextView notificationTypeTextView;
         private ImageView prismPostThumbnailImageView;
 
         private Notification notification;
@@ -111,7 +117,9 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             allPostsReference = Default.ALL_POSTS_REFERENCE;
 
             userProfilePicImageView = itemView.findViewById(R.id.notification_item_prism_profile_image_view);
-            notificationDescriptionTextView = itemView.findViewById(R.id.notification_item_description_text_view);
+            notificationTypeImageView = itemView.findViewById(R.id.notification_item_type_image_view);
+            notificationDescriptionLinearLayout = itemView.findViewById(R.id.notification_item_description_linear_layout);
+            notificationTypeTextView = itemView.findViewById(R.id.notification_item_type_text_view);
             prismPostThumbnailImageView = itemView.findViewById(R.id.notification_item_post_thumbnail_image_view);
         }
 
@@ -124,20 +132,93 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         *
+         * Populate all UI elements with data
          */
         private void populateUIElements() {
-            String notificationMessage = Helper.constructNotificationMessage(notification);
-            notificationDescriptionTextView.setText(notificationMessage);
-            notificationDescriptionTextView.setTypeface(sourceSansProLight);
+            // Setup Typefaces for all text based UI elements
+            notificationTypeTextView.setTypeface(sourceSansProLight);
+
+            constructNotificationTextViews();
+            populateNotificationInfoFields();
             populateProfilePic();
 
+            prismPostThumbnailImageView.setImageDrawable(null);
             if (!notification.getType().equals(NotificationType.FOLLOW)) {
                 populatePrismPostThumbnail();
             }
-
         }
 
+        /**
+         * Populates the notificationDescriptionLinearLayout, notificationTypeTextView, and notificationTypeImageView
+         * notificationDescriptionLinearLayout gets the user and # of others who performed the action
+         * notificationTypeTextView gets the notification type and time since the action occurred
+         * notificationTypeImageView gets the icon of the NotificationType
+         */
+        private void populateNotificationInfoFields() {
+            String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());
+            notificationTypeTextView.setText(notificationTypeAndTime.toLowerCase());
+
+            notificationTypeImageView.setImageDrawable(context.getResources().getDrawable(notification.getType().getNotifIcon()));
+        }
+
+        /**
+         *
+         */
+        private void constructNotificationTextViews() {
+            notificationDescriptionLinearLayout.removeAllViews();
+
+            String mostRecentUsername = notification.getMostRecentUser().getUsername();
+            TextView usernameTextView = new TextView(context);
+            usernameTextView.setText(mostRecentUsername);
+            usernameTextView.setTextSize(16);
+            usernameTextView.setTextColor(Color.WHITE);
+            usernameTextView.setTypeface(sourceSansProLight);
+            usernameTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    intentToUserProfileActivity();
+                }
+            });
+
+            int otherCount = notification.getOtherUserCount();
+            TextView userCountTextView = new TextView(context);
+            if (otherCount > 0) {
+                userCountTextView.setTextSize(16);
+                userCountTextView.setTypeface(sourceSansProLight);
+                userCountTextView.setTextColor(Color.WHITE);
+                userCountTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        intentToDisplayUsersActivity(notification.getType().getNotifUserDisplayCode());
+                    }
+                });
+                if (otherCount == 1) {
+                    String userCountString = " and " + String.valueOf(otherCount) + " other";
+                    userCountTextView.setText(userCountString);
+                } else {
+                    String userCountString = " and " + String.valueOf(otherCount) + " others";
+                    userCountTextView.setText(userCountString);
+                }
+            }
+            notificationDescriptionLinearLayout.addView(usernameTextView);
+            notificationDescriptionLinearLayout.addView(userCountTextView);
+        }
+
+        /**
+         * Intent to DisplayUserActivity with the correct intentType code
+         * @param displayUsersCode
+         */
+        private void intentToDisplayUsersActivity(int displayUsersCode) {
+            Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
+            displayUsersIntent.putExtra("UsersInt", displayUsersCode);
+            displayUsersIntent.putExtra("UsersDataId", notification.getPrismPost().getPostId());
+            context.startActivity(displayUsersIntent);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
+
+        /**
+         *
+         */
         private void populatePrismPostThumbnail() {
             PrismPost notificationPost = notification.getPrismPost();
             if (notificationPost != null) {
@@ -148,8 +229,36 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                         .apply(new RequestOptions().centerCrop())
                         .into(prismPostThumbnailImageView);
             }
+
+            prismPostThumbnailImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    intentToPostDetailActivity();
+                }
+            });
         }
 
+        /**
+         * Intent from the current clicked PrismPost image to their PrismPostDetailActivity
+         */
+        private void intentToPostDetailActivity() {
+            Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
+
+            prismPostDetailIntent.putExtra("PrismPostDetail", notification.getPrismPost());
+            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostThumbnailImageView));
+
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    (Activity) context,
+                    prismPostThumbnailImageView,
+                    ViewCompat.getTransitionName(prismPostThumbnailImageView));
+
+            context.startActivity(prismPostDetailIntent, options.toBundle());
+//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
+
+        /**
+         *
+         */
         private void populateProfilePic() {
             PrismUser mostRecentPrismUser = notification.getMostRecentUser();
             if (mostRecentPrismUser.getProfilePicture() != null) {
@@ -163,7 +272,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                                 if (!mostRecentPrismUser.getProfilePicture().isDefault) {
                                     int whiteOutlinePadding = (int) (1 * scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_frame));
+                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {
                                     userProfilePicImageView.setPadding(0, 0, 0, 0);
                                     userProfilePicImageView.setBackground(null);
@@ -175,6 +284,23 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                             }
                         });
             }
+
+            userProfilePicImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    intentToUserProfileActivity();
+                }
+            });
+        }
+
+        /**
+         * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
+         */
+        private void intentToUserProfileActivity() {
+            Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
+            prismUserProfileIntent.putExtra("PrismUser", notification.getMostRecentUser());
+            context.startActivity(prismUserProfileIntent);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
     }
 

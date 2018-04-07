@@ -59,7 +59,6 @@
 
         <activity
             android:name=".activity.ShowUserProfilePictureActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/PullLayoutAppTheme"/>
 
         <activity

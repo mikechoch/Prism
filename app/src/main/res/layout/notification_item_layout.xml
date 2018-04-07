@@ -1,46 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
-    <ImageView
-        android:id="@+id/notification_item_prism_profile_image_view"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <RelativeLayout
+        android:id="@+id/notification_item_profile_picture_relative_layout"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="fitCenter"/>
+        android:layout_marginStart="8dp">
 
-    <TextView
-        android:id="@+id/notification_item_description_text_view"
+        <ImageView
+            android:id="@+id/notification_item_prism_profile_image_view"
+            android:transitionName="user_profile_picture"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:scaleType="fitCenter"/>
+
+        <ImageView
+            android:id="@+id/notification_item_type_image_view"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:padding="3dp"
+            android:tint="@android:color/white"
+            android:background="@drawable/circle_notification_background_frame"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/notification_item_text_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toEndOf="@id/notification_item_prism_profile_image_view"
+        android:layout_toEndOf="@id/notification_item_profile_picture_relative_layout"
         android:layout_marginStart="8dp"
-        android:text="..."
-        android:textSize="16sp"
-        android:textColor="@android:color/white"/>
+        android:orientation="vertical">
 
-    <RelativeLayout
+        <LinearLayout
+            android:id="@+id/notification_item_description_linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+
+        <TextView
+            android:id="@+id/notification_item_type_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/hintTextColor"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/notification_item_post_thumbnail_image_view"
+        android:transitionName="prism_post_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="@color/colorPrimaryDark"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp">
-        <ImageView
-            android:id="@+id/notification_item_post_thumbnail_image_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            android:scaleType="fitCenter" />
-    </RelativeLayout>
-
+        android:layout_marginEnd="12dp"
+        android:scaleType="fitCenter" />
 
 </RelativeLayout>

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -226,7 +225,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
                                     int whiteOutlinePadding = (int) (2 * scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_frame));
+                                    userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 }
                             });
 
@@ -422,7 +421,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                         if (!prismUser.getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (2 * scale);
                             userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_frame));
+                            userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
                             userProfilePicImageView.setPadding(0, 0, 0, 0);
                             userProfilePicImageView.setBackground(null);
@@ -457,7 +456,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                         if (!prismUser.getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (1 * scale);
                             toolbarUserProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            toolbarUserProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_frame));
+                            toolbarUserProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
                             toolbarUserProfilePicImageView.setPadding(0, 0, 0, 0);
                             toolbarUserProfilePicImageView.setBackground(null);
@@ -478,6 +477,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void intentToShowUserProfilePictureActivity() {
         Intent showProfilePictureIntent = new Intent(PrismUserProfileActivity.this, ShowUserProfilePictureActivity.class);
+
         showProfilePictureIntent.putExtra("PrismUser", prismUser);
         showProfilePictureIntent.putExtra("PrismUserProfilePictureTransitionName", ViewCompat.getTransitionName(userProfilePicImageView));
 
@@ -492,14 +492,13 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
     /**
      * Intent to DisplayUserActivity with the correct intentType code
-     * 2: Followers
-     * 3: Following
+     * @param displayUsersCode
      */
-    private void intentToDisplayUsersActivity(int intentType) {
-        Intent userLikesIntent = new Intent(PrismUserProfileActivity.this, DisplayUsersActivity.class);
-        userLikesIntent.putExtra("UsersInt", intentType);
-        userLikesIntent.putExtra("UsersDataId", prismUser.getUid());
-        startActivity(userLikesIntent);
+    private void intentToDisplayUsersActivity(int displayUsersCode) {
+        Intent displayUsersIntent = new Intent(PrismUserProfileActivity.this, DisplayUsersActivity.class);
+        displayUsersIntent.putExtra("UsersInt", displayUsersCode);
+        displayUsersIntent.putExtra("UsersDataId", prismUser.getUid());
+        startActivity(displayUsersIntent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
@@ -729,7 +728,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void setupFollowUserButton() {
         boolean isFollowing = CurrentUser.isFollowingPrismUser(prismUser);
-        toggleFollowButtons(isFollowing);
+        InterfaceAction.toggleSmallFollowButton(this, isFollowing, toolbarFollowButton);
+        InterfaceAction.toggleLargeFollowButton(this, isFollowing, followUserButton);
 
         followUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -738,7 +738,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 handleFollowButtonClick(performFollow);
             }
         });
-
 
         toolbarFollowButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -750,37 +749,16 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Toggle method for UI of follow buttons
-     */
-    private void toggleFollowButtons(boolean showFollowing) {
-        int buttonWidth = (int) (scale * (showFollowing ? 80 : 60));
-        String followButtonString = showFollowing ? "Following" : "Follow";
-        int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
-        Drawable followingButtonDrawable = getResources().getDrawable(followButtonInt);
-        Drawable followingToolbarButtonDrawable = getResources().getDrawable(followButtonInt);
-
-        followUserButton.setText(followButtonString);
-        followUserButton.setBackground(followingButtonDrawable);
-
-        toolbarFollowButton.getLayoutParams().width = buttonWidth;
-        toolbarFollowButton.setText(followButtonString);
-        toolbarFollowButton.setBackground(followingToolbarButtonDrawable);
-        toolbarFollowButton.requestLayout();
-    }
-
-    /**
      * Handle the follow button when clicked to update firebase
      * @param performFollow
      */
     private void handleFollowButtonClick(boolean performFollow) {
         if (performFollow) {
-            toggleFollowButtons(true);
+            InterfaceAction.toggleSmallFollowButton(this, true, toolbarFollowButton);
+            InterfaceAction.toggleLargeFollowButton(this, true, followUserButton);
             DatabaseAction.followUser(prismUser);
         } else {
-            toggleFollowButtons(false);
-            DatabaseAction.unfollowUser(prismUser);
-
-            AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(this, prismUser);
+            AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(this, prismUser, toolbarFollowButton, followUserButton);
             unfollowAlertDialog.show();
         }
     }

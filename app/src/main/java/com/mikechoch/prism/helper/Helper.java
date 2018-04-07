@@ -139,33 +139,6 @@ public class Helper {
         return encodedUsername.replace(Default.USERNAME_PERIOD_REPLACE, Default.USERNAME_PERIOD);
     }
 
-
-    public static String constructNotificationMessage(Notification notification) {
-        String message = "";
-        String mostRecentUsername = notification.getMostRecentUser().getUsername();
-        int otherCount = notification.getOtherUserCount();
-        NotificationType type = notification.getType();
-
-        message += mostRecentUsername + " ";
-        if (otherCount > 0) {
-            message += " and " + otherCount + " others ";
-        }
-
-        switch (type) {
-            case LIKE:
-                message += " liked your post ";
-                break;
-            case REPOST:
-                message += " reposted your post ";
-                break;
-            case FOLLOW:
-                message += " started following you";
-                break;
-        }
-        // message += notification.getPrismPost().getCaption();
-        return message;
-    }
-
     /**
      * Checks to see if given prismPost has been reposted by given
      * prismUser by comparing the uid of prismPost author by given

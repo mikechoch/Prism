@@ -452,7 +452,7 @@ public class CurrentUser {
                         if (!prismUser.getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (1 * scale);
                             userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            userProfileImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_frame));
+                            userProfileImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
                             userProfileImageView.setPadding(0, 0, 0, 0);
                             userProfileImageView.setBackground(null);

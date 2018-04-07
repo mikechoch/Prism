@@ -1,15 +1,14 @@
 package com.mikechoch.prism.adapter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +20,15 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
@@ -148,7 +143,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
             if (!Helper.isPrismUserCurrentUser(prismUser)) {
                 userFollowButton.setVisibility(View.VISIBLE);
 
-                toggleFollowButtons(CurrentUser.isFollowingPrismUser(prismUser));
+                InterfaceAction.toggleSmallFollowButton(context, CurrentUser.isFollowingPrismUser(prismUser), userFollowButton);
 
                 userFollowButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -161,35 +156,16 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Toggle method for UI of follow buttons
-         */
-        private void toggleFollowButtons(boolean showFollowing) {
-            int buttonWidth = (int) (scale * (showFollowing ? 80 : 60));
-            String followButtonString = showFollowing ? "Following" : "Follow";
-            int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
-            Drawable followingButtonDrawable = context.getResources().getDrawable(followButtonInt);
-            Drawable followingToolbarButtonDrawable = context.getResources().getDrawable(followButtonInt);
-
-            userFollowButton.setText(followButtonString);
-            userFollowButton.setBackground(followingButtonDrawable);
-
-            userFollowButton.getLayoutParams().width = buttonWidth;
-            userFollowButton.setText(followButtonString);
-            userFollowButton.setBackground(followingToolbarButtonDrawable);
-            userFollowButton.requestLayout();
-        }
-
-        /**
          * Handle the follow button when clicked to update firebase
          * @param performFollow
          */
         private void handleFollowButtonClick(boolean performFollow) {
             if (performFollow) {
-                toggleFollowButtons(true);
+                InterfaceAction.toggleSmallFollowButton(context, true, userFollowButton);
                 DatabaseAction.followUser(prismUser);
             } else {
-                toggleFollowButtons(false);
-                DatabaseAction.unfollowUser(prismUser);
+                AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(context, prismUser, userFollowButton, null);
+                unfollowAlertDialog.show();
             }
         }
 
@@ -208,7 +184,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                                 if (!prismUser.getProfilePicture().isDefault) {
                                     int whiteOutlinePadding = (int) (1 * scale);
                                     userProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_frame));
+                                    userProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {
                                     userProfilePicture.setPadding(0, 0, 0, 0);
                                     userProfilePicture.setBackground(null);

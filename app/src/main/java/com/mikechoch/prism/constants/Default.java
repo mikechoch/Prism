@@ -22,6 +22,11 @@ public class Default {
     public static final int GALLERY_INTENT_REQUEST = 101;
     public static final int PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE = 102;
 
+    public static final int DISPLAY_USERS_LIKE_CODE = 0;
+    public static final int DISPLAY_USERS_REPOST_CODE = 1;
+    public static final int DISPLAY_USERS_FOLLOWER_CODE = 2;
+    public static final int DISPLAY_USERS_FOLLOWING_CODE = 3;
+
     public static final int IMAGE_LOAD_THRESHOLD = 3;
     public static final int IMAGE_LOAD_COUNT = 10;
 
@@ -65,4 +70,8 @@ public class Default {
 
     // Timer intervals
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000; // milliseconds
+
+    // Scale variable for programmatically sized UI elements
+    public static float SCALE;
+
 }

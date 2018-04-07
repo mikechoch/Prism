@@ -1,5 +1,6 @@
 package com.mikechoch.prism.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -205,7 +206,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                                 if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
                                     int whiteOutlinePadding = (int) (1.5 * scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_frame));
+                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {
                                     userProfilePicImageView.setPadding(0, 0, 0, 0);
                                     userProfilePicImageView.setBackground(null);
@@ -242,6 +243,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
          * Setup prismPostImageView
          * Sets the sizing, touch events, and Glide image loading
          */
+        @SuppressLint("ClickableViewAccessibility")
         private void setupPostImageView() {
             // Show the ProgressBar while waiting for image to load
             progressBar.setVisibility(View.VISIBLE);
@@ -314,19 +316,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     System.out.println("Image Single Tapped");
-                    Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-
-                    prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
-                    prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
-
-                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                            (Activity) context,
-                            prismPostImageView,
-                            ViewCompat.getTransitionName(prismPostImageView));
-
-                    context.startActivity(prismPostDetailIntent, options.toBundle());
-//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
+                    intentToPostDetailActivity();
                     return true;
                 }
 
@@ -357,6 +347,24 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                     return true;
                 }
             });
+        }
+
+        /**
+         * Intent from the current clicked PrismPost image to their PrismPostDetailActivity
+         */
+        private void intentToPostDetailActivity() {
+            Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
+
+            prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
+            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
+
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    (Activity) context,
+                    prismPostImageView,
+                    ViewCompat.getTransitionName(prismPostImageView));
+
+            context.startActivity(prismPostDetailIntent, options.toBundle());
+//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**
@@ -414,11 +422,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             repostsCountTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent userRepostsIntent = new Intent(context, DisplayUsersActivity.class);
-                    userRepostsIntent.putExtra("UsersInt", 1);
-                    userRepostsIntent.putExtra("UsersDataId", postId);
-                    context.startActivity(userRepostsIntent);
-                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    intentToDisplayUsersActivity(Default.DISPLAY_USERS_REPOST_CODE);
                 }
             });
         }
@@ -442,13 +446,21 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             likesCountTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent userLikesIntent = new Intent(context, DisplayUsersActivity.class);
-                    userLikesIntent.putExtra("UsersInt", 0);
-                    userLikesIntent.putExtra("UsersDataId", postId);
-                    context.startActivity(userLikesIntent);
-                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                }
+                    intentToDisplayUsersActivity(Default.DISPLAY_USERS_LIKE_CODE);
+;                }
             });
+        }
+
+        /**
+         * Intent to DisplayUserActivity with the correct intentType code
+         * @param displayUsersCode
+         */
+        private void intentToDisplayUsersActivity(int displayUsersCode) {
+            Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
+            displayUsersIntent.putExtra("UsersInt", displayUsersCode);
+            displayUsersIntent.putExtra("UsersDataId", postId);
+            context.startActivity(displayUsersIntent);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**
@@ -464,15 +476,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             setupPostUserUIElements();
             setupPostImageView();
             setupActionButtons();
-        }
-
-        //TODO: Handle other UI for deleting a post
-        private void handleDeletionOfPost() {
-            if (getItemCount() == 0) {
-                    RelativeLayout noMainPostsRelativeLayout = ((Activity) context)
-                            .findViewById(R.id.no_main_posts_relative_layout);
-                    noMainPostsRelativeLayout.setVisibility(View.VISIBLE);
-            }
         }
 
         /**

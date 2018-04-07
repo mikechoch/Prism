@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -68,7 +69,7 @@ public class InterfaceAction {
      * Pass in a boolean that toggles the icon and color of the like button
      */
     private static Drawable createLikeDrawable(Context context, boolean performLike) {
-        int heart = performLike ? R.drawable.ic_heart_black_36dp : R.drawable.ic_heart_outline_black_36dp;
+        int heart = performLike ? R.drawable.ic_heart_white_36dp : R.drawable.ic_heart_outline_black_36dp;
         int color = performLike ? R.color.colorAccent : android.R.color.white;
         Drawable heartDrawable = context.getResources().getDrawable(heart);
         int heartColor = context.getResources().getColor(color);
@@ -283,14 +284,20 @@ public class InterfaceAction {
      * @param prismUser
      * @return finalized AlertDialog for unfollowing a PrismUser
      */
-    public static AlertDialog createUnfollowConfirmationAlertDialog(Context context, PrismUser prismUser) {
+    public static AlertDialog createUnfollowConfirmationAlertDialog(Context context, PrismUser prismUser, Button toolbarFollowButton, Button followUserButton) {
         AlertDialog.Builder unfollowAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         unfollowAlertDialogBuilder.setTitle("Are you sure you want to unfollow this user?");
         unfollowAlertDialogBuilder.setPositiveButton(Default.BUTTON_UNFOLLOW, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-
+                if (toolbarFollowButton != null) {
+                    InterfaceAction.toggleSmallFollowButton(context, false, toolbarFollowButton);
+                }
+                if (followUserButton != null) {
+                    InterfaceAction.toggleLargeFollowButton(context, false, followUserButton);
+                }
+                DatabaseAction.unfollowUser(prismUser);
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, new DialogInterface.OnClickListener() {
             @Override
@@ -299,6 +306,33 @@ public class InterfaceAction {
             }
         });
         return unfollowAlertDialogBuilder.create();
+    }
+
+    /**
+     * Toggle method for UI of small follow button
+     */
+    public static void toggleSmallFollowButton(Context context, boolean showFollowing, Button smallFollowButton) {
+        int buttonWidth = (int) (Default.SCALE * (showFollowing ? 80 : 60));
+        String followButtonString = showFollowing ? "Following" : "Follow";
+        int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
+        Drawable followingToolbarButtonDrawable = context.getResources().getDrawable(followButtonInt);
+
+        smallFollowButton.getLayoutParams().width = buttonWidth;
+        smallFollowButton.setText(followButtonString);
+        smallFollowButton.setBackground(followingToolbarButtonDrawable);
+        smallFollowButton.requestLayout();
+    }
+
+    /**
+     * Toggle method for UI of large follow button
+     */
+    public static void toggleLargeFollowButton(Context context, boolean showFollowing, Button LargefollowButton) {
+        String followButtonString = showFollowing ? "Following" : "Follow";
+        int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
+        Drawable followingButtonDrawable = context.getResources().getDrawable(followButtonInt);
+
+        LargefollowButton.setText(followButtonString);
+        LargefollowButton.setBackground(followingButtonDrawable);
     }
 
 }

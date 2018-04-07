@@ -144,7 +144,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
                         if (!prismUser.getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (5 * scale);
                             largeUserProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            largeUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_frame));
+                            largeUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
                             largeUserProfilePictureImageView.setPadding(0, 0, 0, 0);
                             largeUserProfilePictureImageView.setBackground(null);
