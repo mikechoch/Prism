@@ -22,5 +22,11 @@ public class Message {
       public static final String FETCH_POST_INFO_FAIL = "Failed to fetch post details";
 
 
+      public static final String FULL_NAME_UPDATE_FAIL = "Failed to update full name";
+      public static final String FULL_NAME_UPDATE_SUCCESS = "Full name successfully update";
+
+      public static final String USERNAME_UPDATE_FAIL = "Failed to update username";
+      public static final String USERNAME_UPDATE_SUCCESS = "Username successfully update";
+
 
 }

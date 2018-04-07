@@ -4,9 +4,11 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,11 +19,25 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constants.Key;
+import com.mikechoch.prism.constants.Message;
+import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.fire.CurrentUser;
+
+import java.util.HashMap;
 
 /**
  * Created by mikechoch on 2/18/18.
@@ -51,6 +67,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
     private TextInputLayout passwordTextInputLayout;
     private EditText passwordEditText;
 
+    private DatabaseReference currentUserReference;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -76,6 +94,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_user_profile_activity_layout);
+
+        currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
 
         // Create two typefaces
         sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
@@ -152,17 +172,17 @@ public class EditUserProfileActivity extends AppCompatActivity {
         RelativeLayout changeFullNameRelativeLayout = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_relative_layout);
 
         TextInputLayout fullNameTextInputLayout = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_text_input_layout);
-        EditText fullNameEditText = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_edit_text);
+        EditText newFullNameEditText = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_edit_text);
         ProgressBar changeFullNameProgressBar = changeFullNameView.findViewById(R.id.change_full_name_progress_bar);
 
         fullNameTextInputLayout.setTypeface(sourceSansProLight);
-        fullNameEditText.setTypeface(sourceSansProLight);
+        newFullNameEditText.setTypeface(sourceSansProLight);
 
         String fullNameString = this.fullNameEditText.getText().toString();
-        fullNameEditText.setText(fullNameString);
-        fullNameEditText.setSelection(fullNameString.length());
+        newFullNameEditText.setText(fullNameString);
+        newFullNameEditText.setSelection(fullNameString.length());
 
-        //TODO: Add TextWatcher and error checking here for fullNameEditText
+        //TODO: Add TextWatcher and error checking here for newFullNameEditText
 
         CustomAlertDialogBuilder changeFullNameAlertDialog = new CustomAlertDialogBuilder(this, changeFullNameRelativeLayout);
         changeFullNameAlertDialog.setView(changeFullNameRelativeLayout);
@@ -171,28 +191,31 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeFullNameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO: add error checking for Old Password
 
-                changeFullNameProgressBar.setVisibility(View.VISIBLE);
+                String newFullName = newFullNameEditText.getText().toString().trim();
+                if (!newFullName.equals(fullNameString) && ProfileHelper.isFullNameValid(newFullName, fullNameTextInputLayout)) {
+                    changeFullNameProgressBar.setVisibility(View.VISIBLE);
+                    fullNameTextInputLayout.setEnabled(false);
+                    newFullNameEditText.setEnabled(false);
+                    changeFullNameAlertDialog.getPositiveButtonElement().setEnabled(false);
+                    changeFullNameAlertDialog.getNegativeButtonElement().setEnabled(false);
+                    changeFullNameAlertDialog.setIsCancelable(false);
 
-                fullNameTextInputLayout.setEnabled(false);
-                fullNameEditText.setEnabled(false);
-                changeFullNameAlertDialog.getPositiveButtonElement().setEnabled(false);
-                changeFullNameAlertDialog.getNegativeButtonElement().setEnabled(false);
+                    updateFullName(newFullName, dialog);
+                } else {
+                    dialog.dismiss();
+                }
 
-                changeFullNameAlertDialog.setIsCancelable(false);
+
+
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null
         ).setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onDismiss(DialogInterface dialog) {
-
-            }
+            public void onDismiss(DialogInterface dialog) { }
         }).setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
-            public void onCancel(DialogInterface dialog) {
-
-            }
+            public void onCancel(DialogInterface dialog) { }
         });
         return changeFullNameAlertDialog;
     }
@@ -225,15 +248,19 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //TODO: add error checking for Old Password
+                String newUsername = usernameEditText.getText().toString().trim();
+                if (!newUsername.equals(usernameString) && ProfileHelper.isUsernameValid(newUsername, usernameTextInputLayout)) {
+                    changeUsernameProgressBar.setVisibility(View.VISIBLE);
+                    usernameTextInputLayout.setEnabled(false);
+                    usernameEditText.setEnabled(false);
+                    changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(false);
+                    changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(false);
+                    changeUsernameAlertDialog.setIsCancelable(false);
 
-                changeUsernameProgressBar.setVisibility(View.VISIBLE);
-
-                usernameTextInputLayout.setEnabled(false);
-                usernameEditText.setEnabled(false);
-                changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(false);
-                changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(false);
-
-                changeUsernameAlertDialog.setIsCancelable(false);
+                    updateUsername(usernameString, newUsername, dialog);
+                } else {
+                    dialog.dismiss();
+                }
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null
         ).setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -321,8 +348,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
         View changeEmailView = getLayoutInflater().inflate(R.layout.change_email_alert_dialog_layout, null);
         RelativeLayout changeEmailRelativeLayout = changeEmailView.findViewById(R.id.change_email_alert_dialog_relative_layout);
 
-        TextInputLayout emailTextInputLayout = changeEmailView.findViewById(R.id.change_email_alert_dialog_email_text_input_layout);
-        EditText emailEditText = changeEmailView.findViewById(R.id.change_email_alert_dialog_email_edit_text);
+        TextInputLayout emailTextInputLayout = changeEmailView.findViewById(R.id.change_email_alert_dialog_old_email_text_input_layout);
+        EditText emailEditText = changeEmailView.findViewById(R.id.change_email_alert_dialog_old_email_edit_text);
         ProgressBar changeEmailProgressBar = changeEmailView.findViewById(R.id.change_email_progress_bar);
 
         emailTextInputLayout.setTypeface(sourceSansProLight);
@@ -399,5 +426,103 @@ public class EditUserProfileActivity extends AppCompatActivity {
         emailEditText.setText(CurrentUser.firebaseUser.getEmail());
 
     }
+
+
+    private void updateFullName(String newFullName, DialogInterface dialog) {
+        // TODO update in
+        // 1) USERS -> CurrentUser.uid -> "fullname"
+        currentUserReference.child(Key.USER_PROFILE_FULL_NAME).setValue(newFullName)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            fullNameEditText.setText(newFullName);
+                            CurrentUser.prismUser.setFullName(newFullName);
+                            toast(Message.FULL_NAME_UPDATE_SUCCESS);
+
+                        } else {
+                            Log.e(Default.TAG_DB, Message.FULL_NAME_UPDATE_FAIL, task.getException());
+                            toast(Message.FULL_NAME_UPDATE_FAIL);
+                        }
+                        dialog.dismiss();
+                    }
+                });
+
+
+    }
+
+    private void updateUsername(String oldUsername, String newUsername, DialogInterface dialog) {
+        // TODO check new username isn't taken
+        // TODO update in
+        // 1) ACCOUNTS -> CurrentUser.username
+        // 2) USERS -> CurrentUser.uid -> "username"
+        // 3) FirebaseUser.displayname
+
+        String old_username_account_path = Key.DB_REF_ACCOUNTS + "/" + oldUsername;
+        String new_username_account_path = Key.DB_REF_ACCOUNTS + "/" + newUsername;
+        String new_username_user_path = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.prismUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
+        accountReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(newUsername)) {
+                    usernameTextInputLayout.setError("Username is taken. Try again");
+                    return;
+                }
+                String email = (String) dataSnapshot.child(oldUsername).getValue();
+
+                HashMap<String, Object> children = new HashMap<>();
+                children.put(old_username_account_path, null);
+                children.put(new_username_account_path, email);
+                children.put(new_username_user_path, newUsername);
+
+                databaseReference.updateChildren(children).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(newUsername).build();
+                            CurrentUser.firebaseUser.updateProfile(profileUpdate);
+                            CurrentUser.prismUser.setUsername(newUsername);
+                            usernameEditText.setText(newUsername);
+                            toast(Message.USERNAME_UPDATE_SUCCESS);
+                        } else {
+                            Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
+                            toast(Message.USERNAME_UPDATE_FAIL);
+                        }
+                    }
+                });
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+
+    }
+
+    private void updatePassword(String newPassword) {
+        // TODO update in
+        // 1) FirebaseUser.newPassword
+    }
+
+    private void updateEmail(String newEmail) {
+        // TODO check new email isn't taken
+        // TODO update in
+        // TODO ReAuthenticate
+        // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
+        // 2) FirebaseUser.newEmail
+    }
+
+    /**
+     * Shortcut for displaying a Toast message
+     */
+    private void toast(String bread) {
+        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
+    }
+
+
 
 }
