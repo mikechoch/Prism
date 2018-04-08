@@ -28,6 +28,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
+import com.mikechoch.prism.helper.Helper;
 
 
 import java.io.IOException;
@@ -149,6 +150,7 @@ public class ImageUploadActivity extends AppCompatActivity {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                System.out.println(Helper.parseDescriptionForTags(imageDescriptionEditText.getText().toString()));
                 intentBackToMainActivitySuccess();
             }
         });

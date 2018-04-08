@@ -10,8 +10,8 @@ import com.mikechoch.prism.constants.Key;
 
 public enum NotificationType {
 
-    LIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
-    UNLIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
+    LIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
+    UNLIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
 
     REPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),
     UNREPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),

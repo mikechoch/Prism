@@ -29,8 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,9 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 /**
@@ -96,7 +101,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private TextView detailUsernameTextView;
     private TextView detailPrismPostDateTextView;
     private TextView detailPrismPostDescriptionTextView;
-    private TextView detailPrismPostTagsTextView;
+    private LinearLayout detailPrismPostTagsLinearLayout;
     private ImageView collapsingToolbarCollapseUpButton;
     private ImageView collapsingToolbarDragArrow;
 
@@ -184,7 +189,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         detailUsernameTextView = findViewById(R.id.prism_post_detail_username_text_view);
         detailPrismPostDateTextView = findViewById(R.id.prism_post_detail_date_text_view);
         detailPrismPostDescriptionTextView = findViewById(R.id.prism_post_description);
-        detailPrismPostTagsTextView = findViewById(R.id.prism_post_tags);
+        detailPrismPostTagsLinearLayout = findViewById(R.id.prism_post_tags_linear_layout);
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
@@ -196,6 +201,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -399,7 +405,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         // Calculate the PrismPost info window height
                         int userInfoHeight = detailUserProfilePictureImageView.getHeight() +
                                 detailPrismPostDescriptionTextView.getHeight() +
-                                detailPrismPostTagsTextView.getHeight() +
+                                detailPrismPostTagsLinearLayout.getHeight() +
                                 prismPostDetailNestedScrollView.getPaddingTop() +
                                 prismPostDetailNestedScrollView.getPaddingBottom();
 
@@ -479,15 +485,37 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         detailUsernameTextView.setText(prismPost.getPrismUser().getUsername());
         detailPrismPostDateTextView.setText(Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1));
+
+        //TODO: Figure out how we should display the description in TextView
         detailPrismPostDescriptionTextView.setText(prismPost.getCaption());
-        detailPrismPostTagsTextView.setText(Html.fromHtml(
-                "<u>#burger</u> " +
-                        "<u>#delicous</u> " +
-                        "<u>#foodporn</u> " +
-                        "<u>#inandout</u> " +
-                        "<u>#fries</u> " +
-                        "<u>#carkeys</u> " +
-                        "<u>#amazing</u>"));
+
+        //TODO: Use tags pulled with PrismPost from Firebase
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("milkshake");
+        tags.add("fire");
+        tags.add("delicious");
+        addTagsTextViews(tags);
+    }
+
+    /**
+     *
+     * @param listofTags
+     */
+    private void addTagsTextViews(ArrayList<String> listofTags) {
+        for (String tag : listofTags) {
+            TextView tagTextView = new TextView(this);
+            tagTextView.setTypeface(sourceSansProLight);
+            tagTextView.setTextSize(15);
+            tagTextView.setTextColor(Color.WHITE);
+            tagTextView.setText(Html.fromHtml("<u>#" + tag + "</u>"));
+            tagTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toast("#" + tag);
+                }
+            });
+            detailPrismPostTagsLinearLayout.addView(tagTextView);
+        }
     }
 
     /**
@@ -831,7 +859,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         detailUsernameTextView.setTypeface(sourceSansProBold);
         detailPrismPostDateTextView.setTypeface(sourceSansProLight);
         detailPrismPostDescriptionTextView.setTypeface(sourceSansProLight);
-        detailPrismPostTagsTextView.setTypeface(sourceSansProLight);
 
         setupToolbarPullDownLayout();
         setupPrismPostUserInfo();

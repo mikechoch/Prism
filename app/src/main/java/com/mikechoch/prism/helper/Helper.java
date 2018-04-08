@@ -13,6 +13,7 @@ import com.mikechoch.prism.constants.Key;
 import com.mikechoch.prism.constants.MyTimeUnit;
 import com.mikechoch.prism.type.NotificationType;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -147,6 +148,28 @@ public class Helper {
      */
     public static boolean isPostReposted(PrismPost prismPost, PrismUser prismUser) {
         return !prismPost.getUid().equals(prismUser.getUid());
+    }
+
+    /**
+     *
+     */
+    public static ArrayList<String> parseDescriptionForTags(String description) {
+        ArrayList<String> listOfTags = new ArrayList<>();
+        for (int i = 0; i < description.length(); i++) {
+            char currentChar = description.charAt(i);
+            if (currentChar == '#') {
+                String tag = "";
+                while (true) {
+                    currentChar = description.charAt(++i);
+                    if (currentChar == ' ' || i >= description.length()) {
+                        break;
+                    }
+                    tag += currentChar;
+                }
+                listOfTags.add(tag);
+            }
+        }
+        return listOfTags;
     }
 
 }

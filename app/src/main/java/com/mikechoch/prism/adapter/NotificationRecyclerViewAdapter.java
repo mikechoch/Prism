@@ -243,17 +243,10 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
          */
         private void intentToPostDetailActivity() {
             Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-
             prismPostDetailIntent.putExtra("PrismPostDetail", notification.getPrismPost());
             prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostThumbnailImageView));
-
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    (Activity) context,
-                    prismPostThumbnailImageView,
-                    ViewCompat.getTransitionName(prismPostThumbnailImageView));
-
-            context.startActivity(prismPostDetailIntent, options.toBundle());
-//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            context.startActivity(prismPostDetailIntent);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**

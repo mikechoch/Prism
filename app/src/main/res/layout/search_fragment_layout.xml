@@ -83,7 +83,7 @@
             android:layout_below="@+id/search_by_text_view"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="4dp"
-            android:text="Person, tags, places, and category"
+            android:text="Search by person, place, and tags"
             android:textColor="@android:color/white"
             android:textAlignment="center"/>
 
