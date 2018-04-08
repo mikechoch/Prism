@@ -87,8 +87,7 @@ public class CurrentUser {
 
 
     public CurrentUser(Context context) {
-        auth = FirebaseAuth.getInstance();
-        firebaseUser = auth.getCurrentUser();
+        updateLocalCurrentUser();
         currentUserReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
         allPostReference = Default.ALL_POSTS_REFERENCE;
 
@@ -97,6 +96,14 @@ public class CurrentUser {
 
         refreshUserProfile();
         setupNotifications();
+    }
+
+    /**
+     *
+     */
+    public static void updateLocalCurrentUser() {
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
     }
 
     /**

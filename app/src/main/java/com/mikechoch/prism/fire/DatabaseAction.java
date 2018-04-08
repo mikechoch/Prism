@@ -59,7 +59,7 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
-        updatePostNotification(NotificationType.LIKE, prismPost, actionTimestamp);
+        updatePostLikeRepostNotification(NotificationType.LIKE, prismPost, actionTimestamp);
     }
 
     /**
@@ -81,7 +81,7 @@ public class DatabaseAction {
 
         CurrentUser.unlikePost(prismPost);
 
-        updatePostNotification(NotificationType.UNLIKE, prismPost, timestamp);
+        updatePostLikeRepostNotification(NotificationType.UNLIKE, prismPost, timestamp);
     }
 
     /**
@@ -104,7 +104,7 @@ public class DatabaseAction {
 
         CurrentUser.repostPost(prismPost);
 
-        updatePostNotification(NotificationType.REPOST, prismPost, timestamp);
+        updatePostLikeRepostNotification(NotificationType.REPOST, prismPost, timestamp);
     }
 
     /**
@@ -127,7 +127,7 @@ public class DatabaseAction {
 
         CurrentUser.unrepostPost(prismPost);
 
-        updatePostNotification(NotificationType.UNREPOST, prismPost, timestamp);
+        updatePostLikeRepostNotification(NotificationType.UNREPOST, prismPost, timestamp);
     }
 
     /**
@@ -204,7 +204,7 @@ public class DatabaseAction {
 
                     CurrentUser.followUser(prismUser);
 
-                    updateUserNotification(NotificationType.FOLLOW, prismUser, timestamp);
+                    updateFollowNotification(NotificationType.FOLLOW, prismUser, timestamp);
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
@@ -239,7 +239,7 @@ public class DatabaseAction {
 
                     CurrentUser.unfollowUser(prismUser);
 
-                    updateUserNotification(NotificationType.UNFOLLOW, prismUser, timestamp);
+                    updateFollowNotification(NotificationType.UNFOLLOW, prismUser, timestamp);
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
                 }
@@ -258,7 +258,7 @@ public class DatabaseAction {
      * @param prismPost
      * @param actionTimestamp
      */
-    private static void updatePostNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
+    private static void updatePostLikeRepostNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
         String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -317,8 +317,8 @@ public class DatabaseAction {
      * @param prismUser
      * @param actionTimestamp
      */
-    private static void updateUserNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
-        String notificationId = CurrentUser.prismUser.getUid() + type.getNotifIdSuffix();
+    private static void updateFollowNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
+        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
         String DB_REF = type.getDatabaseRefKey();

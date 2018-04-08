@@ -74,4 +74,5 @@ public class Default {
     // Scale variable for programmatically sized UI elements
     public static float SCALE;
 
+    public static final String HIDDEN_PASSWORD = "********";
 }

@@ -23,10 +23,13 @@ public class Message {
 
 
       public static final String FULL_NAME_UPDATE_FAIL = "Failed to update full name";
-      public static final String FULL_NAME_UPDATE_SUCCESS = "Full name successfully update";
+      public static final String FULL_NAME_UPDATE_SUCCESS = "Full name successfully updated";
 
       public static final String USERNAME_UPDATE_FAIL = "Failed to update username";
-      public static final String USERNAME_UPDATE_SUCCESS = "Username successfully update";
+      public static final String USERNAME_UPDATE_SUCCESS = "Username successfully updated";
 
+      public static final String REAUTH_FAIL = "Failed to reauthenticate user";
+      public static final String PASSWORD_UPDATE_FAIL = "Failed to update password";
+      public static final String PASSWORD_UPDATE_SUCCESS = "Password successfully updated";
 
 }

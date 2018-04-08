@@ -63,7 +63,7 @@
             android:focusableInTouchMode="true">
 
             <LinearLayout
-                android:id="@+id/edit_account_name_linear_layout"
+                android:id="@+id/edit_account_full_name_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -75,14 +75,14 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/edit_account_name_icon"
+                    android:id="@+id/edit_account_full_name_icon"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/ic_face_white_36dp"/>
 
                 <android.support.design.widget.TextInputLayout
-                    android:id="@+id/edit_account_name_text_input_layout"
+                    android:id="@+id/edit_account_full_name_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -90,7 +90,7 @@
                     android:theme="@style/TextLabel">
 
                     <EditText
-                        android:id="@+id/edit_account_name_edit_text"
+                        android:id="@+id/edit_account_full_name_edit_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Full name"
@@ -109,7 +109,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_name_linear_layout"
+                android:layout_below="@id/edit_account_full_name_linear_layout"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="12dp"
@@ -147,11 +147,53 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/edit_account_email_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/edit_account_username_linear_layout"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/edit_account_email_text_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_email_white_36dp"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/edit_account_email_text_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:theme="@style/TextLabel">
+
+                    <EditText
+                        android:id="@+id/edit_account_email_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@android:color/white"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:longClickable="false"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/edit_account_password_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@+id/edit_account_username_linear_layout"
+                android:layout_below="@id/edit_account_email_linear_layout"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="12dp"
@@ -181,48 +223,6 @@
                         android:layout_height="wrap_content"
                         android:hint="Password"
                         android:inputType="textPassword"
-                        android:textColor="@android:color/white"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:longClickable="false"/>
-
-                </android.support.design.widget.TextInputLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/edit_account_email_linear_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/edit_account_password_linear_layout"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/edit_account_email_text_icon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_email_white_36dp"/>
-
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/edit_account_email_text_input_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="12dp"
-                    android:theme="@style/TextLabel">
-
-                    <EditText
-                        android:id="@+id/edit_account_email_edit_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Email"
-                        android:inputType="textEmailAddress"
                         android:textColor="@android:color/white"
                         android:cursorVisible="false"
                         android:focusable="false"
