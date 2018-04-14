@@ -32,4 +32,7 @@ public class Message {
       public static final String PASSWORD_UPDATE_FAIL = "Failed to update password";
       public static final String PASSWORD_UPDATE_SUCCESS = "Password successfully updated";
 
+      public static final String EMAIL_UPDATE_FAIL = "Failed to update email";
+      public static final String EMAIL_UPDATE_SUCCESS = "Email successfully updated";
+
 }

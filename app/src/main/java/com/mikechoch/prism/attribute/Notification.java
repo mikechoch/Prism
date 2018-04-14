@@ -1,12 +1,14 @@
 package com.mikechoch.prism.attribute;
 
+import android.support.annotation.NonNull;
+
 import com.mikechoch.prism.type.NotificationType;
 
 /**
  * Created by parth on 3/4/18.
  */
 
-public class Notification {
+public class Notification implements Comparable<Notification> {
 
     private NotificationType type;
     private PrismPost prismPost;
@@ -79,5 +81,10 @@ public class Notification {
             default:
                 return 0;
         }
+    }
+
+    @Override
+    public int compareTo(@NonNull Notification o) {
+        return Long.compare(o.getActionTimestamp(), this.getActionTimestamp());
     }
 }
