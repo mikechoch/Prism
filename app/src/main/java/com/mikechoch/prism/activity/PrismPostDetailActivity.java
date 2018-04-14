@@ -21,6 +21,11 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -189,7 +194,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         detailUsernameTextView = findViewById(R.id.prism_post_detail_username_text_view);
         detailPrismPostDateTextView = findViewById(R.id.prism_post_detail_date_text_view);
         detailPrismPostDescriptionTextView = findViewById(R.id.prism_post_description);
-        detailPrismPostTagsLinearLayout = findViewById(R.id.prism_post_tags_linear_layout);
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
@@ -486,36 +490,27 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         detailUsernameTextView.setText(prismPost.getPrismUser().getUsername());
         detailPrismPostDateTextView.setText(Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1));
 
+
         //TODO: Figure out how we should display the description in TextView
-        detailPrismPostDescriptionTextView.setText(prismPost.getCaption());
+        String prismPostDescription = prismPost.getCaption();
+        SpannableString spannableString = new SpannableString(prismPostDescription);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
 
-        //TODO: Use tags pulled with PrismPost from Firebase
-        ArrayList<String> tags = new ArrayList<>();
-        tags.add("milkshake");
-        tags.add("fire");
-        tags.add("delicious");
-        addTagsTextViews(tags);
-    }
+            }
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(true);
+            }
+        };
+        spannableString.setSpan(clickableSpan, 5, 14, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(clickableSpan, 25, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    /**
-     *
-     * @param listofTags
-     */
-    private void addTagsTextViews(ArrayList<String> listofTags) {
-        for (String tag : listofTags) {
-            TextView tagTextView = new TextView(this);
-            tagTextView.setTypeface(sourceSansProLight);
-            tagTextView.setTextSize(15);
-            tagTextView.setTextColor(Color.WHITE);
-            tagTextView.setText(Html.fromHtml("<u>#" + tag + "</u>"));
-            tagTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    toast("#" + tag);
-                }
-            });
-            detailPrismPostTagsLinearLayout.addView(tagTextView);
-        }
+        detailPrismPostDescriptionTextView.setText(spannableString);
+        detailPrismPostDescriptionTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        detailPrismPostDescriptionTextView.setHighlightColor(Color.TRANSPARENT);
     }
 
     /**

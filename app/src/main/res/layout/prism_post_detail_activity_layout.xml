@@ -254,18 +254,6 @@
                         android:textSize="15sp"
                         android:textColor="@android:color/white"/>
 
-                    <LinearLayout
-                        android:id="@+id/prism_post_tags_linear_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_below="@id/prism_post_description"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginEnd="12dp"
-                        android:orientation="vertical"/>
-
                 </RelativeLayout>
 
             </LinearLayout>

@@ -156,12 +156,12 @@ public class Helper {
     public static ArrayList<String> parseDescriptionForTags(String description) {
         ArrayList<String> listOfTags = new ArrayList<>();
         for (int i = 0; i < description.length(); i++) {
-            char currentChar = description.charAt(i);
+            char currentChar = description.charAt(i++);
             if (currentChar == '#') {
                 String tag = "";
                 while (true) {
-                    currentChar = description.charAt(++i);
-                    if (currentChar == ' ' || i >= description.length()) {
+                    currentChar = description.charAt(i);
+                    if (currentChar == ' ' || currentChar == '#' || i >= description.length()) {
                         break;
                     }
                     tag += currentChar;
