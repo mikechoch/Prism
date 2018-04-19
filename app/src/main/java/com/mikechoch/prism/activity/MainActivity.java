@@ -54,10 +54,10 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.Message;
-import com.mikechoch.prism.fragments.MainContentFragment;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fragment.MainContentFragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -395,8 +395,7 @@ public class MainActivity extends FragmentActivity {
         scaleAnimation.setDuration(200);
         scaleAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {
-            }
+            public void onAnimationStart(Animation animation) { }
 
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -404,8 +403,7 @@ public class MainActivity extends FragmentActivity {
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
+            public void onAnimationRepeat(Animation animation) { }
         });
         return scaleAnimation;
     }

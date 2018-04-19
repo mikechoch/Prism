@@ -19,7 +19,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;

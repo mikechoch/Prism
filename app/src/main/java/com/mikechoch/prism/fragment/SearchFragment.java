@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fragments;
+package com.mikechoch.prism.fragment;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -12,10 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.SearchActivity;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by mikechoch on 1/22/18.

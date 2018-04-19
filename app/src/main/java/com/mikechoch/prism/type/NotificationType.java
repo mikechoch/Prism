@@ -1,8 +1,8 @@
 package com.mikechoch.prism.type;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 
 /**
  * Created by parth on 3/4/18.

@@ -1,7 +1,7 @@
 package com.mikechoch.prism.type;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 
 /**
  * Created by mikechoch on 2/16/18.

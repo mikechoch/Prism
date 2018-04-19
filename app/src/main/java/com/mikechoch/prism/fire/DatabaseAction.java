@@ -13,10 +13,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.Message;
-import com.mikechoch.prism.fragments.MainContentFragment;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
 

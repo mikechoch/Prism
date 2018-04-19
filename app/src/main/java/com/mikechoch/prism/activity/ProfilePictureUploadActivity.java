@@ -21,13 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

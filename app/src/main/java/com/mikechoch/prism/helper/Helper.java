@@ -3,18 +3,15 @@ package com.mikechoch.prism.helper;
 import android.text.format.DateFormat;
 
 import com.google.firebase.database.DataSnapshot;
-import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.MyTimeUnit;
-import com.mikechoch.prism.type.NotificationType;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.MyTimeUnit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Locale;

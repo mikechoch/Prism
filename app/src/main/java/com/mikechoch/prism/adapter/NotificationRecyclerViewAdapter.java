@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewCompat;
@@ -31,8 +30,8 @@ import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
 
