@@ -137,6 +137,8 @@ public class DatabaseAction {
      * USER_LIKES and USER_REPOSTS section. Then the post is deleted under
      * USER_UPLOADS for the post owner. And then the post itself is
      * deleted from ALL_POSTS. Finally, the mainRecyclerViewAdapter is refreshed
+     * TODO: Fix the crashing bug when prismPost is null
+     * TODO: Remove prismPost under TAGS when post is deleted
      */
     public static void deletePost(PrismPost prismPost) {
         FirebaseStorage.getInstance().getReferenceFromUrl(prismPost.getImage())

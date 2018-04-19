@@ -14,9 +14,13 @@ import com.mikechoch.prism.constants.MyTimeUnit;
 import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by parth on 2/16/18.
@@ -143,7 +147,7 @@ public class Helper {
     /**
      * Checks to see if given prismPost has been reposted by given
      * prismUser by comparing the uid of prismPost author by given
-     * prismUser. If uid's match, post author = given prismUser and
+     * prismUser. If uids match, post author = given prismUser and
      * hence it's an upload, otherwise it is a repost
      */
     public static boolean isPostReposted(PrismPost prismPost, PrismUser prismUser) {
@@ -154,7 +158,16 @@ public class Helper {
      *
      */
     public static ArrayList<String> parseDescriptionForTags(String description) {
-        ArrayList<String> listOfTags = new ArrayList<>();
+        HashSet<String>  hashTags = new HashSet<>();
+        Matcher match = Pattern.compile(Default.REGEX_HASHTAG).matcher(description);
+        while (match.find()) {
+            hashTags.add(match.group(1));
+        }
+        return new ArrayList<>(hashTags);
+
+
+
+        /* ArrayList<String> listOfTags = new ArrayList<>();
         for (int i = 0; i < description.length(); i++) {
             char currentChar = description.charAt(i);
             if (currentChar == '#') {
@@ -169,7 +182,11 @@ public class Helper {
                 listOfTags.add(tag);
             }
         }
-        return listOfTags;
+        return listOfTags; */
+    }
+
+    public static boolean stringContains(String mainString, String subString) {
+        return Pattern.compile(Pattern.quote(subString), Pattern.CASE_INSENSITIVE).matcher(mainString).find();
     }
 
 }

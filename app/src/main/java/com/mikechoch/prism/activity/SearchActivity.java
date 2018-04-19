@@ -1,21 +1,28 @@
 package com.mikechoch.prism.activity;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.helper.Helper;
+
+import java.util.ArrayList;
 
 /**
  * Created by mikechoch on 2/6/18.
@@ -31,6 +38,12 @@ public class SearchActivity  extends AppCompatActivity {
 
     private Toolbar toolbar;
     private EditText searchBarEditText;
+
+    private DatabaseReference allPostReference;
+    private DatabaseReference usersReference;
+    private DatabaseReference tagsReference;
+    private ArrayList<String> hashTagsCollection;
+    private ArrayList<PrismUser> prismUsersCollection;
 
 
     @Override
@@ -52,6 +65,10 @@ public class SearchActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_activity_layout);
 
+        allPostReference = Default.ALL_POSTS_REFERENCE;
+        usersReference = Default.USERS_REFERENCE;
+        tagsReference = Default.TAGS_REFERENCE;
+
         // Create two typefaces
         sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
         sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
@@ -60,7 +77,45 @@ public class SearchActivity  extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         searchBarEditText = findViewById(R.id.search_bar_edit_text);
 
+        populateCollection();
         setupUIElements();
+    }
+
+    private void populateCollection() {
+        prismUsersCollection = new ArrayList<>();
+        hashTagsCollection = new ArrayList<>();
+
+//        Query query = tagsReference.orderByValue().limitToFirst(100);
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    for (DataSnapshot postIdSnapshot : dataSnapshot.getChildren()) {
+//                        hashTagsCollection.add(postIdSnapshot.getKey());
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) { }
+//        });
+
+        usersReference.limitToFirst(100)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                                prismUsersCollection.add(prismUser);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+
     }
 
     @Override
@@ -83,6 +138,97 @@ public class SearchActivity  extends AppCompatActivity {
      */
     private void setupSearchBarEditText() {
         searchBarEditText.requestFocus();
+        prismUsersCollection = new ArrayList<>();
+        searchBarEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+            Handler handler = new Handler(Looper.getMainLooper());
+            Runnable runnable;
+            Query query = tagsReference.orderByKey();
+            ValueEventListener listener = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) { }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) { }
+            };
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                hashTagsCollection.clear();
+                handler.removeCallbacks(runnable);
+                query.removeEventListener(listener);
+                query = tagsReference.orderByKey().startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToFirst(50);
+                // query = query.startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToLast(10);
+                listener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot tagSnapshot : dataSnapshot.getChildren()) {
+                            hashTagsCollection.add(tagSnapshot.getKey());
+                        }
+                        printHashTagCollections();
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                };
+                // query.addListenerForSingleValueEvent(listener);
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        performSearchForUser(s.toString());
+                        query.addListenerForSingleValueEvent(listener);
+                    }
+                };
+                handler.postDelayed(runnable, 700);
+            }
+        });
+    }
+
+    private void printHashTagCollections() {
+        System.out.println("\n\n\n");
+        for (String hashTag : hashTagsCollection) {
+            System.out.println(hashTag);
+        }
+        System.out.println("\n\n\n");
+    }
+
+    private void performSearchForUser(String query) {
+        ArrayList<PrismUser> results = new ArrayList<>();
+        ArrayList<PrismUser> highRelevance = new ArrayList<>();
+        ArrayList<PrismUser> mediumRelevance = new ArrayList<>();
+        ArrayList<PrismUser> lowRelevance = new ArrayList<>();
+
+        for (PrismUser prismUser : prismUsersCollection) {
+            String fullName = prismUser.getFullName().toLowerCase();
+            String username = prismUser.getUsername().toLowerCase();
+
+            if (fullName.startsWith(query) || username.startsWith(query)) {
+                highRelevance.add(prismUser);
+            } else if (fullName.endsWith(query) || username.endsWith(query)) {
+                mediumRelevance.add(prismUser);
+            } else if (fullName.contains(query) || username.contains(query)) {
+                lowRelevance.add(prismUser);
+            }
+
+        }
+
+        results.addAll(highRelevance);
+        results.addAll(mediumRelevance);
+        results.addAll(lowRelevance);
+
+        // System print
+        System.out.println("\n\n\n");
+        for (PrismUser user : results) {
+            System.out.println(user.getFullName() + " - " + user.getUsername());
+        }
+        System.out.println("\n\n\n");
     }
 
     /**
@@ -95,5 +241,9 @@ public class SearchActivity  extends AppCompatActivity {
         searchBarEditText.setTypeface(sourceSansProLight);
 
         setupSearchBarEditText();
+    }
+
+    private void toast(String bread) {
+        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
     }
 }

@@ -13,6 +13,7 @@ public class Default {
 
     public static final DatabaseReference ALL_POSTS_REFERENCE = databaseReference.child(Key.DB_REF_ALL_POSTS);
     public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);
+    public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
     public static final DatabaseReference ACCOUNT_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();
@@ -75,4 +76,6 @@ public class Default {
     public static float SCALE;
 
     public static final String HIDDEN_PASSWORD = "********";
+
+    public static final String REGEX_HASHTAG = "#(\\S+)";
 }

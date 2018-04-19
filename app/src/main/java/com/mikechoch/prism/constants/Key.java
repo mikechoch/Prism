@@ -42,6 +42,7 @@ public class Key {
     public static final String POST_ID = "postId";
 
     public static final String DB_REF_ACCOUNTS = "ACCOUNTS";
+    public static final String DB_REF_TAGS = "TAGS";
 
 
 }
