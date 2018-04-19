@@ -56,6 +56,11 @@ public class Default {
     public static final String USERNAME_PERIOD = ".";
     public static final String USERNAME_PERIOD_REPLACE = "-";
 
+    // Firebase
+    // FIREBASE
+    public static final String FIREBASE_TOKEN = "FIREBASE_TOKEN";
+    public static final String ADMIN_CHANNEL_ID = "ADMIN_CHANNEL";
+
     // Button Strings
     public static final String BUTTON_OK = "OK";
     public static final String BUTTON_SAVE = "SAVE";
