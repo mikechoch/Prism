@@ -28,6 +28,7 @@ public class Key {
     public static final String USER_PROFILE_FULL_NAME = "fullname";
     public static final String USER_PROFILE_USERNAME = "username";
     public static final String USER_PROFILE_PIC = "profilepic";
+    public static final String USER_TOKEN = "usertoken";
 
 
     public static final String DB_REF_ALL_POSTS = "ALL_POSTS";

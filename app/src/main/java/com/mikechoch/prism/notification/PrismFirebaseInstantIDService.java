@@ -4,9 +4,11 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DatabaseAction;
 
 public class PrismFirebaseInstantIDService extends FirebaseInstanceIdService {
 
@@ -22,8 +24,7 @@ public class PrismFirebaseInstantIDService extends FirebaseInstanceIdService {
             // manage this apps subscriptions on the server side, send the
             // Instance ID token to your app server.
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            preferences.edit().putString(Default.FIREBASE_TOKEN, refreshedToken).apply();
+            DatabaseAction.handleFirebaseTokenRefreshActivities(getApplicationContext());
 
         }
 

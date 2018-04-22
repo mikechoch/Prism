@@ -1,15 +1,21 @@
 package com.mikechoch.prism.fire;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
+import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -470,6 +476,22 @@ public class DatabaseAction {
      */
     static void refreshMainRecyclerViewAdapter() {
         MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    public static void handleFirebaseTokenRefreshActivities(Context context) {
+        String firebaseToken = FirebaseInstanceId.getInstance().getToken();
+        boolean isUserLoggedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
+        if (firebaseToken == null || !isUserLoggedIn) {
+            return;
+        }
+
+        // Update token in local storage
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putString(Default.FIREBASE_TOKEN, firebaseToken).apply();
+
+        // Update token in cloud
+        currentUserReference.child(Key.USER_TOKEN).setValue(firebaseToken);
+
     }
 
 }
