@@ -85,7 +85,7 @@ public class CurrentUser {
         scale = context.getResources().getDisplayMetrics().density;
 
         refreshUserProfile();
-        NotificationController.initializeNotifications();
+        IncomingNotificationController.initializeNotifications();
     }
 
     /**

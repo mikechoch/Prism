@@ -494,7 +494,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             performUIActivitiesForLike(performLike);
 
             if (performLike) {
-                DatabaseAction.performLike(prismPost);
+                DatabaseAction.performLike(prismPost, context);
             } else {
                 DatabaseAction.performUnlike(prismPost);
             }

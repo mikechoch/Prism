@@ -555,7 +555,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         performUIActivitiesForLike(performLike);
 
         if (performLike) {
-            DatabaseAction.performLike(prismPost);
+            DatabaseAction.performLike(prismPost, this);
         } else {
             DatabaseAction.performUnlike(prismPost);
         }

@@ -48,7 +48,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify("MERGE", notificationId /* ID of notification */, notificationBuilder.build());
 
 
     }

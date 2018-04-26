@@ -51,16 +51,22 @@ public class Helper {
         prismUser.setFullName((String) userSnapshot.child(Key.USER_PROFILE_FULL_NAME).getValue());
         prismUser.setProfilePicture(new ProfilePicture((String) userSnapshot.child(Key.USER_PROFILE_PIC).getValue()));
 
+        int followerCount = 0;
+        int followingCount = 0;
+
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
-            prismUser.setFollowerCount((int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount());
-        } else {
-            prismUser.setFollowerCount(0);
+            followerCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount();
         }
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
-            prismUser.setFollowingCount((int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount());
-        } else {
-            prismUser.setFollowingCount(0);
+            followingCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount();
         }
+        if (userSnapshot.hasChild(Key.USER_TOKEN)) {
+            prismUser.setToken((String) userSnapshot.child(Key.USER_TOKEN).getValue());
+        }
+
+        prismUser.setFollowerCount(followerCount);
+        prismUser.setFollowingCount(followingCount);
+
         return prismUser;
     }
 
