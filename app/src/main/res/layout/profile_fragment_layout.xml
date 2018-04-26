@@ -71,11 +71,95 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/profile_fragment_analytics_card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/profile_fragment_view_profile_card_view"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:padding="8dp"
+                android:foreground="@drawable/setting_option_selector">
+
+                <RelativeLayout
+                    android:id="@+id/profile_fragment_analytics_relative_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="@color/colorPrimary">
+
+                    <LinearLayout
+                        android:id="@+id/profile_fragment_analytics_main_linear_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/profile_fragment_analytics_image_view"
+                            android:layout_width="62dp"
+                            android:layout_height="62dp"
+                            android:layout_marginEnd="16dp"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_finance_white" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_fragment_analytics_linear_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/profile_fragment_analytics_text_view"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="View Profile Analytics"
+                                android:textSize="17sp"
+                                android:textColor="@android:color/white"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/profile_fragment_analytics_description_text_view"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Trends for profile statistics"
+                                android:textSize="17sp"
+                                android:textColor="@color/hintTextColor"
+                                android:layout_weight="1"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!--<View-->
+                        <!--android:id="@+id/profile_fragment_analytics_horizontal_divider_view"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="0.5dp"-->
+                        <!--android:layout_centerHorizontal="true"-->
+                        <!--android:layout_below="@id/profile_fragment_analytics_main_linear_layout"-->
+                        <!--android:layout_marginBottom="12dp"-->
+                        <!--android:background="@android:color/white"/>-->
+
+                    <!--<TextView-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_below="@id/profile_fragment_analytics_horizontal_divider_view"-->
+                        <!--android:text=""-->
+                        <!--android:textSize="17sp"-->
+                        <!--android:textColor="@android:color/white"/>-->
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
                 android:id="@+id/profile_fragment_settings_card_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/profile_fragment_view_profile_card_view"
+                android:layout_below="@id/profile_fragment_analytics_card_view"
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp">

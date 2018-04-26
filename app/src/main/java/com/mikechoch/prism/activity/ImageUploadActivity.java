@@ -144,6 +144,7 @@ public class ImageUploadActivity extends AppCompatActivity {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                System.out.println(Helper.parseDescriptionForTags(imageDescriptionEditText.getText().toString()));
                 intentBackToMainActivitySuccess();
             }
         });
