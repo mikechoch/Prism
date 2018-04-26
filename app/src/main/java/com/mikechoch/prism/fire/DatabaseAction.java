@@ -69,29 +69,6 @@ public class DatabaseAction {
 
         OutgoingNotificationController.generateLikeNotification(prismPost, actionTimestamp);
 
-        // TODO copy+paste this in OutgoingNotificationController class
-//        usersReference.child(prismPost.getUid()).child(Key.USER_TOKEN)
-//                .addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        if (dataSnapshot.exists()) {
-//                            String token = (String) dataSnapshot.getValue();
-//                            Runnable runnable = new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    new PushNotification(context, token);
-//                                    likeNotificationHandlers.remove(prismPost.getPostId());
-//                                }
-//                            };
-//                            handler.postDelayed(runnable, 10000);
-//                            likeNotificationHandlers.put(prismPost.getPostId(), runnable);
-//
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) { }
-//                });
     }
 
     /**
