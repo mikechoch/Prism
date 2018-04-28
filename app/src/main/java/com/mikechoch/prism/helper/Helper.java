@@ -184,11 +184,7 @@ public class Helper {
                 }
             }
         }
-        return listOfTags; */
-    }
-
-    public static boolean stringContains(String mainString, String subString) {
-        return Pattern.compile(Pattern.quote(subString), Pattern.CASE_INSENSITIVE).matcher(mainString).find();
+        return listOfTags;
     }
 
     /**
