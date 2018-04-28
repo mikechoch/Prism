@@ -144,9 +144,6 @@ public class ImageUploadActivity extends AppCompatActivity {
      * Setup onClickListener for uploadButton
      */
     private void setupUploadButton() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            uploadButton.setForeground(getResources().getDrawable(R.drawable.profile_pic_upload_selector));
-        }
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

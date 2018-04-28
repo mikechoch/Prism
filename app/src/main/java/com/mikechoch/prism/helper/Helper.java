@@ -1,6 +1,12 @@
 package com.mikechoch.prism.helper;
 
+import android.content.Context;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.format.DateFormat;
+import android.text.style.ClickableSpan;
+import android.view.View;
+import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.attribute.Notification;
@@ -13,8 +19,11 @@ import com.mikechoch.prism.constants.Key;
 import com.mikechoch.prism.constants.MyTimeUnit;
 import com.mikechoch.prism.type.NotificationType;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -147,7 +156,7 @@ public class Helper {
      * hence it's an upload, otherwise it is a repost
      */
     public static boolean isPostReposted(PrismPost prismPost, PrismUser prismUser) {
-        return !prismPost.getUid().equals(prismUser.getUid());
+        return prismPost.getUid().equals(prismUser.getUid());
     }
 
     /**
@@ -155,21 +164,69 @@ public class Helper {
      */
     public static ArrayList<String> parseDescriptionForTags(String description) {
         ArrayList<String> listOfTags = new ArrayList<>();
-        for (int i = 0; i < description.length(); i++) {
-            char currentChar = description.charAt(i++);
+        char currentChar;
+        for (int i = 0; i < description.length();) {
+            currentChar = description.charAt(i++);
             if (currentChar == '#') {
-                String tag = "";
-                while (true) {
-                    currentChar = description.charAt(i);
-                    if (currentChar == ' ' || currentChar == '#' || i >= description.length()) {
-                        break;
-                    }
-                    tag += currentChar;
+                StringBuilder tag = new StringBuilder();
+                while (i < description.length() && !Default.illegalTagChars.contains(description.charAt(i))) {
+                    currentChar = description.charAt(i++);
+                    tag.append(currentChar);
                 }
-                listOfTags.add(tag);
+                if (tag.length() > 0) {
+                    listOfTags.add(tag.toString());
+                }
             }
         }
         return listOfTags;
     }
+
+    /**
+     *
+     * @param string
+     * @return
+     */
+    public static SpannableString createClickableTagsInString(Context context, String string) {
+        SpannableString spannableString = new SpannableString(string);
+        char currentChar;
+        for (int i = 0; i < string.length();) {
+            currentChar = string.charAt(i++);
+            if (currentChar == '#') {
+                StringBuilder tag = new StringBuilder();
+                while (i < string.length() && !Default.illegalTagChars.contains(string.charAt(i))) {
+                    currentChar = string.charAt(i++);
+                    tag.append(currentChar);
+                }
+                if (tag.length() > 0) {
+                    int urlStartIndex = i - 1 - tag.length();
+                    int urlEndIndex = i;
+                    createClickableSpan(context, spannableString, tag.toString(), urlStartIndex, urlEndIndex);
+                }
+            }
+        }
+        return spannableString;
+    }
+
+    /**
+     *
+     * @param spannableString
+     * @param url
+     * @param startIndex
+     * @param endIndex
+     */
+    private static void createClickableSpan(final Context context, SpannableString spannableString, final String url, int startIndex, int endIndex) {
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+
+            }
+        };
+
+        spannableString.setSpan(clickableSpan,
+                startIndex,
+                endIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
 
 }

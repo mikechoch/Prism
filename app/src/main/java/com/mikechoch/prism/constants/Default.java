@@ -6,6 +6,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.constants.Key;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 public class Default {
 
@@ -75,4 +78,6 @@ public class Default {
     public static float SCALE;
 
     public static final String HIDDEN_PASSWORD = "********";
+
+    public static final List<Character> illegalTagChars = Arrays.asList(' ', '\n', '#', ',');
 }

@@ -106,7 +106,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private TextView detailUsernameTextView;
     private TextView detailPrismPostDateTextView;
     private TextView detailPrismPostDescriptionTextView;
-    private LinearLayout detailPrismPostTagsLinearLayout;
     private ImageView collapsingToolbarCollapseUpButton;
     private ImageView collapsingToolbarDragArrow;
 
@@ -409,7 +408,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         // Calculate the PrismPost info window height
                         int userInfoHeight = detailUserProfilePictureImageView.getHeight() +
                                 detailPrismPostDescriptionTextView.getHeight() +
-                                detailPrismPostTagsLinearLayout.getHeight() +
                                 prismPostDetailNestedScrollView.getPaddingTop() +
                                 prismPostDetailNestedScrollView.getPaddingBottom();
 
@@ -493,21 +491,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         //TODO: Figure out how we should display the description in TextView
         String prismPostDescription = prismPost.getCaption();
-        SpannableString spannableString = new SpannableString(prismPostDescription);
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View textView) {
-
-            }
-            @Override
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(true);
-            }
-        };
-        spannableString.setSpan(clickableSpan, 5, 14, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableString.setSpan(clickableSpan, 25, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+        SpannableString spannableString = Helper.createClickableTagsInString(this, prismPostDescription);
         detailPrismPostDescriptionTextView.setText(spannableString);
         detailPrismPostDescriptionTextView.setMovementMethod(LinkMovementMethod.getInstance());
         detailPrismPostDescriptionTextView.setHighlightColor(Color.TRANSPARENT);
