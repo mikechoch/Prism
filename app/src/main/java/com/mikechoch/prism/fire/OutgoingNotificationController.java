@@ -239,6 +239,8 @@ public class OutgoingNotificationController {
                             String token = (String) tokenSnapshot.getValue();
                             // TODO Generate Notification Object here
                             // TODO Then invoke FCM push Notification
+                            new PushNotification(token);
+
                         }
                     }
 

@@ -2,6 +2,7 @@ package com.mikechoch.prism.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -40,6 +41,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
@@ -56,6 +58,7 @@ import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.notification.PushNotification;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
@@ -111,7 +114,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
-
+        AndroidNetworking.initialize(getApplicationContext());
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;

@@ -91,11 +91,6 @@ public class DatabaseAction {
 
         OutgoingNotificationController.revokeLikeNotification(prismPost);
 
-        // TODO copy+paste this in OutgoingNotificationController class
-//        if (likeNotificationHandlers.containsKey(prismPost.getPostId())) {
-//            Runnable runnable = likeNotificationHandlers.remove(prismPost.getPostId());
-//            handler.removeCallbacks(runnable);
-//        }
     }
 
     /**

@@ -409,7 +409,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         // Calculate the PrismPost info window height
                         int userInfoHeight = detailUserProfilePictureImageView.getHeight() +
                                 detailPrismPostDescriptionTextView.getHeight() +
-                                detailPrismPostTagsLinearLayout.getHeight() +
+//                                detailPrismPostTagsLinearLayout.getHeight() +
                                 prismPostDetailNestedScrollView.getPaddingTop() +
                                 prismPostDetailNestedScrollView.getPaddingBottom();
 
