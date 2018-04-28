@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fragments;
+package com.mikechoch.prism.fragment;
 
 import android.graphics.Typeface;
 import android.os.Bundle;

@@ -25,7 +25,7 @@ import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;

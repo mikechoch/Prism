@@ -1,4 +1,4 @@
-package com.mikechoch.prism.constants;
+package com.mikechoch.prism.constant;
 
 /**
  * Created by parth on 1/22/18.
@@ -28,6 +28,7 @@ public class Key {
     public static final String USER_PROFILE_FULL_NAME = "fullname";
     public static final String USER_PROFILE_USERNAME = "username";
     public static final String USER_PROFILE_PIC = "profilepic";
+    public static final String USER_TOKEN = "usertoken";
 
 
     public static final String DB_REF_ALL_POSTS = "ALL_POSTS";
@@ -42,6 +43,7 @@ public class Key {
     public static final String POST_ID = "postId";
 
     public static final String DB_REF_ACCOUNTS = "ACCOUNTS";
+    public static final String DB_REF_TAGS = "TAGS";
 
 
 }

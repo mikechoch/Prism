@@ -3,6 +3,7 @@ package com.mikechoch.prism.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,7 +13,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -44,20 +47,27 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.Message;
-import com.mikechoch.prism.fragments.MainContentFragment;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fragment.MainContentFragment;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainActivity extends FragmentActivity {
@@ -66,9 +76,10 @@ public class MainActivity extends FragmentActivity {
      * Globals
      */
     private FirebaseAuth auth;
-    private DatabaseReference databaseReference;
+    private DatabaseReference allPostsReference;
     private StorageReference storageReference;
     private DatabaseReference userReference;
+    private DatabaseReference tagsReference;
 
     private float scale;
     private Animation hideFabAnimation;
@@ -103,8 +114,9 @@ public class MainActivity extends FragmentActivity {
 
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
-        databaseReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference = Default.ALL_POSTS_REFERENCE;
         userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
+        tagsReference = Default.TAGS_REFERENCE;
 
         // Check if firebaseUser is logged in
         // Otherwise intent to LoginActivity
@@ -153,6 +165,9 @@ public class MainActivity extends FragmentActivity {
         // Generates current firebaseUser's details
         new CurrentUser(this);
         new InterfaceAction(this);
+
+        // Handle notification firebase token related activities
+        DatabaseAction.handleFirebaseTokenRefreshActivities(this);
     }
 
     @Override
@@ -212,7 +227,7 @@ public class MainActivity extends FragmentActivity {
                                     imageUploadPreview.setImageDrawable(drawable);
                                 }
                             });
-                    uploadImageToCloud();
+                    uploadPostToCloud();
                 }
                 break;
             default:
@@ -390,8 +405,7 @@ public class MainActivity extends FragmentActivity {
         scaleAnimation.setDuration(200);
         scaleAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {
-            }
+            public void onAnimationStart(Animation animation) { }
 
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -399,8 +413,7 @@ public class MainActivity extends FragmentActivity {
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
+            public void onAnimationRepeat(Animation animation) { }
         });
         return scaleAnimation;
     }
@@ -412,14 +425,15 @@ public class MainActivity extends FragmentActivity {
      *  USER_UPLOADS section for the current firebaseUser
      */
     @SuppressLint("SimpleDateFormat")
-    private void uploadImageToCloud() {
+    private void uploadPostToCloud() {
         StorageReference postImageRef = storageReference.child(Key.STORAGE_POST_IMAGES_REF).child(uploadedImageUri.getLastPathSegment());
         postImageRef.putFile(uploadedImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUrl = task.getResult().getDownloadUrl();
-                    DatabaseReference postReference = databaseReference.push();
+                    DatabaseReference postReference = allPostsReference.push();
+                    String postId = postReference.getKey();
                     PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
 
                     // Add postId to USER_UPLOADS table
@@ -428,6 +442,7 @@ public class MainActivity extends FragmentActivity {
 
                     // Create the post in cloud and on success, add the image to local recycler view adapter
                     postReference.setValue(prismPost).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
@@ -436,13 +451,16 @@ public class MainActivity extends FragmentActivity {
                                 uploadingImageTextView.setText("Failed to make the post");
                                 Log.wtf(Default.TAG_DB, Message.POST_UPLOAD_FAIL, task.getException());
                             }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                imageUploadProgressBar.setProgress(100, true);
-                            } else {
-                                imageUploadProgressBar.setProgress(100);
-                            }
+                            boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+                            imageUploadProgressBar.setProgress(100, animate);
                         }
                     });
+
+                    ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+                    for (String hashTag : hashTags) {
+                        tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
+                    }
+
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
                     toast("Failed to upload the image to cloud");
@@ -454,14 +472,12 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 MainActivity.this.runOnUiThread(new Runnable() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void run() {
                         int progress = (int) ((taskSnapshot.getBytesTransferred() * 100) / taskSnapshot.getTotalByteCount());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            imageUploadProgressBar.setProgress(progress, true);
-                        } else {
-                            imageUploadProgressBar.setProgress(progress);
-                        }
+                        boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+                        imageUploadProgressBar.setProgress(progress, animate);
                     }
                 });
             }

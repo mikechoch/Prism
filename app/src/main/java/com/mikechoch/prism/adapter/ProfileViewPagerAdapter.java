@@ -4,9 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.fragments.LikedPostsFragment;
-import com.mikechoch.prism.fragments.UploadedRepostedPostsFragment;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fragment.LikedPostsFragment;
+import com.mikechoch.prism.fragment.UploadedRepostedPostsFragment;
 
 /**
  * Created by mikechoch on 1/22/18.

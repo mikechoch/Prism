@@ -3,7 +3,6 @@ package com.mikechoch.prism.attribute;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.mikechoch.prism.constants.Default;
 import com.mikechoch.prism.helper.Helper;
 
 /**
@@ -18,16 +17,18 @@ public class PrismUser implements Parcelable {
     private ProfilePicture profilePicture;
     private int followerCount;
     private int followingCount;
+    private String token;
 
     public PrismUser() { }
 
-    public PrismUser(String uid, String username, String fullName, ProfilePicture profilePicture, int followerCount, int followingCount) {
+    public PrismUser(String uid, String username, String fullName, ProfilePicture profilePicture, int followerCount, int followingCount, String token) {
         this.uid = uid;
         this.username = username;
         this.fullName = fullName;
         this.profilePicture = profilePicture;
         this.followerCount = followerCount;
         this.followingCount = followingCount;
+        this.token = token;
     }
 
     public String getUid() {
@@ -78,6 +79,9 @@ public class PrismUser implements Parcelable {
         this.followingCount = followingCount;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     @Override
     public int describeContents() {
@@ -92,6 +96,7 @@ public class PrismUser implements Parcelable {
         dest.writeInt(followerCount);
         dest.writeInt(followingCount);
         dest.writeParcelable(profilePicture, 0);
+        dest.writeString(token);
     }
 
     protected PrismUser(Parcel in) {
@@ -101,6 +106,7 @@ public class PrismUser implements Parcelable {
         followerCount = in.readInt();
         followingCount = in.readInt();
         profilePicture = in.readParcelable(ProfilePicture.class.getClassLoader());
+        token = in.readString();
     }
 
     public static final Creator<PrismUser> CREATOR = new Creator<PrismUser>() {

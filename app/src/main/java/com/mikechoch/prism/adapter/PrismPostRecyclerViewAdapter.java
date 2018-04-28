@@ -42,8 +42,8 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 
@@ -494,7 +494,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             performUIActivitiesForLike(performLike);
 
             if (performLike) {
-                DatabaseAction.performLike(prismPost);
+                DatabaseAction.performLike(prismPost, context);
             } else {
                 DatabaseAction.performUnlike(prismPost);
             }

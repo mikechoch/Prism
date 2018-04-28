@@ -9,15 +9,13 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
-import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
-import com.mikechoch.prism.constants.MyTimeUnit;
-import com.mikechoch.prism.type.NotificationType;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.MyTimeUnit;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -26,6 +24,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by parth on 2/16/18.
@@ -59,16 +59,22 @@ public class Helper {
         prismUser.setFullName((String) userSnapshot.child(Key.USER_PROFILE_FULL_NAME).getValue());
         prismUser.setProfilePicture(new ProfilePicture((String) userSnapshot.child(Key.USER_PROFILE_PIC).getValue()));
 
+        int followerCount = 0;
+        int followingCount = 0;
+
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
-            prismUser.setFollowerCount((int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount());
-        } else {
-            prismUser.setFollowerCount(0);
+            followerCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount();
         }
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
-            prismUser.setFollowingCount((int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount());
-        } else {
-            prismUser.setFollowingCount(0);
+            followingCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount();
         }
+        if (userSnapshot.hasChild(Key.USER_TOKEN)) {
+            prismUser.setToken((String) userSnapshot.child(Key.USER_TOKEN).getValue());
+        }
+
+        prismUser.setFollowerCount(followerCount);
+        prismUser.setFollowingCount(followingCount);
+
         return prismUser;
     }
 
@@ -152,7 +158,7 @@ public class Helper {
     /**
      * Checks to see if given prismPost has been reposted by given
      * prismUser by comparing the uid of prismPost author by given
-     * prismUser. If uid's match, post author = given prismUser and
+     * prismUser. If uids match, post author = given prismUser and
      * hence it's an upload, otherwise it is a repost
      */
     public static boolean isPostReposted(PrismPost prismPost, PrismUser prismUser) {
@@ -178,7 +184,11 @@ public class Helper {
                 }
             }
         }
-        return listOfTags;
+        return listOfTags; */
+    }
+
+    public static boolean stringContains(String mainString, String subString) {
+        return Pattern.compile(Pattern.quote(subString), Pattern.CASE_INSENSITIVE).matcher(mainString).find();
     }
 
     /**

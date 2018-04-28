@@ -31,9 +31,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.constants.Message;
+import com.mikechoch.prism.constant.Message;
 
 public class LoginActivity extends AppCompatActivity {
 

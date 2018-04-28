@@ -1,10 +1,9 @@
-package com.mikechoch.prism.constants;
+package com.mikechoch.prism.constant;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mikechoch.prism.constants.Key;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +15,7 @@ public class Default {
 
     public static final DatabaseReference ALL_POSTS_REFERENCE = databaseReference.child(Key.DB_REF_ALL_POSTS);
     public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);
+    public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
     public static final DatabaseReference ACCOUNT_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();
@@ -58,6 +58,10 @@ public class Default {
     // Regex String
     public static final String USERNAME_PERIOD = ".";
     public static final String USERNAME_PERIOD_REPLACE = "-";
+
+    // Firebase
+    public static final String FIREBASE_TOKEN = "FIREBASE_TOKEN";
+    public static final String ADMIN_CHANNEL_ID = "ADMIN_CHANNEL";
 
     // Button Strings
     public static final String BUTTON_OK = "OK";

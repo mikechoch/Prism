@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fragments;
+package com.mikechoch.prism.fragment;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -25,12 +25,12 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.constants.Default;
-import com.mikechoch.prism.constants.Key;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
-import com.mikechoch.prism.constants.Message;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;

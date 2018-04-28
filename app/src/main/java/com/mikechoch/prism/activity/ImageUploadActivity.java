@@ -1,16 +1,12 @@
 package com.mikechoch.prism.activity;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,15 +21,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
-import com.mikechoch.prism.helper.Helper;
 
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 
 /**
@@ -148,7 +142,7 @@ public class ImageUploadActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 System.out.println(Helper.parseDescriptionForTags(imageDescriptionEditText.getText().toString()));
-//                intentBackToMainActivitySuccess();
+                intentBackToMainActivitySuccess();
             }
         });
     }

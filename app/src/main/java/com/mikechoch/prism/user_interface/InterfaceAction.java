@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.constants.Default;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
 
