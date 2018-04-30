@@ -2,7 +2,6 @@ package com.mikechoch.prism.fire;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -24,8 +23,6 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.notification.PushNotification;
-import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,7 +64,7 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
-        OutgoingNotificationController.generateLikeNotification(prismPost, actionTimestamp);
+        OutgoingNotificationController.prepareLikeNotification(prismPost, actionTimestamp);
 
     }
 
@@ -113,7 +110,7 @@ public class DatabaseAction {
 
         CurrentUser.repostPost(prismPost);
 
-        OutgoingNotificationController.generateRepostNotification(prismPost, timestamp);
+        OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
     }
 
     /**
@@ -214,7 +211,7 @@ public class DatabaseAction {
 
                     CurrentUser.followUser(prismUser);
 
-                    OutgoingNotificationController.generateFollowNotification(prismUser, timestamp);
+                    OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);

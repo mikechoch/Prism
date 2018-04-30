@@ -2,26 +2,36 @@ package com.mikechoch.prism.notification;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.NotificationKey;
 
-import java.util.Random;
+import java.io.IOException;
+import java.net.URL;
 
 public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
     NotificationManager notificationManager;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -30,18 +40,55 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             setupChannels();
         }
-        int notificationId = new Random().nextInt(60000);
+
+        int notificationId = Integer.parseInt(remoteMessage.getData().get(NotificationKey.NOTIFICATION_ID));
+        String mostRecentUser = remoteMessage.getData().get(NotificationKey.MOST_RECENT_USER);
+
+        int otherUserCount = 0;
+        for (StatusBarNotification notification : notificationManager.getActiveNotifications()) {
+            if (notification.getId() == notificationId) {
+                otherUserCount = 1 + notification.getNotification().extras.getInt("other_count");
+            }
+        }
+
+        // int otherUserCount = Integer.parseInt(remoteMessage.getData().get(NotificationKey.OTHER_USER));
+        String title = mostRecentUser;
+        if (otherUserCount == 1) {
+            title += " and 1 other";
+        } else if (otherUserCount > 1) {
+            title += " and " + otherUserCount + " others";
+        }
+        String message = remoteMessage.getData().get(NotificationKey.MESSAGE);
+        String profilePicUri = remoteMessage.getData().get(NotificationKey.USER_PROFILE_PIC);
+        Bitmap profilePic = BitmapFactory.decodeResource(getResources(), R.drawable.repost_iris);
+        try {
+            URL url = new URL(profilePicUri);
+            profilePic = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
+        Bundle bundle = new Bundle();
+        bundle.putInt("other_count", otherUserCount);
+
+        Intent viewIntent = new Intent(this, MainActivity.class);
+         viewIntent.putExtra("fragment", "notificationsFragment");
+        PendingIntent viewPendingIntent =
+                PendingIntent.getActivity(this, 0, viewIntent, 0);
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
-                .setSmallIcon(R.drawable.like_heart)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.repost_iris))
-                .setContentTitle(remoteMessage.getData().get("title"))
-                .setContentText(remoteMessage.getData().get("message"))
+                .setSmallIcon(R.mipmap.ic_prism)
+                .setLargeIcon(profilePic)
+                .setContentTitle(title)
+                .setContentText(message)
                 .setAutoCancel(true) //dismisses the notification on click
                 .setSound(defaultSoundUri)
                 .setLights(Color.RED, 3000, 3000)
-                .setColor(Color.RED)
+                .addExtras(bundle)
+                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
+                .setContentIntent(viewPendingIntent)
                 .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
 
 

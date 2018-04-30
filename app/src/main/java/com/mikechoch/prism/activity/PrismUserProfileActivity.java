@@ -238,8 +238,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Takes the profilePicUriString and stores the image to cloud. Once the image file is
-     * successfully uploaded to cloud successfully, it adds the profilePicUriString to
+     * Takes the profilePicUri and stores the image to cloud. Once the image file is
+     * successfully uploaded to cloud successfully, it adds the profilePicUri to
      * the firebaseUser's profile details section
      */
     private void uploadProfilePictureToCloud() {

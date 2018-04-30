@@ -10,6 +10,7 @@ import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.MyTimeUnit;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;

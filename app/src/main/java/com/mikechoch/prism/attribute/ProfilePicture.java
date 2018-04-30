@@ -11,34 +11,34 @@ import android.os.Parcelable;
 public class ProfilePicture implements Parcelable {
 
 
-    public String profilePicUriString;
+    public String profilePicUri;
     public Uri hiResUri;
     public Uri lowResUri;
     public boolean isDefault = true;
 
-    public ProfilePicture(String profilePicUriString) {
-        this.profilePicUriString = profilePicUriString;
-        isDefault = Character.isDigit(profilePicUriString.charAt(0));
+    public ProfilePicture(String profilePicUri) {
+        this.profilePicUri = profilePicUri;
+        isDefault = Character.isDigit(profilePicUri.charAt(0));
         hiResUri = getHiResProfilePicUri();
         lowResUri = getLowResProfilePicUri();
     }
 
     private Uri getHiResProfilePicUri() {
         if (isDefault) {
-            int profileIndex = Integer.parseInt(profilePicUriString);
+            int profileIndex = Integer.parseInt(profilePicUri);
             DefaultProfilePicture picture = DefaultProfilePicture.values()[profileIndex];
             return Uri.parse(picture.getProfilePicture());
         }
-        return Uri.parse(profilePicUriString);
+        return Uri.parse(profilePicUri);
     }
 
     private Uri getLowResProfilePicUri() {
         if (isDefault) {
-            int profileIndex = Integer.parseInt(profilePicUriString);
+            int profileIndex = Integer.parseInt(profilePicUri);
             DefaultProfilePicture picture = DefaultProfilePicture.values()[profileIndex];
             return Uri.parse(picture.getProfilePictureLow());
         }
-        return Uri.parse(profilePicUriString);
+        return Uri.parse(profilePicUri);
     }
 
 
@@ -49,14 +49,14 @@ public class ProfilePicture implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(profilePicUriString);
+        dest.writeString(profilePicUri);
         dest.writeParcelable(hiResUri, flags);
         dest.writeParcelable(lowResUri, flags);
         dest.writeByte((byte) (isDefault ? 1 : 0));
     }
 
     protected ProfilePicture(Parcel in) {
-        profilePicUriString = in.readString();
+        profilePicUri = in.readString();
         hiResUri = in.readParcelable(Uri.class.getClassLoader());
         lowResUri = in.readParcelable(Uri.class.getClassLoader());
         isDefault = in.readByte() != 0;

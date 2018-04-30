@@ -29,7 +29,7 @@ public class IncomingNotificationController {
         initializeNotificationEventHandler();
     }
     
-    static void fetchUserNotifications() {
+    private static void fetchUserNotifications() {
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -120,7 +120,7 @@ public class IncomingNotificationController {
         switch (type) {
             case LIKE:
             case REPOST:
-                String postId = NotificationType.getNotificationPostId(type, notificationId);
+                String postId = type.decodeNotificationPostId(notificationId);
                 allPostReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot postSnapshot) {

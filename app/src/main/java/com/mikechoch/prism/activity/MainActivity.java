@@ -2,9 +2,7 @@ package com.mikechoch.prism.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
@@ -49,28 +46,23 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.notification.PushNotification;
-import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainActivity extends FragmentActivity {
@@ -126,7 +118,10 @@ public class MainActivity extends FragmentActivity {
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) {
             intentToLoginActivity();
+            return;
         }
+
+
 
         // Ask firebaseUser for write permissions to external storage
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);

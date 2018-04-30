@@ -266,7 +266,7 @@ public class MainContentFragment extends Fragment {
     /**
      * Once all posts are loaded into the prismPostHashMap,
      * this method iterates over each post, grabs firebaseUser's details
-     * for the post like "profilePicUriString" and "username" and
+     * for the post like "profilePicUri" and "username" and
      * updates the prismPost objects in that hashMap and then
      * updates the RecyclerViewAdapter so the UI gets updated
      */

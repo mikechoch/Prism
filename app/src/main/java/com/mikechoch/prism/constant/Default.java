@@ -74,7 +74,7 @@ public class Default {
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
-    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 10000;
+    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should 10seconds or 30 seconds
 
 
     // Scale variable for programmatically sized UI elements

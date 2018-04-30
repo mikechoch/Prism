@@ -1,6 +1,9 @@
 package com.mikechoch.prism.type;
 
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 
@@ -61,9 +64,29 @@ public enum NotificationType {
         return null;
     }
 
-    public static String getNotificationPostId(NotificationType type, String notificationId) {
-        return notificationId.replace(type.getNotifIdSuffix(), "");
+    public String decodeNotificationPostId(String notificationId) {
+        return notificationId.replace(this.getNotifIdSuffix(), "");
     }
+
+    public static String createNotificationId(PrismPost prismPost, NotificationType type) {
+        return prismPost.getPostId() + type.getNotifIdSuffix();
+    }
+
+    public static String createNotificationId(PrismUser prismUser, NotificationType type) {
+        return prismUser.getUsername() + type.getNotifIdSuffix();
+    }
+
+    public static int generatePushNotificationId(PrismPost prismPost, NotificationType type) {
+        String id = createNotificationId(prismPost, type);
+        return id.hashCode();
+    }
+
+    public static int generatePushNotificationId(PrismUser prismUser, NotificationType type) {
+        String id = createNotificationId(prismUser, type);
+        return id.hashCode();
+    }
+
+
 
     /**
      * Overriding the toString method for the NotificationType enum
@@ -80,6 +103,19 @@ public enum NotificationType {
                 return "reposted";
             case FOLLOW:
                 return "followed you";
+            default:
+                return "";
+        }
+    }
+
+    public String getPushNotificationMessage() {
+        switch (this) {
+            case LIKE:
+                return "liked your post";
+            case REPOST:
+                return "reposted your post";
+            case FOLLOW:
+                return "started following you";
             default:
                 return "";
         }
