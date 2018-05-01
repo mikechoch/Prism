@@ -7,6 +7,7 @@ import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -216,15 +217,14 @@ public class Helper {
     /**
      *
      * @param spannableString
-     * @param url
      * @param startIndex
      * @param endIndex
      */
-    private static void createClickableSpan(final Context context, SpannableString spannableString, final String url, int startIndex, int endIndex) {
+    private static void createClickableSpan(final Context context, SpannableString spannableString, String tag, int startIndex, int endIndex) {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-
+                toast(context, tag);
             }
         };
 
@@ -234,5 +234,11 @@ public class Helper {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
+    /**
+     * Shortcut for toasting a message
+     */
+    private static void toast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
 
 }

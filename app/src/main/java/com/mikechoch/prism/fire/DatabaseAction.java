@@ -2,7 +2,6 @@ package com.mikechoch.prism.fire;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -24,8 +23,6 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.notification.PushNotification;
-import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,29 +66,6 @@ public class DatabaseAction {
 
         OutgoingNotificationController.generateLikeNotification(prismPost, actionTimestamp);
 
-        // TODO copy+paste this in OutgoingNotificationController class
-//        usersReference.child(prismPost.getUid()).child(Key.USER_TOKEN)
-//                .addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        if (dataSnapshot.exists()) {
-//                            String token = (String) dataSnapshot.getValue();
-//                            Runnable runnable = new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    new PushNotification(context, token);
-//                                    likeNotificationHandlers.remove(prismPost.getPostId());
-//                                }
-//                            };
-//                            handler.postDelayed(runnable, 10000);
-//                            likeNotificationHandlers.put(prismPost.getPostId(), runnable);
-//
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) { }
-//                });
     }
 
     /**
@@ -114,11 +88,6 @@ public class DatabaseAction {
 
         OutgoingNotificationController.revokeLikeNotification(prismPost);
 
-        // TODO copy+paste this in OutgoingNotificationController class
-//        if (likeNotificationHandlers.containsKey(prismPost.getPostId())) {
-//            Runnable runnable = likeNotificationHandlers.remove(prismPost.getPostId());
-//            handler.removeCallbacks(runnable);
-//        }
     }
 
     /**

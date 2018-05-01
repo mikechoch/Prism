@@ -3,7 +3,6 @@ package com.mikechoch.prism.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
@@ -40,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
@@ -47,7 +46,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
@@ -67,7 +65,6 @@ import com.mikechoch.prism.fragment.MainContentFragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainActivity extends FragmentActivity {
@@ -111,7 +108,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
-
+        AndroidNetworking.initialize(getApplicationContext());
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;

@@ -27,7 +27,7 @@
         android:foreground="@drawable/search_bar_selector"
         android:clickable="true"
         app:cardElevation="8dp"
-        app:cardCornerRadius="5dp"
+        app:cardCornerRadius="2dp"
         app:cardBackgroundColor="@android:color/white">
 
         <RelativeLayout
