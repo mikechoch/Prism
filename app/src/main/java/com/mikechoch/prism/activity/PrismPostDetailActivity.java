@@ -20,9 +20,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
@@ -34,10 +32,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,9 +52,6 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 
 /**
@@ -106,7 +99,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private TextView detailUsernameTextView;
     private TextView detailPrismPostDateTextView;
     private TextView detailPrismPostDescriptionTextView;
-    private LinearLayout detailPrismPostTagsLinearLayout;
     private ImageView collapsingToolbarCollapseUpButton;
     private ImageView collapsingToolbarDragArrow;
 
@@ -197,7 +189,18 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
-        getAllPrismPostData();
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            prismPost = extras.getParcelable("PrismPostDetail");
+            if (prismPost != null) {
+                parseAllPrismPostData(extras);
+            } else {
+                //TODO String notificationPostId = extras.getString("postId");
+                //fetchPrismPostData();
+            }
+        }
+
 
         setupUIElements();
     }
@@ -212,9 +215,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * Get the Intent and then get the PrismPost parcelable
      * Set all of the global variables associated with the PrismPost
      */
-    private void getAllPrismPostData() {
-        Bundle extras = getIntent().getExtras();
-        prismPost = extras.getParcelable("PrismPostDetail");
+    private void parseAllPrismPostData(Bundle extras) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
@@ -505,8 +506,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                 ds.setUnderlineText(true);
             }
         };
-        spannableString.setSpan(clickableSpan, 5, 14, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableString.setSpan(clickableSpan, 25, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         detailPrismPostDescriptionTextView.setText(spannableString);
         detailPrismPostDescriptionTextView.setMovementMethod(LinkMovementMethod.getInstance());

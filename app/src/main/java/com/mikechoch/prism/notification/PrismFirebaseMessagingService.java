@@ -20,9 +20,13 @@ import android.support.v4.content.ContextCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.PrismUserProfileActivity;
+import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.io.IOException;
 import java.net.URL;
@@ -51,7 +55,8 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        // int otherUserCount = Integer.parseInt(remoteMessage.getData().get(NotificationKey.OTHER_USER));
+        // TODO git commit --amend -m "New commit message"
+
         String title = mostRecentUser;
         if (otherUserCount == 1) {
             title += " and 1 other";
@@ -73,10 +78,28 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         Bundle bundle = new Bundle();
         bundle.putInt("other_count", otherUserCount);
 
-        Intent viewIntent = new Intent(this, MainActivity.class);
-         viewIntent.putExtra("fragment", "notificationsFragment");
-        PendingIntent viewPendingIntent =
-                PendingIntent.getActivity(this, 0, viewIntent, 0);
+        // TODO String postId = remoteMessage.getData().get(NotificationKey.POST_ID);
+        String prismPostId = remoteMessage.getData().get(NotificationKey.PRISM_POST_ID);
+        String prismUserId = remoteMessage.getData().get(NotificationKey.PRISM_USER_ID);
+
+        Intent activityIntent;
+        if (prismPostId != null) {
+            activityIntent = new Intent(this, DisplayUsersActivity.class);
+            activityIntent.putExtra("postId", prismPostId);
+        } else if (prismUserId != null) {
+            activityIntent = new Intent(this, PrismUserProfileActivity.class);
+            activityIntent.putExtra("userId", prismUserId);
+        } else {
+            activityIntent = new Intent(this, MainActivity.class);
+        }
+        Intent splashIntent = new Intent(this, SplashActivity.class);
+        splashIntent.putExtra(Intent.EXTRA_INTENT, activityIntent);
+
+        // TODO
+        // Intent viewIntent = new Intent(this, MainActivity.class);
+        // viewIntent.putExtra("postId", postId);
+         PendingIntent viewPendingIntent =
+                PendingIntent.getActivity(this, 0, activityIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_prism)

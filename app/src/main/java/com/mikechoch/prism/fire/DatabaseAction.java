@@ -1,6 +1,7 @@
 package com.mikechoch.prism.fire;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -263,7 +264,7 @@ public class DatabaseAction {
      * Then fetches CurrentUser's liked, reposted and uploaded posts
      * And then refresh the mainRecyclerViewAdapter
      */
-    static void fetchUserProfile() {
+    static void fetchUserProfile(Context context, Intent intent) {
         HashMap<String, Long> liked_posts_map = new HashMap<>();
         HashMap<String, Long> reposted_posts_map = new HashMap<>();
         HashMap<String, Long> uploaded_posts_map = new HashMap<>();
@@ -307,8 +308,9 @@ public class DatabaseAction {
                             CurrentUser.combineUploadsAndReposts();
 
                             // TODO: @Mike Is it ok to call these methods here?
-                            CurrentUser.updateUserProfilePageUI();
-                            refreshMainRecyclerViewAdapter();
+//                            CurrentUser.updateUserProfilePageUI();
+//                            refreshMainRecyclerViewAdapter();
+                            CurrentUser.refreshInterface(context, intent);
                         }
 
                         @Override

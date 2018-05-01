@@ -160,12 +160,9 @@ public class MainActivity extends FragmentActivity {
 
         setupUIElements();
 
-        // Generates current firebaseUser's details
-        new CurrentUser(this);
         new InterfaceAction(this);
 
-        // Handle notification firebase token related activities
-        DatabaseAction.handleFirebaseTokenRefreshActivities(this);
+
     }
 
     @Override
@@ -548,5 +545,9 @@ public class MainActivity extends FragmentActivity {
      */
     private void snackTime(String message) {
         Snackbar.make(mainCoordinateLayout, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public String getKey() {
+        return getResources().getString(R.string.firebase_cloud_messaging_server_key);
     }
 }

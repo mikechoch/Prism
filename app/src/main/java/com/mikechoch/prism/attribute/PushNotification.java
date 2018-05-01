@@ -9,7 +9,25 @@ public class PushNotification {
     private int otherUserCount;
     private NotificationType type;
     private long actionTimestamp;
-    private int notificationId;
+    private int notificationHashId;
+    private String prismPostId;
+    private String prismUserId;
+
+    public String getPrismPostId() {
+        return prismPostId;
+    }
+
+    public void setPrismPostId(String prismPostId) {
+        this.prismPostId = prismPostId;
+    }
+
+    public String getPrismUserId() {
+        return prismUserId;
+    }
+
+    public void setPrismUserId(String prismUserId) {
+        this.prismUserId = prismUserId;
+    }
 
     public String getMostRecentUsername() {
         return mostRecentUsername;
@@ -51,11 +69,11 @@ public class PushNotification {
         this.actionTimestamp = actionTimestamp;
     }
 
-    public int getNotificationId() {
-        return notificationId;
+    public int getNotificationHashId() {
+        return notificationHashId;
     }
 
-    public void setNotificationId(int notificationId) {
-        this.notificationId = notificationId;
+    public void setNotificationHashId(int notificationHashId) {
+        this.notificationHashId = notificationHashId;
     }
 }

@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -250,24 +251,30 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Intent to Main Activity from Login Activity
+     * TODO Rename this method
      */
     private void intentToMainActivity() {
-        Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(LoginActivity.this, iconImageView, "icon");
-        iconImageView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(mainActivityIntent, options.toBundle());
-//                    overridePendingTransition(enterAnim, exitAnim);
-                iconImageView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        finish();
-                    }
-                }, 1000);
-            }
-        }, 250);
+        Intent intent = new Intent(this, MainActivity.class);
+        CurrentUser.prepareAppForUser(this, intent);
+
+        // TODO @Mike if you want to get iconImageView to do its shit, you can maybe pass it into `prepareAppForUser`
+//        Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
+//        ActivityOptionsCompat options = ActivityOptionsCompat.
+//                makeSceneTransitionAnimation(LoginActivity.this, iconImageView, "icon");
+//
+//        iconImageView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                startActivity(mainActivityIntent, options.toBundle());
+////                    overridePendingTransition(enterAnim, exitAnim);
+//                iconImageView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        finish();
+//                    }
+//                }, 1000);
+//            }
+//        }, 250);
     }
 
     /**
