@@ -130,7 +130,7 @@ public class MainActivity extends FragmentActivity {
 
         // Get the screen density of the current phone and assign it to Default.SCALE
         // Used for later UI element scaling
-        Default.SCALE = getResources().getDisplayMetrics().density;
+
 
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);
@@ -460,7 +460,7 @@ public class MainActivity extends FragmentActivity {
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    toast("Failed to upload the image to cloud");
+                    Helper.toast(MainActivity.this, "Failed to upload the image to cloud");
                 }
 
 
@@ -532,14 +532,6 @@ public class MainActivity extends FragmentActivity {
         String userId = auth.getCurrentUser().getUid();
         Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
         return new PrismPost(imageUri, description, userId, timestamp);
-    }
-
-
-    /**
-     * Shortcut for displaying a Toast message
-     */
-    private void toast(String bread) {
-        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
     }
 
     /**

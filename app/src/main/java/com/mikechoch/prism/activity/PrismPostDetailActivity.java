@@ -48,6 +48,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.R;
@@ -72,12 +73,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private int scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED;
     private int noScrollFlags = 0;
-
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     private String postId;
     private String postDate;
@@ -159,17 +154,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_post_detail_activity_layout);
-
-        // Get the screen density of the current phone for later UI element scaling
-        scale = getResources().getDisplayMetrics().density;
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
-        // Get the screen width and height of the current phone
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
         // Initialize all toolbar elements
         appBarLayout = findViewById(R.id.prism_post_detail_app_bar_layout);
@@ -414,14 +398,14 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         // Check that the image height is larger or equal to actual screen height
                         // If so, set ScaleType to CENTER_CROP
                         // Otherwise, set ScaleType to FIT_START
-                        boolean isLongPortraitImage = resource.getHeight() >= screenHeight;
+                        boolean isLongPortraitImage = resource.getHeight() >= Default.screenHeight;
                         detailImageView.setScaleType(isLongPortraitImage ? ImageView.ScaleType.CENTER_CROP : ImageView.ScaleType.FIT_START);
 
                         // Check that the image and info window height is larger or equal to actual screen height
                         // If so, enable collapsing toolbar using scroll flags
                         // Otherwise, disable collapsing toolbar using scroll flags
-                        boolean isScrollImage = (resource.getHeight() + userInfoHeight) >= screenHeight;
-                        int toolbarHeight = isScrollImage ? (screenHeight - getBottomNavigationBarHeight() - userInfoHeight) : resource.getHeight();
+                        boolean isScrollImage = (resource.getHeight() + userInfoHeight) >= Default.screenHeight;
+                        int toolbarHeight = isScrollImage ? (Default.screenHeight - getBottomNavigationBarHeight() - userInfoHeight) : resource.getHeight();
                         boolean isToolbarHeightNegative = toolbarHeight <= getActionBarHeight();
 //                        toolbar.getLayoutParams().height = isToolbarHeightNegative ? getActionBarHeight() : toolbarHeight;
 
@@ -459,7 +443,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         userRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToUserProfileActivity();
+                Helper.intentToUserProfileActivity(PrismPostDetailActivity.this, prismPost.getPrismUser());
             }
         });
 
@@ -471,7 +455,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             detailUserProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             detailUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -613,16 +597,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCount = prismPost.getReposts() + (performRepost ? 1 : -1);
         prismPost.setReposts(repostCount);
         repostCountTextView.setText(String.valueOf(repostCount));
-    }
-
-    /**
-     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-     */
-    private void intentToUserProfileActivity() {
-        Intent prismUserProfileIntent = new Intent(PrismPostDetailActivity.this, PrismUserProfileActivity.class);
-        prismUserProfileIntent.putExtra("PrismUser", prismPost.getPrismUser());
-        startActivity(prismUserProfileIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -833,23 +807,16 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         setupStatusBar();
 
         // Setup Typefaces for all text based UI elements
-        likesCountTextView.setTypeface(sourceSansProLight);
-        repostCountTextView.setTypeface(sourceSansProLight);
-        detailUsernameTextView.setTypeface(sourceSansProBold);
-        detailPrismPostDateTextView.setTypeface(sourceSansProLight);
-        detailPrismPostDescriptionTextView.setTypeface(sourceSansProLight);
+        likesCountTextView.setTypeface(Default.sourceSansProLight);
+        repostCountTextView.setTypeface(Default.sourceSansProLight);
+        detailUsernameTextView.setTypeface(Default.sourceSansProBold);
+        detailPrismPostDateTextView.setTypeface(Default.sourceSansProLight);
+        detailPrismPostDescriptionTextView.setTypeface(Default.sourceSansProLight);
 
         setupToolbarPullDownLayout();
         setupPrismPostUserInfo();
         setupPrismPostImageView();
         setupActionButtons();
-    }
-
-    /**
-     * Shortcut for toasting a message
-     */
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
 }

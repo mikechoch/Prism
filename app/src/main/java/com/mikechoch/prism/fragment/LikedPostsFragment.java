@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.adapter.UserPostsColumnRecyclerViewAdapter;
+import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
@@ -52,8 +52,7 @@ public class LikedPostsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
 
         // Create two typefaces
@@ -87,29 +86,29 @@ public class LikedPostsFragment extends Fragment {
      */
     private void setupLikedRecyclerViewColumns() {
         userLikedPostsLinearLayout.removeAllViews();
-        userLikedPostsLinearLayout.setWeightSum((float) Default.USER_UPLOADED_POSTS_COLUMNS);
+        userLikedPostsLinearLayout.setWeightSum((float) Default.POSTS_COLUMNS);
         ArrayList<PrismPost> userLikedPosts = CurrentUser.getUserLikes();
         if (userLikedPosts != null && userLikedPosts.size() > 0) {
 //        ArrayList<ArrayList<PrismPost>> userLikedPostsArrayLists = new ArrayList<>(Collections.nCopies(userUploadedColumns, new ArrayList<>()));
             // TODO: figure out how to initialize an ArrayList of ArrayLists without using while loop inside of populating for-loop
             ArrayList<ArrayList<PrismPost>> userLikedPostsArrayLists = new ArrayList<>();
             for (int i = 0; i < userLikedPosts.size(); i++) {
-                while (userLikedPostsArrayLists.size() != Default.USER_UPLOADED_POSTS_COLUMNS) {
+                while (userLikedPostsArrayLists.size() != Default.POSTS_COLUMNS) {
                     userLikedPostsArrayLists.add(new ArrayList<>());
                 }
-                userLikedPostsArrayLists.get((i % Default.USER_UPLOADED_POSTS_COLUMNS)).add(userLikedPosts.get(i));
+                userLikedPostsArrayLists.get((i % Default.POSTS_COLUMNS)).add(userLikedPosts.get(i));
             }
 
-            for (int i = 0; i < Default.USER_UPLOADED_POSTS_COLUMNS; i++) {
+            for (int i = 0; i < Default.POSTS_COLUMNS; i++) {
                 LinearLayout recyclerViewLinearLayout = new LinearLayout(getActivity());
                 LinearLayout.LayoutParams linearLayoutLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                 recyclerViewLinearLayout.setLayoutParams(linearLayoutLayoutParams);
 
-                RecyclerView currentUserLikedPostsRecyclerView = (RecyclerView) LayoutInflater.from(getActivity()).inflate(R.layout.user_posts_column_recycler_view, null);
+                RecyclerView currentUserLikedPostsRecyclerView = (RecyclerView) LayoutInflater.from(getActivity()).inflate(R.layout.posts_recycler_view, null);
                 LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(getActivity());
                 currentUserLikedPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
                 // TODO app crashes here if user hasn't liked any pics (userLikedPostsArrayLists.size() == 0)
-                UserPostsColumnRecyclerViewAdapter recyclerViewAdapter = new UserPostsColumnRecyclerViewAdapter(getActivity(), userLikedPostsArrayLists.get(i));
+                PostsColumnRecyclerViewAdapter recyclerViewAdapter = new PostsColumnRecyclerViewAdapter(getActivity(), userLikedPostsArrayLists.get(i));
                 currentUserLikedPostsRecyclerView.setAdapter(recyclerViewAdapter);
 
                 recyclerViewLinearLayout.addView(currentUserLikedPostsRecyclerView);

@@ -28,6 +28,9 @@ public class InterfaceAction {
     /*
      * Globals
      */
+    public static String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
+    public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
+
     private Context context;
 
     private static String[] morePostOptionsCurrentUser = {"Report post", "Share", "Delete"};
@@ -310,7 +313,7 @@ public class InterfaceAction {
      * Toggle method for UI of small follow button
      */
     public static void toggleSmallFollowButton(Context context, boolean showFollowing, Button smallFollowButton) {
-        int buttonWidth = (int) (Default.SCALE * (showFollowing ? 80 : 60));
+        int buttonWidth = (int) (Default.scale * (showFollowing ? 80 : 60));
         String followButtonString = showFollowing ? "Following" : "Follow";
         int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
         Drawable followingToolbarButtonDrawable = context.getResources().getDrawable(followButtonInt);

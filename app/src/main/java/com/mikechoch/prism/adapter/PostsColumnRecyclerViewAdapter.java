@@ -23,7 +23,6 @@ import com.bumptech.glide.request.target.Target;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.List;
  * Created by mikechoch on 2/7/18.
  */
 
-public class UserPostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<UserPostsColumnRecyclerViewAdapter.ViewHolder> {
+public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsColumnRecyclerViewAdapter.ViewHolder> {
 
     /*
      * Global variables
@@ -42,14 +41,14 @@ public class UserPostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<Use
     private List<PrismPost> prismPostsArrayList;
 
 
-    public UserPostsColumnRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostsArrayList) {
+    public PostsColumnRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostsArrayList) {
         this.context = context;
         this.prismPostsArrayList = prismPostsArrayList;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.user_post_column_recycler_view_item_layout, null));
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.post_column_recycler_view_item_layout, null));
     }
 
     @Override

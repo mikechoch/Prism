@@ -1,5 +1,7 @@
 package com.mikechoch.prism.constant;
 
+import android.graphics.Typeface;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -19,6 +21,12 @@ public class Default {
     public static final DatabaseReference ACCOUNT_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();
+
+    public static float scale;
+    public static int screenHeight;
+    public static int screenWidth;
+    public static Typeface sourceSansProLight;
+    public static Typeface sourceSansProBold;
 
     public static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 99;
     public static final int IMAGE_UPLOAD_INTENT_REQUEST_CODE = 100;
@@ -45,6 +53,10 @@ public class Default {
     public static final int USER_POSTS_VIEW_PAGER_POSTS = 0;
     public static final int USER_POSTS_VIEW_PAGER_LIKES = 1;
 
+    public static final int SEARCH_TYPE_VIEW_PAGER_SIZE = 2;
+    public static final int SEARCH_TYPE_VIEW_PAGER_PEOPLE = 0;
+    public static final int SEARCH_TYPE_VIEW_PAGER_TAG = 1;
+
     // SettingType
     public static final int SETTINGS_OPTION_APP = 0;
     public static final int SETTINGS_OPTION_NOTIFICATION = 1;
@@ -53,7 +65,7 @@ public class Default {
     public static final int SETTINGS_OPTION_ABOUT = 4;
     public static final int SETTINGS_OPTION_LOGOUT = 5;
 
-    public static final int USER_UPLOADED_POSTS_COLUMNS = 3;
+    public static final int POSTS_COLUMNS = 3;
 
     // Regex String
     public static final String USERNAME_PERIOD = ".";
@@ -78,10 +90,6 @@ public class Default {
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
     public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 10000;
-
-
-    // Scale variable for programmatically sized UI elements
-    public static float SCALE;
 
     public static final String HIDDEN_PASSWORD = "********";
 

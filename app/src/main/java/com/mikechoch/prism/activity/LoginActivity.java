@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.helper.Helper;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -194,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             Log.wtf(Default.TAG_DB, Message.USER_EXIST_CHECK_FAIL, databaseError.toException());
-                            toast("An error occurred logging in");
+                            Helper.toast(LoginActivity.this, "An error occurred logging in");
                             toggleLoginProgressBar(false);
                         }
                     });
@@ -346,10 +347,4 @@ public class LoginActivity extends AppCompatActivity {
         return passwordEditText.getText().toString().trim();
     }
 
-    /**
-     * Shortcut for toasting a message
-     */
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
 }

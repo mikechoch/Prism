@@ -85,8 +85,7 @@ public class MainContentFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_content_fragment_layout, container, false);
 
         mainContentProgressBar = view.findViewById(R.id.main_content_progress_bar);
@@ -297,13 +296,6 @@ public class MainContentFragment extends Fragment {
                 Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL, databaseError.toException());
             }
         });
-    }
-
-    /**
-     * Shortcut for toasting a bread, I mean a String message
-     */
-    private void toast(String bread) {
-        Toast.makeText(getActivity(), bread, Toast.LENGTH_SHORT).show();
     }
 
 }

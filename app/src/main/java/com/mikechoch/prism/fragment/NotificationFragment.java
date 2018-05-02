@@ -65,8 +65,7 @@ public class NotificationFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.notifications_fragment_layout, container, false);
 
         notificationProgressBar = view.findViewById(R.id.notification_progress_bar);
@@ -92,7 +91,7 @@ public class NotificationFragment extends Fragment {
 
         notificationArrayList = CurrentUser.getNotifications();
 
-        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), notificationArrayList, new int[]{screenWidth, screenHeight});
+        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), notificationArrayList);
         notificationRecyclerView.setAdapter(notificationRecyclerViewAdapter);
 
         notificationSwipeRefreshLayout = view.findViewById(R.id.notification_swipe_refresh_layout);

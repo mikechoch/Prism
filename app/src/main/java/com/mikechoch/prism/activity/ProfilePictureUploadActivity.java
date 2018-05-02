@@ -306,11 +306,4 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         }
 
     }
-
-    /**
-     * Shortcut for displaying a Toast message
-     */
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
 }

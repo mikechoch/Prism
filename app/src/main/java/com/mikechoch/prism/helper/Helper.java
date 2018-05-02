@@ -1,15 +1,26 @@
 package com.mikechoch.prism.helper;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
+import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
+import com.mikechoch.prism.activity.PrismUserProfileActivity;
+import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -190,6 +201,7 @@ public class Helper {
 
     /**
      *
+     * @param context
      * @param string
      * @return
      */
@@ -216,7 +228,9 @@ public class Helper {
 
     /**
      *
+     * @param context
      * @param spannableString
+     * @param tag
      * @param startIndex
      * @param endIndex
      */
@@ -224,7 +238,10 @@ public class Helper {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                toast(context, tag);
+                Intent searchIntent = new Intent(context, SearchActivity.class);
+                searchIntent.putExtra("ClickedTag", tag);
+                context.startActivity(searchIntent);
+                ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         };
 
@@ -235,10 +252,65 @@ public class Helper {
     }
 
     /**
-     * Shortcut for toasting a message
+     *
+     * @param context
+     * @param tabTitle
+     * @return
      */
-    private static void toast(Context context, String message) {
+    public static TextView createTabTextView(Context context, String tabTitle) {
+        TextView postsTabTextView = new TextView(context);
+        postsTabTextView.setText(tabTitle);
+        postsTabTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        postsTabTextView.setTextSize(16);
+        postsTabTextView.setTextColor(Color.WHITE);
+        postsTabTextView.setTypeface(Default.sourceSansProBold);
+        return postsTabTextView;
+    }
+
+    /**
+     *
+     * @param context
+     * @param message
+     */
+    public static void toast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Intent from the current clicked PrismPost to the PrismPostDetail
+     * @param context
+     * @param prismPost
+     * @param prismPostImageView
+     */
+    public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost, ImageView prismPostImageView) {
+        Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
+        prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
+
+        ActivityOptionsCompat options = null;
+        if (prismPostImageView != null) {
+            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
+
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    (Activity) context,
+                    prismPostImageView,
+                    ViewCompat.getTransitionName(prismPostImageView));
+
+        }
+
+        context.startActivity(prismPostDetailIntent, options != null ? options.toBundle() : null);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
+     * @param context
+     * @param prismUser
+     */
+    public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
+        Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
+        prismUserProfileIntent.putExtra("PrismUser", prismUser);
+        context.startActivity(prismUserProfileIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
 }
