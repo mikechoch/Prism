@@ -59,6 +59,7 @@ import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
+import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -621,34 +622,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         });
 
         LinearLayout userUploadedPostsLinearLayout = this.findViewById(R.id.user_uploaded_posts_linear_layout);
-        userUploadedPostsLinearLayout.removeAllViews();
-        userUploadedPostsLinearLayout.setWeightSum((float) Default.POSTS_COLUMNS);
-
-//        ArrayList<ArrayList<PrismPost>> userUploadedPostsArrayLists = new ArrayList<>(Collections.nCopies(userUploadedColumns, new ArrayList<>()));
-        // TODO: figure out how to initialize an ArrayList of ArrayLists without using while loop inside of populating for-loop
-        ArrayList<ArrayList<PrismPost>> userUploadedPostsArrayLists = new ArrayList<>();
-        for (int i = 0; i < prismUserUploadedAndRepostedPostsArrayList.size(); i++) {
-            while (userUploadedPostsArrayLists.size() != Default.POSTS_COLUMNS) {
-                userUploadedPostsArrayLists.add(new ArrayList<>());
-            }
-            userUploadedPostsArrayLists.get((i % Default.POSTS_COLUMNS)).add(prismUserUploadedAndRepostedPostsArrayList.get(i));
-        }
-
-        for (int i = 0; i < Default.POSTS_COLUMNS; i++) {
-            LinearLayout recyclerViewLinearLayout = new LinearLayout(this);
-            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1f);
-            recyclerViewLinearLayout.setLayoutParams(one_params);
-
-            RecyclerView userUploadedPostsRecyclerView = (RecyclerView) LayoutInflater.from(this).inflate(R.layout.posts_recycler_view, null);
-            LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(this);
-            userUploadedPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
-            PostsColumnRecyclerViewAdapter userPostsColumnRecyclerViewAdapter = new PostsColumnRecyclerViewAdapter(this, userUploadedPostsArrayLists.get(i));
-            userUploadedPostsRecyclerView.setAdapter(userPostsColumnRecyclerViewAdapter);
-
-            recyclerViewLinearLayout.addView(userUploadedPostsRecyclerView);
-            userUploadedPostsLinearLayout.addView(recyclerViewLinearLayout);
-        }
-
+        new PrismPostStaggeredGridRecyclerView(this, userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
         userUploadedPostsLinearLayout.setVisibility(View.VISIBLE);
     }
 

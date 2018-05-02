@@ -12,7 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.PeopleSearchFragment;
 import com.mikechoch.prism.fragment.TagSearchFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
@@ -42,6 +45,7 @@ public class SearchActivity  extends AppCompatActivity {
      */
     private Toolbar toolbar;
     private EditText searchBarEditText;
+    private ImageView searchBarClearButton;
     private TabLayout searchTypeTabLayout;
     private ViewPager searchTypeViewPager;
 
@@ -81,6 +85,7 @@ public class SearchActivity  extends AppCompatActivity {
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         searchBarEditText = findViewById(R.id.search_bar_edit_text);
+        searchBarClearButton = findViewById(R.id.search_bar_clear_button);
         searchTypeTabLayout = findViewById(R.id.search_type_tab_layout);
         searchTypeViewPager = findViewById(R.id.search_type_view_pager);
 
@@ -171,6 +176,14 @@ public class SearchActivity  extends AppCompatActivity {
      *
      */
     private void setupSearchBarEditText() {
+        searchBarClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InterfaceAction.toggleKeyboard(SearchActivity.this, getCurrentFocus(), true);
+                searchBarEditText.setText("");
+            }
+        });
+
         searchBarEditText.requestFocus();
         searchBarEditText.addTextChangedListener(new TextWatcher() {
 
@@ -197,6 +210,9 @@ public class SearchActivity  extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                int clearButtonVisibility = s.toString().length() > 0 ? View.VISIBLE : View.GONE;
+                searchBarClearButton.setVisibility(clearButtonVisibility);
+
                 hashTagsCollection.clear();
                 handler.removeCallbacks(runnable);
                 query.removeEventListener(listener);
