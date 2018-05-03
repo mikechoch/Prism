@@ -356,7 +356,7 @@ public class OutgoingNotificationController {
             jsonBody.put("data", dataJson);
 
             params.put("Content-Type", "application/json charset=utf-8");
-            params.put("Authorization", "key=" + new MainActivity().getKey());
+            params.put("Authorization", "key=" + MainActivity.FCM_API_KEY);
         } catch (JSONException e) {
             e.printStackTrace();
         }

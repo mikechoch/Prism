@@ -44,6 +44,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.R;
@@ -195,14 +201,34 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             prismPost = extras.getParcelable("PrismPostDetail");
             if (prismPost != null) {
                 parseAllPrismPostData(extras);
+                setupUIElements();
             } else {
                 //TODO String notificationPostId = extras.getString("postId");
-                //fetchPrismPostData();
+                String postId = extras.getString(NotificationKey.PRISM_POST_ID);
+                fetchPrismPostData(postId);
             }
         }
 
 
-        setupUIElements();
+
+    }
+
+    private void fetchPrismPostData(String postId) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot postSnapshot) {
+                if (postSnapshot.exists()) {
+                    prismPost = Helper.constructPrismPostObject(postSnapshot);
+                    prismPost.setPrismUser(CurrentUser.prismUser);
+                    parseAllPrismPostData(getIntent().getExtras());
+                    setupUIElements();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.constant.Default;
@@ -84,11 +85,11 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent activityIntent;
         if (prismPostId != null) {
-            activityIntent = new Intent(this, DisplayUsersActivity.class);
-            activityIntent.putExtra("postId", prismPostId);
+            activityIntent = new Intent(this, PrismPostDetailActivity.class);
+            activityIntent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
         } else if (prismUserId != null) {
             activityIntent = new Intent(this, PrismUserProfileActivity.class);
-            activityIntent.putExtra("userId", prismUserId);
+            activityIntent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
         } else {
             activityIntent = new Intent(this, MainActivity.class);
         }
@@ -99,7 +100,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         // Intent viewIntent = new Intent(this, MainActivity.class);
         // viewIntent.putExtra("postId", postId);
          PendingIntent viewPendingIntent =
-                PendingIntent.getActivity(this, 0, activityIntent, 0);
+                PendingIntent.getActivity(this, 0, splashIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_prism)

@@ -56,7 +56,6 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -102,6 +101,8 @@ public class MainActivity extends FragmentActivity {
     private boolean isUploadingImage = false;
 
 
+    public static String FCM_API_KEY;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +113,7 @@ public class MainActivity extends FragmentActivity {
         allPostsReference = Default.ALL_POSTS_REFERENCE;
         userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
         tagsReference = Default.TAGS_REFERENCE;
+        FCM_API_KEY = getFirebaseKey();
 
         // Check if firebaseUser is logged in
         // Otherwise intent to LoginActivity
@@ -120,7 +122,6 @@ public class MainActivity extends FragmentActivity {
             intentToLoginActivity();
             return;
         }
-
 
 
         // Ask firebaseUser for write permissions to external storage
@@ -547,7 +548,7 @@ public class MainActivity extends FragmentActivity {
         Snackbar.make(mainCoordinateLayout, message, Toast.LENGTH_SHORT).show();
     }
 
-    public String getKey() {
+    private String getFirebaseKey() {
         return getResources().getString(R.string.firebase_cloud_messaging_server_key);
     }
 }

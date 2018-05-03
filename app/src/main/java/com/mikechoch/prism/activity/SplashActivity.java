@@ -38,11 +38,9 @@ public class SplashActivity extends AppCompatActivity {
         iconImageView.startAnimation(rotateAnimation);
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null && extras.get(Intent.EXTRA_INTENT) != null) {
             intent = (Intent) extras.get(Intent.EXTRA_INTENT);
-        }
-
-        if (intent == null) {
+        } else {
             intent = new Intent(this, MainActivity.class);
         }
 
@@ -101,7 +99,7 @@ public class SplashActivity extends AppCompatActivity {
 
         // Generates current firebaseUser's details
 //        Intent intent = new Intent(this, MainActivity.class);
-        CurrentUser.prepareAppForUser(this, intent);
+        CurrentUser.prepareAppForUser(SplashActivity.this, intent);
 
     }
 }
