@@ -139,9 +139,6 @@ public class ImageUploadActivity extends AppCompatActivity {
      * Setup onClickListener for uploadButton
      */
     private void setupUploadButton() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            uploadButton.setForeground(getResources().getDrawable(R.drawable.profile_pic_upload_selector));
-        }
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,13 +231,6 @@ public class ImageUploadActivity extends AppCompatActivity {
     private Uri getImageUri(Bitmap inBitmap) {
         String path = BitmapHelper.insertImage(this.getContentResolver(), inBitmap, null, null);
         return Uri.parse(path);
-    }
-
-    /**
-     * Shortcut for toasting a message
-     */
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
 }

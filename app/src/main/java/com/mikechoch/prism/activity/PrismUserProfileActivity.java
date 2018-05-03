@@ -49,7 +49,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
-import com.mikechoch.prism.adapter.UserPostsColumnRecyclerViewAdapter;
+import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -59,6 +59,7 @@ import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
+import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,9 +84,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private float scale;
     private Typeface sourceSansProLight;
     private Typeface sourceSansProBold;
-
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
-    private String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
 
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
@@ -254,12 +252,12 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.wtf(Default.TAG_DB, Message.PROFILE_PIC_UPDATE_FAIL, task.getException());
-                            toast("Unable to update profile picture");
+                            Helper.toast(PrismUserProfileActivity.this, "Unable to update profile picture");
                         }
                     });
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    toast("Unable to update profile picture");
+                    Helper.toast(PrismUserProfileActivity.this, "Unable to update profile picture");
                 }
             }
         });
@@ -509,7 +507,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private AlertDialog createSetProfilePictureAlertDialog() {
         AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
         profilePictureAlertDialog.setTitle("Set profile picture");
-        profilePictureAlertDialog.setItems(setProfilePicStrings, new DialogInterface.OnClickListener() {
+        profilePictureAlertDialog.setItems(InterfaceAction.setProfilePicStrings, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
@@ -572,8 +570,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         userPostsViewPager.setAdapter(userPostsViewPagerAdapter);
         userPostsTabLayout.setupWithViewPager(userPostsViewPager);
 
-        userPostsTabLayout.getTabAt(Default.USER_POSTS_VIEW_PAGER_POSTS).setCustomView(createTabTextView("POSTS"));
-        userPostsTabLayout.getTabAt(Default.USER_POSTS_VIEW_PAGER_LIKES).setCustomView(createTabTextView("LIKES"));
+        userPostsTabLayout.getTabAt(Default.USER_POSTS_VIEW_PAGER_POSTS).setCustomView(Helper.createTabTextView(this, "POSTS"));
+        userPostsTabLayout.getTabAt(Default.USER_POSTS_VIEW_PAGER_LIKES).setCustomView(Helper.createTabTextView(this, "LIKES"));
 
         int selectedTabColor = getResources().getColor(R.color.colorAccent);
         int unselectedTabColor = Color.WHITE;
@@ -611,24 +609,11 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Create custom tab TextView for TabLayout controlling ViewPager
-     */
-    private TextView createTabTextView(String tabTitle) {
-        TextView postsTabTextView = new TextView(this);
-        postsTabTextView.setText(tabTitle);
-        postsTabTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        postsTabTextView.setTextSize(16);
-        postsTabTextView.setTextColor(Color.WHITE);
-        postsTabTextView.setTypeface(sourceSansProBold);
-        return postsTabTextView;
-    }
-
-    /**
      * Setup the RecyclerView for all user uploaded and reposted posts
      */
     private void setupUserUploadedPostsRecyclerView() {
         profileSwipeRefreshLayout.setVisibility(View.VISIBLE);
-        profileSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
+        profileSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         profileSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -637,34 +622,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         });
 
         LinearLayout userUploadedPostsLinearLayout = this.findViewById(R.id.user_uploaded_posts_linear_layout);
-        userUploadedPostsLinearLayout.removeAllViews();
-        userUploadedPostsLinearLayout.setWeightSum((float) Default.USER_UPLOADED_POSTS_COLUMNS);
-
-//        ArrayList<ArrayList<PrismPost>> userUploadedPostsArrayLists = new ArrayList<>(Collections.nCopies(userUploadedColumns, new ArrayList<>()));
-        // TODO: figure out how to initialize an ArrayList of ArrayLists without using while loop inside of populating for-loop
-        ArrayList<ArrayList<PrismPost>> userUploadedPostsArrayLists = new ArrayList<>();
-        for (int i = 0; i < prismUserUploadedAndRepostedPostsArrayList.size(); i++) {
-            while (userUploadedPostsArrayLists.size() != Default.USER_UPLOADED_POSTS_COLUMNS) {
-                userUploadedPostsArrayLists.add(new ArrayList<>());
-            }
-            userUploadedPostsArrayLists.get((i % Default.USER_UPLOADED_POSTS_COLUMNS)).add(prismUserUploadedAndRepostedPostsArrayList.get(i));
-        }
-
-        for (int i = 0; i < Default.USER_UPLOADED_POSTS_COLUMNS; i++) {
-            LinearLayout recyclerViewLinearLayout = new LinearLayout(this);
-            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1f);
-            recyclerViewLinearLayout.setLayoutParams(one_params);
-
-            RecyclerView userUploadedPostsRecyclerView = (RecyclerView) LayoutInflater.from(this).inflate(R.layout.user_posts_column_recycler_view, null);
-            LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(this);
-            userUploadedPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
-            UserPostsColumnRecyclerViewAdapter recyclerViewAdapter = new UserPostsColumnRecyclerViewAdapter(this, userUploadedPostsArrayLists.get(i));
-            userUploadedPostsRecyclerView.setAdapter(recyclerViewAdapter);
-
-            recyclerViewLinearLayout.addView(userUploadedPostsRecyclerView);
-            userUploadedPostsLinearLayout.addView(recyclerViewLinearLayout);
-        }
-
+        new PrismPostStaggeredGridRecyclerView(this, userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
         userUploadedPostsLinearLayout.setVisibility(View.VISIBLE);
     }
 
@@ -795,12 +753,5 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         } else {
             setupOtherUserProfilePage();
         }
-    }
-
-    /**
-     * Shortcut for displaying a Toast message
-     */
-    private void toast(String bread) {
-        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
     }
 }

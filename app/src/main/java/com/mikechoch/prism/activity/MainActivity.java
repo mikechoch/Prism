@@ -46,9 +46,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
@@ -132,7 +139,7 @@ public class MainActivity extends FragmentActivity {
 
         // Get the screen density of the current phone and assign it to Default.SCALE
         // Used for later UI element scaling
-        Default.SCALE = getResources().getDisplayMetrics().density;
+
 
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);
@@ -459,7 +466,7 @@ public class MainActivity extends FragmentActivity {
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    toast("Failed to upload the image to cloud");
+                    Helper.toast(MainActivity.this, "Failed to upload the image to cloud");
                 }
 
 
@@ -531,14 +538,6 @@ public class MainActivity extends FragmentActivity {
         String userId = auth.getCurrentUser().getUid();
         Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
         return new PrismPost(imageUri, description, userId, timestamp);
-    }
-
-
-    /**
-     * Shortcut for displaying a Toast message
-     */
-    private void toast(String bread) {
-        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
     }
 
     /**

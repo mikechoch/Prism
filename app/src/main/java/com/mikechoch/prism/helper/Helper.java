@@ -1,8 +1,26 @@
 package com.mikechoch.prism.helper;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.format.DateFormat;
+import android.text.style.ClickableSpan;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
+import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
+import com.mikechoch.prism.activity.PrismUserProfileActivity;
+import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -12,9 +30,11 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.MyTimeUnit;
 import com.mikechoch.prism.type.NotificationType;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -155,42 +175,143 @@ public class Helper {
      * hence it's an upload, otherwise it is a repost
      */
     public static boolean isPostReposted(PrismPost prismPost, PrismUser prismUser) {
-        return !prismPost.getUid().equals(prismUser.getUid());
+        return prismPost.getUid().equals(prismUser.getUid());
     }
 
     /**
      *
      */
     public static ArrayList<String> parseDescriptionForTags(String description) {
-        HashSet<String>  hashTags = new HashSet<>();
-        Matcher match = Pattern.compile(Default.REGEX_HASHTAG).matcher(description);
-        while (match.find()) {
-            hashTags.add(match.group(1));
-        }
-        return new ArrayList<>(hashTags);
-
-
-
-        /* ArrayList<String> listOfTags = new ArrayList<>();
-        for (int i = 0; i < description.length(); i++) {
-            char currentChar = description.charAt(i++);
+        ArrayList<String> listOfTags = new ArrayList<>();
+        char currentChar;
+        for (int i = 0; i < description.length();) {
+            currentChar = description.charAt(i++);
             if (currentChar == '#') {
-                String tag = "";
-                while (true) {
-                    currentChar = description.charAt(i);
-                    if (currentChar == ' ' || currentChar == '#' || i >= description.length()) {
-                        break;
-                    }
-                    tag += currentChar;
+                StringBuilder tag = new StringBuilder();
+                while (i < description.length() && !Default.illegalTagChars.contains(description.charAt(i))) {
+                    currentChar = description.charAt(i++);
+                    tag.append(currentChar);
                 }
-                listOfTags.add(tag);
+                if (tag.length() > 0) {
+                    listOfTags.add(tag.toString());
+                }
             }
         }
-        return listOfTags; */
+        return listOfTags;
     }
 
-    public static boolean stringContains(String mainString, String subString) {
-        return Pattern.compile(Pattern.quote(subString), Pattern.CASE_INSENSITIVE).matcher(mainString).find();
+    /**
+     *
+     * @param context
+     * @param string
+     * @return
+     */
+    public static SpannableString createClickableTagsInString(Context context, String string) {
+        SpannableString spannableString = new SpannableString(string);
+        char currentChar;
+        for (int i = 0; i < string.length();) {
+            currentChar = string.charAt(i++);
+            if (currentChar == '#') {
+                StringBuilder tag = new StringBuilder();
+                while (i < string.length() && !Default.illegalTagChars.contains(string.charAt(i))) {
+                    currentChar = string.charAt(i++);
+                    tag.append(currentChar);
+                }
+                if (tag.length() > 0) {
+                    int urlStartIndex = i - 1 - tag.length();
+                    int urlEndIndex = i;
+                    createClickableSpan(context, spannableString, tag.toString(), urlStartIndex, urlEndIndex);
+                }
+            }
+        }
+        return spannableString;
+    }
+
+    /**
+     *
+     * @param context
+     * @param spannableString
+     * @param tag
+     * @param startIndex
+     * @param endIndex
+     */
+    private static void createClickableSpan(final Context context, SpannableString spannableString, String tag, int startIndex, int endIndex) {
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                Intent searchIntent = new Intent(context, SearchActivity.class);
+                searchIntent.putExtra("ClickedTag", tag);
+                context.startActivity(searchIntent);
+                ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        };
+
+        spannableString.setSpan(clickableSpan,
+                startIndex,
+                endIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    /**
+     *
+     * @param context
+     * @param tabTitle
+     * @return
+     */
+    public static TextView createTabTextView(Context context, String tabTitle) {
+        TextView postsTabTextView = new TextView(context);
+        postsTabTextView.setText(tabTitle);
+        postsTabTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        postsTabTextView.setTextSize(16);
+        postsTabTextView.setTextColor(Color.WHITE);
+        postsTabTextView.setTypeface(Default.sourceSansProBold);
+        return postsTabTextView;
+    }
+
+    /**
+     *
+     * @param context
+     * @param message
+     */
+    public static void toast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Intent from the current clicked PrismPost to the PrismPostDetail
+     * @param context
+     * @param prismPost
+     * @param prismPostImageView
+     */
+    public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost, ImageView prismPostImageView) {
+        Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
+        prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
+
+        ActivityOptionsCompat options = null;
+        if (prismPostImageView != null) {
+            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
+
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    (Activity) context,
+                    prismPostImageView,
+                    ViewCompat.getTransitionName(prismPostImageView));
+
+        }
+
+        context.startActivity(prismPostDetailIntent, options != null ? options.toBundle() : null);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
+     * @param context
+     * @param prismUser
+     */
+    public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
+        Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
+        prismUserProfileIntent.putExtra("PrismUser", prismUser);
+        context.startActivity(prismUserProfileIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
 }

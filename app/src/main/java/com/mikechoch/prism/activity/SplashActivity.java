@@ -1,6 +1,7 @@
 package com.mikechoch.prism.activity;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 
 /**
@@ -29,6 +31,12 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity_layout);
+
+        Default.scale = getResources().getDisplayMetrics().density;
+        Default.screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+        Default.screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+        Default.sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
+        Default.sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);

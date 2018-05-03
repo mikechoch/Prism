@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_behavior="com.mikechoch.prism.FixAppBarLayoutBehavior">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -122,7 +123,6 @@
         android:id="@+id/prism_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/prism_tab_layout"
         android:nestedScrollingEnabled="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 

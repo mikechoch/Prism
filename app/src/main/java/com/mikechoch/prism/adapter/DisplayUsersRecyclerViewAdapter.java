@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -120,19 +121,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
             userRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    intentToUserProfileActivity();
+                    Helper.intentToUserProfileActivity(context, prismUser);
                 }
             });
-        }
-
-        /**
-         * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-         */
-        private void intentToUserProfileActivity() {
-            Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
-            prismUserProfileIntent.putExtra("PrismUser", prismUser);
-            context.startActivity(prismUserProfileIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**

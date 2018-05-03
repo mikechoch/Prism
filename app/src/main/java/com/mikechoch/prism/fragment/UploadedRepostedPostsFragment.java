@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.adapter.UserPostsColumnRecyclerViewAdapter;
+import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
@@ -51,13 +51,8 @@ public class UploadedRepostedPostsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.uploaded_reposted_posts_fragment_layout, container, false);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         uploadedRepostedPostsSwipeRefreshLayout = view.findViewById(R.id.uploaded_reposted_posts_swipe_refresh_layout);
         userUploadedPostsLinearLayout = view.findViewById(R.id.current_user_uploaded_posts_linear_layout);
@@ -85,7 +80,7 @@ public class UploadedRepostedPostsFragment extends Fragment {
      */
     private void setupUploadedRepostedRecyclerViewColumns() {
         userUploadedPostsLinearLayout.removeAllViews();
-        userUploadedPostsLinearLayout.setWeightSum((float) Default.USER_UPLOADED_POSTS_COLUMNS);
+        userUploadedPostsLinearLayout.setWeightSum((float) Default.POSTS_COLUMNS);
 //        ArrayList<PrismPost> userUploadedPosts = CurrentUser.getUserUploads();
         ArrayList<PrismPost> userUploadedPosts = CurrentUser.getUserUploadsAndReposts();
 
@@ -95,21 +90,21 @@ public class UploadedRepostedPostsFragment extends Fragment {
             // TODO: sexify this
             ArrayList<ArrayList<PrismPost>> userUploadedPostsArrayLists = new ArrayList<>();
             for (int i = 0; i < userUploadedPosts.size(); i++) {
-                while (userUploadedPostsArrayLists.size() != Default.USER_UPLOADED_POSTS_COLUMNS) {
+                while (userUploadedPostsArrayLists.size() != Default.POSTS_COLUMNS) {
                     userUploadedPostsArrayLists.add(new ArrayList<>());
                 }
-                userUploadedPostsArrayLists.get((i % Default.USER_UPLOADED_POSTS_COLUMNS)).add(userUploadedPosts.get(i));
+                userUploadedPostsArrayLists.get((i % Default.POSTS_COLUMNS)).add(userUploadedPosts.get(i));
             }
 
-            for (int i = 0; i < Default.USER_UPLOADED_POSTS_COLUMNS; i++) {
+            for (int i = 0; i < Default.POSTS_COLUMNS; i++) {
                 LinearLayout recyclerViewLinearLayout = new LinearLayout(getActivity());
                 LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                 recyclerViewLinearLayout.setLayoutParams(one_params);
 
-                RecyclerView currentUserUploadedPostsRecyclerView = (RecyclerView) LayoutInflater.from(getActivity()).inflate(R.layout.user_posts_column_recycler_view, null);
+                RecyclerView currentUserUploadedPostsRecyclerView = (RecyclerView) LayoutInflater.from(getActivity()).inflate(R.layout.posts_recycler_view, null);
                 LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(getActivity());
                 currentUserUploadedPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
-                UserPostsColumnRecyclerViewAdapter recyclerViewAdapter = new UserPostsColumnRecyclerViewAdapter(getActivity(), userUploadedPostsArrayLists.get(i));
+                PostsColumnRecyclerViewAdapter recyclerViewAdapter = new PostsColumnRecyclerViewAdapter(getActivity(), userUploadedPostsArrayLists.get(i));
                 currentUserUploadedPostsRecyclerView.setAdapter(recyclerViewAdapter);
 
                 recyclerViewLinearLayout.addView(currentUserUploadedPostsRecyclerView);

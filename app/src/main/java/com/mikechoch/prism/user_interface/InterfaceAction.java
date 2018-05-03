@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +29,9 @@ public class InterfaceAction {
     /*
      * Globals
      */
+    public static String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
+    public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
+
     private Context context;
 
     private static String[] morePostOptionsCurrentUser = {"Report post", "Share", "Delete"};
@@ -61,6 +65,22 @@ public class InterfaceAction {
         this.shareButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
         this.moreButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
         this.likeHeartBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
+    }
+
+    /**
+     *
+     * @param context
+     * @param view
+     */
+    public static void toggleKeyboard(Context context, View view, boolean showKeyboard) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (view != null && imm != null) {
+            if (showKeyboard) {
+                imm.showSoftInput(view, 0);
+            } else {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 
     /**
@@ -310,7 +330,7 @@ public class InterfaceAction {
      * Toggle method for UI of small follow button
      */
     public static void toggleSmallFollowButton(Context context, boolean showFollowing, Button smallFollowButton) {
-        int buttonWidth = (int) (Default.SCALE * (showFollowing ? 80 : 60));
+        int buttonWidth = (int) (Default.scale * (showFollowing ? 80 : 60));
         String followButtonString = showFollowing ? "Following" : "Follow";
         int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
         Drawable followingToolbarButtonDrawable = context.getResources().getDrawable(followButtonInt);
@@ -324,13 +344,13 @@ public class InterfaceAction {
     /**
      * Toggle method for UI of large follow button
      */
-    public static void toggleLargeFollowButton(Context context, boolean showFollowing, Button LargefollowButton) {
+    public static void toggleLargeFollowButton(Context context, boolean showFollowing, Button largeFollowButton) {
         String followButtonString = showFollowing ? "Following" : "Follow";
         int followButtonInt = showFollowing ? R.drawable.button_selector_selected : R.drawable.button_selector;
         Drawable followingButtonDrawable = context.getResources().getDrawable(followButtonInt);
 
-        LargefollowButton.setText(followButtonString);
-        LargefollowButton.setBackground(followingButtonDrawable);
+        largeFollowButton.setText(followButtonString);
+        largeFollowButton.setBackground(followingButtonDrawable);
     }
 
 }

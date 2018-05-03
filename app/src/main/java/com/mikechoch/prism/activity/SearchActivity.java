@@ -1,15 +1,21 @@
 package com.mikechoch.prism.activity;
 
-import android.graphics.Typeface;
+import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -18,9 +24,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.adapter.SearchTypeViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fragment.PeopleSearchFragment;
+import com.mikechoch.prism.fragment.TagSearchFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
@@ -33,17 +43,20 @@ public class SearchActivity  extends AppCompatActivity {
     /*
      * Global variables
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
     private Toolbar toolbar;
     private EditText searchBarEditText;
+    private ImageView searchBarClearButton;
+    private TabLayout searchTypeTabLayout;
+    private ViewPager searchTypeViewPager;
 
     private DatabaseReference allPostReference;
     private DatabaseReference usersReference;
     private DatabaseReference tagsReference;
-    private ArrayList<String> hashTagsCollection;
-    private ArrayList<PrismUser> prismUsersCollection;
+
+    public static ArrayList<PrismUser> prismUserArrayList;
+
+    public static ArrayList<Object> prismUserCollection;
+    public static ArrayList<Object> hashTagsCollection;
 
 
     @Override
@@ -69,37 +82,64 @@ public class SearchActivity  extends AppCompatActivity {
         usersReference = Default.USERS_REFERENCE;
         tagsReference = Default.TAGS_REFERENCE;
 
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         searchBarEditText = findViewById(R.id.search_bar_edit_text);
+        searchBarClearButton = findViewById(R.id.search_bar_clear_button);
+        searchTypeTabLayout = findViewById(R.id.search_type_tab_layout);
+        searchTypeViewPager = findViewById(R.id.search_type_view_pager);
+
+        prismUserArrayList = new ArrayList<>();
+
+        prismUserCollection = new ArrayList<>();
+        hashTagsCollection = new ArrayList<>();
+
+        searchTypeViewPager.setOffscreenPageLimit(2);
+        searchTypeViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(searchTypeTabLayout));
+        SearchTypeViewPagerAdapter searchTypeViewPagerAdapter = new SearchTypeViewPagerAdapter(getSupportFragmentManager());
+        searchTypeViewPager.setAdapter(searchTypeViewPagerAdapter);
+        searchTypeTabLayout.setupWithViewPager(searchTypeViewPager);
+
+        searchTypeTabLayout.getTabAt(Default.SEARCH_TYPE_VIEW_PAGER_PEOPLE).setCustomView(Helper.createTabTextView(this, "PEOPLE"));
+        searchTypeTabLayout.getTabAt(Default.SEARCH_TYPE_VIEW_PAGER_TAG).setCustomView(Helper.createTabTextView(this, "TAG"));
+
+        int selectedTabColor = getResources().getColor(R.color.colorAccent);
+        int unselectedTabColor = Color.WHITE;
+        ((TextView) searchTypeTabLayout.getTabAt(searchTypeTabLayout.getSelectedTabPosition()).getCustomView())
+                .setTextColor(selectedTabColor);
+
+        // Setup the tab selected, unselected, and reselected listener
+        searchTypeTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                ((TextView) tab.getCustomView()).setTextColor(selectedTabColor);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                ((TextView) tab.getCustomView()).setTextColor(unselectedTabColor);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // Switch statement handing reselected tabs
+                int tabPosition = tab.getPosition();
+                switch (tabPosition) {
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
 
         populateCollection();
         setupUIElements();
     }
 
     private void populateCollection() {
-        prismUsersCollection = new ArrayList<>();
-        hashTagsCollection = new ArrayList<>();
-
-//        Query query = tagsReference.orderByValue().limitToFirst(100);
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    for (DataSnapshot postIdSnapshot : dataSnapshot.getChildren()) {
-//                        hashTagsCollection.add(postIdSnapshot.getKey());
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) { }
-//        });
-
         usersReference.limitToFirst(100)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -107,7 +147,7 @@ public class SearchActivity  extends AppCompatActivity {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                                 PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                                prismUsersCollection.add(prismUser);
+                                prismUserArrayList.add(prismUser);
                             }
                         }
                     }
@@ -115,7 +155,6 @@ public class SearchActivity  extends AppCompatActivity {
                     @Override
                     public void onCancelled(DatabaseError databaseError) { }
                 });
-
     }
 
     @Override
@@ -137,18 +176,17 @@ public class SearchActivity  extends AppCompatActivity {
      *
      */
     private void setupSearchBarEditText() {
+        searchBarClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InterfaceAction.toggleKeyboard(SearchActivity.this, getCurrentFocus(), true);
+                searchBarEditText.setText("");
+            }
+        });
+
         searchBarEditText.requestFocus();
-        prismUsersCollection = new ArrayList<>();
         searchBarEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
             Handler handler = new Handler(Looper.getMainLooper());
             Runnable runnable;
             Query query = tagsReference.orderByKey();
@@ -161,7 +199,20 @@ public class SearchActivity  extends AppCompatActivity {
             };
 
             @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
             public void afterTextChanged(Editable s) {
+                int clearButtonVisibility = s.toString().length() > 0 ? View.VISIBLE : View.GONE;
+                searchBarClearButton.setVisibility(clearButtonVisibility);
+
                 hashTagsCollection.clear();
                 handler.removeCallbacks(runnable);
                 query.removeEventListener(listener);
@@ -174,10 +225,14 @@ public class SearchActivity  extends AppCompatActivity {
                             hashTagsCollection.add(tagSnapshot.getKey());
                         }
                         printHashTagCollections();
+                        if (TagSearchFragment.tagSearchRecyclerViewAdapter != null) {
+                            TagSearchFragment.tagSearchRecyclerViewAdapter.notifyDataSetChanged();
+                        }
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) { }
                 };
+
                 // query.addListenerForSingleValueEvent(listener);
                 runnable = new Runnable() {
                     @Override
@@ -189,23 +244,29 @@ public class SearchActivity  extends AppCompatActivity {
                 handler.postDelayed(runnable, 700);
             }
         });
+
+        if (getIntent().getStringExtra("ClickedTag") != null) {
+            String clickedTag = getIntent().getStringExtra("ClickedTag");
+            searchBarEditText.setText(clickedTag);
+            searchBarEditText.setSelection(clickedTag.length());
+            searchTypeTabLayout.getTabAt(Default.SEARCH_TYPE_VIEW_PAGER_TAG).select();
+        }
     }
 
     private void printHashTagCollections() {
         System.out.println("\n\n\n");
-        for (String hashTag : hashTagsCollection) {
-            System.out.println(hashTag);
+        for (Object hashTag : hashTagsCollection) {
+            System.out.println((String) hashTag);
         }
         System.out.println("\n\n\n");
     }
 
     private void performSearchForUser(String query) {
-        ArrayList<PrismUser> results = new ArrayList<>();
         ArrayList<PrismUser> highRelevance = new ArrayList<>();
         ArrayList<PrismUser> mediumRelevance = new ArrayList<>();
         ArrayList<PrismUser> lowRelevance = new ArrayList<>();
 
-        for (PrismUser prismUser : prismUsersCollection) {
+        for (PrismUser prismUser : prismUserArrayList) {
             String fullName = prismUser.getFullName().toLowerCase();
             String username = prismUser.getUsername().toLowerCase();
 
@@ -219,13 +280,19 @@ public class SearchActivity  extends AppCompatActivity {
 
         }
 
-        results.addAll(highRelevance);
-        results.addAll(mediumRelevance);
-        results.addAll(lowRelevance);
+        prismUserCollection.clear();
+        prismUserCollection.addAll(highRelevance);
+        prismUserCollection.addAll(mediumRelevance);
+        prismUserCollection.addAll(lowRelevance);
+
+        if (PeopleSearchFragment.peopleSearchRecyclerViewAdapter != null) {
+            PeopleSearchFragment.peopleSearchRecyclerViewAdapter.notifyDataSetChanged();
+        }
 
         // System print
         System.out.println("\n\n\n");
-        for (PrismUser user : results) {
+        for (Object userObject : prismUserCollection) {
+            PrismUser user = (PrismUser) userObject;
             System.out.println(user.getFullName() + " - " + user.getUsername());
         }
         System.out.println("\n\n\n");
@@ -238,12 +305,8 @@ public class SearchActivity  extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        searchBarEditText.setTypeface(sourceSansProLight);
+        searchBarEditText.setTypeface(Default.sourceSansProLight);
 
         setupSearchBarEditText();
-    }
-
-    private void toast(String bread) {
-        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
     }
 }

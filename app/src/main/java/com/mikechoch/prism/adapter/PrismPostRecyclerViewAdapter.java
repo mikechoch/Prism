@@ -9,10 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -35,7 +33,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -223,20 +220,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 postInformationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        intentToUserProfileActivity();
+                        Helper.intentToUserProfileActivity(context, prismPost.getPrismUser());
                     }
                 });
             }
-        }
-
-        /**
-         * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-         */
-        private void intentToUserProfileActivity() {
-            Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
-            prismUserProfileIntent.putExtra("PrismUser", prismPost.getPrismUser());
-            context.startActivity(prismUserProfileIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**
@@ -316,7 +303,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     System.out.println("Image Single Tapped");
-                    intentToPostDetailActivity();
+                    Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
                     return true;
                 }
 
@@ -347,24 +334,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                     return true;
                 }
             });
-        }
-
-        /**
-         * Intent from the current clicked PrismPost image to their PrismPostDetailActivity
-         */
-        private void intentToPostDetailActivity() {
-            Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-
-            prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
-            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
-
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    (Activity) context,
-                    prismPostImageView,
-                    ViewCompat.getTransitionName(prismPostImageView));
-
-            context.startActivity(prismPostDetailIntent, options.toBundle());
-//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**

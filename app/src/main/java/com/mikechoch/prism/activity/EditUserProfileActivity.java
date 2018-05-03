@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 import com.mikechoch.prism.R;
@@ -508,11 +509,11 @@ public class EditUserProfileActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             fullNameEditText.setText(newFullName);
                             CurrentUser.prismUser.setFullName(newFullName);
-                            toast(Message.FULL_NAME_UPDATE_SUCCESS);
+                            Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_SUCCESS);
 
                         } else {
                             Log.e(Default.TAG_DB, Message.FULL_NAME_UPDATE_FAIL, task.getException());
-                            toast(Message.FULL_NAME_UPDATE_FAIL);
+                            Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_FAIL);
                         }
                         dialog.dismiss();
                     }
@@ -558,10 +559,10 @@ public class EditUserProfileActivity extends AppCompatActivity {
                             CurrentUser.firebaseUser.updateProfile(profileUpdate);
                             CurrentUser.prismUser.setUsername(newUsername);
                             usernameEditText.setText(newUsername);
-                            toast(Message.USERNAME_UPDATE_SUCCESS);
+                            Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_SUCCESS);
                         } else {
                             Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
-                            toast(Message.USERNAME_UPDATE_FAIL);
+                            Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_FAIL);
                         }
                         dialog.dismiss();
                     }
@@ -592,10 +593,10 @@ public class EditUserProfileActivity extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 CurrentUser.updateLocalCurrentUser();
                                                 passwordEditText.setText(Default.HIDDEN_PASSWORD);
-                                                toast(Message.PASSWORD_UPDATE_SUCCESS);
+                                                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_SUCCESS);
                                             } else {
                                                 Log.e(Default.TAG_DB, Message.PASSWORD_UPDATE_FAIL, task.getException());
-                                                toast(Message.PASSWORD_UPDATE_FAIL);
+                                                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_FAIL);
                                                 try {
                                                     throw task.getException();
                                                 } catch (FirebaseAuthWeakPasswordException weakPassword) {
@@ -648,9 +649,9 @@ public class EditUserProfileActivity extends AppCompatActivity {
                                                             if (task.isSuccessful()) {
                                                                 CurrentUser.updateLocalCurrentUser();
                                                                 emailEditText.setText(newEmail);
-                                                                toast(Message.EMAIL_UPDATE_SUCCESS);
+                                                                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_SUCCESS);
                                                             } else {
-                                                                toast(Message.EMAIL_UPDATE_FAIL);
+                                                                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_FAIL);
                                                             }
                                                             dialog.dismiss();
                                                         }
@@ -659,7 +660,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
                                                 } else {
                                                     toggleEmailAlertDialogAttributes(false);
                                                     Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, task.getException());
-                                                    toast(Message.EMAIL_UPDATE_FAIL);
+                                                    Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_FAIL);
                                                     try {
                                                         throw task.getException();
                                                     } catch (FirebaseAuthInvalidCredentialsException invalidEmail) {
@@ -684,14 +685,5 @@ public class EditUserProfileActivity extends AppCompatActivity {
                     }
                 });
     }
-
-    /**
-     * Shortcut for displaying a Toast message
-     */
-    private void toast(String bread) {
-        Toast.makeText(this, bread, Toast.LENGTH_SHORT).show();
-    }
-
-
 
 }

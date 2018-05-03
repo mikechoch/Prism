@@ -175,11 +175,4 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         setupUserProfilePicture();
     }
 
-    /**
-     * Shortcut for toasting a message
-     */
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
 }
