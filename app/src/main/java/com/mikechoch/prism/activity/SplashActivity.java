@@ -48,9 +48,9 @@ public class SplashActivity extends AppCompatActivity {
         rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_rotate);
         iconImageView.startAnimation(rotateAnimation);
 
+        intent = new Intent(SplashActivity.this, MainActivity.class);
 
         Bundle extras = getIntent().getExtras();
-        intent = new Intent(SplashActivity.this, MainActivity.class);
         if (extras != null) {
             String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
             String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
@@ -87,17 +87,15 @@ public class SplashActivity extends AppCompatActivity {
                 boolean isSignedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
                 if (!isSignedIn) {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-//            int enterAnim = isSignedIn ? R.anim.fade_in : 0;
-//            int exitAnim = isSignedIn ? R.anim.fade_out : 0;
-//                    ActivityOptionsCompat options = ActivityOptionsCompat.
-//                            makeSceneTransitionAnimation(SplashActivity.this, iconImageView, "icon");
-
-//                    startActivity(intent, options.toBundle());
+//                  int enterAnim = isSignedIn ? R.anim.fade_in : 0;
+//                  int exitAnim = isSignedIn ? R.anim.fade_out : 0;
+//                  ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(SplashActivity.this, iconImageView, "icon");
+//                  startActivity(intent, options.toBundle());
                     startActivity(intent);
                     finish();
 
                 } else {
-                    prepareUserAndOpenApp();
+                    CurrentUser.prepareAppForUser(SplashActivity.this, intent);
                 }
 
             } catch (InterruptedException e) {
@@ -114,16 +112,8 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    private void prepareUserAndOpenApp() {
-
-        // Generates current firebaseUser's details
-//        Intent intent = new Intent(this, MainActivity.class);
-        CurrentUser.prepareAppForUser(SplashActivity.this, intent);
-
-    }
 }
 
-// TODO @Mike if you want to get iconImageView to do its shit, you can maybe pass it into `prepareAppForUser`
 
 //iconImageView.postDelayed(new Runnable() {
 //                        @Override

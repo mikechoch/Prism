@@ -311,8 +311,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 public void onLongPress(MotionEvent e) {
                     super.onLongPress(e);
                     System.out.println("Image Long Pressed");
-                    // TODO: Think of something to do
-                    // TODO: Download image?
+                    // TODO: Think of something to do. Download image?
 
                 }
 

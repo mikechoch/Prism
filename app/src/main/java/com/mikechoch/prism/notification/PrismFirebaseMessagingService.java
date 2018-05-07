@@ -81,7 +81,6 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         Bundle bundle = new Bundle();
         bundle.putInt("other_count", otherUserCount);
 
-        // TODO String postId = remoteMessage.getData().get(NotificationKey.POST_ID);
         String prismPostId = remoteMessage.getData().get(NotificationKey.PRISM_POST_ID);
         String prismUserId = remoteMessage.getData().get(NotificationKey.PRISM_USER_ID);
 
@@ -96,10 +95,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
             splashIntent = new Intent(this, MainActivity.class);
         }
 
-        // TODO
-        // Intent viewIntent = new Intent(this, MainActivity.class);
-        // viewIntent.putExtra("postId", postId);
-         PendingIntent viewPendingIntent =
+        PendingIntent viewPendingIntent =
                 PendingIntent.getActivity(this, 0, splashIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)

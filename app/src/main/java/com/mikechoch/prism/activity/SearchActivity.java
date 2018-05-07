@@ -1,7 +1,6 @@
 package com.mikechoch.prism.activity;
 
 import android.graphics.Color;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -57,6 +55,18 @@ public class SearchActivity  extends AppCompatActivity {
 
     public static ArrayList<Object> prismUserCollection;
     public static ArrayList<Object> hashTagsCollection;
+
+
+    /**
+     * Search for hashTags: search happens directly in Firebase because
+     * hashTags are stored as strings and firebase Query can be easily
+     * used for searching.
+     * Search for users: All user's info is pulled and stored locally
+     * in an arrayList which is then searched. It's inefficient but
+     * search cannot happen inside of Firebase because the search query
+     * needs to look for 'username' and 'full name'.
+     */
+
 
 
     @Override
@@ -188,7 +198,7 @@ public class SearchActivity  extends AppCompatActivity {
 
             Handler handler = new Handler(Looper.getMainLooper());
             Runnable runnable;
-            Query query = tagsReference.orderByKey();
+            Query tagsReferenceQuery = tagsReference.orderByKey();
             ValueEventListener listener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) { }
@@ -214,16 +224,15 @@ public class SearchActivity  extends AppCompatActivity {
 
                 hashTagsCollection.clear();
                 handler.removeCallbacks(runnable);
-                query.removeEventListener(listener);
-                query = tagsReference.orderByKey().startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToFirst(50);
-                // query = query.startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToLast(10);
+                tagsReferenceQuery.removeEventListener(listener);
+                tagsReferenceQuery = tagsReference.orderByKey().startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToFirst(50);
+                // tagsReferenceQuery = tagsReferenceQuery.startAt(s.toString()).endAt(s.toString()+"\uf8ff").limitToLast(10);
                 listener = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (DataSnapshot tagSnapshot : dataSnapshot.getChildren()) {
                             hashTagsCollection.add(tagSnapshot.getKey());
                         }
-                        printHashTagCollections();
                         if (TagSearchFragment.tagSearchRecyclerViewAdapter != null) {
                             TagSearchFragment.tagSearchRecyclerViewAdapter.notifyDataSetChanged();
                         }
@@ -232,12 +241,12 @@ public class SearchActivity  extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) { }
                 };
 
-                // query.addListenerForSingleValueEvent(listener);
+                // tagsReferenceQuery.addListenerForSingleValueEvent(listener);
                 runnable = new Runnable() {
                     @Override
                     public void run() {
                         performSearchForUser(s.toString());
-                        query.addListenerForSingleValueEvent(listener);
+                        tagsReferenceQuery.addListenerForSingleValueEvent(listener);
                     }
                 };
                 handler.postDelayed(runnable, 700);
@@ -250,14 +259,6 @@ public class SearchActivity  extends AppCompatActivity {
             searchBarEditText.setSelection(clickedTag.length());
             searchTypeTabLayout.getTabAt(Default.SEARCH_TYPE_VIEW_PAGER_TAG).select();
         }
-    }
-
-    private void printHashTagCollections() {
-        System.out.println("\n\n\n");
-        for (Object hashTag : hashTagsCollection) {
-            System.out.println((String) hashTag);
-        }
-        System.out.println("\n\n\n");
     }
 
     private void performSearchForUser(String query) {
@@ -287,14 +288,6 @@ public class SearchActivity  extends AppCompatActivity {
         if (PeopleSearchFragment.peopleSearchRecyclerViewAdapter != null) {
             PeopleSearchFragment.peopleSearchRecyclerViewAdapter.notifyDataSetChanged();
         }
-
-        // System print
-        System.out.println("\n\n\n");
-        for (Object userObject : prismUserCollection) {
-            PrismUser user = (PrismUser) userObject;
-            System.out.println(user.getFullName() + " - " + user.getUsername());
-        }
-        System.out.println("\n\n\n");
     }
 
     /**

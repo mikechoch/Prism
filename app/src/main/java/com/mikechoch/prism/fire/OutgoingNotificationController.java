@@ -176,7 +176,6 @@ public class OutgoingNotificationController {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-        // TODO Revoke FCM Push notification here
     }
 
     private static void revertRepostNotification(PrismPost prismPost) {
@@ -209,20 +208,16 @@ public class OutgoingNotificationController {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-        // TODO Revoke FCM Push notification here
     }
 
     private static void revertFollowNotification(PrismUser prismUser) {
-        NotificationType type = NotificationType.UNFOLLOW;
         String notificationId = NotificationType.createFollowNotificationId();
-        String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         notificationReference.removeValue();
 
-        // TODO Revoke FCM Push notification here
     }
 
     private static void insertNotificationDataToCloud(DatabaseReference notificationReference, long actionTimestamp) {

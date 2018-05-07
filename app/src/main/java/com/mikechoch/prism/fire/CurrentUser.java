@@ -42,7 +42,6 @@ public class CurrentUser {
     private static DatabaseReference currentUserReference;
     private static DatabaseReference allPostReference;
 
-//    private static Context context; // TODO should delete this
     private static float scale;
 
     public static PrismUser prismUser;
@@ -325,7 +324,7 @@ public class CurrentUser {
     }
 
     /**
-     * TODO Mike: Can we we put this function inside InterfaceAction?
+     * TODO @Mike: Can we we put this function inside InterfaceAction?
      */
     static void updateUserProfileFragmentUI(Context context) {
         ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
@@ -366,7 +365,14 @@ public class CurrentUser {
             MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
             updateUserProfileFragmentUI(context);
         } else {
-            context.startActivity(intent);
+            Intent[] intents;
+            Intent mainIntent = new Intent(context, MainActivity.class);
+            if (intent.filterEquals(mainIntent)) {
+                intents = new Intent[]{intent};
+            } else {
+                intents = new Intent[]{mainIntent, intent};
+            }
+            context.startActivities(intents);
             ((Activity) context).finish();
         }
 
