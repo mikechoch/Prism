@@ -1,11 +1,10 @@
 package com.mikechoch.prism.type;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.fire.CurrentUser;
 
 /**
  * Created by parth on 3/4/18.
@@ -68,21 +67,21 @@ public enum NotificationType {
         return notificationId.replace(this.getNotifIdSuffix(), "");
     }
 
-    public static String createNotificationId(PrismPost prismPost, NotificationType type) {
+    public static String createLikeRepostNotificationId(PrismPost prismPost, NotificationType type) {
         return prismPost.getPostId() + type.getNotifIdSuffix();
     }
 
-    public static String createNotificationId(PrismUser prismUser, NotificationType type) {
-        return prismUser.getUsername() + type.getNotifIdSuffix();
+    public static String createFollowNotificationId() {
+        return CurrentUser.prismUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
     }
 
-    public static int generatePushNotificationId(PrismPost prismPost, NotificationType type) {
-        String id = createNotificationId(prismPost, type);
+    public static int generateLikeRepostPushNotificationId(PrismPost prismPost, NotificationType type) {
+        String id = createLikeRepostNotificationId(prismPost, type);
         return id.hashCode();
     }
 
-    public static int generatePushNotificationId(PrismUser prismUser, NotificationType type) {
-        String id = createNotificationId(prismUser, type);
+    public static int generateFollowPushNotificationId() {
+        String id = createFollowNotificationId();
         return id.hashCode();
     }
 

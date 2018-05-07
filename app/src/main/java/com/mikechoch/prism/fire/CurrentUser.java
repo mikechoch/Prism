@@ -327,7 +327,7 @@ public class CurrentUser {
     /**
      * TODO Mike: Can we we put this function inside InterfaceAction?
      */
-    static void updateUserProfilePageUI(Context context) {
+    static void updateUserProfileFragmentUI(Context context) {
         ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
         TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
 
@@ -364,9 +364,10 @@ public class CurrentUser {
 
         if (intent.getBooleanExtra("onlyPerformRefresh", false)) {
             MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-            updateUserProfilePageUI(context);
+            updateUserProfileFragmentUI(context);
         } else {
             context.startActivity(intent);
+            ((Activity) context).finish();
         }
 
     }

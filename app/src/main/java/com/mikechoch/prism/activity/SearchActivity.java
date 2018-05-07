@@ -140,8 +140,7 @@ public class SearchActivity  extends AppCompatActivity {
     }
 
     private void populateCollection() {
-        usersReference.limitToFirst(100)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {

@@ -50,7 +50,7 @@ public class DatabaseAction {
      * Adds userId to prismPost's LIKED_USERS section
      * Performs like locally on CurrentUser
      */
-    public static void performLike(PrismPost prismPost, Context context) {
+    public static void performLike(PrismPost prismPost) {
         String postId = prismPost.getPostId();
         long actionTimestamp = Calendar.getInstance().getTimeInMillis();
         DatabaseReference postReference = allPostsReference.child(postId);
@@ -307,9 +307,6 @@ public class DatabaseAction {
                             CurrentUser.uploadPosts(userUploads, uploaded_posts_map);
                             CurrentUser.combineUploadsAndReposts();
 
-                            // TODO: @Mike Is it ok to call these methods here?
-//                            CurrentUser.updateUserProfilePageUI();
-//                            refreshMainRecyclerViewAdapter();
                             CurrentUser.refreshInterface(context, intent);
                         }
 

@@ -110,7 +110,7 @@ public class OutgoingNotificationController {
 
     private static void pushLikeNotification(PrismPost prismPost, long actionTimestamp) {
         NotificationType type = NotificationType.LIKE;
-        String notificationId = NotificationType.createNotificationId(prismPost, type);
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -123,7 +123,7 @@ public class OutgoingNotificationController {
 
     private static void pushRepostNotification(PrismPost prismPost, long actionTimestamp) {
         NotificationType type = NotificationType.REPOST;
-        String notificationId = NotificationType.createNotificationId(prismPost, type);
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -136,7 +136,7 @@ public class OutgoingNotificationController {
 
     private static void pushFollowNotification(PrismUser prismUser, long actionTimestamp) {
         NotificationType type = NotificationType.FOLLOW;
-        String notificationId = NotificationType.createNotificationId(prismUser, type);
+        String notificationId = NotificationType.createFollowNotificationId();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -148,7 +148,7 @@ public class OutgoingNotificationController {
 
     private static void revertLikeNotification(PrismPost prismPost) {
         NotificationType type = NotificationType.UNLIKE;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -181,7 +181,7 @@ public class OutgoingNotificationController {
 
     private static void revertRepostNotification(PrismPost prismPost) {
         NotificationType type = NotificationType.UNREPOST;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -214,34 +214,14 @@ public class OutgoingNotificationController {
 
     private static void revertFollowNotification(PrismUser prismUser) {
         NotificationType type = NotificationType.UNFOLLOW;
-        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
+        String notificationId = NotificationType.createFollowNotificationId();
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
-        usersReference.child(prismUser.getUid()).child(DB_REF).orderByValue().limitToLast(1)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            String previousRecentUid = dataSnapshot
-                                    .getChildren().iterator().next().getKey();
-                            long previousActionTimestamp = (long) dataSnapshot
-                                    .getChildren().iterator().next().getValue();
-                            HashMap<String, Object> updatedNotification = new HashMap<>();
-                            updatedNotification.put(Key.NOTIFICATION_MOST_RECENT_USER, previousRecentUid);
-                            updatedNotification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, previousActionTimestamp);
-                            notificationReference.updateChildren(updatedNotification);
-                        } else {
-                            notificationReference.removeValue();
-                        }
-                    }
+        notificationReference.removeValue();
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
         // TODO Revoke FCM Push notification here
     }
 
@@ -273,7 +253,7 @@ public class OutgoingNotificationController {
                 int otherUsersCount = 0;
                 String mostRecentUsername = CurrentUser.prismUser.getUsername();
                 String mostRecentProfilePicUri = CurrentUser.prismUser.getProfilePicture().profilePicUri;
-                int notificationId = NotificationType.generatePushNotificationId(prismPost, type);
+                int notificationId = NotificationType.generateLikeRepostPushNotificationId(prismPost, type);
                 if (dataSnapshot.hasChild(type.getDatabaseRefKey())) {
                     otherUsersCount = (int) dataSnapshot.child(type.getDatabaseRefKey()).getChildrenCount() - 1;
                 }
@@ -286,9 +266,6 @@ public class OutgoingNotificationController {
                 pushNotification.setActionTimestamp(actionTimestamp);
                 pushNotification.setNotificationHashId(notificationId);
                 pushNotification.setPrismPostId(prismPost.getPostId());
-                // TODO
-                // Create getter/setter to get/set prismPostId and prismUserId in PushNotification
-                // And add that to POST request and decode it to intent to PrismPostDetailActivity
 
                 usersReference.child(prismPost.getUid()).child(Key.USER_TOKEN)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -313,7 +290,7 @@ public class OutgoingNotificationController {
     }
 
     private static void generatePushNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
-        int notificationId = NotificationType.generatePushNotificationId(prismUser, type);
+        int notificationId = NotificationType.generateFollowPushNotificationId();
         PushNotification pushNotification = new PushNotification();
         pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
         pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
@@ -321,7 +298,7 @@ public class OutgoingNotificationController {
         pushNotification.setType(type);
         pushNotification.setActionTimestamp(actionTimestamp);
         pushNotification.setNotificationHashId(notificationId);
-        pushNotification.setPrismUserId(prismUser.getUid());
+        pushNotification.setPrismUserId(CurrentUser.prismUser.getUid());
 
         usersReference.child(prismUser.getUid()).child(Key.USER_TOKEN)
                 .addListenerForSingleValueEvent(new ValueEventListener() {

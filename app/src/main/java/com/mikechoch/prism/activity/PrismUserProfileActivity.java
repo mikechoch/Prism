@@ -19,21 +19,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,7 +44,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
-import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
+import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -179,17 +174,37 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         userPostsTabLayout = findViewById(R.id.current_user_profile_tab_layout);
         userPostsViewPager = findViewById(R.id.current_user_profile_view_pager);
 
+        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+
+        // TODO pull prismUser data here for prismUser from PushNotification
+
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
         prismUser = intent.getParcelableExtra("PrismUser");
-        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+        if (prismUser != null) {
+            setupUIElements();
+            fetchUserContent();
+        } else {
+            String prismUserId = intent.getExtras().getString(NotificationKey.PRISM_USER_ID);
+            pullPrismUserDetails(prismUserId);
+        }
 
-        // Check if the this user is equal to the current user
-        // Different elements depend on this element
-        isCurrentUser = prismUser.getUid().equals(CurrentUser.prismUser.getUid());
+    }
 
-        setupUIElements();
-        pullUserDetails();
+    private void pullPrismUserDetails(String prismUserId) {
+        usersReference.child(prismUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userSnapshot) {
+                if (userSnapshot.exists()) {
+                    prismUser = Helper.constructPrismUserObject(userSnapshot);
+                    setupUIElements();
+                    fetchUserContent();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     @Override
@@ -266,11 +281,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     /**
      * TODO: @Parth Comment this
      */
-    private void pullUserDetails() {
+    private void fetchUserContent() {
         if (isCurrentUser) {
             prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
             setupUserPostsUIElements();
-
             return;
         }
         usersReference.child(prismUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -725,8 +739,9 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Setup all UI elements
      */
     private void setupUIElements() {
-        setupToolbar();
+        isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
 
+        setupToolbar();
         // Setup Typefaces for all text based UI elements
         toolbarUserUsernameTextView.setTypeface(sourceSansProBold);
         toolbarFollowButton.setTypeface(sourceSansProLight);
