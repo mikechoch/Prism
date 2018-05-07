@@ -34,6 +34,10 @@ import java.net.URL;
 
 public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
+    /**
+     * TODO everything in this class needs to be sexified
+     */
+
     NotificationManager notificationManager;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -55,8 +59,6 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
                 otherUserCount = 1 + notification.getNotification().extras.getInt("other_count");
             }
         }
-
-        // TODO git commit --amend -m "New commit message"
 
         String title = mostRecentUser;
         if (otherUserCount == 1) {
@@ -83,24 +85,22 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         String prismPostId = remoteMessage.getData().get(NotificationKey.PRISM_POST_ID);
         String prismUserId = remoteMessage.getData().get(NotificationKey.PRISM_USER_ID);
 
-        Intent activityIntent;
+        Intent splashIntent;
         if (prismPostId != null) {
-            activityIntent = new Intent(this, PrismPostDetailActivity.class);
-            activityIntent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
+            splashIntent = new Intent(this, SplashActivity.class);
+            splashIntent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
         } else if (prismUserId != null) {
-            activityIntent = new Intent(this, PrismUserProfileActivity.class);
-            activityIntent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
+            splashIntent = new Intent(this, SplashActivity.class);
+            splashIntent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
         } else {
-            activityIntent = new Intent(this, MainActivity.class);
+            splashIntent = new Intent(this, MainActivity.class);
         }
-        Intent splashIntent = new Intent(this, SplashActivity.class);
-        splashIntent.putExtra(Intent.EXTRA_INTENT, activityIntent);
 
         // TODO
         // Intent viewIntent = new Intent(this, MainActivity.class);
         // viewIntent.putExtra("postId", postId);
          PendingIntent viewPendingIntent =
-                PendingIntent.getActivity(this, 0, splashIntent, 0);
+                PendingIntent.getActivity(this, 0, splashIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_prism)

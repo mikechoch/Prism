@@ -11,7 +11,10 @@ import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 
 /**
@@ -45,11 +48,19 @@ public class SplashActivity extends AppCompatActivity {
         rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_rotate);
         iconImageView.startAnimation(rotateAnimation);
 
+
         Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.get(Intent.EXTRA_INTENT) != null) {
-            intent = (Intent) extras.get(Intent.EXTRA_INTENT);
-        } else {
-            intent = new Intent(this, MainActivity.class);
+        intent = new Intent(SplashActivity.this, MainActivity.class);
+        if (extras != null) {
+            String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
+            String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
+            if (prismPostId != null) {
+                intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
+                intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
+            } else if (prismUserId != null) {
+                intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
+                intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
+            }
         }
 
         new IntentLoaderTask().execute();
