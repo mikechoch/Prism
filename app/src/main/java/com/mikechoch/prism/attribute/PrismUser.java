@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.NotificationType;
+
+import java.util.ArrayList;
 
 /**
  * Created by mikechoch on 1/30/18.

@@ -6,7 +6,6 @@ public class PushNotification {
 
     private String mostRecentUsername;
     private String mostRecentUserProfilePicUri;
-    private int otherUserCount;
     private NotificationType type;
     private long actionTimestamp;
     private int notificationHashId;
@@ -43,14 +42,6 @@ public class PushNotification {
 
     public void setMostRecentUserProfilePicUri(String mostRecentUserProfilePicUri) {
         this.mostRecentUserProfilePicUri = mostRecentUserProfilePicUri;
-    }
-
-    public int getOtherUserCount() {
-        return otherUserCount;
-    }
-
-    public void setOtherUserCount(int otherUserCount) {
-        this.otherUserCount = otherUserCount;
     }
 
     public NotificationType getType() {

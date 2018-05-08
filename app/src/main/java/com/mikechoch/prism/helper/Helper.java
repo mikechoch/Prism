@@ -12,7 +12,6 @@ import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,17 +27,11 @@ import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.MyTimeUnit;
-import com.mikechoch.prism.type.NotificationType;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by parth on 2/16/18.
@@ -97,6 +90,11 @@ public class Helper {
     public static boolean isPrismUserCurrentUser(PrismUser prismUser) {
         return CurrentUser.prismUser.getUid().equals(prismUser.getUid());
     }
+
+    public static boolean isPrismUserCurrentUser(String prismUserId) {
+        return CurrentUser.prismUser.getUid().equals(prismUserId);
+    }
+
 
     /**
      *
@@ -188,7 +186,7 @@ public class Helper {
             currentChar = description.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < description.length() && !Default.illegalTagChars.contains(description.charAt(i))) {
+                while (i < description.length() && !Default.ILLEGAL_TAG_CHARS.contains(description.charAt(i))) {
                     currentChar = description.charAt(i++);
                     tag.append(currentChar);
                 }
@@ -213,7 +211,7 @@ public class Helper {
             currentChar = string.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < string.length() && !Default.illegalTagChars.contains(string.charAt(i))) {
+                while (i < string.length() && !Default.ILLEGAL_TAG_CHARS.contains(string.charAt(i))) {
                     currentChar = string.charAt(i++);
                     tag.append(currentChar);
                 }

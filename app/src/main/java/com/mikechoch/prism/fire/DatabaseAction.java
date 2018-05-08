@@ -65,6 +65,7 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
+
         OutgoingNotificationController.prepareLikeNotification(prismPost, actionTimestamp);
 
     }

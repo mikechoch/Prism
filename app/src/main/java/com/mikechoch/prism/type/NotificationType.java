@@ -1,5 +1,6 @@
 package com.mikechoch.prism.type;
 
+import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
@@ -12,24 +13,26 @@ import com.mikechoch.prism.fire.CurrentUser;
 
 public enum NotificationType {
 
-    LIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
-    UNLIKE("like", Key.DB_REF_POST_LIKED_USERS, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
+    LIKE("like", Key.DB_REF_POST_LIKED_USERS, Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
+    UNLIKE("like", Key.DB_REF_POST_LIKED_USERS, Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
 
-    REPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),
-    UNREPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),
+    REPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),
+    UNREPOST("repost", Key.DB_REF_POST_REPOSTED_USERS, Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION, R.drawable.ic_camera_iris_black_36dp, Default.DISPLAY_USERS_REPOST_CODE),
 
-    FOLLOW("follow", Key.DB_REF_USER_FOLLOWERS, R.drawable.ic_plus_circle_black_36dp, Default.DISPLAY_USERS_FOLLOWER_CODE),
-    UNFOLLOW("follow", Key.DB_REF_USER_FOLLOWERS, R.drawable.ic_plus_circle_black_36dp, Default.DISPLAY_USERS_FOLLOWER_CODE);
+    FOLLOW("follow", Key.DB_REF_USER_FOLLOWERS, Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION, R.drawable.ic_plus_circle_black_36dp, Default.DISPLAY_USERS_FOLLOWER_CODE),
+    UNFOLLOW("follow", Key.DB_REF_USER_FOLLOWERS, Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION, R.drawable.ic_plus_circle_black_36dp, Default.DISPLAY_USERS_FOLLOWER_CODE);
 
 
     private final String notifIdSuffix;
-    private final String DB_REF_KEY;
+    private final String DB_REF_KEY; // TODO Maybe make getter that returns DatabaseReference
+    private final String DB_USER_NOTIF_PREF_KEY;
     private final int notifIcon;
     private final int notifUserDisplayCode;
 
-    NotificationType(String notifIdSuffix, String dbRefKey, int notifIcon, int notifUserDisplayCode) {
+    NotificationType(String notifIdSuffix, String dbRefKey, String dbUseNotifrPrefKey, int notifIcon, int notifUserDisplayCode) {
         this.notifIdSuffix = notifIdSuffix;
         this.DB_REF_KEY = dbRefKey;
+        this.DB_USER_NOTIF_PREF_KEY = dbUseNotifrPrefKey;
         this.notifIcon = notifIcon;
         this.notifUserDisplayCode = notifUserDisplayCode;
     }
@@ -48,6 +51,10 @@ public enum NotificationType {
 
     public int getNotifUserDisplayCode() {
         return notifUserDisplayCode;
+    }
+
+    public String getdbUserNotifPrefKey() {
+        return DB_USER_NOTIF_PREF_KEY;
     }
 
     public static NotificationType getNotificationType(String notificationId) {

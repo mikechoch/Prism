@@ -93,5 +93,5 @@ public class Default {
 
     public static final String HIDDEN_PASSWORD = "********";
 
-    public static final List<Character> illegalTagChars = Arrays.asList(' ', '\n', '#', ',');
+    public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
 }
