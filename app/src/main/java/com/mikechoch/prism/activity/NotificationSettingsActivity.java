@@ -19,6 +19,8 @@ public class NotificationSettingsActivity extends AppCompatActivity {
     Switch repostSwitch;
     Switch followSwitch;
 
+    // TODO update switch text typeFaces
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

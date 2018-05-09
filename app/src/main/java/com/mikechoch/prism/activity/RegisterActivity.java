@@ -279,6 +279,11 @@ public class RegisterActivity extends AppCompatActivity {
                                         profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
                                         profileReference.child(Key.USER_PROFILE_PIC).setValue(generateDefaultProfilePic());
 
+                                        DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).setValue(true);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).setValue(true);
+
                                         DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(username);
                                         accountReference.setValue(email);
 
