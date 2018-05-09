@@ -35,4 +35,8 @@ public class Message {
       public static final String EMAIL_UPDATE_FAIL = "Failed to update email";
       public static final String EMAIL_UPDATE_SUCCESS = "Email successfully updated";
 
+
+      // Toast messages
+      public static final String CANNOT_REPOST_OWN_POST = "You cannot repost your own post";
+
 }

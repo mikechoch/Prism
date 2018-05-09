@@ -65,8 +65,9 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
-
-        OutgoingNotificationController.prepareLikeNotification(prismPost, actionTimestamp);
+        if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+            OutgoingNotificationController.prepareLikeNotification(prismPost, actionTimestamp);
+        }
 
     }
 
@@ -112,7 +113,9 @@ public class DatabaseAction {
 
         CurrentUser.repostPost(prismPost);
 
-        OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+        if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+            OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+        }
     }
 
     /**
@@ -199,32 +202,20 @@ public class DatabaseAction {
     public static void followUser(PrismUser prismUser) {
         DatabaseReference userReference = usersReference.child(prismUser.getUid());
         long timestamp = Calendar.getInstance().getTimeInMillis();
-        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                            .child(CurrentUser.prismUser.getUid())
-                            .setValue(timestamp);
 
-                    currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
-                            .child(prismUser.getUid())
-                            .setValue(timestamp);
+        userReference.child(Key.DB_REF_USER_FOLLOWERS)
+                .child(CurrentUser.prismUser.getUid())
+                .setValue(timestamp);
 
-                    CurrentUser.followUser(prismUser);
+        currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
+                .child(prismUser.getUid())
+                .setValue(timestamp);
 
-                    OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
+        CurrentUser.followUser(prismUser);
 
-                } else {
-                    Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.wtf(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-            }
-        });
+        if (!Helper.isPrismUserCurrentUser(prismUser.getUid())) {
+            OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
+        }
     }
 
     /**
@@ -233,31 +224,19 @@ public class DatabaseAction {
      */
     public static void unfollowUser(PrismUser prismUser) {
         DatabaseReference userReference = usersReference.child(prismUser.getUid());
-        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                            .child(CurrentUser.prismUser.getUid())
-                            .removeValue();
 
-                    currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
-                            .child(prismUser.getUid())
-                            .removeValue();
+        userReference.child(Key.DB_REF_USER_FOLLOWERS)
+                .child(CurrentUser.prismUser.getUid())
+                .removeValue();
 
-                    CurrentUser.unfollowUser(prismUser);
+        currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
+                .child(prismUser.getUid())
+                .removeValue();
 
-                    OutgoingNotificationController.revokeFollowNotification(prismUser);
-                } else {
-                    Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
-                }
-            }
+        CurrentUser.unfollowUser(prismUser);
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.wtf(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-            }
-        });
+        OutgoingNotificationController.revokeFollowNotification(prismUser);
+
     }
 
     /**

@@ -49,6 +49,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
@@ -572,6 +573,11 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+                    Helper.toast(PrismPostDetailActivity.this, Message.CANNOT_REPOST_OWN_POST);
+                    return;
+                }
+
                 boolean performRepost = !CurrentUser.hasReposted(prismPost);
                 if (performRepost) {
                     AlertDialog repostConfirmationAlertDialog = InterfaceAction.createRepostConfirmationAlertDialog(PrismPostDetailActivity.this, prismPost, repostActionButton, repostCountTextView);

@@ -32,6 +32,9 @@ import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
+import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -376,6 +379,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             repostButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+                        Helper.toast(context, Message.CANNOT_REPOST_OWN_POST);
+                        return;
+                    }
                     boolean performRepost = !CurrentUser.hasReposted(prismPost);
                     if (performRepost) {
                         repostIrisAnimationImageView.setVisibility(View.INVISIBLE);

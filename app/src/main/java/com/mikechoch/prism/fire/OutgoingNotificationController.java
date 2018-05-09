@@ -337,16 +337,4 @@ public class OutgoingNotificationController {
                 });
     }
 
-
-    /**
-     *
-     * @param prismUserId
-     * @param type
-     * @return
-     */
-    private static boolean shouldTriggerPushNotification(String prismUserId, NotificationType type) {
-
-        return true;
-    }
-
 }
