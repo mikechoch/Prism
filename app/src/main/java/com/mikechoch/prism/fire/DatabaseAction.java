@@ -19,11 +19,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -239,6 +241,25 @@ public class DatabaseAction {
 
     }
 
+    public static void updatePreferenceForPushNotification(NotificationType type, boolean allowPushNotification) {
+        currentUserReference.child(Key.DB_REF_USER_PREFERENCES)
+                .child(type.getdbUserNotifPrefKey())
+                .setValue(allowPushNotification);
+
+        switch (type) {
+            case LIKE:
+                CurrentUser.preference.setAllowLikePushNotification(allowPushNotification);
+                break;
+            case REPOST:
+                CurrentUser.preference.setAllowRepostPushNotification(allowPushNotification);
+                break;
+            case FOLLOW:
+                CurrentUser.preference.setAllowFollowPushNotification(allowPushNotification);
+                break;
+        }
+    }
+
+
     /**
      * Creates prismUser for CurrentUser
      * Then fetches CurrentUser's liked, reposted and uploaded posts
@@ -273,6 +294,14 @@ public class DatabaseAction {
                     }
                     if (currentUserSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
                         CurrentUser.followings.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getValue());
+                    }
+
+                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_PREFERENCES)) {
+                        DataSnapshot preferenceSnapshot = currentUserSnapshot.child(Key.DB_REF_USER_PREFERENCES);
+                        boolean allowLike = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).getValue();
+                        boolean allowRepost = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).getValue();
+                        boolean allowFollow = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).getValue();
+                        CurrentUser.preference = new UserPreference(allowLike, allowRepost, allowFollow);
                     }
 
                     allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {

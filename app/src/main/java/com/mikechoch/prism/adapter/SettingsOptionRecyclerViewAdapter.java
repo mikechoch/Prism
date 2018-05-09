@@ -100,6 +100,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
                         case Default.SETTINGS_OPTION_APP:
                             break;
                         case Default.SETTINGS_OPTION_NOTIFICATION:
+                            context.startActivity(settingType.getIntent(context));
                             break;
                         case Default.SETTINGS_OPTION_ACCOUNT:
                             break;

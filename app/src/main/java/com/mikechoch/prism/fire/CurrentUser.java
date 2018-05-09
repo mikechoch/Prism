@@ -20,6 +20,7 @@ import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.MainContentFragment;
 
@@ -45,6 +46,7 @@ public class CurrentUser {
     private static float scale;
 
     public static PrismUser prismUser;
+    public static UserPreference preference;
 
     /**
      * Key: String postId
