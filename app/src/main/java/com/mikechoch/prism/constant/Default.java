@@ -86,6 +86,7 @@ public class Default {
     // Log Message Tags
     public static final String TAG_DB = "Firebase Database";
     public static final String TAG_DEBUG = "Debug Output";
+    public static final String TAG_NOTIFICATION = "Prism Notification";
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;

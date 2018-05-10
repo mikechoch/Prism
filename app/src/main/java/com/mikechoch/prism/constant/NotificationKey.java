@@ -9,7 +9,9 @@ public class NotificationKey {
     public static String TIMESTAMP =  "timestamp";
     public static String NOTIFICATION_ID = "id";
 
-    public static String PRISM_POST_ID = "post_id"; // FOR LIKE/REPOST notifications
-    public static String PRISM_USER_ID = "user_id"; // FOR FOLLOW notifications
+    public static String PRISM_POST_ID = "post_id"; // For LIKE/REPOST notifications
+    public static String PRISM_USER_ID = "user_id"; // For FOLLOW notifications
+
+    public static String OTHER_COUNT = "other_count";
 
 }
