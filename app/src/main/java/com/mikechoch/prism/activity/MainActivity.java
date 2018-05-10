@@ -449,6 +449,8 @@ public class MainActivity extends FragmentActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                prismPost.setPrismUser(CurrentUser.prismUser);
+                                prismPost.setPostId(postId);
                                 updateLocalRecyclerViewWithNewPost(prismPost);
                             } else {
                                 uploadingImageTextView.setText("Failed to make the post");

@@ -46,6 +46,7 @@ public class DatabaseAction {
     private static DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
     private static DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
     private static DatabaseReference usersReference = Default.USERS_REFERENCE;
+    private static DatabaseReference tagsReference = Default.TAGS_REFERENCE;
 
     /**
      * Adds prismPost to CurrentUser's USER_LIKES section
@@ -174,7 +175,13 @@ public class DatabaseAction {
 
                                 allPostsReference.child(postId).removeValue();
 
+                                ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+                                for (String hashTag : listOfHashTags) {
+                                    tagsReference.child(hashTag).removeValue();
+                                }
+
                                 CurrentUser.deletePost(prismPost);
+
                                 PrismPostRecyclerViewAdapter.prismPostArrayList.remove(prismPost);
                                 refreshMainRecyclerViewAdapter();
 
