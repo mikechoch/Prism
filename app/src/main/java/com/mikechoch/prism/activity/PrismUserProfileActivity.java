@@ -176,8 +176,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
 
-        // TODO pull prismUser data here for prismUser from PushNotification
-
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
         prismUser = intent.getParcelableExtra("PrismUser");
@@ -397,6 +395,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         userUsernameTextView.setText(prismUser.getUsername());
 
         setupUserProfilePicture();
+
+        postsCountTextView.setText(String.valueOf(prismUser.getUploadCount()));
 
         followersCountTextView.setText(String.valueOf(prismUser.getFollowerCount()));
         followersRelativeLayout.setOnClickListener(new View.OnClickListener() {

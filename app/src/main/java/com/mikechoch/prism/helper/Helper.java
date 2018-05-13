@@ -67,6 +67,7 @@ public class Helper {
 
         int followerCount = 0;
         int followingCount = 0;
+        int uploadCount = 0;
 
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
             followerCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount();
@@ -74,12 +75,16 @@ public class Helper {
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
             followingCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount();
         }
+        if (userSnapshot.hasChild(Key.DB_REF_USER_UPLOADS)) {
+            uploadCount = (int) userSnapshot.child(Key.DB_REF_USER_UPLOADS).getChildrenCount();
+        }
         if (userSnapshot.hasChild(Key.USER_TOKEN)) {
             prismUser.setToken((String) userSnapshot.child(Key.USER_TOKEN).getValue());
         }
 
         prismUser.setFollowerCount(followerCount);
         prismUser.setFollowingCount(followingCount);
+        prismUser.setUploadCount(uploadCount);
 
         return prismUser;
     }

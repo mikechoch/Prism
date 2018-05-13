@@ -20,17 +20,19 @@ public class PrismUser implements Parcelable {
     private ProfilePicture profilePicture;
     private int followerCount;
     private int followingCount;
+    private int uploadCount;
     private String token;
 
     public PrismUser() { }
 
-    public PrismUser(String uid, String username, String fullName, ProfilePicture profilePicture, int followerCount, int followingCount, String token) {
+    public PrismUser(String uid, String username, String fullName, ProfilePicture profilePicture, int followerCount, int followingCount, int uploadCount, String token) {
         this.uid = uid;
         this.username = username;
         this.fullName = fullName;
         this.profilePicture = profilePicture;
         this.followerCount = followerCount;
         this.followingCount = followingCount;
+        this.uploadCount = uploadCount;
         this.token = token;
     }
 
@@ -58,6 +60,10 @@ public class PrismUser implements Parcelable {
         return followingCount;
     }
 
+    public int getUploadCount() {
+        return uploadCount;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
     }
@@ -82,6 +88,10 @@ public class PrismUser implements Parcelable {
         this.followingCount = followingCount;
     }
 
+    public void setUploadCount(int uploadCount) {
+        this.uploadCount = uploadCount;
+    }
+
     public void setToken(String token) {
         this.token = token;
     }
@@ -98,6 +108,7 @@ public class PrismUser implements Parcelable {
         dest.writeString(fullName);
         dest.writeInt(followerCount);
         dest.writeInt(followingCount);
+        dest.writeInt(uploadCount);
         dest.writeParcelable(profilePicture, 0);
         dest.writeString(token);
     }
@@ -108,6 +119,7 @@ public class PrismUser implements Parcelable {
         fullName = in.readString();
         followerCount = in.readInt();
         followingCount = in.readInt();
+        uploadCount = in.readInt();
         profilePicture = in.readParcelable(ProfilePicture.class.getClassLoader());
         token = in.readString();
     }
