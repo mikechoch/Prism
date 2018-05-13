@@ -20,7 +20,8 @@ public class Message {
       public static final String FETCH_USERS_FAIL = "Failed to pull list of users";
       public static final String FETCH_USER_DETAILS_FAIL = "Failed to details for users";
       public static final String FETCH_POST_INFO_FAIL = "Failed to fetch post details";
-
+      public static final String POST_NOT_EXIST = "Prism post does not exist but it should exist";
+      public static final String USER_NOT_EXIST = "Prism user does not exist but it should exist";
 
       public static final String FULL_NAME_UPDATE_FAIL = "Failed to update full name";
       public static final String FULL_NAME_UPDATE_SUCCESS = "Full name successfully updated";

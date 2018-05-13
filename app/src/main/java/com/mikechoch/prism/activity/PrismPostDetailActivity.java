@@ -187,7 +187,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                 parseAllPrismPostData(extras);
                 setupUIElements();
             } else {
-                //TODO String notificationPostId = extras.getString("postId");
                 String postId = extras.getString(NotificationKey.PRISM_POST_ID);
                 fetchPrismPostData(postId);
             }
