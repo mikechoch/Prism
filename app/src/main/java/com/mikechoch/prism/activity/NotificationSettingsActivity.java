@@ -1,40 +1,45 @@
 package com.mikechoch.prism.activity;
 
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.UserPreference;
-import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.type.NotificationType;
 
 public class NotificationSettingsActivity extends AppCompatActivity {
 
-    Switch likeSwitch;
-    Switch repostSwitch;
-    Switch followSwitch;
+    private Typeface sourceSansProLight;
+    private Typeface sourceSansProBold;
 
-    // TODO update switch text typeFaces
+    private Toolbar toolbar;
+    private TextView toolbarTextView;
+
+    private Switch likeSwitch;
+    private Switch repostSwitch;
+    private Switch followSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notification_settings_activity_layout);
 
-        likeSwitch = findViewById(R.id.notification_like_switch);
-        repostSwitch = findViewById(R.id.notification_repost_switch);
-        followSwitch = findViewById(R.id.notification_follow_switch);
+        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
+        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
-        UserPreference userPreference = CurrentUser.preference;
-        likeSwitch.setChecked(userPreference.allowLikePushNotification());
-        repostSwitch.setChecked(userPreference.allowRepostPushNotification());
-        followSwitch.setChecked(userPreference.allowFollowPushNotification());
+        toolbar = findViewById(R.id.toolbar);
+        toolbarTextView = findViewById(R.id.toolbar_text_view);
 
+        setupToolbar();
+        initializeSwitches();
 
         likeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -58,5 +63,43 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void initializeSwitches() {
+        likeSwitch = findViewById(R.id.notification_like_switch);
+        repostSwitch = findViewById(R.id.notification_repost_switch);
+        followSwitch = findViewById(R.id.notification_follow_switch);
+
+        likeSwitch.setTypeface(sourceSansProBold);
+        repostSwitch.setTypeface(sourceSansProBold);
+        followSwitch.setTypeface(sourceSansProBold);
+
+        UserPreference userPreference = CurrentUser.preference;
+        likeSwitch.setChecked(userPreference.allowLikePushNotification());
+        repostSwitch.setChecked(userPreference.allowRepostPushNotification());
+        followSwitch.setChecked(userPreference.allowFollowPushNotification());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                finish();
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Setup the toolbar and back button to return to MainActivity
+     */
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbarTextView.setTypeface(sourceSansProBold);
     }
 }
