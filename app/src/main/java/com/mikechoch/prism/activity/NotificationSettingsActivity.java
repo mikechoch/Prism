@@ -1,6 +1,5 @@
 package com.mikechoch.prism.activity;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,14 +10,12 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.UserPreference;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.type.NotificationType;
 
 public class NotificationSettingsActivity extends AppCompatActivity {
-
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private Toolbar toolbar;
     private TextView toolbarTextView;
@@ -31,9 +28,6 @@ public class NotificationSettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notification_settings_activity_layout);
-
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -70,9 +64,9 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         repostSwitch = findViewById(R.id.notification_repost_switch);
         followSwitch = findViewById(R.id.notification_follow_switch);
 
-        likeSwitch.setTypeface(sourceSansProBold);
-        repostSwitch.setTypeface(sourceSansProBold);
-        followSwitch.setTypeface(sourceSansProBold);
+        likeSwitch.setTypeface(Default.sourceSansProBold);
+        repostSwitch.setTypeface(Default.sourceSansProBold);
+        followSwitch.setTypeface(Default.sourceSansProBold);
 
         UserPreference userPreference = CurrentUser.preference;
         likeSwitch.setChecked(userPreference.allowLikePushNotification());
@@ -100,6 +94,6 @@ public class NotificationSettingsActivity extends AppCompatActivity {
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbarTextView.setTypeface(sourceSansProBold);
+        toolbarTextView.setTypeface(Default.sourceSansProBold);
     }
 }

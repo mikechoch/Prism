@@ -46,6 +46,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
@@ -53,6 +54,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fire.OutgoingNotificationController;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.attribute.PrismPost;
@@ -69,6 +71,7 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 
 public class MainActivity extends FragmentActivity {
@@ -426,6 +429,7 @@ public class MainActivity extends FragmentActivity {
      *  and uploads the file to cloud. Once that is successful, the a new post is created in
      *  ALL_POSTS section and the post details are pushed. Then the postId is added to the
      *  USER_UPLOADS section for the current firebaseUser
+     *  TODO: Handle case when post upload fails -- this is very important
      */
     @SuppressLint("SimpleDateFormat")
     private void uploadPostToCloud() {
@@ -439,11 +443,11 @@ public class MainActivity extends FragmentActivity {
                     String postId = postReference.getKey();
                     PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
 
-                    // Add postId to USER_UPLOADS table
+                    /* [1] Add postId to USER_UPLOADS table */
                     DatabaseReference userPostRef = userReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
                     userPostRef.setValue(prismPost.getTimestamp());
 
-                    // Create the post in cloud and on success, add the image to local recycler view adapter
+                    /* [2] Create the post in cloud and onSuccess, add the image to local recycler view adapter */
                     postReference.setValue(prismPost).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
@@ -461,10 +465,13 @@ public class MainActivity extends FragmentActivity {
                         }
                     });
 
+                    /* [3] Parse the hashTags from post caption and add the postId in TAGS table */
                     ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
                     for (String hashTag : hashTags) {
                         tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
                     }
+
+
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
