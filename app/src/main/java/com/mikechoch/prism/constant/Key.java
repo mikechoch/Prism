@@ -24,6 +24,7 @@ public class Key {
     public static final String DB_REF_USER_FOLLOWINGS = "USER_FOLLOWINGS";
     public static final String DB_REF_USER_NOTIFICATIONS = "USER_NOTIFICATIONS";
     public static final String DB_REF_USER_PREFERENCES = "USER_PREFERENCES";
+    public static final String DB_REF_USER_NEWS_FEED = "USER_NEWS_FEED";
 
     public static final String USER_PROFILE_FULL_NAME = "fullname";
     public static final String USER_PROFILE_USERNAME = "username";

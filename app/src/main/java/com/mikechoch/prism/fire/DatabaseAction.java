@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +30,7 @@ import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -323,7 +325,9 @@ public class DatabaseAction {
                             CurrentUser.uploadPosts(userUploads, uploaded_posts_map);
                             CurrentUser.combineUploadsAndReposts();
 
+                            // TODO --> constructNewsFeed(context, intent);
                             CurrentUser.refreshInterface(context, intent);
+
                         }
 
                         @Override
@@ -338,6 +342,50 @@ public class DatabaseAction {
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
             }
+        });
+    }
+
+    private static void constructNewsFeed(Context context, Intent intent) {
+        ArrayList<String> followings = CurrentUser.getFollowings();
+        ArrayList<Pair<String, PrismUser>> listOfPrismPosts = new ArrayList<>();
+        CurrentUser.news_feed = new ArrayList<>();
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                for (String userId : followings) {
+                    DataSnapshot uploadSnapshot = usersSnapshot.child(userId).child(Key.DB_REF_USER_UPLOADS);
+                    if (uploadSnapshot.exists()) {
+                        DataSnapshot userSnapshot = usersSnapshot.child(userId);
+                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                        HashMap<String, Long> uploads = new HashMap<>((Map)uploadSnapshot.getValue());
+                        for (String postId : uploads.keySet()) {
+                            listOfPrismPosts.add(Pair.create(postId, prismUser));
+                        }
+                    }
+                }
+                allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot allPostsSnapshot) {
+                        for (Pair pair : listOfPrismPosts) {
+                            String postId = (String) pair.first;
+                            DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                            prismPost.setPrismUser((PrismUser) pair.second);
+                            CurrentUser.news_feed.add(prismPost);
+                        }
+
+                        Collections.sort(CurrentUser.news_feed);
+
+                        // TODO --> CurrentUser.refreshInterface(context, intent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
         });
     }
 

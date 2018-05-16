@@ -179,6 +179,9 @@ public class MainContentFragment extends Fragment {
      *  a HashMap of PrismObjects
      */
     private void refreshData() {
+        // TODO uncomment this and put this in News Feed section
+        // prismPostArrayList.clear();
+        // prismPostArrayList.addAll(CurrentUser.news_feed);
         Query query = databaseReferenceAllPosts.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

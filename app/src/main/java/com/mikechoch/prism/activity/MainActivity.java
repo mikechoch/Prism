@@ -46,28 +46,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.fire.OutgoingNotificationController;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fragment.MainContentFragment;
-import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -82,7 +73,7 @@ public class MainActivity extends FragmentActivity {
     private FirebaseAuth auth;
     private DatabaseReference allPostsReference;
     private StorageReference storageReference;
-    private DatabaseReference userReference;
+    private DatabaseReference currentUserReference;
     private DatabaseReference tagsReference;
 
     private float scale;
@@ -121,7 +112,7 @@ public class MainActivity extends FragmentActivity {
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;
-        userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
+        currentUserReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
         tagsReference = Default.TAGS_REFERENCE;
         FCM_API_KEY = getFirebaseKey();
 
@@ -443,16 +434,33 @@ public class MainActivity extends FragmentActivity {
                     String postId = postReference.getKey();
                     PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
 
-                    /* [1] Add postId to USER_UPLOADS table */
-                    DatabaseReference userPostRef = userReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
-                    userPostRef.setValue(prismPost.getTimestamp());
-
-                    /* [2] Create the post in cloud and onSuccess, add the image to local recycler view adapter */
+                    /* Create the post in cloud and onSuccess, add the image to local recycler view adapter */
                     postReference.setValue(prismPost).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                /* [1] Add postId to USER_UPLOADS table */
+                                DatabaseReference userPostRef = currentUserReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
+                                userPostRef.setValue(prismPost.getTimestamp());
+
+                                /* [2] Parse the hashTags from post caption and add the postId in TAGS table */
+                                ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+                                for (String hashTag : hashTags) {
+                                    tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
+                                }
+
+                                /* [3] Update each follower's news feed */
+                                DatabaseReference usersReference = Default.USERS_REFERENCE;
+                                ArrayList<String> followers = CurrentUser.getFollowers();
+                                for (String userId : followers) {
+                                    usersReference.child(userId)
+                                            .child(Key.DB_REF_USER_NEWS_FEED)
+                                            .child(postId)
+                                            .setValue(prismPost.getTimestamp());
+                                }
+
+                                /* [4] Update local adapter */
                                 prismPost.setPrismUser(CurrentUser.prismUser);
                                 prismPost.setPostId(postId);
                                 updateLocalRecyclerViewWithNewPost(prismPost);
@@ -464,13 +472,6 @@ public class MainActivity extends FragmentActivity {
                             imageUploadProgressBar.setProgress(100, animate);
                         }
                     });
-
-                    /* [3] Parse the hashTags from post caption and add the postId in TAGS table */
-                    ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
-                    for (String hashTag : hashTags) {
-                        tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
-                    }
-
 
 
                 } else {
