@@ -103,6 +103,19 @@
                 android:indeterminate="true"
                 android:indeterminateDrawable="@drawable/circle_progress_foreground" />
 
+            <TextView
+                android:id="@+id/forgot_password_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="16dp"
+                android:layout_below="@id/register_submit_button"
+                android:text="Forgot Password?"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:textAlignment="center" />
+
         </RelativeLayout>
 
     </ScrollView>

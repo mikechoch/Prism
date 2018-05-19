@@ -78,6 +78,7 @@ public class Default {
     // Button Strings
     public static final String BUTTON_OK = "OK";
     public static final String BUTTON_SAVE = "SAVE";
+    public static final String BUTTON_SUBMIT = "SUBMIT";
     public static final String BUTTON_CANCEL = "CANCEL";
     public static final String BUTTON_DELETE = "DELETE";
     public static final String BUTTON_REPOST = "REPOST";

@@ -1,8 +1,8 @@
 package com.mikechoch.prism.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,6 +35,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -43,20 +43,29 @@ public class LoginActivity extends AppCompatActivity {
      * Globals
      */
     private FirebaseAuth auth;
-
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
+    
     private int screenWidth;
     private int screenHeight;
 
     private ImageView iconImageView;
+
     private TextInputLayout emailTextInputLayout;
     private EditText emailOrUsernameEditText;
     private TextInputLayout passwordTextInputLayout;
     private EditText passwordEditText;
+    private TextInputLayout resetEmailTextInputLayout;
+    private EditText resetEmailEditText;
+    private TextView forgotPasswordHeaderTextView;
+
     private Button loginButton;
+
+    private TextView forgotPasswordTextView;
     private TextView goToRegisterButton;
+
     private ProgressBar loginProgressBar;
+    private ProgressBar forgotPasswordProgressBar;
+
+    private CustomAlertDialogBuilder resetPasswordAlertDialog;
 
 
     @Override
@@ -66,10 +75,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // User authentication instance
         auth = FirebaseAuth.getInstance();
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         // Get the screen width and height of the current phone
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
@@ -82,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextInputLayout = findViewById(R.id.password_text_input_layout);
         passwordEditText = findViewById(R.id.password_edit_text);
         loginButton = findViewById(R.id.register_submit_button);
+        forgotPasswordTextView = findViewById(R.id.forgot_password_text_view);
         goToRegisterButton = findViewById(R.id.register_text_view);
         loginProgressBar = findViewById(R.id.login_progress_bar);
 
@@ -160,6 +166,73 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
+     *
+     */
+    private void setupForgotPassword() {
+        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createForgotPasswordAlertDialog().show();
+            }
+        });
+    }
+
+    private void sendResetPasswordEmail(String email, DialogInterface dialog) {
+        forgotPasswordProgressBar.setVisibility(View.VISIBLE);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Helper.toast(LoginActivity.this, "Email sent");
+                } else {
+                     Helper.toast(LoginActivity.this, "Unable to send email. Please try again later");
+                     Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, task.getException());
+                }
+                forgotPasswordProgressBar.setVisibility(View.GONE);
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private CustomAlertDialogBuilder createForgotPasswordAlertDialog() {
+        View resetPasswordView = getLayoutInflater().inflate(R.layout.reset_password_alert_dialog_layout, null);
+        RelativeLayout resetPasswordRelativeLayout = resetPasswordView.findViewById(R.id.reset_password_alert_dialog_relative_layout);
+
+        forgotPasswordHeaderTextView = resetPasswordView.findViewById(R.id.forgot_password_header_text_view);
+        resetEmailTextInputLayout = resetPasswordView.findViewById(R.id.reset_password_input_email_text_input_layout);
+        resetEmailEditText = resetPasswordView.findViewById(R.id.reset_password_input_email_edit_text);
+        forgotPasswordProgressBar = resetPasswordView.findViewById(R.id.reset_password_progress_bar);
+
+        forgotPasswordHeaderTextView.setTypeface(Default.sourceSansProLight);
+        resetEmailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        resetEmailEditText.setTypeface(Default.sourceSansProLight);
+
+        resetPasswordAlertDialog = new CustomAlertDialogBuilder(this, resetPasswordRelativeLayout);
+        resetPasswordAlertDialog.setView(resetPasswordView);
+        resetPasswordAlertDialog.setIsCancelable(true);
+        resetPasswordAlertDialog.setCanceledOnTouchOutside(false);
+        resetPasswordAlertDialog.setPositiveButton(Default.BUTTON_SUBMIT, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String email = resetEmailEditText.getText().toString();
+                sendResetPasswordEmail(email, dialog);
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                    }
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+
+        return resetPasswordAlertDialog;
+    }
+
+    /**
      * Login button is disabled, formatting is set, and OnClickListener is setup
      * When the login button is clicked, this should check whether it is a username or email
      * Error handle for invalid credentials and otherwise go to MainActivity
@@ -224,17 +297,19 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        emailTextInputLayout.setTypeface(sourceSansProLight);
-        emailOrUsernameEditText.setTypeface(sourceSansProLight);
-        passwordTextInputLayout.setTypeface(sourceSansProLight);
-        passwordEditText.setTypeface(sourceSansProLight);
-        loginButton.setTypeface(sourceSansProLight);
-        goToRegisterButton.setTypeface(sourceSansProLight);
+        emailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        emailOrUsernameEditText.setTypeface(Default.sourceSansProLight);
+        passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
+        passwordEditText.setTypeface(Default.sourceSansProLight);
+        loginButton.setTypeface(Default.sourceSansProLight);
+        forgotPasswordTextView.setTypeface(Default.sourceSansProLight);
+        goToRegisterButton.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
         setupEmailEditText();
         setupPasswordEditText();
         setupLoginButton();
+        setupForgotPassword();
         setupGoToRegisterButton();
     }
 
