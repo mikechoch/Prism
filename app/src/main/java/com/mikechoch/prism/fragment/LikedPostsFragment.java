@@ -1,6 +1,5 @@
 package com.mikechoch.prism.fragment;
 
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,8 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;

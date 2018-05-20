@@ -20,13 +20,13 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.SearchActivity;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.TimeUnit;
+import com.mikechoch.prism.fire.CurrentUser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -277,6 +277,14 @@ public class Helper {
      */
     public static void toast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void toast(Context context, String message, boolean longLength) {
+        if (longLength) {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        } else {
+            toast(context, message);
+        }
     }
 
     /**

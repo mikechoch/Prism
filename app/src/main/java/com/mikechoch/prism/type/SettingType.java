@@ -1,12 +1,6 @@
 package com.mikechoch.prism.type;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.EditUserProfileActivity;
-import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.constant.Default;
 
 /**

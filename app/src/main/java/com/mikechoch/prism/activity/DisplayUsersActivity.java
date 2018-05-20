@@ -1,7 +1,6 @@
 package com.mikechoch.prism.activity;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,10 +19,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
-import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.helper.Helper;

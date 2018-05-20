@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,9 +20,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
-import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -35,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -48,17 +44,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
-import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
-import com.mikechoch.prism.R;
-import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
+import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
+import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 
 /**

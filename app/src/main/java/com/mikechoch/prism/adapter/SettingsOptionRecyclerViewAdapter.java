@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,10 +16,10 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.EditUserProfileActivity;
-import com.mikechoch.prism.activity.NotificationSettingsActivity;
-import com.mikechoch.prism.type.SettingType;
 import com.mikechoch.prism.activity.LoginActivity;
+import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.type.SettingType;
 
 /**
  * Created by mikechoch on 2/7/18.

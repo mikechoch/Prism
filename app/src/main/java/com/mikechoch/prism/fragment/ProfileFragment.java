@@ -1,9 +1,7 @@
 package com.mikechoch.prism.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -22,13 +20,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.adapter.SettingsOptionRecyclerViewAdapter;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.R;
-
-import org.w3c.dom.Text;
+import com.mikechoch.prism.fire.CurrentUser;
 
 /**
  * Created by mikechoch on 1/22/18.

@@ -1,6 +1,5 @@
 package com.mikechoch.prism.type;
 
-import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;

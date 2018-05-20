@@ -18,7 +18,6 @@ import com.mikechoch.prism.attribute.PushNotification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.NotificationKey;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
 
 import org.json.JSONException;

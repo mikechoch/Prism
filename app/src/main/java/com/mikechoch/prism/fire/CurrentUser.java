@@ -25,7 +25,6 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.MainContentFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
