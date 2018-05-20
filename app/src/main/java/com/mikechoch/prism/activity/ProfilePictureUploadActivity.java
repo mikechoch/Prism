@@ -43,8 +43,6 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     /*
      * Global variables
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private Toolbar toolbar;
     private TextView toolbarTextView;
@@ -80,11 +78,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_picture_upload_activity_layout);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -153,8 +147,8 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
-        saveButton.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
+        saveButton.setTypeface(Default.sourceSansProLight);
 
         setupUploadedProfileImageView();
         setupSaveButton();

@@ -26,12 +26,11 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.constant.MyTimeUnit;
+import com.mikechoch.prism.constant.TimeUnit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by parth on 2/16/18.
@@ -127,29 +126,29 @@ public class Helper {
         calendar.setTimeInMillis(time);
 
         // Calculate all units for the given timeFromCurrent
-        long secondsTime = TimeUnit.MILLISECONDS.toSeconds(timeFromCurrent);
-        long minutesTime = TimeUnit.MILLISECONDS.toMinutes(timeFromCurrent);
-        long hoursTime = TimeUnit.MILLISECONDS.toHours(timeFromCurrent);
-        long daysTime = TimeUnit.MILLISECONDS.toDays(timeFromCurrent);
+        long secondsTime = java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(timeFromCurrent);
+        long minutesTime = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(timeFromCurrent);
+        long hoursTime = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(timeFromCurrent);
+        long daysTime = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(timeFromCurrent);
 
         // The fancyDateString will start off as this DateFormat to satisfy the else case
         String fancyDateString = DateFormat.format("MMM dd, yyyy", calendar).toString();
 
         // Check each calculated time unit until it is clear the unit of timeFromCurrent
-        if (secondsTime < MyTimeUnit.SECONDS_UNIT) {
+        if (secondsTime < TimeUnit.SECONDS_UNIT) {
 //                String fancyDateTail = secondsTime == 1 ? " second ago" : " seconds ago";
 //                fancyDateString = secondsTime + fancyDateTail;
             fancyDateString = "Just now";
-        } else if (minutesTime < MyTimeUnit.MINUTES_UNIT) {
+        } else if (minutesTime < TimeUnit.MINUTES_UNIT) {
             String fancyDateTail = minutesTime == 1 ? " minute ago" : " minutes ago";
             fancyDateString = minutesTime + fancyDateTail;
-        } else if (hoursTime < MyTimeUnit.HOURS_UNIT) {
+        } else if (hoursTime < TimeUnit.HOURS_UNIT) {
             String fancyDateTail = hoursTime == 1 ? " hour ago" : " hours ago";
             fancyDateString = hoursTime + fancyDateTail;
-        } else if (daysTime < MyTimeUnit.DAYS_UNIT) {
+        } else if (daysTime < TimeUnit.DAYS_UNIT) {
             String fancyDateTail = daysTime == 1 ? " day ago" : " days ago";
             fancyDateString = daysTime + fancyDateTail;
-        } else if (daysTime < MyTimeUnit.YEARS_UNIT) {
+        } else if (daysTime < TimeUnit.YEARS_UNIT) {
             fancyDateString = DateFormat.format("MMM dd", calendar).toString();
         }
         return fancyDateString;

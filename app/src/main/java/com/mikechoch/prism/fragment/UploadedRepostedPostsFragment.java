@@ -31,8 +31,6 @@ public class UploadedRepostedPostsFragment extends Fragment {
     /*
      * Globals
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;
@@ -118,7 +116,7 @@ public class UploadedRepostedPostsFragment extends Fragment {
             noPostsImageView.setImageDrawable(noPostsDrawable);
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
-            noPostsTextView.setTypeface(sourceSansProLight);
+            noPostsTextView.setTypeface(Default.sourceSansProLight);
             noPostsTextView.setText("No uploaded or reposted posts");
 
             userUploadedPostsLinearLayout.addView(noPostsView);

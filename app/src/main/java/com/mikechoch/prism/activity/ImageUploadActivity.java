@@ -40,8 +40,6 @@ public class ImageUploadActivity extends AppCompatActivity {
     /*
      * Global variables
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
     private int screenWidth;
     private int screenHeight;
 
@@ -79,11 +77,7 @@ public class ImageUploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_upload_activity_layout);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Get screen height and width for future use
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
@@ -168,10 +162,10 @@ public class ImageUploadActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
-        imageDescriptionTextInputLayout.setTypeface(sourceSansProLight);
-        uploadButton.setTypeface(sourceSansProLight);
-        imageDescriptionEditText.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
+        imageDescriptionTextInputLayout.setTypeface(Default.sourceSansProLight);
+        uploadButton.setTypeface(Default.sourceSansProLight);
+        imageDescriptionEditText.setTypeface(Default.sourceSansProLight);
 
         setupUploadedImageImageView();
         setupUploadButton();

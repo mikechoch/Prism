@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
+import com.mikechoch.prism.constant.Default;
 
 /**
  * Created by mikechoch on 1/22/18.
@@ -25,10 +26,7 @@ public class SearchFragment extends Fragment {
     private TextView searchByTextView;
     private TextView searchTextView;
     private TextView searchBarHintTextView;
-
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
+    
     public static final SearchFragment newInstance() {
         SearchFragment searchFragment = new SearchFragment();
         return searchFragment;
@@ -38,9 +36,6 @@ public class SearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
     }
 
     @Override
@@ -50,11 +45,11 @@ public class SearchFragment extends Fragment {
         searchCardView = view.findViewById(R.id.search_bar_card_view);
         searchRelativeLayout = view.findViewById(R.id.search_relative_layout);
         searchByTextView = view.findViewById(R.id.search_by_text_view);
-        searchByTextView.setTypeface(sourceSansProBold);
+        searchByTextView.setTypeface(Default.sourceSansProBold);
         searchTextView = view.findViewById(R.id.search_text_view);
-        searchTextView.setTypeface(sourceSansProLight);
+        searchTextView.setTypeface(Default.sourceSansProLight);
         searchBarHintTextView = view.findViewById(R.id.search_bar_hint_text_view);
-        searchBarHintTextView.setTypeface(sourceSansProLight);
+        searchBarHintTextView.setTypeface(Default.sourceSansProLight);
 
         searchCardView.setOnClickListener(new View.OnClickListener() {
             @Override

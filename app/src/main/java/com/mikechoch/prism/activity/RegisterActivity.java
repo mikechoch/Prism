@@ -53,8 +53,6 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference usersDatabaseRef;
 
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
     private int screenWidth;
     private int screenHeight;
 
@@ -80,11 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
         // User authentication instance
         auth = FirebaseAuth.getInstance();
         usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Get the screen width and height of the current phone
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -324,16 +318,16 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        fullNameTextInputLayout.setTypeface(sourceSansProLight);
-        fullNameEditText.setTypeface(sourceSansProLight);
-        usernameTextInputLayout.setTypeface(sourceSansProLight);
-        usernameEditText.setTypeface(sourceSansProLight);
-        emailTextInputLayout.setTypeface(sourceSansProLight);
-        emailEditText.setTypeface(sourceSansProLight);
-        passwordTextInputLayout.setTypeface(sourceSansProLight);
-        passwordEditText.setTypeface(sourceSansProLight);
-        registerButton.setTypeface(sourceSansProLight);
-        goToLoginButton.setTypeface(sourceSansProLight);
+        fullNameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        fullNameEditText.setTypeface(Default.sourceSansProLight);
+        usernameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        usernameEditText.setTypeface(Default.sourceSansProLight);
+        emailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        emailEditText.setTypeface(Default.sourceSansProLight);
+        passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
+        passwordEditText.setTypeface(Default.sourceSansProLight);
+        registerButton.setTypeface(Default.sourceSansProLight);
+        goToLoginButton.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
         setupFullNameEditText();

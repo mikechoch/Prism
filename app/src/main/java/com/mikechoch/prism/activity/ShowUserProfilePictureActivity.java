@@ -33,8 +33,6 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     * Globals
     */
     private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
     private int screenWidth;
     private int screenHeight;
 
@@ -79,10 +77,6 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         // Get the screen width and height of the current phone
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);

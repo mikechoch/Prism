@@ -77,8 +77,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private DatabaseReference allPostsReference;
 
     private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
@@ -143,11 +141,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         // Get the screen density of the current phone for later UI element scaling
         scale = getResources().getDisplayMetrics().density;
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.app_bar_layout);
@@ -743,17 +737,17 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         setupToolbar();
         // Setup Typefaces for all text based UI elements
-        toolbarUserUsernameTextView.setTypeface(sourceSansProBold);
-        toolbarFollowButton.setTypeface(sourceSansProLight);
-        followUserButton.setTypeface(sourceSansProLight);
-        followersCountTextView.setTypeface(sourceSansProBold);
-        followersLabelTextView.setTypeface(sourceSansProLight);
-        postsCountTextView.setTypeface(sourceSansProBold);
-        postsLabelTextView.setTypeface(sourceSansProLight);
-        followingCountTextView.setTypeface(sourceSansProBold);
-        followingLabelTextView.setTypeface(sourceSansProLight);
-        userUsernameTextView.setTypeface(sourceSansProBold);
-        userFullNameTextView.setTypeface(sourceSansProLight);
+        toolbarUserUsernameTextView.setTypeface(Default.sourceSansProBold);
+        toolbarFollowButton.setTypeface(Default.sourceSansProLight);
+        followUserButton.setTypeface(Default.sourceSansProLight);
+        followersCountTextView.setTypeface(Default.sourceSansProBold);
+        followersLabelTextView.setTypeface(Default.sourceSansProLight);
+        postsCountTextView.setTypeface(Default.sourceSansProBold);
+        postsLabelTextView.setTypeface(Default.sourceSansProLight);
+        followingCountTextView.setTypeface(Default.sourceSansProBold);
+        followingLabelTextView.setTypeface(Default.sourceSansProLight);
+        userUsernameTextView.setTypeface(Default.sourceSansProBold);
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
 
         setupAppBarLayout();
         setupUserProfileUIElements();

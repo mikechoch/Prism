@@ -48,10 +48,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
     private final DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
     private final DatabaseReference usersReference = Default.USERS_REFERENCE;
-
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
+    
     private Toolbar toolbar;
     private TextView toolbarTextView;
     private ProgressBar likeRepostProgressBar;
@@ -88,11 +85,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.users_activity_layout);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -183,7 +176,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
         setupPage();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
 
         setupLikeRepostRecyclerView();
     }

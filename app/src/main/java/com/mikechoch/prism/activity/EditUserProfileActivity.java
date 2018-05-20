@@ -53,8 +53,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
      */
     private DatabaseReference currentUserReference;
 
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
     private int screenWidth;
     private int screenHeight;
 
@@ -122,11 +120,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.edit_user_profile_activity_layout);
 
         currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Get the screen width and height of the current phone
         screenHeight = getWindowManager().getDefaultDisplay().getHeight();
         screenWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -199,8 +193,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
         fullNameAlertDialogEditText = changeFullNameView.findViewById(R.id.change_full_name_alert_dialog_full_name_edit_text);
         changeFullNameAlertDialogProgressBar = changeFullNameView.findViewById(R.id.change_full_name_progress_bar);
 
-        fullNameAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        fullNameAlertDialogEditText.setTypeface(sourceSansProLight);
+        fullNameAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        fullNameAlertDialogEditText.setTypeface(Default.sourceSansProLight);
 
         String oldFullName = this.fullNameEditText.getText().toString();
         fullNameEditText.setText(oldFullName);
@@ -255,8 +249,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
         usernameAlertDialogEditText = changeUsernameView.findViewById(R.id.change_username_alert_dialog_username_edit_text);
         changeUsernameAlertDialogProgressBar = changeUsernameView.findViewById(R.id.change_username_progress_bar);
 
-        usernameAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        usernameAlertDialogEditText.setTypeface(sourceSansProLight);
+        usernameAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        usernameAlertDialogEditText.setTypeface(Default.sourceSansProLight);
 
         String oldUsername = this.usernameEditText.getText().toString();
         usernameAlertDialogEditText.setText(oldUsername);
@@ -329,10 +323,10 @@ public class EditUserProfileActivity extends AppCompatActivity {
         newPasswordAlertDialogTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         newPasswordAlertDialogTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
 
-        oldPasswordAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        oldPasswordAlertDialogEditText.setTypeface(sourceSansProLight);
-        newPasswordAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        newPasswordAlertDialogEditText.setTypeface(sourceSansProLight);
+        oldPasswordAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        oldPasswordAlertDialogEditText.setTypeface(Default.sourceSansProLight);
+        newPasswordAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        newPasswordAlertDialogEditText.setTypeface(Default.sourceSansProLight);
 
 
 
@@ -420,12 +414,12 @@ public class EditUserProfileActivity extends AppCompatActivity {
         passwordAlertDialogEditText = changeEmailView.findViewById(R.id.change_email_alert_dialog_password_email_edit_text);
         changeEmailAlertDialogProgressBar = changeEmailView.findViewById(R.id.change_email_progress_bar);
 
-        oldEmailAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        oldEmailAlertDialogEditText.setTypeface(sourceSansProLight);
-        newEmailAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        newEmailAlertDialogEditText.setTypeface(sourceSansProLight);
-        passwordAlertDialogTextInputLayout.setTypeface(sourceSansProLight);
-        passwordAlertDialogEditText.setTypeface(sourceSansProLight);
+        oldEmailAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        oldEmailAlertDialogEditText.setTypeface(Default.sourceSansProLight);
+        newEmailAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        newEmailAlertDialogEditText.setTypeface(Default.sourceSansProLight);
+        passwordAlertDialogTextInputLayout.setTypeface(Default.sourceSansProLight);
+        passwordAlertDialogEditText.setTypeface(Default.sourceSansProLight);
 
         String oldEmail = this.emailEditText.getText().toString();
         oldEmailAlertDialogEditText.setText(oldEmail);
@@ -478,15 +472,15 @@ public class EditUserProfileActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
-        fullNameTextInputLayout.setTypeface(sourceSansProLight);
-        fullNameEditText.setTypeface(sourceSansProLight);
-        usernameTextInputLayout.setTypeface(sourceSansProLight);
-        usernameEditText.setTypeface(sourceSansProLight);
-        passwordTextInputLayout.setTypeface(sourceSansProLight);
-        passwordEditText.setTypeface(sourceSansProLight);
-        emailTextInputLayout.setTypeface(sourceSansProLight);
-        emailEditText.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
+        fullNameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        fullNameEditText.setTypeface(Default.sourceSansProLight);
+        usernameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        usernameEditText.setTypeface(Default.sourceSansProLight);
+        passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
+        passwordEditText.setTypeface(Default.sourceSansProLight);
+        emailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        emailEditText.setTypeface(Default.sourceSansProLight);
 
         fullNameEditText.setText(CurrentUser.prismUser.getFullName());
         usernameEditText.setText(CurrentUser.prismUser.getUsername());

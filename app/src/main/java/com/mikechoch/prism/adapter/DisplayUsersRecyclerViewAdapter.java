@@ -46,9 +46,6 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
     private ArrayList<PrismUser> prismUserArrayList;
 
     private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
 
     public DisplayUsersRecyclerViewAdapter(Context context, ArrayList<PrismUser> prismUserArrayList) {
         this.context = context;
@@ -57,9 +54,6 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         // Get the density scale of the current device
         this.scale = context.getResources().getDisplayMetrics().density;
 
-        // Create two typefaces
-        this.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Light.ttf");
-        this.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Black.ttf");
     }
 
     @Override
@@ -202,9 +196,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
          */
         private void setupUIElements() {
             // Setup Typefaces for all text based UI elements
-            usernameTextView.setTypeface(sourceSansProBold);
-            userFullNameText.setTypeface(sourceSansProLight);
-            userFollowButton.setTypeface(sourceSansProLight);
+            usernameTextView.setTypeface(Default.sourceSansProBold);
+            userFullNameText.setTypeface(Default.sourceSansProLight);
+            userFollowButton.setTypeface(Default.sourceSansProLight);
 
             setupUserProfilePicImageView();
             setupUsernameAndFullNameTextView();

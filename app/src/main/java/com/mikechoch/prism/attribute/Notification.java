@@ -14,7 +14,6 @@ public class Notification implements Comparable<Notification> {
     private PrismPost prismPost;
     private long actionTimestamp;
     private PrismUser mostRecentUser;
-    private int otherUserCount;
     private boolean viewed;
 
 

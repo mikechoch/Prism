@@ -79,8 +79,6 @@ public class MainActivity extends FragmentActivity {
     private float scale;
     private Animation hideFabAnimation;
     private Animation showFabAnimation;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private AppBarLayout.LayoutParams params;
 
@@ -138,15 +136,11 @@ public class MainActivity extends FragmentActivity {
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);
         hideFabAnimation = createFabShowAnimation(true);
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         TextView toolbarTextView = findViewById(R.id.prism_toolbar_title);
-        toolbarTextView.setTypeface(sourceSansProBold);
+        toolbarTextView.setTypeface(Default.sourceSansProBold);
         params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
         // Initialize all UI elements
@@ -359,7 +353,7 @@ public class MainActivity extends FragmentActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        uploadingImageTextView.setTypeface(sourceSansProLight);
+        uploadingImageTextView.setTypeface(Default.sourceSansProLight);
 
         setupPrismViewPager();
         setupPrismTabLayout();

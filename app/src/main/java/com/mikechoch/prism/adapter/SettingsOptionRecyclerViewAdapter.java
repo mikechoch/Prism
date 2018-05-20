@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.EditUserProfileActivity;
+import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.type.SettingType;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.constant.Default;
@@ -31,17 +33,12 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
      */
     private Context context;
 
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private FirebaseAuth auth;
 
 
     public SettingsOptionRecyclerViewAdapter(Context context) {
         this.context = context;
-
-        this.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Light.ttf");
-        this.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         auth = FirebaseAuth.getInstance();
     }
@@ -100,9 +97,12 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
                         case Default.SETTINGS_OPTION_APP:
                             break;
                         case Default.SETTINGS_OPTION_NOTIFICATION:
-                            context.startActivity(settingType.getIntent(context));
+                            Intent notificationIntent = new Intent(context, NotificationSettingsActivity.class);
+                            context.startActivity(notificationIntent);
                             break;
                         case Default.SETTINGS_OPTION_ACCOUNT:
+                            Intent editProfileIntent = new Intent(context, EditUserProfileActivity.class);
+                            context.startActivity(editProfileIntent);
                             break;
                         case Default.SETTINGS_OPTION_HELP:
                             break;
@@ -110,8 +110,8 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
                             break;
                         case Default.SETTINGS_OPTION_LOGOUT:
                             auth.signOut();
-                            Intent intent = new Intent(context, LoginActivity.class);
-                            context.startActivity(intent);
+                            Intent loginIntent = new Intent(context, LoginActivity.class);
+                            context.startActivity(loginIntent);
                             ((Activity) context).finish();
                             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                             break;
@@ -145,7 +145,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
          */
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
-            settingsOptionTextView.setTypeface(sourceSansProLight);
+            settingsOptionTextView.setTypeface(Default.sourceSansProLight);
 
             setupSettingsOptionRelativeLayout();
             setupSettingsOptionTextView();

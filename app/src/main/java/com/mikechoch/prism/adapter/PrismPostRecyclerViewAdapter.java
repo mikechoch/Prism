@@ -65,8 +65,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
     public static ArrayList<PrismPost> prismPostArrayList;
 
     private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
     private int screenWidth;
     private int screenHeight;
 
@@ -78,8 +76,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
         this.screenHeight = screenDimens[1];
 
         this.scale = context.getResources().getDisplayMetrics().density;
-        this.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Light.ttf");
-        this.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Black.ttf");
         this.screenWidth = screenDimens[0];
         this.screenHeight = screenDimens[1];
     }
@@ -443,10 +439,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
          */
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
-            prismUserTextView.setTypeface(sourceSansProBold);
-            prismPostDateTextView.setTypeface(sourceSansProLight);
-            likesCountTextView.setTypeface(sourceSansProLight);
-            repostsCountTextView.setTypeface(sourceSansProLight);
+            prismUserTextView.setTypeface(Default.sourceSansProBold);
+            prismPostDateTextView.setTypeface(Default.sourceSansProLight);
+            likesCountTextView.setTypeface(Default.sourceSansProLight);
+            repostsCountTextView.setTypeface(Default.sourceSansProLight);
 
             setupPostUserUIElements();
             setupPostImageView();
