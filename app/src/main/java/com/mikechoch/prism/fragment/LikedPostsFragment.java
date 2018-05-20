@@ -29,9 +29,6 @@ public class LikedPostsFragment extends Fragment {
     /*
      * Globals
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
     private SwipeRefreshLayout likedPostsSwipeRefreshLayout;
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;
@@ -51,11 +48,7 @@ public class LikedPostsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         likedPostsSwipeRefreshLayout = view.findViewById(R.id.liked_posts_swipe_refresh_layout);
         likedPostsNestedScrollView = view.findViewById(R.id.liked_posts_nested_scroll_view);
         userLikedPostsLinearLayout = view.findViewById(R.id.current_user_liked_posts_linear_layout);
@@ -93,7 +86,7 @@ public class LikedPostsFragment extends Fragment {
             noPostsImageView.setImageDrawable(noPostsDrawable);
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
-            noPostsTextView.setTypeface(sourceSansProLight);
+            noPostsTextView.setTypeface(Default.sourceSansProLight);
             noPostsTextView.setText("No liked posts");
 
             userLikedPostsLinearLayout.addView(noPostsView);

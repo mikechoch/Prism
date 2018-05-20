@@ -75,9 +75,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private DatabaseReference currentUserReference;
     private DatabaseReference usersReference;
     private DatabaseReference allPostsReference;
-
-    private float scale;
-
+    
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
 
@@ -138,9 +136,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
         usersReference = Default.USERS_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;
-
-        // Get the screen density of the current phone for later UI element scaling
-        scale = getResources().getDisplayMetrics().density;
         
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
@@ -228,7 +223,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                                     drawable.setCircular(true);
                                     userProfilePicImageView.setImageDrawable(drawable);
 
-                                    int whiteOutlinePadding = (int) (2 * scale);
+                                    int whiteOutlinePadding = (int) (2 * Default.scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                                     userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 }
@@ -425,7 +420,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (2 * scale);
+                            int whiteOutlinePadding = (int) (2 * Default.scale);
                             userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -460,7 +455,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             toolbarUserProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             toolbarUserProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {

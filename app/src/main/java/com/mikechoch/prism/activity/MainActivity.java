@@ -76,7 +76,6 @@ public class MainActivity extends FragmentActivity {
     private DatabaseReference currentUserReference;
     private DatabaseReference tagsReference;
 
-    private float scale;
     private Animation hideFabAnimation;
     private Animation showFabAnimation;
 

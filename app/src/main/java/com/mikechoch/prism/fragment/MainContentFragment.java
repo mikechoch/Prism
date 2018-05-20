@@ -54,10 +54,6 @@ public class MainContentFragment extends Fragment {
 
     private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
     private SwipeRefreshLayout mainContentSwipeRefreshLayout;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     public static ArrayList<PrismPost> prismPostArrayList;
     private boolean isLoading = false;
@@ -71,14 +67,7 @@ public class MainContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        screenWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getActivity().getWindowManager().getDefaultDisplay().getHeight();
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         prismPostArrayList = new ArrayList<>();
 
         databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
@@ -93,7 +82,7 @@ public class MainContentFragment extends Fragment {
         mainContentProgressBar = view.findViewById(R.id.main_content_progress_bar);
         noMainPostsRelativeLayout = view.findViewById(R.id.no_main_posts_relative_layout);
         noMainPostsTextView = view.findViewById(R.id.no_main_posts_text_view);
-        noMainPostsTextView.setTypeface(sourceSansProLight);
+        noMainPostsTextView.setTypeface(Default.sourceSansProLight);
 
         /*
          * The main purpose of this MainContentFragment is to be a Home page of the application
@@ -145,7 +134,7 @@ public class MainContentFragment extends Fragment {
             }
         });
 
-        mainContentRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), prismPostArrayList, new int[]{screenWidth, screenHeight});
+        mainContentRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), prismPostArrayList, new int[]{Default.screenWidth, Default.screenHeight});
         mainContentRecyclerView.setAdapter(mainContentRecyclerViewAdapter);
 
         /*

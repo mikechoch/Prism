@@ -45,15 +45,11 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
     private Context context;
     private ArrayList<PrismUser> prismUserArrayList;
 
-    private float scale;
 
     public DisplayUsersRecyclerViewAdapter(Context context, ArrayList<PrismUser> prismUserArrayList) {
         this.context = context;
         this.prismUserArrayList = prismUserArrayList;
-
-        // Get the density scale of the current device
-        this.scale = context.getResources().getDisplayMetrics().density;
-
+        
     }
 
     @Override
@@ -167,7 +163,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                             @Override
                             protected void setResource(Bitmap resource) {
                                 if (!prismUser.getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1 * scale);
+                                    int whiteOutlinePadding = (int) (1 * Default.scale);
                                     userProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                                     userProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {

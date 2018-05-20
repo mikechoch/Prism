@@ -43,9 +43,7 @@ public class CurrentUser {
     public static FirebaseUser firebaseUser;
     private static DatabaseReference currentUserReference;
     private static DatabaseReference allPostReference;
-
-    private static float scale;
-
+    
     public static PrismUser prismUser;
     public static UserPreference preference;
 
@@ -87,9 +85,7 @@ public class CurrentUser {
         updateLocalCurrentUser();
         currentUserReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
         allPostReference = Default.ALL_POSTS_REFERENCE;
-
-        scale = context.getResources().getDisplayMetrics().density;
-
+        
         refreshUserProfile(context, intent);
     }
 
@@ -360,7 +356,7 @@ public class CurrentUser {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfileImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {

@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.NotificationRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 
 import java.util.ArrayList;
@@ -43,10 +44,6 @@ public class NotificationFragment extends Fragment {
 
     private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
     private SwipeRefreshLayout notificationSwipeRefreshLayout;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     public static ArrayList<Notification> notificationArrayList;
 
@@ -58,10 +55,6 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
     }
 
     @Override
@@ -71,7 +64,7 @@ public class NotificationFragment extends Fragment {
         notificationProgressBar = view.findViewById(R.id.notification_progress_bar);
         noNotificationRelativeLayout = view.findViewById(R.id.no_notification_relative_layout);
         noNotificationTextView = view.findViewById(R.id.no_notification_text_view);
-        noNotificationTextView.setTypeface(sourceSansProLight);
+        noNotificationTextView.setTypeface(Default.sourceSansProLight);
 
          /*
          * The main purpose of this NotificationFragment is to hold all notifications for the user

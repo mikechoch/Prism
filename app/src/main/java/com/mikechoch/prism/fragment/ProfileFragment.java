@@ -41,11 +41,7 @@ public class ProfileFragment extends Fragment {
      */
     private FirebaseAuth auth;
     private DatabaseReference userReference;
-
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
+    
     private CardView viewProfileCardView;
     private RecyclerView settingsRecyclerView;
     private TextView userFullNameTextView;
@@ -68,9 +64,6 @@ public class ProfileFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
 
-        scale = this.getResources().getDisplayMetrics().density;
-        sourceSansProLight = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Black.ttf");
     }
 
     @Override
@@ -121,10 +114,10 @@ public class ProfileFragment extends Fragment {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        userFullNameTextView.setTypeface(sourceSansProLight);
-        viewProfileTextView.setTypeface(sourceSansProLight);
-        viewProfileAnalyticsTextView.setTypeface(sourceSansProLight);
-        viewProfileAnalyticsTrendsTextView.setTypeface(sourceSansProLight);
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTrendsTextView.setTypeface(Default.sourceSansProLight);
 
 
     }
@@ -140,7 +133,7 @@ public class ProfileFragment extends Fragment {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!CurrentUser.prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfileImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {

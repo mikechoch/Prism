@@ -53,9 +53,6 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference usersDatabaseRef;
 
-    private int screenWidth;
-    private int screenHeight;
-
     private ImageView iconImageView;
     private TextInputLayout fullNameTextInputLayout;
     private EditText fullNameEditText;
@@ -79,10 +76,6 @@ public class RegisterActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
         
-        // Get the screen width and height of the current phone
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
         fullNameTextInputLayout = findViewById(R.id.register_name_text_input_layout);
@@ -106,11 +99,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup the image view at the top of the Register screen
-     * 30% of the screen will be the width and margin the image top by 1/16th of the height
+     * Setup the image view at the top of the Register Default.screen
+     * 30% of the Default.screen will be the width and margin the image top by 1/16th of the height
      */
     private void setupIconImageView() {
-        iconImageView.getLayoutParams().width = (int) (screenWidth * 0.3);
+        iconImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.3);
     }
 
     /**

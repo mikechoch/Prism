@@ -40,8 +40,6 @@ public class ImageUploadActivity extends AppCompatActivity {
     /*
      * Global variables
      */
-    private int screenWidth;
-    private int screenHeight;
 
     private Toolbar toolbar;
     private TextView toolbarTextView;
@@ -78,10 +76,6 @@ public class ImageUploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_upload_activity_layout);
         
-        // Get screen height and width for future use
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -116,8 +110,8 @@ public class ImageUploadActivity extends AppCompatActivity {
      * Setup the uploadedImageImageView,
      */
     private void setupUploadedImageImageView() {
-        uploadedImageImageView.getLayoutParams().width = (int) (screenWidth * 0.9);
-        uploadedImageImageView.setMaxHeight((int) (screenHeight * 0.6));
+        uploadedImageImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.9);
+        uploadedImageImageView.setMaxHeight((int) (Default.screenHeight * 0.6));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             uploadedImageImageView.setForeground(getResources().getDrawable(R.drawable.image_upload_selector));
         }

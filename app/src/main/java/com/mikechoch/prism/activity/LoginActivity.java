@@ -44,9 +44,6 @@ public class LoginActivity extends AppCompatActivity {
      */
     private FirebaseAuth auth;
     
-    private int screenWidth;
-    private int screenHeight;
-
     private ImageView iconImageView;
 
     private TextInputLayout emailTextInputLayout;
@@ -76,10 +73,6 @@ public class LoginActivity extends AppCompatActivity {
         // User authentication instance
         auth = FirebaseAuth.getInstance();
 
-        // Get the screen width and height of the current phone
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
         emailTextInputLayout = findViewById(R.id.email_text_input_layout);
@@ -101,13 +94,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup the image view at the top of the Login screen
-     * 50% of the screen will be the width and margin the image top by 1/16th of the height
+     * Setup the image view at the top of the Login Default.screen
+     * 50% of the Default.screen will be the width and margin the image top by 1/16th of the height
      */
     private void setupIconImageView() {
-        iconImageView.getLayoutParams().width = (int) (screenWidth * 0.5);
+        iconImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.5);
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) iconImageView.getLayoutParams();
-        lp.setMargins(0, (screenHeight/16), 0, 0);
+        lp.setMargins(0, (Default.screenHeight/16), 0, 0);
         iconImageView.setLayoutParams(lp);
     }
 

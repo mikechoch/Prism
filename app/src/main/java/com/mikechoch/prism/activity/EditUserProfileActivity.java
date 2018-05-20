@@ -53,9 +53,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
      */
     private DatabaseReference currentUserReference;
 
-    private int screenWidth;
-    private int screenHeight;
-
     private Toolbar toolbar;
     private TextView toolbarTextView;
 
@@ -120,10 +117,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.edit_user_profile_activity_layout);
 
         currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-        
-        // Get the screen width and height of the current phone
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
