@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -27,7 +30,9 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
@@ -43,6 +48,9 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
@@ -297,7 +305,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             final GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    System.out.println("Image Single Tapped");
                     Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
                     return true;
                 }
@@ -305,8 +312,15 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 @Override
                 public void onLongPress(MotionEvent e) {
                     super.onLongPress(e);
-                    System.out.println("Image Long Pressed");
-                    // TODO: Think of something to do. Download image?
+                    Glide.with(context)
+                            .asBitmap()
+                            .load(prismPost.getImage())
+                            .into(new SimpleTarget<Bitmap>(){
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    downloadImage(resource);
+                                }
+                            });
 
                 }
 
@@ -328,6 +342,38 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                     return true;
                 }
             });
+        }
+
+        private void downloadImage(Bitmap image) {
+            String savedImagePath;
+            boolean createdPrismFolder = true;
+            String imageFileName = "IMG_" + System.currentTimeMillis() + ".jpg";
+
+            File prismFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Prism");
+            if (!prismFolder.exists()) {
+                createdPrismFolder = prismFolder.mkdirs();
+            }
+
+            if (createdPrismFolder) {
+                File imageFile = new File(prismFolder, imageFileName);
+                savedImagePath = imageFile.getAbsolutePath();
+                try {
+                    OutputStream fOut = new FileOutputStream(imageFile);
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                    fOut.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // Add the image to the system gallery
+                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                File f = new File(savedImagePath);
+                Uri contentUri = Uri.fromFile(f);
+                mediaScanIntent.setData(contentUri);
+                context.sendBroadcast(mediaScanIntent);
+
+                Helper.toast(context, "Image downloaded to Gallery");
+            }
         }
 
         /**
