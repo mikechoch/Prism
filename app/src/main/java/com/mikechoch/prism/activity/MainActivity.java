@@ -50,12 +50,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
@@ -283,12 +285,65 @@ public class MainActivity extends FragmentActivity {
 //                    toolbar.setLayoutParams(params);
                     uploadImageFab.startAnimation(hideFabAnimation);
                 }
+
+                // Switch statement handing reselected tabs
+                int tabPosition = tab.getPosition();
+                switch (tabPosition) {
+                    // HOME tab will...
+                    case 0:
+                        break;
+
+                    // SEARCH tab will...
+                    case 1:
+                        break;
+
+                    // NOTIFICATIONS tab will...
+                    case 2:
+                        break;
+
+                    // PROFILE tab will...
+                    case 3:
+                        break;
+
+                    case 4:
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 // Set the tab unselected to the unselected color
                 tab.getIcon().setColorFilter(tabUnselectedColor, PorterDuff.Mode.SRC_IN);
+
+                // Switch statement handing reselected tabs
+                int tabPosition = tab.getPosition();
+                switch (tabPosition) {
+                    // HOME tab will...
+                    case 0:
+                        break;
+
+                    // SEARCH tab will...
+                    case 1:
+                        break;
+
+                    // NOTIFICATIONS tab will set all notifications isViewed to true
+                    case 2:
+                        NotificationFragment.clearAllNotifications();
+                        break;
+
+                    // PROFILE tab will...
+                    case 3:
+                        break;
+
+                    case 4:
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             @Override

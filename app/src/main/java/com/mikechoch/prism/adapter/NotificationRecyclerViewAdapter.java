@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
@@ -120,7 +121,6 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
             notificationTypeTextView.setTypeface(Default.sourceSansProLight);
-
             notificationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -172,7 +172,8 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             usernameTextView.setText(mostRecentUsername);
             usernameTextView.setTextSize(16);
             usernameTextView.setTextColor(Color.WHITE);
-            usernameTextView.setTypeface(Default.sourceSansProLight);
+            Typeface notificationTypeface = notification.isViewed() ? Default.sourceSansProLight : Default.sourceSansProBold;
+            usernameTextView.setTypeface(notificationTypeface);
             usernameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

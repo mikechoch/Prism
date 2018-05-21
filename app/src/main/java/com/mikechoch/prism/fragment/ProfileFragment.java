@@ -46,7 +46,6 @@ public class ProfileFragment extends Fragment {
     private TextView viewProfileAnalyticsTextView;
     private TextView viewProfileAnalyticsTrendsTextView;
     private ImageView userProfileImageView;
-    private TextView userProfileTextView;
 
     public static final ProfileFragment newInstance() {
         ProfileFragment profileFragment = new ProfileFragment();
@@ -75,7 +74,6 @@ public class ProfileFragment extends Fragment {
         viewProfileAnalyticsTextView = view.findViewById(R.id.profile_fragment_analytics_text_view);
         viewProfileAnalyticsTrendsTextView = view.findViewById(R.id.profile_fragment_analytics_description_text_view);
         userProfileImageView = view.findViewById(R.id.profile_fragment_user_profile_image_view);
-        userProfileTextView = view.findViewById(R.id.profile_fragment_user_full_name_text_view);
 
         viewProfileCardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,11 +113,10 @@ public class ProfileFragment extends Fragment {
         viewProfileAnalyticsTextView.setTypeface(Default.sourceSansProLight);
         viewProfileAnalyticsTrendsTextView.setTypeface(Default.sourceSansProLight);
 
-
     }
 
     private void populateUserDetails() {
-        userProfileTextView.setText(CurrentUser.prismUser.getFullName());
+        userFullNameTextView.setText(CurrentUser.prismUser.getFullName());
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)

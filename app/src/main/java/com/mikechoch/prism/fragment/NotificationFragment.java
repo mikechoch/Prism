@@ -91,10 +91,20 @@ public class NotificationFragment extends Fragment {
         notificationSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                notificationRecyclerViewAdapter.notifyDataSetChanged();
                 notificationSwipeRefreshLayout.setRefreshing(false);
             }
         });
 
         return view;
+    }
+
+    /**
+     *
+     */
+    public static void clearAllNotifications() {
+        for (Notification notification : NotificationFragment.notificationArrayList) {
+            notification.setViewed(true);
+        }
     }
 }
