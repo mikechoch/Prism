@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -76,41 +77,42 @@ public class SearchFragment extends Fragment {
      */
     public static void createAllDiscoveryRecyclerViews(Context context) {
         for (int i = 0; i < 2; i++) {
-            TextView recyclerViewTitleTextView = new TextView(context);
-            LinearLayout.LayoutParams titleTextViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            titleTextViewLayoutParams.setMargins((int) (4 * Default.scale), (int) (4 * Default.scale), 0, 0);
-            recyclerViewTitleTextView.setLayoutParams(titleTextViewLayoutParams);
-            recyclerViewTitleTextView.setTextSize(15f);
-            recyclerViewTitleTextView.setTextColor(Color.WHITE);
+            LayoutInflater layoutInflater = LayoutInflater.from(context);
+            View discoveryRecyclerViewLayout = layoutInflater.inflate(R.layout.search_discovery_recycler_view_layout, null, false);
+
+            ImageView recyclerViewTitleIcon = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view_title_icon);
+
+            TextView recyclerViewTitleTextView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view_title_text_view);
             recyclerViewTitleTextView.setTypeface(Default.sourceSansProLight);
 
-            RecyclerView prismPostDiscoveryRecyclerView = new RecyclerView(context);
+            RecyclerView prismPostDiscoveryRecyclerView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view);
             LinearLayout.LayoutParams recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             prismPostDiscoveryRecyclerView.setLayoutParams(recyclerViewLayoutParams);
             LinearLayoutManager discoveryLinearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             DefaultItemAnimator discoveryDefaultItemAnimator = new DefaultItemAnimator();
             DividerItemDecoration discoveryDividerItemDecoration = new DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL);
+            discoveryDividerItemDecoration.setDrawable(context.getResources().getDrawable(R.drawable.recycler_view_no_divider));
             prismPostDiscoveryRecyclerView.setLayoutManager(discoveryLinearLayoutManager);
             prismPostDiscoveryRecyclerView.setItemAnimator(discoveryDefaultItemAnimator);
             prismPostDiscoveryRecyclerView.addItemDecoration(discoveryDividerItemDecoration);
-            prismPostDiscoveryRecyclerView.setNestedScrollingEnabled(false);
 
             SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = null;
             switch (i) {
                 case 0:
+                    recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.like_heart));
                     recyclerViewTitleTextView.setText("Most Liked");
-                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestLikedPosts());
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestLikedPosts(), "Likes");
                     break;
                 case 1:
+                    recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.repost_iris));
                     recyclerViewTitleTextView.setText("Most Reposted");
-                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestRepostedPosts());
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestRepostedPosts(), "Reposts");
                     break;
             }
             prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
             searchDiscoverRecyclerViewAdapters[i] = searchDiscoverRecyclerViewAdapter;
 
-            searchLinearLayout.addView(recyclerViewTitleTextView);
-            searchLinearLayout.addView(prismPostDiscoveryRecyclerView);
+            searchLinearLayout.addView(discoveryRecyclerViewLayout);
         }
     }
 }

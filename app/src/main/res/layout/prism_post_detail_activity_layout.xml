@@ -117,6 +117,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -138,7 +140,7 @@
                             android:layout_height="48dp"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
-                            android:layout_marginStart="8dp" />
+                            android:layout_marginStart="4dp"/>
 
                         <TextView
                             android:id="@+id/prism_post_detail_username_text_view"
@@ -243,19 +245,23 @@
 
                     </TableRow>
 
-                    <TextView
-                        android:id="@+id/prism_post_description"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_below="@id/prism_post_detail_user_relative_layout"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginEnd="12dp"
-                        android:textSize="15sp"
-                        android:textColor="@android:color/white"/>
-
                 </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/white"/>
+
+                <TextView
+                    android:id="@+id/prism_post_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:textSize="15sp"
+                    android:textColor="@android:color/white"/>
 
             </LinearLayout>
 
