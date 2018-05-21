@@ -1,6 +1,5 @@
 package com.mikechoch.prism.fragment;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,21 +15,20 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.R;
+import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.R;
-import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -52,10 +50,6 @@ public class MainContentFragment extends Fragment {
 
     private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
     private SwipeRefreshLayout mainContentSwipeRefreshLayout;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     public static ArrayList<PrismPost> prismPostArrayList;
     private boolean isLoading = false;
@@ -69,13 +63,6 @@ public class MainContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        screenWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getActivity().getWindowManager().getDefaultDisplay().getHeight();
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         prismPostArrayList = new ArrayList<>();
 
@@ -91,7 +78,7 @@ public class MainContentFragment extends Fragment {
         mainContentProgressBar = view.findViewById(R.id.main_content_progress_bar);
         noMainPostsRelativeLayout = view.findViewById(R.id.no_main_posts_relative_layout);
         noMainPostsTextView = view.findViewById(R.id.no_main_posts_text_view);
-        noMainPostsTextView.setTypeface(sourceSansProLight);
+        noMainPostsTextView.setTypeface(Default.sourceSansProLight);
 
         /*
          * The main purpose of this MainContentFragment is to be a Home page of the application
@@ -143,7 +130,7 @@ public class MainContentFragment extends Fragment {
             }
         });
 
-        mainContentRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), prismPostArrayList, new int[]{screenWidth, screenHeight});
+        mainContentRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), prismPostArrayList);
         mainContentRecyclerView.setAdapter(mainContentRecyclerViewAdapter);
 
         /*

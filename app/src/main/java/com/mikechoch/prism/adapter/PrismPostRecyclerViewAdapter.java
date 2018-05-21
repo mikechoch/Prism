@@ -61,24 +61,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
     private Context context;
     public static ArrayList<PrismPost> prismPostArrayList;
 
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
-
-    public PrismPostRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostArrayList, int[] screenDimens) {
+    public PrismPostRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostArrayList) {
         this.context = context;
         this.prismPostArrayList = prismPostArrayList;
-        this.screenWidth = screenDimens[0];
-        this.screenHeight = screenDimens[1];
-
-        this.scale = context.getResources().getDisplayMetrics().density;
-        this.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Light.ttf");
-        this.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Black.ttf");
-        this.screenWidth = screenDimens[0];
-        this.screenHeight = screenDimens[1];
     }
 
     @Override
@@ -201,7 +187,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                             @Override
                             protected void setResource(Bitmap resource) {
                                 if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1.5 * scale);
+                                    int whiteOutlinePadding = (int) (1.5 * Default.scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                                     userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {
@@ -240,8 +226,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
              * prismPostImageView will have a max height of 60% of the screen
              * This causes any images that are stronger in height to not span the entire screen
              */
-            prismPostImageView.getLayoutParams().width = (int) (screenWidth * 0.9);
-            prismPostImageView.setMaxHeight((int) (screenHeight * 0.6));
+            prismPostImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.9);
+            prismPostImageView.setMaxHeight((int) (Default.screenHeight * 0.6));
 
             /*
              * Using the Glide library to populate the prismPostImageView
@@ -254,7 +240,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             Glide.with(context)
                     .asBitmap()
                     .load(prismPost.getImage())
-                    .apply(new RequestOptions().fitCenter().override((int) (screenWidth * 0.9), (int) (screenHeight * 0.6)))
+                    .apply(new RequestOptions().fitCenter().override((int) (Default.screenWidth * 0.9), (int) (Default.screenHeight * 0.6)))
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
@@ -437,10 +423,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
          */
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
-            prismUserTextView.setTypeface(sourceSansProBold);
-            prismPostDateTextView.setTypeface(sourceSansProLight);
-            likesCountTextView.setTypeface(sourceSansProLight);
-            repostsCountTextView.setTypeface(sourceSansProLight);
+            prismUserTextView.setTypeface(Default.sourceSansProBold);
+            prismPostDateTextView.setTypeface(Default.sourceSansProLight);
+            likesCountTextView.setTypeface(Default.sourceSansProLight);
+            repostsCountTextView.setTypeface(Default.sourceSansProLight);
 
             setupPostUserUIElements();
             setupPostImageView();

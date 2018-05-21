@@ -197,22 +197,24 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private void getAllPrismPostData() {
         Bundle extras = getIntent().getExtras();
-        prismPost = extras.getParcelable("PrismPostDetail");
+        if (extras != null) {
+            prismPost = extras.getParcelable("PrismPostDetail");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
-            detailImageView.setTransitionName(imageTransitionName);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
+                detailImageView.setTransitionName(imageTransitionName);
+            }
+
+            postId = this.prismPost.getPostId();
+            postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
+            likeCount = this.prismPost.getLikes();
+            repostCount = this.prismPost.getReposts();
+            isPostLiked = CurrentUser.hasLiked(prismPost);
+            isPostReposted = CurrentUser.hasReposted(prismPost);
+
+            if (likeCount == null) likeCount = 0;
+            if (repostCount == null) repostCount = 0;
         }
-
-        postId = this.prismPost.getPostId();
-        postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
-        likeCount = this.prismPost.getLikes();
-        repostCount = this.prismPost.getReposts();
-        isPostLiked = CurrentUser.hasLiked(prismPost);
-        isPostReposted = CurrentUser.hasReposted(prismPost);
-
-        if (likeCount == null) likeCount = 0;
-        if (repostCount == null) repostCount = 0;
     }
 
     /**
