@@ -72,7 +72,6 @@ public class MainContentFragment extends Fragment {
         databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
         usersReference = Default.USERS_REFERENCE;
         refreshData();
-        DiscoverController.setupDiscoverContent();
     }
 
     @Override
@@ -279,11 +278,6 @@ public class MainContentFragment extends Fragment {
                     if (updateRecyclerViewAdapter) {
                         mainContentProgressBar.setVisibility(View.GONE);
                         mainContentRecyclerViewAdapter.notifyDataSetChanged();
-
-                        for (SearchDiscoverRecyclerViewAdapter adapter : SearchFragment.searchDiscoverRecyclerViewAdapters) {
-                            System.out.println(adapter.getItemCount());
-                            adapter.notifyDataSetChanged();
-                        }
                     }
                 } else {
                     Log.i(Default.TAG_DB, Message.NO_DATA);

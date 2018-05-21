@@ -1,5 +1,6 @@
 package com.mikechoch.prism.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DiscoverController;
 
 
 /**
@@ -31,7 +33,7 @@ public class SearchFragment extends Fragment {
     private CardView searchCardView;
     private TextView searchBarHintTextView;
 
-    public static SearchDiscoverRecyclerViewAdapter[] searchDiscoverRecyclerViewAdapters = new SearchDiscoverRecyclerViewAdapter[5];
+    public static SearchDiscoverRecyclerViewAdapter[] searchDiscoverRecyclerViewAdapters = new SearchDiscoverRecyclerViewAdapter[2];
 
 
     public static final SearchFragment newInstance() {
@@ -63,35 +65,52 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        for (int i = 0; i < 5; i++) {
-            TextView recyclerViewTitleTextView = new TextView(getActivity());
+        DiscoverController.setupDiscoverContent(getActivity());
+
+        return view;
+    }
+
+    /**
+     *
+     * @param context
+     */
+    public static void createAllDiscoveryRecyclerViews(Context context) {
+        for (int i = 0; i < 2; i++) {
+            TextView recyclerViewTitleTextView = new TextView(context);
             LinearLayout.LayoutParams titleTextViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             titleTextViewLayoutParams.setMargins((int) (4 * Default.scale), (int) (4 * Default.scale), 0, 0);
             recyclerViewTitleTextView.setLayoutParams(titleTextViewLayoutParams);
-            recyclerViewTitleTextView.setText("Most Liked");
             recyclerViewTitleTextView.setTextSize(15f);
             recyclerViewTitleTextView.setTextColor(Color.WHITE);
             recyclerViewTitleTextView.setTypeface(Default.sourceSansProLight);
-            searchLinearLayout.addView(recyclerViewTitleTextView);
 
-            RecyclerView prismPostDiscoveryRecyclerView = new RecyclerView(getActivity());
+            RecyclerView prismPostDiscoveryRecyclerView = new RecyclerView(context);
             LinearLayout.LayoutParams recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             prismPostDiscoveryRecyclerView.setLayoutParams(recyclerViewLayoutParams);
-            LinearLayoutManager discoveryLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+            LinearLayoutManager discoveryLinearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             DefaultItemAnimator discoveryDefaultItemAnimator = new DefaultItemAnimator();
-            DividerItemDecoration discoveryDividerItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.HORIZONTAL);
+            DividerItemDecoration discoveryDividerItemDecoration = new DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL);
             prismPostDiscoveryRecyclerView.setLayoutManager(discoveryLinearLayoutManager);
             prismPostDiscoveryRecyclerView.setItemAnimator(discoveryDefaultItemAnimator);
             prismPostDiscoveryRecyclerView.addItemDecoration(discoveryDividerItemDecoration);
             prismPostDiscoveryRecyclerView.setNestedScrollingEnabled(false);
 
-            SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(getActivity(), MainContentFragment.prismPostArrayList);
+            SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = null;
+            switch (i) {
+                case 0:
+                    recyclerViewTitleTextView.setText("Most Liked");
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestLikedPosts());
+                    break;
+                case 1:
+                    recyclerViewTitleTextView.setText("Most Reposted");
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestRepostedPosts());
+                    break;
+            }
             prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
             searchDiscoverRecyclerViewAdapters[i] = searchDiscoverRecyclerViewAdapter;
+
+            searchLinearLayout.addView(recyclerViewTitleTextView);
             searchLinearLayout.addView(prismPostDiscoveryRecyclerView);
         }
-
-
-        return view;
     }
 }
