@@ -31,6 +31,12 @@ public class DiscoverController {
         fetchAllPosts();
     }
 
+    /**
+     * TODO
+     * In future, when we have a lot of posts, fetching all the posts
+     * will be expensive. So at that point, we should only pull posts
+     * from last 1 week or last few days to show on discover page
+     */
     private static void fetchAllPosts() {
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -82,6 +88,7 @@ public class DiscoverController {
             }
         });
         // TODO @MIKE: highestRepostedPosts arrayList is ready here. call notifyDatasetChanged here
+        // @Mike: don't make these local arrayLists global or static. If you have to, let me know
 
     }
 
@@ -94,6 +101,7 @@ public class DiscoverController {
             }
         });
         // TODO @MIKE: highestLikedPosts arrayList is ready here. call notifyDatasetChanged here
+        // @Mike: don't make these local arrayLists global or static. If you have to, let me know
     }
 
 
