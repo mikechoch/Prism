@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     tools:context=".activity.NotificationSettingsActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -42,46 +43,48 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <!-- TODO @Mike `layout_marginTop=64dp` is probably not the right way to do it -->
+    <!-- Using  `layout_marginTop=?attr/actionBarSize` only does 56dp that's why I hardcoded 64dp -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="64dp"
+        android:background="@color/colorPrimary"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:orientation="vertical">
 
         <Switch
             android:id="@+id/notification_like_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
+            android:padding="16dp"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
+            android:foreground="@drawable/setting_option_selector"
             android:text="Like" />
 
         <Switch
             android:id="@+id/notification_repost_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
+            android:padding="16dp"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
+            android:foreground="@drawable/setting_option_selector"
             android:text="Repost" />
 
         <Switch
             android:id="@+id/notification_follow_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
+            android:padding="16dp"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
+            android:foreground="@drawable/setting_option_selector"
             android:text="Follow" />
 
     </LinearLayout>
