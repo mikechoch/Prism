@@ -29,6 +29,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DiscoverController;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -63,12 +64,13 @@ public class MainContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         prismPostArrayList = new ArrayList<>();
 
         databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
         usersReference = Default.USERS_REFERENCE;
         refreshData();
+        DiscoverController.setupDiscoverContent();
     }
 
     @Override

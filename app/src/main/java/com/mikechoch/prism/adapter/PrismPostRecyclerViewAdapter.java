@@ -312,6 +312,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 @Override
                 public void onLongPress(MotionEvent e) {
                     super.onLongPress(e);
+                    // Download image
                     Glide.with(context)
                             .asBitmap()
                             .load(prismPost.getImage())
