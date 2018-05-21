@@ -125,7 +125,17 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             notificationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost(), null);
+                    switch (notification.getType()) {
+                        case LIKE:
+                        case REPOST:
+                            Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost(), null);
+                            break;
+                        case FOLLOW:
+                            Helper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
 
