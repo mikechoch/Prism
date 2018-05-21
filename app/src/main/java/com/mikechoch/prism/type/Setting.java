@@ -7,7 +7,7 @@ import com.mikechoch.prism.constant.Default;
  * Created by mikechoch on 2/16/18.
  */
 
-public enum SettingType {
+public enum Setting {
 
     APP("App Settings", R.drawable.ic_settings_white_36dp, Default.SETTINGS_OPTION_APP),
     NOTIFICATION("Notification Settings",  R.drawable.ic_bell_white_36dp, Default.SETTINGS_OPTION_NOTIFICATION),
@@ -20,7 +20,7 @@ public enum SettingType {
     private final int optionIcon;
     private final int optionId;
 
-    SettingType(String title, int icon, int id) {
+    Setting(String title, int icon, int id) {
         this.optionTitle = title;
         this.optionIcon = icon;
         this.optionId = id;
@@ -37,4 +37,5 @@ public enum SettingType {
     public int getOptionId() {
         return optionId;
     }
+
 }

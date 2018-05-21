@@ -1,6 +1,5 @@
 package com.mikechoch.prism.fragment;
 
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,9 +15,9 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
 
 import java.util.ArrayList;
 
@@ -31,8 +30,6 @@ public class UploadedRepostedPostsFragment extends Fragment {
     /*
      * Globals
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;
@@ -118,7 +115,7 @@ public class UploadedRepostedPostsFragment extends Fragment {
             noPostsImageView.setImageDrawable(noPostsDrawable);
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
-            noPostsTextView.setTypeface(sourceSansProLight);
+            noPostsTextView.setTypeface(Default.sourceSansProLight);
             noPostsTextView.setText("No uploaded or reposted posts");
 
             userUploadedPostsLinearLayout.addView(noPostsView);

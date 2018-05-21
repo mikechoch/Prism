@@ -2,7 +2,6 @@ package com.mikechoch.prism.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -14,14 +13,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 /**
  * Created by mikechoch on 3/10/18.
@@ -32,12 +31,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     /*
     * Globals
     */
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
-
+    
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
 
@@ -72,17 +66,6 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_user_profile_picture_activity_layout);
-
-        // Get the screen density of the current phone for later UI element scaling
-        scale = getResources().getDisplayMetrics().density;
-
-        // Get the screen width and height of the current phone
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
@@ -137,12 +120,12 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         Glide.with(this)
                 .asBitmap()
                 .load(prismUser.getProfilePicture().hiResUri)
-                .apply(new RequestOptions().fitCenter().override((int) (screenWidth * 0.8)))
+                .apply(new RequestOptions().fitCenter().override((int) (Default.screenWidth * 0.8)))
                 .into(new BitmapImageViewTarget(largeUserProfilePictureImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (5 * scale);
+                            int whiteOutlinePadding = (int) (5 * Default.scale);
                             largeUserProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             largeUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -158,8 +141,8 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
                     }
                 });
 
-        userProfilePictureZoomControlLinearLayout.getLayoutParams().height = (int) (screenWidth * 0.8);
-        userProfilePictureZoomControlLinearLayout.getLayoutParams().width = (int) (screenWidth * 0.8);
+        userProfilePictureZoomControlLinearLayout.getLayoutParams().height = (int) (Default.screenWidth * 0.8);
+        userProfilePictureZoomControlLinearLayout.getLayoutParams().width = (int) (Default.screenWidth * 0.8);
         userProfilePictureZoomControlLinearLayout.addContext(this);
         userProfilePictureZoomControlLinearLayout.addImageView(largeUserProfilePictureImageView);
     }

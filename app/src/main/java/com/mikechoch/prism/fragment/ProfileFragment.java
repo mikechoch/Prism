@@ -1,26 +1,30 @@
 package com.mikechoch.prism.fragment;
 
 import android.content.Intent;
-import android.graphics.Typeface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.adapter.SettingsOptionRecyclerViewAdapter;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.R;
-
-import org.w3c.dom.Text;
+import com.mikechoch.prism.fire.CurrentUser;
 
 /**
  * Created by mikechoch on 1/22/18.
@@ -33,11 +37,7 @@ public class ProfileFragment extends Fragment {
      */
     private FirebaseAuth auth;
     private DatabaseReference userReference;
-
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
+    
     private CardView viewProfileCardView;
     private RecyclerView settingsRecyclerView;
     private TextView userFullNameTextView;
@@ -45,7 +45,8 @@ public class ProfileFragment extends Fragment {
     private CardView viewProfileAnalyticsCardView;
     private TextView viewProfileAnalyticsTextView;
     private TextView viewProfileAnalyticsTrendsTextView;
-
+    private ImageView userProfileImageView;
+    private TextView userProfileTextView;
 
     public static final ProfileFragment newInstance() {
         ProfileFragment profileFragment = new ProfileFragment();
@@ -59,9 +60,6 @@ public class ProfileFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
 
-        scale = this.getResources().getDisplayMetrics().density;
-        sourceSansProLight = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getContext().getAssets(), "fonts/SourceSansPro-Black.ttf");
     }
 
     @Override
@@ -76,6 +74,8 @@ public class ProfileFragment extends Fragment {
         viewProfileAnalyticsCardView = view.findViewById(R.id.profile_fragment_analytics_card_view);
         viewProfileAnalyticsTextView = view.findViewById(R.id.profile_fragment_analytics_text_view);
         viewProfileAnalyticsTrendsTextView = view.findViewById(R.id.profile_fragment_analytics_description_text_view);
+        userProfileImageView = view.findViewById(R.id.profile_fragment_user_profile_image_view);
+        userProfileTextView = view.findViewById(R.id.profile_fragment_user_full_name_text_view);
 
         viewProfileCardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +100,7 @@ public class ProfileFragment extends Fragment {
         settingsRecyclerView.setAdapter(settingsRecyclerViewAdapter);
 
         setupUIElements();
+        populateUserDetails();
 
         return view;
     }
@@ -109,12 +110,38 @@ public class ProfileFragment extends Fragment {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        userFullNameTextView.setTypeface(sourceSansProLight);
-        viewProfileTextView.setTypeface(sourceSansProLight);
-        viewProfileAnalyticsTextView.setTypeface(sourceSansProLight);
-        viewProfileAnalyticsTrendsTextView.setTypeface(sourceSansProLight);
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTrendsTextView.setTypeface(Default.sourceSansProLight);
 
 
+    }
+
+    private void populateUserDetails() {
+        userProfileTextView.setText(CurrentUser.prismUser.getFullName());
+        Glide.with(this)
+                .asBitmap()
+                .thumbnail(0.05f)
+                .load(CurrentUser.prismUser.getProfilePicture().lowResUri)
+                .apply(new RequestOptions().fitCenter())
+                .into(new BitmapImageViewTarget(userProfileImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        if (!CurrentUser.prismUser.getProfilePicture().isDefault) {
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
+                            userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+                            userProfileImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
+                        } else {
+                            userProfileImageView.setPadding(0, 0, 0, 0);
+                            userProfileImageView.setBackground(null);
+                        }
+
+                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                        drawable.setCircular(true);
+                        userProfileImageView.setImageDrawable(drawable);
+                    }
+                });
     }
 
 }

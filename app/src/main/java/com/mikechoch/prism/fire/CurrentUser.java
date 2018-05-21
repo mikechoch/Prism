@@ -2,6 +2,7 @@ package com.mikechoch.prism.fire;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -15,10 +16,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fragment.MainContentFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,11 +42,11 @@ public class CurrentUser {
     public static FirebaseUser firebaseUser;
     private static DatabaseReference currentUserReference;
     private static DatabaseReference allPostReference;
-
-    private static Context context;
-    private static float scale;
-
+    
     public static PrismUser prismUser;
+    public static UserPreference preference;
+
+    public static ArrayList<PrismPost> news_feed;
 
     /**
      * Key: String postId
@@ -76,16 +80,16 @@ public class CurrentUser {
 
 
 
-    public CurrentUser(Context context) {
+    private CurrentUser(Context context, Intent intent) {
         updateLocalCurrentUser();
         currentUserReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
         allPostReference = Default.ALL_POSTS_REFERENCE;
+        
+        refreshUserProfile(context, intent);
+    }
 
-        CurrentUser.context = context;
-        scale = context.getResources().getDisplayMetrics().density;
-
-        refreshUserProfile();
-        IncomingNotificationController.initializeNotifications();
+    public static void prepareAppForUser(Context context, Intent intent) {
+        new CurrentUser(context, intent);
     }
 
     /**
@@ -243,7 +247,7 @@ public class CurrentUser {
      * list of posts uploaded, liked, and reposted by CurrentUser.
      * Also fetches user's followers and followings.
      */
-    public static void refreshUserProfile() {
+    private static void refreshUserProfile(Context context, Intent intent) {
         liked_posts = new ArrayList<>();
         reposted_posts = new ArrayList<>();
         uploaded_posts = new ArrayList<>();
@@ -259,7 +263,13 @@ public class CurrentUser {
         notifications_map = new HashMap<>();
         notifications = new ArrayList<>();
 
-        DatabaseAction.fetchUserProfile();
+        DatabaseAction.fetchUserProfile(context, intent);
+    }
+
+    public static void refreshUserProfile(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("onlyPerformRefresh", true);
+        refreshUserProfile(context, intent);
     }
 
 
@@ -306,6 +316,20 @@ public class CurrentUser {
     }
 
     /**
+     * Returns list of uid of Current user's followers
+     */
+    public static ArrayList<String> getFollowers() {
+        return new ArrayList<>(followers.keySet());
+    }
+
+    /**
+     * Returns list of uid of Current user's followings
+     */
+    public static ArrayList<String> getFollowings() {
+        return new ArrayList<>(followings.keySet());
+    }
+
+    /**
      *
      * @return
      */
@@ -314,9 +338,9 @@ public class CurrentUser {
     }
 
     /**
-     * TODO Mike: Can we we put this function inside InterfaceAction?
+     * TODO @Mike: Can we we put this function inside InterfaceAction?
      */
-    static void updateUserProfilePageUI() {
+    static void updateUserProfileFragmentUI(Context context) {
         ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
         TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
 
@@ -331,7 +355,7 @@ public class CurrentUser {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfileImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -345,4 +369,27 @@ public class CurrentUser {
                     }
                 });
     }
+
+    static void refreshInterface(Context context, Intent intent) {
+        // Handle notification firebase token related activities
+        DatabaseAction.handleFirebaseTokenRefreshActivities(context);
+        IncomingNotificationController.initializeNotifications();
+
+        if (intent.getBooleanExtra("onlyPerformRefresh", false)) {
+            MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
+            updateUserProfileFragmentUI(context);
+        } else {
+            Intent[] intents;
+            Intent mainIntent = new Intent(context, MainActivity.class);
+            if (intent.filterEquals(mainIntent)) {
+                intents = new Intent[]{intent};
+            } else {
+                intents = new Intent[]{mainIntent, intent};
+            }
+            context.startActivities(intents);
+            ((Activity) context).finish();
+        }
+
+    }
+
 }

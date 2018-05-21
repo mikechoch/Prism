@@ -57,7 +57,7 @@ public class Default {
     public static final int SEARCH_TYPE_VIEW_PAGER_PEOPLE = 0;
     public static final int SEARCH_TYPE_VIEW_PAGER_TAG = 1;
 
-    // SettingType
+    // Setting
     public static final int SETTINGS_OPTION_APP = 0;
     public static final int SETTINGS_OPTION_NOTIFICATION = 1;
     public static final int SETTINGS_OPTION_ACCOUNT = 2;
@@ -78,6 +78,7 @@ public class Default {
     // Button Strings
     public static final String BUTTON_OK = "OK";
     public static final String BUTTON_SAVE = "SAVE";
+    public static final String BUTTON_SUBMIT = "SUBMIT";
     public static final String BUTTON_CANCEL = "CANCEL";
     public static final String BUTTON_DELETE = "DELETE";
     public static final String BUTTON_REPOST = "REPOST";
@@ -86,12 +87,13 @@ public class Default {
     // Log Message Tags
     public static final String TAG_DB = "Firebase Database";
     public static final String TAG_DEBUG = "Debug Output";
+    public static final String TAG_NOTIFICATION = "Prism Notification";
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
-    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 10000;
+    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should 10seconds or 30 seconds
 
     public static final String HIDDEN_PASSWORD = "********";
 
-    public static final List<Character> illegalTagChars = Arrays.asList(' ', '\n', '#', ',');
+    public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
 }

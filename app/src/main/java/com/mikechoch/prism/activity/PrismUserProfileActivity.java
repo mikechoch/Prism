@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,21 +18,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,13 +43,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
-import com.mikechoch.prism.adapter.PostsColumnRecyclerViewAdapter;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.constant.NotificationKey;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -80,11 +74,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private DatabaseReference currentUserReference;
     private DatabaseReference usersReference;
     private DatabaseReference allPostsReference;
-
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
+    
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
 
@@ -145,14 +135,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
         usersReference = Default.USERS_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;
-
-        // Get the screen density of the current phone for later UI element scaling
-        scale = getResources().getDisplayMetrics().density;
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.app_bar_layout);
@@ -179,17 +162,35 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         userPostsTabLayout = findViewById(R.id.current_user_profile_tab_layout);
         userPostsViewPager = findViewById(R.id.current_user_profile_view_pager);
 
+        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
         prismUser = intent.getParcelableExtra("PrismUser");
-        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+        if (prismUser != null) {
+            setupUIElements();
+            fetchUserContent();
+        } else {
+            String prismUserId = intent.getExtras().getString(NotificationKey.PRISM_USER_ID);
+            pullPrismUserDetails(prismUserId);
+        }
 
-        // Check if the this user is equal to the current user
-        // Different elements depend on this element
-        isCurrentUser = prismUser.getUid().equals(CurrentUser.prismUser.getUid());
+    }
 
-        setupUIElements();
-        pullUserDetails();
+    private void pullPrismUserDetails(String prismUserId) {
+        usersReference.child(prismUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userSnapshot) {
+                if (userSnapshot.exists()) {
+                    prismUser = Helper.constructPrismUserObject(userSnapshot);
+                    setupUIElements();
+                    fetchUserContent();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     @Override
@@ -221,7 +222,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                                     drawable.setCircular(true);
                                     userProfilePicImageView.setImageDrawable(drawable);
 
-                                    int whiteOutlinePadding = (int) (2 * scale);
+                                    int whiteOutlinePadding = (int) (2 * Default.scale);
                                     userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                                     userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 }
@@ -236,8 +237,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Takes the profilePicUriString and stores the image to cloud. Once the image file is
-     * successfully uploaded to cloud successfully, it adds the profilePicUriString to
+     * Takes the profilePicUri and stores the image to cloud. Once the image file is
+     * successfully uploaded to cloud successfully, it adds the profilePicUri to
      * the firebaseUser's profile details section
      */
     private void uploadProfilePictureToCloud() {
@@ -266,11 +267,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     /**
      * TODO: @Parth Comment this
      */
-    private void pullUserDetails() {
+    private void fetchUserContent() {
         if (isCurrentUser) {
             prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
             setupUserPostsUIElements();
-
             return;
         }
         usersReference.child(prismUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -384,6 +384,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         setupUserProfilePicture();
 
+        postsCountTextView.setText(String.valueOf(prismUser.getUploadCount()));
+
         followersCountTextView.setText(String.valueOf(prismUser.getFollowerCount()));
         followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -417,7 +419,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (2 * scale);
+                            int whiteOutlinePadding = (int) (2 * Default.scale);
                             userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -452,7 +454,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     @Override
                     protected void setResource(Bitmap resource) {
                         if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * scale);
+                            int whiteOutlinePadding = (int) (1 * Default.scale);
                             toolbarUserProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             toolbarUserProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                         } else {
@@ -725,20 +727,21 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Setup all UI elements
      */
     private void setupUIElements() {
-        setupToolbar();
+        isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
 
+        setupToolbar();
         // Setup Typefaces for all text based UI elements
-        toolbarUserUsernameTextView.setTypeface(sourceSansProBold);
-        toolbarFollowButton.setTypeface(sourceSansProLight);
-        followUserButton.setTypeface(sourceSansProLight);
-        followersCountTextView.setTypeface(sourceSansProBold);
-        followersLabelTextView.setTypeface(sourceSansProLight);
-        postsCountTextView.setTypeface(sourceSansProBold);
-        postsLabelTextView.setTypeface(sourceSansProLight);
-        followingCountTextView.setTypeface(sourceSansProBold);
-        followingLabelTextView.setTypeface(sourceSansProLight);
-        userUsernameTextView.setTypeface(sourceSansProBold);
-        userFullNameTextView.setTypeface(sourceSansProLight);
+        toolbarUserUsernameTextView.setTypeface(Default.sourceSansProBold);
+        toolbarFollowButton.setTypeface(Default.sourceSansProLight);
+        followUserButton.setTypeface(Default.sourceSansProLight);
+        followersCountTextView.setTypeface(Default.sourceSansProBold);
+        followersLabelTextView.setTypeface(Default.sourceSansProLight);
+        postsCountTextView.setTypeface(Default.sourceSansProBold);
+        postsLabelTextView.setTypeface(Default.sourceSansProLight);
+        followingCountTextView.setTypeface(Default.sourceSansProBold);
+        followingLabelTextView.setTypeface(Default.sourceSansProLight);
+        userUsernameTextView.setTypeface(Default.sourceSansProBold);
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
 
         setupAppBarLayout();
         setupUserProfileUIElements();

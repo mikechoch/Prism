@@ -2,13 +2,11 @@ package com.mikechoch.prism.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -33,10 +31,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
@@ -51,11 +50,6 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private DatabaseReference usersDatabaseRef;
-
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     private ImageView iconImageView;
     private TextInputLayout fullNameTextInputLayout;
@@ -79,15 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
         // User authentication instance
         auth = FirebaseAuth.getInstance();
         usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
-        // Get the screen width and height of the current phone
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-
+        
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
         fullNameTextInputLayout = findViewById(R.id.register_name_text_input_layout);
@@ -111,11 +97,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup the image view at the top of the Register screen
-     * 30% of the screen will be the width and margin the image top by 1/16th of the height
+     * Setup the image view at the top of the Register Default.screen
+     * 30% of the Default.screen will be the width and margin the image top by 1/16th of the height
      */
     private void setupIconImageView() {
-        iconImageView.getLayoutParams().width = (int) (screenWidth * 0.3);
+        iconImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.3);
     }
 
     /**
@@ -278,6 +264,11 @@ public class RegisterActivity extends AppCompatActivity {
                                         profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
                                         profileReference.child(Key.USER_PROFILE_PIC).setValue(generateDefaultProfilePic());
 
+                                        DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).setValue(true);
+                                        notificationPreference.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).setValue(true);
+
                                         DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(username);
                                         accountReference.setValue(email);
 
@@ -318,16 +309,16 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        fullNameTextInputLayout.setTypeface(sourceSansProLight);
-        fullNameEditText.setTypeface(sourceSansProLight);
-        usernameTextInputLayout.setTypeface(sourceSansProLight);
-        usernameEditText.setTypeface(sourceSansProLight);
-        emailTextInputLayout.setTypeface(sourceSansProLight);
-        emailEditText.setTypeface(sourceSansProLight);
-        passwordTextInputLayout.setTypeface(sourceSansProLight);
-        passwordEditText.setTypeface(sourceSansProLight);
-        registerButton.setTypeface(sourceSansProLight);
-        goToLoginButton.setTypeface(sourceSansProLight);
+        fullNameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        fullNameEditText.setTypeface(Default.sourceSansProLight);
+        usernameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        usernameEditText.setTypeface(Default.sourceSansProLight);
+        emailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        emailEditText.setTypeface(Default.sourceSansProLight);
+        passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
+        passwordEditText.setTypeface(Default.sourceSansProLight);
+        registerButton.setTypeface(Default.sourceSansProLight);
+        goToLoginButton.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
         setupFullNameEditText();
@@ -341,24 +332,29 @@ public class RegisterActivity extends AppCompatActivity {
 
     /**
      * Intent to Main Activity from Register Activity
+     * TODO Rename this method
      */
     private void intentToMainActivity() {
-        Intent mainActivityIntent = new Intent(RegisterActivity.this, MainActivity.class);
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(RegisterActivity.this, iconImageView, "icon");
-        iconImageView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(mainActivityIntent, options.toBundle());
-//                    overridePendingTransition(enterAnim, exitAnim);
-                iconImageView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        finish();
-                    }
-                }, 1000);
-            }
-        }, 250);
+        Intent intent = new Intent(this, MainActivity.class);
+        CurrentUser.prepareAppForUser(this, intent);
+
+        // TODO @Mike if you want to get iconImageView to do its shit, you can maybe pass it into `prepareAppForUser`
+//        Intent mainActivityIntent = new Intent(RegisterActivity.this, MainActivity.class);
+//        ActivityOptionsCompat options = ActivityOptionsCompat.
+//                makeSceneTransitionAnimation(RegisterActivity.this, iconImageView, "icon");
+//        iconImageView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                startActivity(mainActivityIntent, options.toBundle());
+////                    overridePendingTransition(enterAnim, exitAnim);
+//                iconImageView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        finish();
+//                    }
+//                }, 1000);
+//            }
+//        }, 250);
     }
 
     /**

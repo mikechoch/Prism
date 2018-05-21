@@ -1,16 +1,27 @@
 package com.mikechoch.prism.fire;
 
 import android.os.Handler;
+import android.util.Log;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.PushNotification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.type.NotificationType;
+import com.mikechoch.prism.constant.NotificationKey;
+import com.mikechoch.prism.type.Notification;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -26,12 +37,12 @@ public class OutgoingNotificationController {
     private static HashMap<String, Runnable> followNotificationHandlers = new HashMap<>();
 
 
-    protected static void generateLikeNotification(PrismPost prismPost, long actionTimestamp) {
+    protected static void prepareLikeNotification(PrismPost prismPost, long actionTimestamp) {
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                pushLikeNotification(prismPost, actionTimestamp);
+                createLikeNotification(prismPost, actionTimestamp);
                 likeNotificationHandlers.remove(prismPost.getPostId());
             }
         };
@@ -41,12 +52,12 @@ public class OutgoingNotificationController {
 
     }
 
-    protected static void generateRepostNotification(PrismPost prismPost, long actionTimestamp) {
+    protected static void prepareRepostNotification(PrismPost prismPost, long actionTimestamp) {
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                pushRepostNotification(prismPost, actionTimestamp);
+                createRepostNotification(prismPost, actionTimestamp);
                 repostNotificationHandlers.remove(prismPost.getPostId());
             }
         };
@@ -55,12 +66,12 @@ public class OutgoingNotificationController {
         repostNotificationHandlers.put(prismPost.getPostId(), runnable);
     }
 
-    protected static void generateFollowNotification(PrismUser prismUser, long actionTimestamp) {
+    protected static void prepareFollowNotification(PrismUser prismUser, long actionTimestamp) {
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                pushFollowNotification(prismUser, actionTimestamp);
+                createFollowNotification(prismUser, actionTimestamp);
                 followNotificationHandlers.remove(prismUser.getUid());
             }
         };
@@ -97,46 +108,45 @@ public class OutgoingNotificationController {
         }
     }
 
-    private static void pushLikeNotification(PrismPost prismPost, long actionTimestamp) {
-        NotificationType type = NotificationType.LIKE;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+    private static void createLikeNotification(PrismPost prismPost, long actionTimestamp) {
+        Notification type = Notification.LIKE;
+        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
-        getMostRecentUserAndInsertNotification(notificationReference, actionTimestamp);
+        insertNotificationDataToCloud(notificationReference, actionTimestamp);
 
-        getTokenAndPushNotification(prismPost.getUid(), type);
+        generatePushNotification(prismPost.getUid(), type, prismPost, actionTimestamp);
     }
 
-    private static void pushRepostNotification(PrismPost prismPost, long actionTimestamp) {
-        NotificationType type = NotificationType.REPOST;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+    private static void createRepostNotification(PrismPost prismPost, long actionTimestamp) {
+        Notification type = Notification.REPOST;
+        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
-        getMostRecentUserAndInsertNotification(notificationReference, actionTimestamp);
+        insertNotificationDataToCloud(notificationReference, actionTimestamp);
 
-        getTokenAndPushNotification(prismPost.getUid(), type);
-
+        generatePushNotification(prismPost.getUid(), type, prismPost, actionTimestamp);
     }
 
-    private static void pushFollowNotification(PrismUser prismUser, long actionTimestamp) {
-        NotificationType type = NotificationType.FOLLOW;
-        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
+    private static void createFollowNotification(PrismUser prismUser, long actionTimestamp) {
+        Notification type = Notification.FOLLOW;
+        String notificationId = Notification.createFollowNotificationId();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
-        getMostRecentUserAndInsertNotification(notificationReference, actionTimestamp);
+        insertNotificationDataToCloud(notificationReference, actionTimestamp);
 
-        getTokenAndPushNotification(prismUser.getUid(), type);
+        generatePushNotification(prismUser.getUid(), type, prismUser, actionTimestamp);
     }
 
     private static void revertLikeNotification(PrismPost prismPost) {
-        NotificationType type = NotificationType.UNLIKE;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+        Notification type = Notification.UNLIKE;
+        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -160,14 +170,15 @@ public class OutgoingNotificationController {
                         }
                     }
 
-                    @Override public void onCancelled(DatabaseError databaseError) { }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
                 });
-        // TODO Revoke FCM Push notification here
     }
 
     private static void revertRepostNotification(PrismPost prismPost) {
-        NotificationType type = NotificationType.UNREPOST;
-        String notificationId = prismPost.getPostId() + type.getNotifIdSuffix();
+        Notification type = Notification.UNREPOST;
+        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -191,62 +202,23 @@ public class OutgoingNotificationController {
                         }
                     }
 
-                    @Override public void onCancelled(DatabaseError databaseError) { }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
                 });
-        // TODO Revoke FCM Push notification here
     }
 
     private static void revertFollowNotification(PrismUser prismUser) {
-        NotificationType type = NotificationType.UNFOLLOW;
-        String notificationId = prismUser.getUid() + type.getNotifIdSuffix();
-        String DB_REF = type.getDatabaseRefKey();
+        String notificationId = Notification.createFollowNotificationId();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
-        usersReference.child(prismUser.getUid()).child(DB_REF).orderByValue().limitToLast(1)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            String previousRecentUid = dataSnapshot
-                                    .getChildren().iterator().next().getKey();
-                            long previousActionTimestamp = (long) dataSnapshot
-                                    .getChildren().iterator().next().getValue();
-                            HashMap<String, Object> updatedNotification = new HashMap<>();
-                            updatedNotification.put(Key.NOTIFICATION_MOST_RECENT_USER, previousRecentUid);
-                            updatedNotification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, previousActionTimestamp);
-                            notificationReference.updateChildren(updatedNotification);
-                        } else {
-                            notificationReference.removeValue();
-                        }
-                    }
+        notificationReference.removeValue();
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
-        // TODO Revoke FCM Push notification here
     }
 
-    private static void getTokenAndPushNotification(String userId, NotificationType type) {
-        usersReference.child(userId).child(Key.USER_TOKEN)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot tokenSnapshot) {
-                        if (tokenSnapshot.exists()) {
-                            String token = (String) tokenSnapshot.getValue();
-                            // TODO Generate Notification Object here
-                            // TODO Then invoke FCM push Notification
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
-    }
-
-    private static void getMostRecentUserAndInsertNotification(DatabaseReference notificationReference, long actionTimestamp) {
+    private static void insertNotificationDataToCloud(DatabaseReference notificationReference, long actionTimestamp) {
         notificationReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -262,8 +234,106 @@ public class OutgoingNotificationController {
 
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
         });
+    }
+
+    private static void generatePushNotification(String notificationReceiverPrismUserId, Notification type, Object object, long actionTimestamp) {
+        usersReference.child(notificationReceiverPrismUserId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            boolean allowPushNotification = (boolean) dataSnapshot
+                                    .child(Key.DB_REF_USER_PREFERENCES)
+                                    .child(type.getdbUserNotifPrefKey()).getValue();
+
+                            if (dataSnapshot.hasChild(Key.USER_TOKEN) && allowPushNotification) {
+                                String userToken = (String) dataSnapshot.child(Key.USER_TOKEN).getValue();
+                                PushNotification pushNotification = new PushNotification();
+                                if (object instanceof PrismPost) {
+                                    pushNotification = constructPushNotification(type, (PrismPost) object, actionTimestamp);
+                                } else if (object instanceof PrismUser) {
+                                    pushNotification = constructPushNotification(type, (PrismUser) object, actionTimestamp);
+                                }
+
+                                triggerPushNotification(userToken, pushNotification);
+                            } else {
+                                Log.d("Notification", "User does not allow push notification");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+
+    }
+
+    private static PushNotification constructPushNotification(Notification type, PrismPost prismPost, long actionTimestamp) {
+        int notificationId = Notification.generateLikeRepostPushNotificationId(prismPost, type);
+        PushNotification pushNotification = new PushNotification();
+        pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
+        pushNotification.setType(type);
+        pushNotification.setActionTimestamp(actionTimestamp);
+        pushNotification.setNotificationHashId(notificationId);
+        pushNotification.setPrismPostId(prismPost.getPostId());
+        return pushNotification;
+    }
+
+    private static PushNotification constructPushNotification(Notification type, PrismUser prismUser, long actionTimestamp) {
+        int notificationId = Notification.generateFollowPushNotificationId();
+        PushNotification pushNotification = new PushNotification();
+        pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
+        pushNotification.setType(type);
+        pushNotification.setActionTimestamp(actionTimestamp);
+        pushNotification.setNotificationHashId(notificationId);
+        pushNotification.setPrismUserId(prismUser.getUid());
+        return pushNotification;
+    }
+
+    private static void triggerPushNotification(String userToken, PushNotification pushNotification) {
+        JSONObject dataJson = new JSONObject();
+        JSONObject jsonBody = new JSONObject();
+        HashMap<String, String> params = new HashMap<>();
+        try {
+            dataJson.put(NotificationKey.MOST_RECENT_USER, pushNotification.getMostRecentUsername());
+            dataJson.put(NotificationKey.MESSAGE, pushNotification.getType().getPushNotificationMessage());
+            dataJson.put(NotificationKey.USER_PROFILE_PIC, pushNotification.getMostRecentUserProfilePicUri());
+            dataJson.put(NotificationKey.TIMESTAMP, pushNotification.getActionTimestamp());
+            dataJson.put(NotificationKey.NOTIFICATION_ID, pushNotification.getNotificationHashId());
+            dataJson.put(NotificationKey.PRISM_POST_ID, pushNotification.getPrismPostId());
+            dataJson.put(NotificationKey.PRISM_USER_ID, pushNotification.getPrismUserId());
+
+            jsonBody.put("to", userToken);
+            jsonBody.put("data", dataJson);
+
+            params.put("Content-Type", "application/json charset=utf-8");
+            params.put("Authorization", "key=" + MainActivity.FCM_API_KEY);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        AndroidNetworking.post("https://fcm.googleapis.com/fcm/send")
+                .addJSONObjectBody(jsonBody)
+                .addHeaders(params)
+                .setPriority(Priority.MEDIUM)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("OKHTTPCLIENT", response.toString());
+                    }
+
+                    @Override
+                    public void onError(ANError error) {
+                        Log.e("OKHTTPCLIENT", error.getErrorDetail());
+                    }
+                });
     }
 
 }

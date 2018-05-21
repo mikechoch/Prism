@@ -74,12 +74,14 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Sear
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
 
-            Glide.with(context)
-                    .asBitmap()
-                    .thumbnail(0.05f)
-                    .load(prismPost.getImage())
-                    .apply(new RequestOptions().centerCrop())
-                    .into(prismPostImageView);
+            if (prismPost != null) {
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(prismPost.getImage())
+                        .apply(new RequestOptions().centerCrop())
+                        .into(prismPostImageView);
+            }
         }
     }
 

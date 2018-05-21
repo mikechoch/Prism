@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,12 +19,8 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -34,12 +29,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -48,18 +40,21 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
-import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.constant.NotificationKey;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import com.mikechoch.prism.user_interface.InterfaceAction;
+import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
+import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 
 /**
@@ -180,9 +175,39 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
-        getAllPrismPostData();
 
-        setupUIElements();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            prismPost = extras.getParcelable("PrismPostDetail");
+            if (prismPost != null) {
+                parseAllPrismPostData(extras);
+                setupUIElements();
+            } else {
+                String postId = extras.getString(NotificationKey.PRISM_POST_ID);
+                fetchPrismPostData(postId);
+            }
+        }
+
+
+
+    }
+
+    private void fetchPrismPostData(String postId) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot postSnapshot) {
+                if (postSnapshot.exists()) {
+                    prismPost = Helper.constructPrismPostObject(postSnapshot);
+                    prismPost.setPrismUser(CurrentUser.prismUser);
+                    parseAllPrismPostData(getIntent().getExtras());
+                    setupUIElements();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     @Override
@@ -195,26 +220,21 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * Get the Intent and then get the PrismPost parcelable
      * Set all of the global variables associated with the PrismPost
      */
-    private void getAllPrismPostData() {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            prismPost = extras.getParcelable("PrismPostDetail");
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
-                detailImageView.setTransitionName(imageTransitionName);
-            }
-
-            postId = this.prismPost.getPostId();
-            postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
-            likeCount = this.prismPost.getLikes();
-            repostCount = this.prismPost.getReposts();
-            isPostLiked = CurrentUser.hasLiked(prismPost);
-            isPostReposted = CurrentUser.hasReposted(prismPost);
-
-            if (likeCount == null) likeCount = 0;
-            if (repostCount == null) repostCount = 0;
+    private void parseAllPrismPostData(Bundle extras) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
+            detailImageView.setTransitionName(imageTransitionName);
         }
+
+        postId = this.prismPost.getPostId();
+        postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
+        likeCount = this.prismPost.getLikes();
+        repostCount = this.prismPost.getReposts();
+        isPostLiked = CurrentUser.hasLiked(prismPost);
+        isPostReposted = CurrentUser.hasReposted(prismPost);
+
+        if (likeCount == null) likeCount = 0;
+        if (repostCount == null) repostCount = 0;
     }
 
     /**
@@ -520,7 +540,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         performUIActivitiesForLike(performLike);
 
         if (performLike) {
-            DatabaseAction.performLike(prismPost, this);
+            DatabaseAction.performLike(prismPost);
         } else {
             DatabaseAction.performUnlike(prismPost);
         }
@@ -547,6 +567,11 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+                    Helper.toast(PrismPostDetailActivity.this, Message.CANNOT_REPOST_OWN_POST);
+                    return;
+                }
+
                 boolean performRepost = !CurrentUser.hasReposted(prismPost);
                 if (performRepost) {
                     AlertDialog repostConfirmationAlertDialog = InterfaceAction.createRepostConfirmationAlertDialog(PrismPostDetailActivity.this, prismPost, repostActionButton, repostCountTextView);

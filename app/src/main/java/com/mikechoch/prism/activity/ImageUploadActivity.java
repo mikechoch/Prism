@@ -3,7 +3,6 @@ package com.mikechoch.prism.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.mikechoch.prism.R;
@@ -25,7 +23,6 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
 import com.mikechoch.prism.helper.Helper;
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,10 +37,6 @@ public class ImageUploadActivity extends AppCompatActivity {
     /*
      * Global variables
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-    private int screenWidth;
-    private int screenHeight;
 
     private Toolbar toolbar;
     private TextView toolbarTextView;
@@ -79,15 +72,7 @@ public class ImageUploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_upload_activity_layout);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
-        // Get screen height and width for future use
-        screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-
+        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -122,8 +107,8 @@ public class ImageUploadActivity extends AppCompatActivity {
      * Setup the uploadedImageImageView,
      */
     private void setupUploadedImageImageView() {
-        uploadedImageImageView.getLayoutParams().width = (int) (screenWidth * 0.9);
-        uploadedImageImageView.setMaxHeight((int) (screenHeight * 0.6));
+        uploadedImageImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.9);
+        uploadedImageImageView.setMaxHeight((int) (Default.screenHeight * 0.6));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             uploadedImageImageView.setForeground(getResources().getDrawable(R.drawable.image_upload_selector));
         }
@@ -168,10 +153,10 @@ public class ImageUploadActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
-        imageDescriptionTextInputLayout.setTypeface(sourceSansProLight);
-        uploadButton.setTypeface(sourceSansProLight);
-        imageDescriptionEditText.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
+        imageDescriptionTextInputLayout.setTypeface(Default.sourceSansProLight);
+        uploadButton.setTypeface(Default.sourceSansProLight);
+        imageDescriptionEditText.setTypeface(Default.sourceSansProLight);
 
         setupUploadedImageImageView();
         setupUploadButton();

@@ -7,6 +7,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -31,6 +33,8 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by mikechoch on 2/16/18.
@@ -113,57 +117,14 @@ public class PrismTagActivity extends AppCompatActivity {
         Intent intent = getIntent();
         tag = intent.getStringExtra("ClickedTag");
 
+
         tagsReference.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot tagDataSnapshot) {
-                if (tagDataSnapshot.exists()) {
-                    postsCountTextView.setText(String.valueOf(tagDataSnapshot.getChildrenCount()));
-                    for (DataSnapshot snapshot : tagDataSnapshot.getChildren()) {
-                        allPostsReference.child(snapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot prismPostDataSnapshot) {
-                                if (prismPostDataSnapshot.exists()) {
-                                    PrismPost prismPost = Helper.constructPrismPostObject(prismPostDataSnapshot);
-                                    prismTagPostsArrayList.add(prismPost);
-
-                                    if (prismTagPostsArrayList.size() == tagDataSnapshot.getChildrenCount()) {
-                                        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot usersDataSnapshot) {
-                                                if (usersDataSnapshot.exists()) {
-                                                    for (PrismPost prismPost : prismTagPostsArrayList) {
-                                                        DataSnapshot userDataSnapshot = usersDataSnapshot.child(prismPost.getUid());
-                                                        if (userDataSnapshot.exists()) {
-                                                            PrismUser prismUser = Helper.constructPrismUserObject(userDataSnapshot);
-                                                            prismPost.setPrismUser(prismUser);
-                                                        }
-                                                    }
-                                                }
-                                                Collections.sort(prismTagPostsArrayList, new Comparator<PrismPost>() {
-                                                    @Override
-                                                    public int compare(PrismPost p1, PrismPost p2) {
-                                                        return (int) (p1.getTimestamp() - p2.getTimestamp());
-                                                    }
-                                                });
-
-                                                setupTagPage();
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    HashMap<String, Long> listOfPrismPosts = new HashMap<>();
+                    listOfPrismPosts.putAll((Map) dataSnapshot.getValue());
+                    fetchPrismPostDetails(listOfPrismPosts);
                 }
             }
 
@@ -174,6 +135,62 @@ public class PrismTagActivity extends AppCompatActivity {
         });
 
         setupUIElements();
+    }
+
+    private void fetchPrismPostDetails(HashMap<String, Long> listOfPrismPostIds) {
+        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (String postId : listOfPrismPostIds.keySet()) {
+                        if (dataSnapshot.hasChild(postId)) {
+                            DataSnapshot postSnapshot = dataSnapshot.child(postId);
+                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                            prismTagPostsArrayList.add(prismPost);
+                        } else {
+                            Log.e(Default.TAG_DB, Message.POST_NOT_EXIST);
+                            Log.e(Default.TAG_DB, postId);
+                        }
+                    }
+                    fetchPrismUserDetailsForPrismPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+    private void fetchPrismUserDetailsForPrismPosts() {
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (PrismPost prismPost : prismTagPostsArrayList) {
+                        String userId = prismPost.getUid();
+                        if (dataSnapshot.hasChild(userId)) {
+                            DataSnapshot userSnapshot = dataSnapshot.child(userId);
+                            PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                            prismPost.setPrismUser(prismUser);
+                        } else {
+                            Log.e(Default.TAG_DB, Message.USER_NOT_EXIST);
+                            Log.e(Default.TAG_DB, userId);
+                        }
+                    }
+
+                    Collections.sort(prismTagPostsArrayList, new Comparator<PrismPost>() {
+                        @Override
+                        public int compare(PrismPost p1, PrismPost p2) {
+                            return (int) (p1.getTimestamp() - p2.getTimestamp());
+                        }
+                    });
+                }
+                setupTagPage();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     @Override

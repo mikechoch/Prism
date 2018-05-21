@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,22 +45,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -75,14 +71,11 @@ public class MainActivity extends FragmentActivity {
     private FirebaseAuth auth;
     private DatabaseReference allPostsReference;
     private StorageReference storageReference;
-    private DatabaseReference userReference;
+    private DatabaseReference currentUserReference;
     private DatabaseReference tagsReference;
 
-    private float scale;
     private Animation hideFabAnimation;
     private Animation showFabAnimation;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private AppBarLayout.LayoutParams params;
 
@@ -104,6 +97,8 @@ public class MainActivity extends FragmentActivity {
     private boolean isUploadingImage = false;
 
 
+    public static String FCM_API_KEY;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,15 +107,18 @@ public class MainActivity extends FragmentActivity {
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;
-        userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
+        currentUserReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
         tagsReference = Default.TAGS_REFERENCE;
+        FCM_API_KEY = getFirebaseKey();
 
         // Check if firebaseUser is logged in
         // Otherwise intent to LoginActivity
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) {
             intentToLoginActivity();
+            return;
         }
+
 
         // Ask firebaseUser for write permissions to external storage
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -135,15 +133,11 @@ public class MainActivity extends FragmentActivity {
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);
         hideFabAnimation = createFabShowAnimation(true);
-
-        // Initialize normal and bold Prism font
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         TextView toolbarTextView = findViewById(R.id.prism_toolbar_title);
-        toolbarTextView.setTypeface(sourceSansProBold);
+        toolbarTextView.setTypeface(Default.sourceSansProBold);
         params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
         // Initialize all UI elements
@@ -159,12 +153,9 @@ public class MainActivity extends FragmentActivity {
 
         setupUIElements();
 
-        // Generates current firebaseUser's details
-        new CurrentUser(this);
         new InterfaceAction(this);
 
-        // Handle notification firebase token related activities
-        DatabaseAction.handleFirebaseTokenRefreshActivities(this);
+
     }
 
     @Override
@@ -359,7 +350,7 @@ public class MainActivity extends FragmentActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        uploadingImageTextView.setTypeface(sourceSansProLight);
+        uploadingImageTextView.setTypeface(Default.sourceSansProLight);
 
         setupPrismViewPager();
         setupPrismTabLayout();
@@ -420,6 +411,7 @@ public class MainActivity extends FragmentActivity {
      *  and uploads the file to cloud. Once that is successful, the a new post is created in
      *  ALL_POSTS section and the post details are pushed. Then the postId is added to the
      *  USER_UPLOADS section for the current firebaseUser
+     *  TODO: Handle case when post upload fails -- this is very important
      */
     @SuppressLint("SimpleDateFormat")
     private void uploadPostToCloud() {
@@ -433,16 +425,35 @@ public class MainActivity extends FragmentActivity {
                     String postId = postReference.getKey();
                     PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
 
-                    // Add postId to USER_UPLOADS table
-                    DatabaseReference userPostRef = userReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
-                    userPostRef.setValue(prismPost.getTimestamp());
-
-                    // Create the post in cloud and on success, add the image to local recycler view adapter
+                    /* Create the post in cloud and onSuccess, add the image to local recycler view adapter */
                     postReference.setValue(prismPost).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                /* [1] Add postId to USER_UPLOADS table */
+                                DatabaseReference userPostRef = currentUserReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
+                                userPostRef.setValue(prismPost.getTimestamp());
+
+                                /* [2] Parse the hashTags from post caption and add the postId in TAGS table */
+                                ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+                                for (String hashTag : hashTags) {
+                                    tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
+                                }
+
+                                /* [3] Update each follower's news feed */
+                                DatabaseReference usersReference = Default.USERS_REFERENCE;
+                                ArrayList<String> followers = CurrentUser.getFollowers();
+                                for (String userId : followers) {
+                                    usersReference.child(userId)
+                                            .child(Key.DB_REF_USER_NEWS_FEED)
+                                            .child(postId)
+                                            .setValue(prismPost.getTimestamp());
+                                }
+
+                                /* [4] Update local adapter */
+                                prismPost.setPrismUser(CurrentUser.prismUser);
+                                prismPost.setPostId(postId);
                                 updateLocalRecyclerViewWithNewPost(prismPost);
                             } else {
                                 uploadingImageTextView.setText("Failed to make the post");
@@ -453,10 +464,6 @@ public class MainActivity extends FragmentActivity {
                         }
                     });
 
-                    ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
-                    for (String hashTag : hashTags) {
-                        tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
-                    }
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
@@ -539,5 +546,9 @@ public class MainActivity extends FragmentActivity {
      */
     private void snackTime(String message) {
         Snackbar.make(mainCoordinateLayout, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private String getFirebaseKey() {
+        return getResources().getString(R.string.firebase_cloud_messaging_server_key);
     }
 }

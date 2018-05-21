@@ -24,13 +24,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
-import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.type.NotificationType;
+import com.mikechoch.prism.type.Notification;
 
 import java.util.ArrayList;
 
@@ -44,10 +43,10 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
      * Global variables
      */
     private Context context;
-    public static ArrayList<Notification> notificationArrayList;
+    public static ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList;
 
 
-    public NotificationRecyclerViewAdapter(Context context, ArrayList<Notification> notificationArrayList) {
+    public NotificationRecyclerViewAdapter(Context context, ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList) {
         this.context = context;
         this.notificationArrayList = notificationArrayList;
     }
@@ -87,7 +86,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private TextView notificationTypeTextView;
         private ImageView prismPostThumbnailImageView;
 
-        private Notification notification;
+        private com.mikechoch.prism.attribute.Notification notification;
 
 
         public ViewHolder(View itemView) {
@@ -110,7 +109,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         /**
          * Set data for the ViewHolder UI elements
          */
-        public void setData(Notification notificationObject) {
+        public void setData(com.mikechoch.prism.attribute.Notification notificationObject) {
             this.notification = notificationObject;
             populateUIElements();
         }
@@ -134,7 +133,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             populateProfilePic();
 
             prismPostThumbnailImageView.setImageDrawable(null);
-            if (!notification.getType().equals(NotificationType.FOLLOW)) {
+            if (!notification.getType().equals(Notification.FOLLOW)) {
                 populatePrismPostThumbnail();
             }
         }
@@ -143,7 +142,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
          * Populates the notificationDescriptionLinearLayout, notificationTypeTextView, and notificationTypeImageView
          * notificationDescriptionLinearLayout gets the user and # of others who performed the action
          * notificationTypeTextView gets the notification type and time since the action occurred
-         * notificationTypeImageView gets the icon of the NotificationType
+         * notificationTypeImageView gets the icon of the Notification
          */
         private void populateNotificationInfoFields() {
             String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());

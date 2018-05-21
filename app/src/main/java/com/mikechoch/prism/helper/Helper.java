@@ -12,7 +12,6 @@ import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,23 +20,17 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.SearchActivity;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.constant.MyTimeUnit;
+import com.mikechoch.prism.constant.TimeUnit;
+import com.mikechoch.prism.fire.CurrentUser;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by parth on 2/16/18.
@@ -73,6 +66,7 @@ public class Helper {
 
         int followerCount = 0;
         int followingCount = 0;
+        int uploadCount = 0;
 
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
             followerCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getChildrenCount();
@@ -80,12 +74,16 @@ public class Helper {
         if (userSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
             followingCount = (int) userSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getChildrenCount();
         }
+        if (userSnapshot.hasChild(Key.DB_REF_USER_UPLOADS)) {
+            uploadCount = (int) userSnapshot.child(Key.DB_REF_USER_UPLOADS).getChildrenCount();
+        }
         if (userSnapshot.hasChild(Key.USER_TOKEN)) {
             prismUser.setToken((String) userSnapshot.child(Key.USER_TOKEN).getValue());
         }
 
         prismUser.setFollowerCount(followerCount);
         prismUser.setFollowingCount(followingCount);
+        prismUser.setUploadCount(uploadCount);
 
         return prismUser;
     }
@@ -96,6 +94,11 @@ public class Helper {
     public static boolean isPrismUserCurrentUser(PrismUser prismUser) {
         return CurrentUser.prismUser.getUid().equals(prismUser.getUid());
     }
+
+    public static boolean isPrismUserCurrentUser(String prismUserId) {
+        return CurrentUser.prismUser.getUid().equals(prismUserId);
+    }
+
 
     /**
      *
@@ -123,29 +126,29 @@ public class Helper {
         calendar.setTimeInMillis(time);
 
         // Calculate all units for the given timeFromCurrent
-        long secondsTime = TimeUnit.MILLISECONDS.toSeconds(timeFromCurrent);
-        long minutesTime = TimeUnit.MILLISECONDS.toMinutes(timeFromCurrent);
-        long hoursTime = TimeUnit.MILLISECONDS.toHours(timeFromCurrent);
-        long daysTime = TimeUnit.MILLISECONDS.toDays(timeFromCurrent);
+        long secondsTime = java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(timeFromCurrent);
+        long minutesTime = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(timeFromCurrent);
+        long hoursTime = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(timeFromCurrent);
+        long daysTime = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(timeFromCurrent);
 
         // The fancyDateString will start off as this DateFormat to satisfy the else case
         String fancyDateString = DateFormat.format("MMM dd, yyyy", calendar).toString();
 
         // Check each calculated time unit until it is clear the unit of timeFromCurrent
-        if (secondsTime < MyTimeUnit.SECONDS_UNIT) {
+        if (secondsTime < TimeUnit.SECONDS_UNIT) {
 //                String fancyDateTail = secondsTime == 1 ? " second ago" : " seconds ago";
 //                fancyDateString = secondsTime + fancyDateTail;
             fancyDateString = "Just now";
-        } else if (minutesTime < MyTimeUnit.MINUTES_UNIT) {
+        } else if (minutesTime < TimeUnit.MINUTES_UNIT) {
             String fancyDateTail = minutesTime == 1 ? " minute ago" : " minutes ago";
             fancyDateString = minutesTime + fancyDateTail;
-        } else if (hoursTime < MyTimeUnit.HOURS_UNIT) {
+        } else if (hoursTime < TimeUnit.HOURS_UNIT) {
             String fancyDateTail = hoursTime == 1 ? " hour ago" : " hours ago";
             fancyDateString = hoursTime + fancyDateTail;
-        } else if (daysTime < MyTimeUnit.DAYS_UNIT) {
+        } else if (daysTime < TimeUnit.DAYS_UNIT) {
             String fancyDateTail = daysTime == 1 ? " day ago" : " days ago";
             fancyDateString = daysTime + fancyDateTail;
-        } else if (daysTime < MyTimeUnit.YEARS_UNIT) {
+        } else if (daysTime < TimeUnit.YEARS_UNIT) {
             fancyDateString = DateFormat.format("MMM dd", calendar).toString();
         }
         return fancyDateString;
@@ -187,7 +190,7 @@ public class Helper {
             currentChar = description.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < description.length() && !Default.illegalTagChars.contains(description.charAt(i))) {
+                while (i < description.length() && !Default.ILLEGAL_TAG_CHARS.contains(description.charAt(i))) {
                     currentChar = description.charAt(i++);
                     tag.append(currentChar);
                 }
@@ -212,7 +215,7 @@ public class Helper {
             currentChar = string.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < string.length() && !Default.illegalTagChars.contains(string.charAt(i))) {
+                while (i < string.length() && !Default.ILLEGAL_TAG_CHARS.contains(string.charAt(i))) {
                     currentChar = string.charAt(i++);
                     tag.append(currentChar);
                 }
@@ -274,6 +277,14 @@ public class Helper {
      */
     public static void toast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void toast(Context context, String message, boolean longLength) {
+        if (longLength) {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        } else {
+            toast(context, message);
+        }
     }
 
     /**

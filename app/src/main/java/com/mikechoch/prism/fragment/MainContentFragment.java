@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
+import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -145,7 +147,7 @@ public class MainContentFragment extends Fragment {
             @Override
             public void onRefresh() {
                 if (!isLoading || !(mainContentRecyclerViewAdapter.getItemCount() < Default.IMAGE_LOAD_THRESHOLD)) {
-                    CurrentUser.refreshUserProfile();
+                    CurrentUser.refreshUserProfile(getContext());
                     refreshData();
                 } else {
                     mainContentSwipeRefreshLayout.setRefreshing(false);
@@ -164,6 +166,9 @@ public class MainContentFragment extends Fragment {
      *  a HashMap of PrismObjects
      */
     private void refreshData() {
+        // TODO uncomment this and put this in News Feed section
+        // prismPostArrayList.clear();
+        // prismPostArrayList.addAll(CurrentUser.news_feed);
         Query query = databaseReferenceAllPosts.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -252,7 +257,7 @@ public class MainContentFragment extends Fragment {
     /**
      * Once all posts are loaded into the prismPostHashMap,
      * this method iterates over each post, grabs firebaseUser's details
-     * for the post like "profilePicUriString" and "username" and
+     * for the post like "profilePicUri" and "username" and
      * updates the prismPost objects in that hashMap and then
      * updates the RecyclerViewAdapter so the UI gets updated
      */
@@ -272,6 +277,11 @@ public class MainContentFragment extends Fragment {
                     if (updateRecyclerViewAdapter) {
                         mainContentProgressBar.setVisibility(View.GONE);
                         mainContentRecyclerViewAdapter.notifyDataSetChanged();
+
+                        for (SearchDiscoverRecyclerViewAdapter adapter : SearchFragment.searchDiscoverRecyclerViewAdapters) {
+                            System.out.println(adapter.getItemCount());
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                 } else {
                     Log.i(Default.TAG_DB, Message.NO_DATA);

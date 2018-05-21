@@ -1,11 +1,8 @@
 package com.mikechoch.prism.adapter;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,11 +18,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.mikechoch.prism.activity.PrismUserProfileActivity;
-import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -45,21 +40,11 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
     private Context context;
     private ArrayList<PrismUser> prismUserArrayList;
 
-    private float scale;
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
-
 
     public DisplayUsersRecyclerViewAdapter(Context context, ArrayList<PrismUser> prismUserArrayList) {
         this.context = context;
         this.prismUserArrayList = prismUserArrayList;
-
-        // Get the density scale of the current device
-        this.scale = context.getResources().getDisplayMetrics().density;
-
-        // Create two typefaces
-        this.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Light.ttf");
-        this.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), "fonts/SourceSansPro-Black.ttf");
+        
     }
 
     @Override
@@ -173,7 +158,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                             @Override
                             protected void setResource(Bitmap resource) {
                                 if (!prismUser.getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1 * scale);
+                                    int whiteOutlinePadding = (int) (1 * Default.scale);
                                     userProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                                     userProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                                 } else {
@@ -202,9 +187,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
          */
         private void setupUIElements() {
             // Setup Typefaces for all text based UI elements
-            usernameTextView.setTypeface(sourceSansProBold);
-            userFullNameText.setTypeface(sourceSansProLight);
-            userFollowButton.setTypeface(sourceSansProLight);
+            usernameTextView.setTypeface(Default.sourceSansProBold);
+            userFullNameText.setTypeface(Default.sourceSansProLight);
+            userFollowButton.setTypeface(Default.sourceSansProLight);
 
             setupUserProfilePicImageView();
             setupUsernameAndFullNameTextView();

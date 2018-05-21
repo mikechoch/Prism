@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -19,10 +18,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -43,8 +41,6 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     /*
      * Global variables
      */
-    private Typeface sourceSansProLight;
-    private Typeface sourceSansProBold;
 
     private Toolbar toolbar;
     private TextView toolbarTextView;
@@ -80,11 +76,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_picture_upload_activity_layout);
-
-        // Create two typefaces
-        sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
+        
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -153,8 +145,8 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(sourceSansProLight);
-        saveButton.setTypeface(sourceSansProLight);
+        toolbarTextView.setTypeface(Default.sourceSansProLight);
+        saveButton.setTypeface(Default.sourceSansProLight);
 
         setupUploadedProfileImageView();
         setupSaveButton();

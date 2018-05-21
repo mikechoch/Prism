@@ -2,8 +2,9 @@ package com.mikechoch.prism.attribute;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-public class PrismPost implements Parcelable {
+public class PrismPost implements Parcelable, Comparable<PrismPost> {
 
     // --------------------------------------- //
     // DO NOT CHANGE ANYTHING IN THIS FILE     //
@@ -153,4 +154,9 @@ public class PrismPost implements Parcelable {
             return new PrismPost[size];
         }
     };
+
+    @Override
+    public int compareTo(@NonNull PrismPost o) {
+        return Long.compare(this.getTimestamp(), o.getTimestamp());
+    }
 }

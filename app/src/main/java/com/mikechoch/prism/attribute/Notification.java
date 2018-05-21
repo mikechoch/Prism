@@ -2,19 +2,16 @@ package com.mikechoch.prism.attribute;
 
 import android.support.annotation.NonNull;
 
-import com.mikechoch.prism.type.NotificationType;
-
 /**
  * Created by parth on 3/4/18.
  */
 
 public class Notification implements Comparable<Notification> {
 
-    private NotificationType type;
+    private com.mikechoch.prism.type.Notification type;
     private PrismPost prismPost;
     private long actionTimestamp;
     private PrismUser mostRecentUser;
-    private int otherUserCount;
     private boolean viewed;
 
 
@@ -22,7 +19,7 @@ public class Notification implements Comparable<Notification> {
 
     }
 
-    public Notification(NotificationType type, PrismPost prismPost, PrismUser mostRecentUser, long actionTimestamp, boolean viewed) {
+    public Notification(com.mikechoch.prism.type.Notification type, PrismPost prismPost, PrismUser mostRecentUser, long actionTimestamp, boolean viewed) {
         this.type = type;
         this.prismPost = prismPost;
         this.mostRecentUser = mostRecentUser;
@@ -31,11 +28,11 @@ public class Notification implements Comparable<Notification> {
 
     }
 
-    public NotificationType getType() {
+    public com.mikechoch.prism.type.Notification getType() {
         return type;
     }
 
-    public void setType(NotificationType type) {
+    public void setType(com.mikechoch.prism.type.Notification type) {
         this.type = type;
     }
 

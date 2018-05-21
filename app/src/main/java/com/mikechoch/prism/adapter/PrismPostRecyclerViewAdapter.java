@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -32,17 +31,17 @@ import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
-import com.mikechoch.prism.user_interface.InterfaceAction;
-import com.mikechoch.prism.activity.PrismUserProfileActivity;
-import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
@@ -297,8 +296,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
                 public void onLongPress(MotionEvent e) {
                     super.onLongPress(e);
                     System.out.println("Image Long Pressed");
-                    // TODO: Think of something to do
-                    // TODO: Download image?
+                    // TODO: Think of something to do. Download image?
 
                 }
 
@@ -363,6 +361,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             repostButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+                        Helper.toast(context, Message.CANNOT_REPOST_OWN_POST);
+                        return;
+                    }
                     boolean performRepost = !CurrentUser.hasReposted(prismPost);
                     if (performRepost) {
                         repostIrisAnimationImageView.setVisibility(View.INVISIBLE);
@@ -449,7 +451,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
             performUIActivitiesForLike(performLike);
 
             if (performLike) {
-                DatabaseAction.performLike(prismPost, context);
+                DatabaseAction.performLike(prismPost);
             } else {
                 DatabaseAction.performUnlike(prismPost);
             }

@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
-
 import java.text.DecimalFormat;
 
 

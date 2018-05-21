@@ -23,6 +23,7 @@ import com.bumptech.glide.request.target.Target;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.constant.Default;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,13 +93,12 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         private void setupPostImageView() {
             ViewCompat.setTransitionName(userPostImageView, prismPost.getImage());
 
-            float scale = context.getResources().getDisplayMetrics().density;
-            userPostImageView.setMaxHeight((int) (scale * 150));
+            userPostImageView.setMaxHeight((int) (Default.scale * 150));
 
             Glide.with(context)
                     .asBitmap()
                     .load(prismPost.getImage())
-                    .apply(new RequestOptions().fitCenter().override((int) (scale * 200)))
+                    .apply(new RequestOptions().fitCenter().override((int) (Default.scale * 200)))
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {

@@ -4,15 +4,7 @@ package com.mikechoch.prism.helper;
  * Created by mikechoch on 1/21/18.
  */
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -20,7 +12,13 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Log;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class BitmapHelper {
 

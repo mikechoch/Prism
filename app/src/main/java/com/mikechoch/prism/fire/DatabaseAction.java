@@ -1,10 +1,12 @@
 package com.mikechoch.prism.fire;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,14 +20,17 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.Notification;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,13 +48,14 @@ public class DatabaseAction {
     private static DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
     private static DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
     private static DatabaseReference usersReference = Default.USERS_REFERENCE;
+    private static DatabaseReference tagsReference = Default.TAGS_REFERENCE;
 
     /**
      * Adds prismPost to CurrentUser's USER_LIKES section
      * Adds userId to prismPost's LIKED_USERS section
      * Performs like locally on CurrentUser
      */
-    public static void performLike(PrismPost prismPost, Context context) {
+    public static void performLike(PrismPost prismPost) {
         String postId = prismPost.getPostId();
         long actionTimestamp = Calendar.getInstance().getTimeInMillis();
         DatabaseReference postReference = allPostsReference.child(postId);
@@ -64,7 +70,9 @@ public class DatabaseAction {
 
         CurrentUser.likePost(prismPost);
 
-        OutgoingNotificationController.generateLikeNotification(prismPost, actionTimestamp);
+        if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+            OutgoingNotificationController.prepareLikeNotification(prismPost, actionTimestamp);
+        }
 
     }
 
@@ -110,7 +118,9 @@ public class DatabaseAction {
 
         CurrentUser.repostPost(prismPost);
 
-        OutgoingNotificationController.generateRepostNotification(prismPost, timestamp);
+        if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+            OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+        }
     }
 
     /**
@@ -167,7 +177,13 @@ public class DatabaseAction {
 
                                 allPostsReference.child(postId).removeValue();
 
+                                ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+                                for (String hashTag : listOfHashTags) {
+                                    tagsReference.child(hashTag).removeValue();
+                                }
+
                                 CurrentUser.deletePost(prismPost);
+
                                 PrismPostRecyclerViewAdapter.prismPostArrayList.remove(prismPost);
                                 refreshMainRecyclerViewAdapter();
 
@@ -197,32 +213,20 @@ public class DatabaseAction {
     public static void followUser(PrismUser prismUser) {
         DatabaseReference userReference = usersReference.child(prismUser.getUid());
         long timestamp = Calendar.getInstance().getTimeInMillis();
-        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                            .child(CurrentUser.prismUser.getUid())
-                            .setValue(timestamp);
 
-                    currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
-                            .child(prismUser.getUid())
-                            .setValue(timestamp);
+        userReference.child(Key.DB_REF_USER_FOLLOWERS)
+                .child(CurrentUser.prismUser.getUid())
+                .setValue(timestamp);
 
-                    CurrentUser.followUser(prismUser);
+        currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
+                .child(prismUser.getUid())
+                .setValue(timestamp);
 
-                    OutgoingNotificationController.generateFollowNotification(prismUser, timestamp);
+        CurrentUser.followUser(prismUser);
 
-                } else {
-                    Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.wtf(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-            }
-        });
+        if (!Helper.isPrismUserCurrentUser(prismUser.getUid())) {
+            OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
+        }
     }
 
     /**
@@ -231,39 +235,46 @@ public class DatabaseAction {
      */
     public static void unfollowUser(PrismUser prismUser) {
         DatabaseReference userReference = usersReference.child(prismUser.getUid());
-        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                            .child(CurrentUser.prismUser.getUid())
-                            .removeValue();
 
-                    currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
-                            .child(prismUser.getUid())
-                            .removeValue();
+        userReference.child(Key.DB_REF_USER_FOLLOWERS)
+                .child(CurrentUser.prismUser.getUid())
+                .removeValue();
 
-                    CurrentUser.unfollowUser(prismUser);
+        currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
+                .child(prismUser.getUid())
+                .removeValue();
 
-                    OutgoingNotificationController.revokeFollowNotification(prismUser);
-                } else {
-                    Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL);
-                }
-            }
+        CurrentUser.unfollowUser(prismUser);
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.wtf(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-            }
-        });
+        OutgoingNotificationController.revokeFollowNotification(prismUser);
+
     }
+
+    public static void updatePreferenceForPushNotification(Notification type, boolean allowPushNotification) {
+        currentUserReference.child(Key.DB_REF_USER_PREFERENCES)
+                .child(type.getdbUserNotifPrefKey())
+                .setValue(allowPushNotification);
+
+        switch (type) {
+            case LIKE:
+                CurrentUser.preference.setAllowLikePushNotification(allowPushNotification);
+                break;
+            case REPOST:
+                CurrentUser.preference.setAllowRepostPushNotification(allowPushNotification);
+                break;
+            case FOLLOW:
+                CurrentUser.preference.setAllowFollowPushNotification(allowPushNotification);
+                break;
+        }
+    }
+
 
     /**
      * Creates prismUser for CurrentUser
      * Then fetches CurrentUser's liked, reposted and uploaded posts
      * And then refresh the mainRecyclerViewAdapter
      */
-    static void fetchUserProfile() {
+    static void fetchUserProfile(Context context, Intent intent) {
         HashMap<String, Long> liked_posts_map = new HashMap<>();
         HashMap<String, Long> reposted_posts_map = new HashMap<>();
         HashMap<String, Long> uploaded_posts_map = new HashMap<>();
@@ -294,6 +305,14 @@ public class DatabaseAction {
                         CurrentUser.followings.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getValue());
                     }
 
+                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_PREFERENCES)) {
+                        DataSnapshot preferenceSnapshot = currentUserSnapshot.child(Key.DB_REF_USER_PREFERENCES);
+                        boolean allowLike = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).getValue();
+                        boolean allowRepost = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).getValue();
+                        boolean allowFollow = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).getValue();
+                        CurrentUser.preference = new UserPreference(allowLike, allowRepost, allowFollow);
+                    }
+
                     allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -306,9 +325,9 @@ public class DatabaseAction {
                             CurrentUser.uploadPosts(userUploads, uploaded_posts_map);
                             CurrentUser.combineUploadsAndReposts();
 
-                            // TODO: @Mike Is it ok to call these methods here?
-                            CurrentUser.updateUserProfilePageUI();
-                            refreshMainRecyclerViewAdapter();
+                            // TODO --> constructNewsFeed(context, intent);
+                            CurrentUser.refreshInterface(context, intent);
+
                         }
 
                         @Override
@@ -323,6 +342,50 @@ public class DatabaseAction {
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
             }
+        });
+    }
+
+    private static void constructNewsFeed(Context context, Intent intent) {
+        ArrayList<String> followings = CurrentUser.getFollowings();
+        ArrayList<Pair<String, PrismUser>> listOfPrismPosts = new ArrayList<>();
+        CurrentUser.news_feed = new ArrayList<>();
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                for (String userId : followings) {
+                    DataSnapshot uploadSnapshot = usersSnapshot.child(userId).child(Key.DB_REF_USER_UPLOADS);
+                    if (uploadSnapshot.exists()) {
+                        DataSnapshot userSnapshot = usersSnapshot.child(userId);
+                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                        HashMap<String, Long> uploads = new HashMap<>((Map)uploadSnapshot.getValue());
+                        for (String postId : uploads.keySet()) {
+                            listOfPrismPosts.add(Pair.create(postId, prismUser));
+                        }
+                    }
+                }
+                allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot allPostsSnapshot) {
+                        for (Pair pair : listOfPrismPosts) {
+                            String postId = (String) pair.first;
+                            DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                            prismPost.setPrismUser((PrismUser) pair.second);
+                            CurrentUser.news_feed.add(prismPost);
+                        }
+
+                        Collections.sort(CurrentUser.news_feed);
+
+                        // TODO --> CurrentUser.refreshInterface(context, intent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
         });
     }
 
