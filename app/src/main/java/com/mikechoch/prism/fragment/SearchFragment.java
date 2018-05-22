@@ -34,7 +34,7 @@ public class SearchFragment extends Fragment {
     private CardView searchCardView;
     private TextView searchBarHintTextView;
 
-    public static SearchDiscoverRecyclerViewAdapter[] searchDiscoverRecyclerViewAdapters = new SearchDiscoverRecyclerViewAdapter[2];
+    public static SearchDiscoverRecyclerViewAdapter[] searchDiscoverRecyclerViewAdapters = new SearchDiscoverRecyclerViewAdapter[3];
 
 
     public static final SearchFragment newInstance() {
@@ -74,9 +74,10 @@ public class SearchFragment extends Fragment {
     /**
      *
      * @param context
+     * @param value
      */
-    public static void createAllDiscoveryRecyclerViews(Context context) {
-        for (int i = 0; i < 2; i++) {
+    public static void createAllDiscoveryRecyclerViews(Context context, String value) {
+        for (int i = 0; i < 3; i++) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             View discoveryRecyclerViewLayout = layoutInflater.inflate(R.layout.search_discovery_recycler_view_layout, null, false);
 
@@ -107,6 +108,11 @@ public class SearchFragment extends Fragment {
                     recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.repost_iris));
                     recyclerViewTitleTextView.setText("Most Reposted");
                     searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestRepostedPosts(), "Reposts");
+                    break;
+                case 2:
+                    recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pound_white_48dp));
+                    recyclerViewTitleTextView.setText(value);
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListofPrismPostsForRandomTag(), "Tag");
                     break;
             }
             prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);

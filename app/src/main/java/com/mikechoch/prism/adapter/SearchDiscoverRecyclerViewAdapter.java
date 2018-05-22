@@ -83,67 +83,69 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Sear
          * Set data for the ViewHolder UI elements
          */
         public void setData(PrismPost prismPost) {
-            String username = prismPost.getPrismUser().getUsername();
-            prismPostUsername.setText(username);
-            prismPostUsername.setSelected(true);
+            if (prismPost.getPrismUser() != null) {
+                String username = prismPost.getPrismUser().getUsername();
+                prismPostUsername.setText(username);
+                prismPostUsername.setSelected(true);
 
-            String fancyDate = Helper.getFancyDateDifferenceString(-1 * prismPost.getTimestamp());
-            String countString = "";
-            switch (discoveryType) {
-                case "Likes":
-                    countString += prismPost.getLikes() + " likes";
-                    break;
-                case "Reposts":
-                    countString += prismPost.getReposts() + " reposts";
-                    break;
-                case "Tags":
+                String fancyDate = Helper.getFancyDateDifferenceString(-1 * prismPost.getTimestamp());
+                String countString = "";
+                switch (discoveryType) {
+                    case "Likes":
+                        countString += prismPost.getLikes() + " likes";
+                        break;
+                    case "Reposts":
+                        countString += prismPost.getReposts() + " reposts";
+                        break;
+                    case "Tag":
 
-                    break;
-                case "Suggested":
+                        break;
+                    case "Suggested":
 
-                    break;
+                        break;
+                }
+                prismPostCount.setText(fancyDate + " • " + countString);
+                prismPostCount.setSelected(true);
+
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(prismPost.getImage())
+                        .apply(new RequestOptions().centerCrop())
+                        .into(prismPostImageView);
+
+                prismPostImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
+                    }
+                });
+
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(prismPost.getPrismUser().getProfilePicture().lowResUri)
+                        .apply(new RequestOptions().fitCenter())
+                        .into(new BitmapImageViewTarget(prismPostUserProfilePicture) {
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                                drawable.setCircular(true);
+                                prismPostUserProfilePicture.setImageDrawable(drawable);
+
+                                int whiteOutlinePadding = (int) (1 * Default.scale);
+                                prismPostUserProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+                                prismPostUserProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
+                            }
+                        });
+
+                prismPostUserProfilePicture.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Helper.intentToUserProfileActivity(context, prismPost.getPrismUser());
+                    }
+                });
             }
-            prismPostCount.setText(fancyDate + " • " + countString);
-            prismPostCount.setSelected(true);
-
-            Glide.with(context)
-                    .asBitmap()
-                    .thumbnail(0.05f)
-                    .load(prismPost.getImage())
-                    .apply(new RequestOptions().centerCrop())
-                    .into(prismPostImageView);
-
-            prismPostImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
-                }
-            });
-
-            Glide.with(context)
-                    .asBitmap()
-                    .thumbnail(0.05f)
-                    .load(prismPost.getPrismUser().getProfilePicture().lowResUri)
-                    .apply(new RequestOptions().fitCenter())
-                    .into(new BitmapImageViewTarget(prismPostUserProfilePicture) {
-                        @Override
-                        protected void setResource(Bitmap resource) {
-                            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            drawable.setCircular(true);
-                            prismPostUserProfilePicture.setImageDrawable(drawable);
-
-                            int whiteOutlinePadding = (int) (1 * Default.scale);
-                            prismPostUserProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            prismPostUserProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        }
-                    });
-
-            prismPostUserProfilePicture.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Helper.intentToUserProfileActivity(context, prismPost.getPrismUser());
-                }
-            });
 
         }
 

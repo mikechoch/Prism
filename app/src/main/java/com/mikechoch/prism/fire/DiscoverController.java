@@ -38,8 +38,8 @@ public class DiscoverController {
         listOfPrismPosts = new ArrayList<>();
         listofPrismPostsForRandomTag = new ArrayList<>();
 
-        fetchAllPosts(context);
-//        fetchPostsForRandomTag(context);
+        fetchAllPosts();
+        fetchPostsForRandomTag(context);
     }
 
     private static void fetchPostsForRandomTag(Context context) {
@@ -78,7 +78,7 @@ public class DiscoverController {
                                             }
                                         }
 
-                                        SearchFragment.createAllDiscoveryRecyclerViews(context);
+                                        SearchFragment.createAllDiscoveryRecyclerViews(context, getR);
                                     }
 
                                     @Override
@@ -105,7 +105,7 @@ public class DiscoverController {
      * will be expensive. So at that point, we should only pull posts
      * from last 1 week or last few days to show on discover page
      */
-    private static void fetchAllPosts(Context context) {
+    private static void fetchAllPosts() {
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -124,8 +124,6 @@ public class DiscoverController {
                                 prismPost.setPrismUser(prismUser);
                             }
                         }
-
-                        SearchFragment.createAllDiscoveryRecyclerViews(context);
                     }
 
                     @Override
