@@ -28,7 +28,8 @@ public class DiscoverController {
     private static DatabaseReference usersReference;
 
     private static ArrayList<PrismPost> listOfPrismPosts;
-    private static ArrayList<PrismPost> listofPrismPostsForRandomTag;
+    private static ArrayList<PrismPost> listOfPrismPostsForRandomTag;
+    private static String randomTag;
 
     public static void setupDiscoverContent(Context context) {
         allPostsReference = Default.ALL_POSTS_REFERENCE;
@@ -36,10 +37,11 @@ public class DiscoverController {
         tagsReference = Default.TAGS_REFERENCE;
 
         listOfPrismPosts = new ArrayList<>();
-        listofPrismPostsForRandomTag = new ArrayList<>();
+        listOfPrismPostsForRandomTag = new ArrayList<>();
+
 
         fetchAllPosts(context);
-//        fetchPostsForRandomTag(context);
+        fetchPostsForRandomTag(context);
     }
 
     private static void fetchPostsForRandomTag(Context context) {
@@ -55,6 +57,7 @@ public class DiscoverController {
                     DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
 
                     if (tagSnapshot.exists()) {
+                        randomTag = tagSnapshot.getKey();
                         HashMap<String, Long> listOfPosts = new HashMap<>((Map) tagSnapshot.getValue());
                         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -63,14 +66,14 @@ public class DiscoverController {
                                     DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
                                     if (postSnapshot.exists()) {
                                         PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                                        listofPrismPostsForRandomTag.add(prismPost);
+                                        listOfPrismPostsForRandomTag.add(prismPost);
                                     }
                                 }
 
                                 usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        for (PrismPost prismPost : listofPrismPostsForRandomTag) {
+                                        for (PrismPost prismPost : listOfPrismPostsForRandomTag) {
                                             DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
                                             if (postAuthorUserSnapshot.exists()) {
                                                 PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
@@ -162,8 +165,12 @@ public class DiscoverController {
         return highestLikedPosts;
     }
 
-    public static ArrayList<PrismPost> getListofPrismPostsForRandomTag() {
-        return listofPrismPostsForRandomTag;
+    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag() {
+        return listOfPrismPostsForRandomTag;
+    }
+
+    public static String getRandomTag() {
+        return randomTag;
     }
 
 
