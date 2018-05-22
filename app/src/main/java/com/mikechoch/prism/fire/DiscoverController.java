@@ -39,7 +39,7 @@ public class DiscoverController {
         listofPrismPostsForRandomTag = new ArrayList<>();
 
         fetchAllPosts(context);
-        fetchPostsForRandomTag(context);
+//        fetchPostsForRandomTag(context);
     }
 
     private static void fetchPostsForRandomTag(Context context) {
@@ -106,7 +106,6 @@ public class DiscoverController {
      * from last 1 week or last few days to show on discover page
      */
     private static void fetchAllPosts(Context context) {
-        ArrayList<PrismPost> listOfPrismPosts= new ArrayList<>();
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
