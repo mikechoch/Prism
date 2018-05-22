@@ -126,10 +126,10 @@ public class MainContentFragment extends Fragment {
 
             @Override
             public void onChildViewDetachedFromWindow(View view) {
-                ImageView heartAnimationImageView = view.findViewById(R.id.recycler_view_like_heart);
-                ImageView repostAnimationImageView = view.findViewById(R.id.recycler_view_repost_iris);
-                heartAnimationImageView.setVisibility(View.INVISIBLE);
-                repostAnimationImageView.setVisibility(View.INVISIBLE);
+//                ImageView heartAnimationImageView = view.findViewById(R.id.recycler_view_like_heart);
+//                ImageView repostAnimationImageView = view.findViewById(R.id.recycler_view_repost_iris);
+//                heartAnimationImageView.setVisibility(View.INVISIBLE);
+//                repostAnimationImageView.setVisibility(View.INVISIBLE);
             }
         });
 

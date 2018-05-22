@@ -18,7 +18,7 @@
             android:id="@+id/discover_prism_post_image_view"
             android:transitionName="prism_post_image"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="96dp"
             android:background="@color/colorPrimaryDark"/>
 
         <LinearLayout
@@ -29,9 +29,8 @@
 
             <ImageView
                 android:id="@+id/discover_prism_post_profile_picture_image_view"
-                android:transitionName="prism_post_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitCenter"/>
 

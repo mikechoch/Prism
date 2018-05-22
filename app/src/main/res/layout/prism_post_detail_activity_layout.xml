@@ -14,7 +14,7 @@
         android:minHeight="?attr/actionBarSize"
         android:background="@null"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_behavior="com.mikechoch.prism.FixAppBarLayoutBehavior">
+        app:layout_behavior="com.mikechoch.prism.user_interface.FixAppBarLayoutBehavior">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"

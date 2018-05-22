@@ -76,7 +76,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         }
 
         /**
-         * Set data for the ViewHolder UI elements
+         * Set data for the PrismPostViewHolder UI elements
          */
         public void setData(Setting setting) {
             this.setting = setting;

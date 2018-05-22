@@ -6,11 +6,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.DiscoveryRecyclerView;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.SearchFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +84,14 @@ public class DiscoverController {
                                             }
                                         }
 
-                                        SearchFragment.createAllDiscoveryRecyclerViews(context, getRandomTag());
+                                        DiscoveryRecyclerView discoveryRecyclerViewLike = new DiscoveryRecyclerView(Discovery.LIKE, R.drawable.like_heart, "Most Liked");
+                                        SearchFragment.addDiscoveryRecyclerView(context, discoveryRecyclerViewLike);
+
+                                        DiscoveryRecyclerView discoveryRecyclerViewRepost = new DiscoveryRecyclerView(Discovery.REPOST, R.drawable.repost_iris, "Most Reposted");
+                                        SearchFragment.addDiscoveryRecyclerView(context, discoveryRecyclerViewRepost);
+
+                                        DiscoveryRecyclerView discoveryRecyclerViewTag = new DiscoveryRecyclerView(Discovery.TAG, R.drawable.ic_pound_white_48dp, getRandomTag());
+                                        SearchFragment.addDiscoveryRecyclerView(context, discoveryRecyclerViewTag);
                                     }
 
                                     @Override

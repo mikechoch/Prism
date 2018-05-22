@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_behavior="com.mikechoch.prism.FixAppBarLayoutBehavior">
+        app:layout_behavior="com.mikechoch.prism.user_interface.FixAppBarLayoutBehavior">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"

@@ -108,7 +108,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         * Set data for the ViewHolder UI elements
+         * Set data for the PrismPostViewHolder UI elements
          */
         public void setData(com.mikechoch.prism.attribute.Notification notificationObject) {
             this.notification = notificationObject;

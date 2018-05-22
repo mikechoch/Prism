@@ -79,7 +79,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         }
 
         /**
-         * Set data for the ViewHolder UI elements
+         * Set data for the PrismPostViewHolder UI elements
          */
         public void setData(PrismPost prismPost) {
             this.prismPost = prismPost;

@@ -92,7 +92,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Set data for the ViewHolder UI elements
+         * Set data for the PrismPostViewHolder UI elements
          */
         public void setData(PrismUser prismUser) {
             this.prismUser = prismUser;
