@@ -139,8 +139,8 @@ public class ImageUploadActivity extends AppCompatActivity {
      */
     private void intentBackToMainActivitySuccess() {
         Intent data = new Intent();
-        data.putExtra("ImageUri", imageUri.toString());
-        data.putExtra("ImageDescription", imageDescriptionEditText.getText().toString().trim());
+        data.putExtra(Default.IMAGE_URI_EXTRA, imageUri.toString());
+        data.putExtra(Default.IMAGE_DESCRIPTION_EXTRA, imageDescriptionEditText.getText().toString().trim());
         setResult(RESULT_OK, data);
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);

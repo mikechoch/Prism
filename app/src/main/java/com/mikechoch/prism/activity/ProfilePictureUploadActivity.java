@@ -291,7 +291,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             Uri uri = getImageUri(uploadedProfileImageView.getCroppedImage());
 
             Intent data = new Intent();
-            data.putExtra("CroppedProfilePicture", uri.toString());
+            data.putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, uri.toString());
             setResult(RESULT_OK, data);
             finish();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);

@@ -79,7 +79,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent prismUserProfileIntent = new Intent(getActivity(), PrismUserProfileActivity.class);
-                prismUserProfileIntent.putExtra("PrismUser", CurrentUser.prismUser);
+                prismUserProfileIntent.putExtra(Default.PRISM_USER_EXTRA, CurrentUser.prismUser);
                 getActivity().startActivity(prismUserProfileIntent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }

@@ -268,7 +268,7 @@ public class CurrentUser {
 
     public static void refreshUserProfile(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra("onlyPerformRefresh", true);
+        intent.putExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, true);
         refreshUserProfile(context, intent);
     }
 
@@ -375,7 +375,7 @@ public class CurrentUser {
         DatabaseAction.handleFirebaseTokenRefreshActivities(context);
         IncomingNotificationController.initializeNotifications();
 
-        if (intent.getBooleanExtra("onlyPerformRefresh", false)) {
+        if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
             MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
             updateUserProfileFragmentUI(context);
         } else {

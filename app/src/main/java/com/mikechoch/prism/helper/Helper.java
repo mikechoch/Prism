@@ -18,8 +18,8 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
+import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
-import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
@@ -241,8 +241,8 @@ public class Helper {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent searchIntent = new Intent(context, SearchActivity.class);
-                searchIntent.putExtra("ClickedTag", tag);
+                Intent searchIntent = new Intent(context, PrismTagActivity.class);
+                searchIntent.putExtra(Default.CLICKED_TAG_EXTRA, tag);
                 context.startActivity(searchIntent);
                 ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
@@ -295,11 +295,11 @@ public class Helper {
      */
     public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost, ImageView prismPostImageView) {
         Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-        prismPostDetailIntent.putExtra("PrismPostDetail", prismPost);
+        prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_EXTRA, prismPost);
 
         ActivityOptionsCompat options = null;
         if (prismPostImageView != null) {
-            prismPostDetailIntent.putExtra("PrismPostDetailTransitionName", ViewCompat.getTransitionName(prismPostImageView));
+            prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA, ViewCompat.getTransitionName(prismPostImageView));
 
             options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     (Activity) context,
@@ -319,7 +319,7 @@ public class Helper {
      */
     public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
         Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
-        prismUserProfileIntent.putExtra("PrismUser", prismUser);
+        prismUserProfileIntent.putExtra(Default.PRISM_USER_EXTRA, prismUser);
         context.startActivity(prismUserProfileIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

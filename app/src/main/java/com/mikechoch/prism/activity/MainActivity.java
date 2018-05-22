@@ -201,8 +201,8 @@ public class MainActivity extends FragmentActivity {
                     params.setScrollFlags(0);
                     toolbar.setLayoutParams(params);
 
-                    uploadedImageUri = Uri.parse(data.getStringExtra("ImageUri"));
-                    uploadedImageDescription = data.getStringExtra("ImageDescription");
+                    uploadedImageUri = Uri.parse(data.getStringExtra(Default.IMAGE_URI_EXTRA));
+                    uploadedImageDescription = data.getStringExtra(Default.IMAGE_DESCRIPTION_EXTRA);
 
                     Glide.with(this)
                             .asBitmap()
