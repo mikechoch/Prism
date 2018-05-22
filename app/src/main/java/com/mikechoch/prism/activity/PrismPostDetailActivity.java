@@ -178,7 +178,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            prismPost = extras.getParcelable("PrismPostDetail");
+            prismPost = extras.getParcelable(Default.PRISM_POST_DETAIL_EXTRA);
             if (prismPost != null) {
                 parseAllPrismPostData(extras);
                 setupUIElements();
@@ -222,7 +222,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private void parseAllPrismPostData(Bundle extras) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String imageTransitionName = extras.getString("PrismPostDetailTransitionName");
+            String imageTransitionName = extras.getString(Default.PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA);
             detailImageView.setTransitionName(imageTransitionName);
         }
 
@@ -308,7 +308,9 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private int getBottomNavigationBarHeight() {
         int result = 0;
-        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        int resourceId = getResources().getIdentifier(Default.BOTTOM_NAVIGATION_BAR_NAME,
+                Default.BOTTOM_NAVIGATION_BAR_DEF_TYPE,
+                Default.BOTTOM_NAVIGATION_BAR_DEF_PACKAGE);
         if (resourceId > 0) {
             result = getResources().getDimensionPixelSize(resourceId);
         }
@@ -633,8 +635,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     private void intentToDisplayUsersActivity(int intentType) {
         Intent userLikesIntent = new Intent(PrismPostDetailActivity.this, DisplayUsersActivity.class);
-        userLikesIntent.putExtra("UsersInt", intentType);
-        userLikesIntent.putExtra("UsersDataId", prismPost.getPostId());
+        userLikesIntent.putExtra(Default.USERS_INT_EXTRA, intentType);
+        userLikesIntent.putExtra(Default.USERS_DATA_ID_EXTRA, prismPost.getPostId());
         startActivity(userLikesIntent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

@@ -76,7 +76,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         userProfilePictureZoomControlLinearLayout = findViewById(R.id.user_profile_picture_linear_layout);
         largeUserProfilePictureImageView = findViewById(R.id.large_user_profile_picture_image_view);
 
-        prismUser = getIntent().getParcelableExtra("PrismUser");
+        prismUser = getIntent().getParcelableExtra(Default.PRISM_USER_EXTRA);
 
         setupUIElements();
     }

@@ -461,8 +461,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<PrismPost
          */
         private void intentToDisplayUsersActivity(int displayUsersCode) {
             Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
-            displayUsersIntent.putExtra("UsersInt", displayUsersCode);
-            displayUsersIntent.putExtra("UsersDataId", postId);
+            displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
+            displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, postId);
             context.startActivity(displayUsersIntent);
             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }

@@ -115,7 +115,7 @@ public class PrismTagActivity extends AppCompatActivity {
 
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
-        tag = intent.getStringExtra("ClickedTag");
+        tag = intent.getStringExtra(Default.CLICKED_TAG_EXTRA);
 
 
         tagsReference.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {

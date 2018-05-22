@@ -166,7 +166,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
-        prismUser = intent.getParcelableExtra("PrismUser");
+        prismUser = intent.getParcelableExtra(Default.PRISM_USER_EXTRA);
         if (prismUser != null) {
             setupUIElements();
             fetchUserContent();
@@ -208,7 +208,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             // If requestCode is for ProfilePictureUploadActivity
             case Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    profilePictureUri = Uri.parse(data.getStringExtra("CroppedProfilePicture"));
+                    profilePictureUri = Uri.parse(data.getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
 
                     Glide.with(this)
                             .asBitmap()
@@ -478,8 +478,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private void intentToShowUserProfilePictureActivity() {
         Intent showProfilePictureIntent = new Intent(PrismUserProfileActivity.this, ShowUserProfilePictureActivity.class);
 
-        showProfilePictureIntent.putExtra("PrismUser", prismUser);
-        showProfilePictureIntent.putExtra("PrismUserProfilePictureTransitionName", ViewCompat.getTransitionName(userProfilePicImageView));
+        showProfilePictureIntent.putExtra(Default.PRISM_USER_EXTRA, prismUser);
+        showProfilePictureIntent.putExtra(Default.PRISM_USER_PROFILE_PICTURE_TRANSITION_NAME_EXTRA, ViewCompat.getTransitionName(userProfilePicImageView));
 
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
@@ -487,7 +487,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 ViewCompat.getTransitionName(userProfilePicImageView));
 
         startActivity(showProfilePictureIntent, options.toBundle());
-//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -496,8 +495,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void intentToDisplayUsersActivity(int displayUsersCode) {
         Intent displayUsersIntent = new Intent(PrismUserProfileActivity.this, DisplayUsersActivity.class);
-        displayUsersIntent.putExtra("UsersInt", displayUsersCode);
-        displayUsersIntent.putExtra("UsersDataId", prismUser.getUid());
+        displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
+        displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, prismUser.getUid());
         startActivity(displayUsersIntent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

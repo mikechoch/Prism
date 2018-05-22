@@ -249,8 +249,8 @@ public class SearchActivity  extends AppCompatActivity {
             }
         });
 
-        if (getIntent().getStringExtra("ClickedTag") != null) {
-            String clickedTag = getIntent().getStringExtra("ClickedTag");
+        if (getIntent().getStringExtra(Default.CLICKED_TAG_EXTRA) != null) {
+            String clickedTag = getIntent().getStringExtra(Default.CLICKED_TAG_EXTRA);
             searchBarEditText.setText(clickedTag);
             searchBarEditText.setSelection(clickedTag.length());
             searchTypeTabLayout.getTabAt(Default.SEARCH_TYPE_VIEW_PAGER_TAG).select();

@@ -28,26 +28,17 @@ public class SplashActivity extends AppCompatActivity {
      * Global variables
      */
     private ImageView iconImageView;
-    private Animation rotateAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity_layout);
 
-        Default.scale = getResources().getDisplayMetrics().density;
-        Default.screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        Default.screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-        Default.sourceSansProLight = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Light.ttf");
-        Default.sourceSansProBold = Typeface.createFromAsset(getAssets(), "fonts/SourceSansPro-Black.ttf");
-
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
 
-//        rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_rotate);
-
         // Setup animation and start animation for iconImageView
-        rotateAnimation = new RotateAnimation(
+        RotateAnimation rotateAnimation = new RotateAnimation(
                 0, 360,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
@@ -55,7 +46,6 @@ public class SplashActivity extends AppCompatActivity {
         rotateAnimation.setInterpolator(new LinearInterpolator());
         rotateAnimation.setDuration(750);
         rotateAnimation.setRepeatCount(Animation.INFINITE);
-
         iconImageView.startAnimation(rotateAnimation);
 
         new IntentLoaderTask().execute();
@@ -76,6 +66,12 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... v) {
+            Default.scale = getResources().getDisplayMetrics().density;
+            Default.screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+            Default.screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+            Default.sourceSansProLight = Typeface.createFromAsset(getAssets(), Default.sourceSansProLightPath);
+            Default.sourceSansProBold = Typeface.createFromAsset(getAssets(), Default.sourceSansProBoldPath);
+
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
 
             Bundle extras = getIntent().getExtras();
@@ -111,18 +107,3 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 }
-
-
-//iconImageView.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            startActivity(intent, options.toBundle());
-////                    overridePendingTransition(enterAnim, exitAnim);
-//                            iconImageView.postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    finish();
-//                                }
-//                            }, 1000);
-//                        }
-//                    }, 250);

@@ -25,6 +25,9 @@ public class Default {
     public static float scale;
     public static int screenHeight;
     public static int screenWidth;
+
+    public static String sourceSansProLightPath = "fonts/SourceSansPro-Light.ttf";
+    public static String sourceSansProBoldPath = "fonts/SourceSansPro-Black.ttf";
     public static Typeface sourceSansProLight;
     public static Typeface sourceSansProBold;
 
@@ -40,6 +43,24 @@ public class Default {
 
     public static final int IMAGE_LOAD_THRESHOLD = 3;
     public static final int IMAGE_LOAD_COUNT = 10;
+
+    // Extra Strings
+    public static final String CLICKED_TAG_EXTRA = "ClickedTag";
+    public static final String ONLY_PERFORM_REFRESH_EXTRA = "OnlyPerformRefresh";
+    public static final String PRISM_POST_DETAIL_EXTRA = "PrismPostDetail";
+    public static final String PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA = "PrismPostDetailTransitionName";
+    public static final String PRISM_USER_PROFILE_PICTURE_TRANSITION_NAME_EXTRA = "PrismUserProfilePictureTransitionName";
+    public static final String PRISM_USER_EXTRA = "PrismUser";
+    public static final String USERS_INT_EXTRA = "UsersInt";
+    public static final String USERS_DATA_ID_EXTRA = "UsersDataId";
+    public static final String IMAGE_URI_EXTRA = "ImageUri";
+    public static final String IMAGE_DESCRIPTION_EXTRA = "ImageDescription";
+    public static final String CROPPED_PROFILE_PICTURE_EXTRA = "CroppedProfilePicture";
+
+    // Bottom Navigation Bar Strings
+    public static final String BOTTOM_NAVIGATION_BAR_NAME = "navigation_bar_height";
+    public static final String BOTTOM_NAVIGATION_BAR_DEF_TYPE = "dimen";
+    public static final String BOTTOM_NAVIGATION_BAR_DEF_PACKAGE = "android";
 
     // ViewPager
     public static final int MAIN_VIEW_PAGER_SIZE = 5 - 1;

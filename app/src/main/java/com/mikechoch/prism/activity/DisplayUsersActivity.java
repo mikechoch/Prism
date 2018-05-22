@@ -98,7 +98,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
         // This will be "Likes" or "Reposts"
         // Default being "Error"
         intent = getIntent();
-        activityCode = intent.getIntExtra("UsersInt", -1);
+        activityCode = intent.getIntExtra(Default.USERS_INT_EXTRA, -1);
 
         setupUIElements();
     }
@@ -115,7 +115,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Setup the toolbar and back button to return to MainActivity
      */
     private void setupPage() {
-        String id = intent.getStringExtra("UsersDataId");
+        String id = intent.getStringExtra(Default.USERS_DATA_ID_EXTRA);
         switch (activityCode) {
             case LIKE_USERS: {
                 toolbarTitle = "Like";
