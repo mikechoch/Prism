@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +29,6 @@ public class SplashActivity extends AppCompatActivity {
      */
     private ImageView iconImageView;
     private Animation rotateAnimation;
-    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,24 +44,19 @@ public class SplashActivity extends AppCompatActivity {
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
 
+//        rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_rotate);
+
         // Setup animation and start animation for iconImageView
-        rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_rotate);
+        rotateAnimation = new RotateAnimation(
+                0, 360,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotateAnimation.setInterpolator(new LinearInterpolator());
+        rotateAnimation.setDuration(750);
+        rotateAnimation.setRepeatCount(Animation.INFINITE);
+
         iconImageView.startAnimation(rotateAnimation);
-
-        intent = new Intent(SplashActivity.this, MainActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
-            String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
-            if (prismPostId != null) {
-                intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
-                intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
-            } else if (prismUserId != null) {
-                intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
-                intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
-            }
-        }
 
         new IntentLoaderTask().execute();
     }
@@ -79,25 +76,30 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... v) {
-            try {
-                 Thread.sleep(0);
+            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
 
-                boolean isSignedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
-                if (!isSignedIn) {
-                    Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-//                  int enterAnim = isSignedIn ? R.anim.fade_in : 0;
-//                  int exitAnim = isSignedIn ? R.anim.fade_out : 0;
-//                  ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(SplashActivity.this, iconImageView, "icon");
-//                  startActivity(intent, options.toBundle());
-                    startActivity(intent);
-                    finish();
-
-                } else {
-                    CurrentUser.prepareAppForUser(SplashActivity.this, intent);
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
+                String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
+                if (prismPostId != null) {
+                    intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
+                    intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
+                } else if (prismUserId != null) {
+                    intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
+                    intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
                 }
+            }
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            boolean isSignedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
+            if (!isSignedIn) {
+                intent = new Intent(SplashActivity.this, LoginActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                finish();
+
+            } else {
+                CurrentUser.prepareAppForUser(SplashActivity.this, intent);
             }
             return null;
         }
@@ -105,8 +107,6 @@ public class SplashActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-
-
         }
     }
 

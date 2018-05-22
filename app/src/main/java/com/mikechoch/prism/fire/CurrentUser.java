@@ -387,6 +387,7 @@ public class CurrentUser {
                 intents = new Intent[]{mainIntent, intent};
             }
             context.startActivities(intents);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             ((Activity) context).finish();
         }
 

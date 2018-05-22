@@ -99,6 +99,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/password_text_input_layout"
                 android:layout_marginTop="28dp"
+                android:layout_marginBottom="16dp"
                 android:visibility="invisible"
                 android:indeterminate="true"
                 android:indeterminateDrawable="@drawable/circle_progress_foreground" />
@@ -110,7 +111,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="16dp"
-                android:layout_below="@id/register_submit_button"
+                android:layout_below="@id/login_progress_bar"
                 android:text="Forgot Password?"
                 android:textSize="18sp"
                 android:textColor="@android:color/white"
