@@ -93,18 +93,19 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Sear
                 switch (discoveryType) {
                     case "Likes":
                         countString += prismPost.getLikes() + " likes";
+                        prismPostCount.setText(fancyDate + " • " + countString);
                         break;
                     case "Reposts":
                         countString += prismPost.getReposts() + " reposts";
+                        prismPostCount.setText(fancyDate + " • " + countString);
                         break;
                     case "Tag":
-
+                        prismPostCount.setText(fancyDate);
                         break;
                     case "Suggested":
 
                         break;
                 }
-                prismPostCount.setText(fancyDate + " • " + countString);
                 prismPostCount.setSelected(true);
 
                 Glide.with(context)

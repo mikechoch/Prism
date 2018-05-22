@@ -112,7 +112,8 @@ public class SearchFragment extends Fragment {
                 case 2:
                     recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pound_white_48dp));
                     recyclerViewTitleTextView.setText(value);
-                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListofPrismPostsForRandomTag(), "Tag");
+                    recyclerViewTitleTextView.setTextSize(17f);
+                    searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPrismPostsForRandomTag(), "Tag");
                     break;
             }
             prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
