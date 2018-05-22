@@ -15,6 +15,10 @@ import com.mikechoch.prism.helper.Helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 
 public class DiscoverController {
 
@@ -24,14 +28,75 @@ public class DiscoverController {
     private static DatabaseReference usersReference;
 
     private static ArrayList<PrismPost> listOfPrismPosts;
-
+    private static ArrayList<PrismPost> listofPrismPostsForRandomTag;
 
     public static void setupDiscoverContent(Context context) {
         allPostsReference = Default.ALL_POSTS_REFERENCE;
         usersReference = Default.USERS_REFERENCE;
+        tagsReference = Default.TAGS_REFERENCE;
+
         listOfPrismPosts = new ArrayList<>();
+        listofPrismPostsForRandomTag = new ArrayList<>();
 
         fetchAllPosts(context);
+        fetchPostsForRandomTag(context);
+    }
+
+    private static void fetchPostsForRandomTag(Context context) {
+        tagsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    int tagCount = (int) dataSnapshot.getChildrenCount();
+                    int rand = new Random().nextInt(tagCount);
+                    Iterator itr = dataSnapshot.getChildren().iterator();
+
+                    for (int i = 0; i < rand; i++) { itr.next(); }
+                    DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
+
+                    if (tagSnapshot.exists()) {
+                        HashMap<String, Long> listOfPosts = new HashMap<>((Map) tagSnapshot.getValue());
+                        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot allPostsSnapshot) {
+                                for (String postId : listOfPosts.keySet()) {
+                                    DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+                                    if (postSnapshot.exists()) {
+                                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                                        listofPrismPostsForRandomTag.add(prismPost);
+                                    }
+                                }
+
+                                usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for (PrismPost prismPost : listofPrismPostsForRandomTag) {
+                                            DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
+                                            if (postAuthorUserSnapshot.exists()) {
+                                                PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
+                                                prismPost.setPrismUser(prismUser);
+                                            }
+                                        }
+
+                                        SearchFragment.createAllDiscoveryRecyclerViews(context);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) { }
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) { }
+                        });
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     /**
@@ -41,6 +106,7 @@ public class DiscoverController {
      * from last 1 week or last few days to show on discover page
      */
     private static void fetchAllPosts(Context context) {
+        ArrayList<PrismPost> listOfPrismPosts= new ArrayList<>();
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -48,32 +114,31 @@ public class DiscoverController {
                     PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
                     listOfPrismPosts.add(prismPost);
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
+                usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (PrismPost prismPost : listOfPrismPosts) {
+                            DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
+                            if (postAuthorUserSnapshot.exists()) {
+                                PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
+                                prismPost.setPrismUser(prismUser);
+                            }
+                        }
 
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (PrismPost prismPost : listOfPrismPosts) {
-                    DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
-                    if (postAuthorUserSnapshot.exists()) {
-                        PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
-                        prismPost.setPrismUser(prismUser);
-                    } else {
-                        // TODO Should not happen. Log wtf exception if happens
-                        listOfPrismPosts.remove(prismPost);
+                        SearchFragment.createAllDiscoveryRecyclerViews(context);
                     }
-                }
 
-                SearchFragment.createAllDiscoveryRecyclerViews(context);
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) { }
         });
+
+
     }
 
     public static ArrayList<PrismPost> generateHighestRepostedPosts() {
@@ -84,8 +149,6 @@ public class DiscoverController {
                 return p2.getReposts().compareTo(p1.getReposts());
             }
         });
-        // TODO @MIKE: highestRepostedPosts arrayList is ready here. call notifyDatasetChanged here
-        // @Mike: don't make these local arrayLists global or static. If you have to, let me know
         return highestRepostedPosts;
     }
 
@@ -97,9 +160,11 @@ public class DiscoverController {
                 return p2.getLikes().compareTo(p1.getLikes());
             }
         });
-        // TODO @MIKE: highestLikedPosts arrayList is ready here. call notifyDatasetChanged here
-        // @Mike: don't make these local arrayLists global or static. If you have to, let me know
         return highestLikedPosts;
+    }
+
+    public static ArrayList<PrismPost> getListofPrismPostsForRandomTag() {
+        return listofPrismPostsForRandomTag;
     }
 
 
