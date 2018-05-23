@@ -4,6 +4,7 @@ public enum Discovery {
 
     LIKE(),
     REPOST(),
-    TAG();
+    TAG(),
+    USER()
 
 }

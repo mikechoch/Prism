@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismTagActivity;
@@ -198,11 +199,11 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         }
 
         /**
-         * TODO: @Parth please review
          * @param tagPostCountTextView
          */
         private void fetchPostsCountUnderTag(TextView tagPostCountTextView) {
-            Default.TAGS_REFERENCE.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {
+            DatabaseReference tagsReference = Default.TAGS_REFERENCE;
+            tagsReference.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     tagPostCountTextView.setText(dataSnapshot.getChildrenCount() + " posts");

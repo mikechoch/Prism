@@ -16,6 +16,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ public class DiscoverController {
 
     private static ArrayList<PrismPost> listOfPrismPosts;
     private static ArrayList<PrismPost> listOfPrismPostsForRandomTag;
+    private static ArrayList<PrismUser> listOfRandomPrismUsers;
+
     private static String randomTag;
 
     public static void setupDiscoverContent(Context context) {
@@ -42,10 +45,41 @@ public class DiscoverController {
 
         listOfPrismPosts = new ArrayList<>();
         listOfPrismPostsForRandomTag = new ArrayList<>();
-
+        listOfRandomPrismUsers = new ArrayList<>();
 
         fetchAllPosts(context);
         fetchPostsForRandomTag(context);
+        fetchRandomUsers(context);
+    }
+
+    private static void fetchRandomUsers(Context context) {
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                HashMap<String, Object> users = new HashMap<>((Map)dataSnapshot.getValue());
+                ArrayList<String> userIds = new ArrayList<>(users.keySet());
+                Collections.shuffle(userIds);
+
+                for (int i = 0; i < 10; i++) {
+                    if (i >= userIds.size()) break;
+                    DataSnapshot userSnapshot = dataSnapshot.child(userIds.get(i));
+                    if (userSnapshot.exists()) {
+                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                        listOfRandomPrismUsers.add(prismUser);
+                    }
+                }
+
+                // TODO @Mike -- pick it up form here
+                // use `getListOfRandomPrismUsers()` method to get the list ;)
+                DiscoveryRecyclerView recyclerView = new DiscoveryRecyclerView(Discovery.USER, R.drawable.ic_account_white_36dp, "Users");
+                SearchFragment.addDiscoveryRecyclerView(context, recyclerView);
+            }
+
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
 
@@ -174,6 +208,10 @@ public class DiscoverController {
 
     public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag() {
         return listOfPrismPostsForRandomTag;
+    }
+
+    public static ArrayList<PrismUser> getListOfRandomPrismUsers() {
+        return listOfRandomPrismUsers;
     }
 
 
