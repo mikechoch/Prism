@@ -185,7 +185,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             TextView userCountTextView = new TextView(context);
             if (otherCount > 0) {
                 userCountTextView.setTextSize(16);
-                userCountTextView.setTypeface(Default.sourceSansProLight);
+                userCountTextView.setTypeface(notificationTypeface);
                 userCountTextView.setTextColor(Color.WHITE);
                 userCountTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
