@@ -1,9 +1,18 @@
 package com.mikechoch.prism.activity;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,6 +26,9 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
+
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Created by mikechoch on 1/21/18.
@@ -34,6 +46,9 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity_layout);
 
+        // TODO delete this
+        invokeFakePushNotification();
+
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
 
@@ -49,6 +64,27 @@ public class SplashActivity extends AppCompatActivity {
         iconImageView.startAnimation(rotateAnimation);
 
         new IntentLoaderTask().execute();
+    }
+
+    private void invokeFakePushNotification() {
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_prism)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_camera_iris_black_36dp))   // TODO in real notification, we display profile pic here
+                .setContentTitle("mikechoch and 69 others")
+                .setContentText("like your post")
+                .setAutoCancel(false) //dismisses the notification on click
+                .setSound(defaultSoundUri)
+                .setLights(Color.RED, 3000, 3000)
+                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
+                .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify("MERGE", 111, notificationBuilder.build());
+        }
     }
 
     /**
