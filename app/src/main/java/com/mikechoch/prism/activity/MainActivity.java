@@ -98,6 +98,10 @@ public class MainActivity extends FragmentActivity {
     private String uploadedImageDescription;
     private boolean isUploadingImage = false;
 
+    private Handler clearNotificationsHandler;
+    private Runnable clearNotificationsRunnable;
+    private boolean shouldClearNotifications = false;
+
 
     public static String FCM_API_KEY;
 
@@ -156,8 +160,6 @@ public class MainActivity extends FragmentActivity {
         setupUIElements();
 
         new InterfaceAction(this);
-
-
     }
 
     @Override
@@ -299,15 +301,19 @@ public class MainActivity extends FragmentActivity {
 
                     // NOTIFICATIONS tab will...
                     case 2:
+                        clearNotificationsHandler = new Handler();
+                        clearNotificationsRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                shouldClearNotifications = true;
+                            }
+                        };
+                        clearNotificationsHandler.postDelayed(clearNotificationsRunnable, 2000);
                         break;
 
                     // PROFILE tab will...
                     case 3:
                         break;
-
-                    case 4:
-                        break;
-
                     default:
                         break;
                 }
@@ -331,17 +337,17 @@ public class MainActivity extends FragmentActivity {
 
                     // NOTIFICATIONS tab will set all notifications isViewed to true
                     case 2:
-                        NotificationFragment.clearAllNotifications();
-                        // TODO: Do Firbease update Notifications to be isViewed = true
+                        clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
+                        if (shouldClearNotifications) {
+                            NotificationFragment.clearAllNotifications();
+                            // TODO: Do Firbease update Notifications to be isViewed = true
+                        }
+                        shouldClearNotifications = false;
                         break;
 
                     // PROFILE tab will...
                     case 3:
                         break;
-
-                    case 4:
-                        break;
-
                     default:
                         break;
                 }

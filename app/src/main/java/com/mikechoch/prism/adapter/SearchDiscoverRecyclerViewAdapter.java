@@ -29,7 +29,7 @@ import java.util.Random;
 
 public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int RECYCLER_VIEW_AD_THRESHOLD = 6;
+    private final int RECYCLER_VIEW_AD_THRESHOLD = 7;
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int GOOGLE_AD_VIEW_TYPE = 1;
 

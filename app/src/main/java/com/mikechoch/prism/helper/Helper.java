@@ -149,13 +149,14 @@ public class Helper {
             String fancyDateTail = daysTime == 1 ? " day ago" : " days ago";
             fancyDateString = daysTime + fancyDateTail;
         } else if (daysTime < 30) {
-            String fancyDateTail = daysTime == 7 ? " weeks ago" : " week ago";
-            fancyDateString = daysTime/7 + fancyDateTail;
+            String fancyDateTail = (daysTime / 7) == 1 ? " week ago" : " weeks ago";
+            fancyDateString = (daysTime / 7) + fancyDateTail;
         } else if (daysTime < 365) {
-            String fancyDateTail = daysTime == 30 ? " months ago" : " month ago";
-            fancyDateString = daysTime/30 + fancyDateTail;
+            String fancyDateTail = (daysTime / 30) == 1 ? " month ago" : " months ago";
+            fancyDateString = (daysTime / 30) + fancyDateTail;
         } else {
-            fancyDateString = DateFormat.format("MMM dd", calendar).toString();
+            String fancyDateTail = (daysTime / 365) == 1 ? " year ago" : " years ago";
+            fancyDateString = (daysTime / 365) + fancyDateTail;
         }
         return fancyDateString;
     }

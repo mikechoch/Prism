@@ -17,8 +17,8 @@
         <com.google.android.gms.ads.AdView
             android:id="@+id/discover_prism_post_google_ad_view"
             android:layout_width="match_parent"
-            android:layout_height="99dp"
-            app:adSize="FLUID"
+            android:layout_height="100dp"
+            app:adSize="LARGE_BANNER"
             app:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
 
         <LinearLayout
