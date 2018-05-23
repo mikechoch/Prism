@@ -50,12 +50,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
-import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
@@ -332,7 +332,7 @@ public class MainActivity extends FragmentActivity {
                     // NOTIFICATIONS tab will set all notifications isViewed to true
                     case 2:
                         NotificationFragment.clearAllNotifications();
-                        // TODO: Do Firbease update Notifications to be isViewed = true
+                        DatabaseAction.updateViewedTimestampForAllNotifications();
                         break;
 
                     // PROFILE tab will...

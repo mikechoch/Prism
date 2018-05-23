@@ -268,6 +268,26 @@ public class DatabaseAction {
         }
     }
 
+    public static void updateViewedTimestampForAllNotifications() {
+        long timestamp = System.currentTimeMillis();
+        currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot allNotificationSnapshots) {
+                        if (allNotificationSnapshots.exists()) {
+                            for (DataSnapshot notificationSnapshot : allNotificationSnapshots.getChildren()) {
+                                notificationSnapshot
+                                        .child(Key.NOTIFICATION_VIEWED_TIMESTAMP)
+                                        .getRef().setValue(timestamp);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) { }
+                });
+    }
+
 
     /**
      * Creates prismUser for CurrentUser
