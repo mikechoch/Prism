@@ -33,7 +33,7 @@ import java.net.URL;
 public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
-     * TODO everything in this class needs to be sexified
+     * TODO everything in this class needs to be commented
      */
 
     NotificationManager notificationManager;
@@ -74,7 +74,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.notify("MERGE", notificationId /* ID of notification */, notificationBuilder.build());
+            notificationManager.notify("MERGE", notificationId, notificationBuilder.build());
         } else {
             Log.e(Default.TAG_NOTIFICATION, Message.CANNOT_NOTIFY_USER);
         }

@@ -149,6 +149,11 @@ public class SearchActivity  extends AppCompatActivity {
         setupUIElements();
     }
 
+    /**
+     * TODO
+     * THIS IS EXTREMELY INEFFICIENT BUT IT'S OK TO DO IT UNTIL
+     * WE HAVE A LOT OF USERS
+     */
     private void populateUsersCollection() {
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
