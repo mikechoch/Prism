@@ -12,6 +12,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -26,6 +27,7 @@ import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
+import com.mikechoch.prism.helper.BitmapHelper;
 
 import java.io.IOException;
 import java.net.URL;
@@ -59,15 +61,15 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Default.ADMIN_CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_prism)
-                .setLargeIcon(profilePic)
+                .setSmallIcon(R.drawable.ic_camera_iris_black_36dp)
+                .setLargeIcon(BitmapHelper.getCircledBitmap(profilePic))
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true) //dismisses the notification on click
                 .setSound(defaultSoundUri)
                 .setLights(Color.RED, 3000, 3000)
                 .addExtras(bundle)
-                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
                 .setContentIntent(viewPendingIntent)
                 .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
