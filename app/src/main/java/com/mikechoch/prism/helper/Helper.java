@@ -145,10 +145,16 @@ public class Helper {
         } else if (hoursTime < TimeUnit.HOURS_UNIT) {
             String fancyDateTail = hoursTime == 1 ? " hour ago" : " hours ago";
             fancyDateString = hoursTime + fancyDateTail;
-        } else if (daysTime < TimeUnit.DAYS_UNIT) {
+        } else if (daysTime < 7) {
             String fancyDateTail = daysTime == 1 ? " day ago" : " days ago";
             fancyDateString = daysTime + fancyDateTail;
-        } else if (daysTime < TimeUnit.YEARS_UNIT) {
+        } else if (daysTime < 30) {
+            String fancyDateTail = daysTime == 7 ? " weeks ago" : " week ago";
+            fancyDateString = daysTime/7 + fancyDateTail;
+        } else if (daysTime < 365) {
+            String fancyDateTail = daysTime == 30 ? " months ago" : " month ago";
+            fancyDateString = daysTime/30 + fancyDateTail;
+        } else {
             fancyDateString = DateFormat.format("MMM dd", calendar).toString();
         }
         return fancyDateString;
