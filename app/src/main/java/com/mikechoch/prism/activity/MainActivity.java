@@ -332,6 +332,7 @@ public class MainActivity extends FragmentActivity {
                     // NOTIFICATIONS tab will set all notifications isViewed to true
                     case 2:
                         NotificationFragment.clearAllNotifications();
+                        // TODO: Do Firbease update Notifications to be isViewed = true
                         break;
 
                     // PROFILE tab will...

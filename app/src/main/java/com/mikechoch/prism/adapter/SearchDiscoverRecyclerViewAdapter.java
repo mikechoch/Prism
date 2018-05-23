@@ -11,14 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
@@ -27,27 +25,31 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private int RECYCLER_VIEW_AD_THRESHOLD = 5;
+    private final int RECYCLER_VIEW_AD_THRESHOLD = 6;
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int GOOGLE_AD_VIEW_TYPE = 1;
 
     private Context context;
     private ArrayList<PrismPost> prismPostArrayList;
     private Discovery discoveryType;
+    private Random random;
 
 
     public SearchDiscoverRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostArrayList, Discovery discoveryType) {
         this.context = context;
         this.prismPostArrayList = prismPostArrayList;
         this.discoveryType = discoveryType;
+        random = new Random();
+        random.setSeed(Long.MAX_VALUE);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != 0) {
+        if (position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
             return PRISM_POST_VIEW_TYPE;
         }
         return GOOGLE_AD_VIEW_TYPE;
@@ -71,7 +73,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (position == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != 0) {
+        if (position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
             int realPosition  = getRealPosition(position);
             ((PrismPostViewHolder) holder).setData(prismPostArrayList.get(realPosition));
         }
@@ -191,17 +193,17 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     public class GoogleAdViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView sponsroedAdTextView;
+        private TextView sponsoredAdTextView;
         private AdView adView;
         private AdRequest adRequest;
 
         public GoogleAdViewHolder(View itemView) {
             super(itemView);
 
-            sponsroedAdTextView = itemView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
+            sponsoredAdTextView = itemView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
             adView = itemView.findViewById(R.id.discover_prism_post_google_ad_view);
 
-            sponsroedAdTextView.setTypeface(Default.sourceSansProBold);
+            sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
 
             new AdViewTask().execute();
         }
@@ -246,7 +248,6 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             @Override
             protected void onPostExecute(Void v) {
                 super.onPostExecute(v);
-
             }
 
         }
