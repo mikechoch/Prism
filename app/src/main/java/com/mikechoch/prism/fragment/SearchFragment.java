@@ -94,7 +94,7 @@ public class SearchFragment extends Fragment {
         recyclerViewTitleTextView.setTypeface(Default.sourceSansProBold);
 
         RecyclerView prismPostDiscoveryRecyclerView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view);
-        LinearLayout.LayoutParams recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (150 * Default.scale));
+        LinearLayout.LayoutParams recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         prismPostDiscoveryRecyclerView.setLayoutParams(recyclerViewLayoutParams);
         LinearLayoutManager discoveryLinearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
         DefaultItemAnimator discoveryDefaultItemAnimator = new DefaultItemAnimator();
@@ -120,8 +120,6 @@ public class SearchFragment extends Fragment {
                 searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPrismPostsForRandomTag(), Discovery.TAG);
                 break;
             case USER:
-                recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                prismPostDiscoveryRecyclerView.setLayoutParams(recyclerViewLayoutParams);
                 searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfRandomPrismUsers(), Discovery.USER);
                 break;
         }
