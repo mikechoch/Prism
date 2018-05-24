@@ -119,6 +119,11 @@ public class SearchFragment extends Fragment {
 //                recyclerViewTitleTextView.setTextSize(17f);
                 searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPrismPostsForRandomTag(), Discovery.TAG);
                 break;
+            case USER:
+                recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                prismPostDiscoveryRecyclerView.setLayoutParams(recyclerViewLayoutParams);
+                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfRandomPrismUsers(), Discovery.USER);
+                break;
         }
         prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
         discoveryRecyclerView.setDiscoveryRecyclerView(prismPostDiscoveryRecyclerView);
