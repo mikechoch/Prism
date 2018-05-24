@@ -52,6 +52,11 @@ public class Key {
     public static final String POST_LIKES = "likes";
     public static final String POST_ID = "postId";
 
+    /** CONTENT REVIEW **/
+    public static final String DB_REF_CONTENT_REVIEW = "CONTENT_REVIEW";
+    public static final String REPORTED_BY = "reportedBy";
+
+
     /** ACCOUNTS **/
     public static final String DB_REF_ACCOUNTS = "ACCOUNTS";
 

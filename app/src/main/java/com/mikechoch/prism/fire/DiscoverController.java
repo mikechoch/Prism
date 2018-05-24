@@ -65,7 +65,9 @@ public class DiscoverController {
                     DataSnapshot userSnapshot = dataSnapshot.child(userIds.get(i));
                     if (userSnapshot.exists()) {
                         PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                        listOfRandomPrismUsers.add(prismUser);
+                        if (!Helper.isPrismUserCurrentUser(prismUser) && !CurrentUser.isFollowingPrismUser(prismUser)) {
+                            listOfRandomPrismUsers.add(prismUser);
+                        }
                     }
                 }
 

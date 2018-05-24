@@ -19,6 +19,7 @@ public class Default {
     public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);
     public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
     public static final DatabaseReference ACCOUNT_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
+    public static final DatabaseReference CONTENT_REVIEW_REFERENCE = databaseReference.child(Key.DB_REF_CONTENT_REVIEW);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();
 
@@ -35,6 +36,7 @@ public class Default {
     public static final int IMAGE_UPLOAD_INTENT_REQUEST_CODE = 100;
     public static final int GALLERY_INTENT_REQUEST = 101;
     public static final int PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE = 102;
+    public static final int CAMERA_INTENT_REQUEST = 103;
 
     public static final int DISPLAY_USERS_LIKE_CODE = 0;
     public static final int DISPLAY_USERS_REPOST_CODE = 1;
@@ -99,11 +101,13 @@ public class Default {
     // Button Strings
     public static final String BUTTON_OK = "OK";
     public static final String BUTTON_SAVE = "SAVE";
+    public static final String BUTTON_UPDATE = "UPDATE";
     public static final String BUTTON_SUBMIT = "SUBMIT";
     public static final String BUTTON_CANCEL = "CANCEL";
     public static final String BUTTON_DELETE = "DELETE";
     public static final String BUTTON_REPOST = "REPOST";
     public static final String BUTTON_UNFOLLOW = "UNFOLLOW";
+    public static final String BUTTON_REPORT = "REPORT";
 
     // Log Message Tags
     public static final String TAG_DB = "Firebase Database";

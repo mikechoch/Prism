@@ -1,16 +1,21 @@
 package com.mikechoch.prism.activity;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewCompat;
@@ -55,6 +60,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -231,6 +237,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     uploadProfilePictureToCloud();
                 }
                 break;
+            case Default.CAMERA_INTENT_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    data.getExtras();
+                }
             default:
                 break;
         }
@@ -519,6 +529,11 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                         break;
                     case 1:
                         // TODO: Figure out camera feature
+
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            startActivityForResult(takePictureIntent, Default.CAMERA_INTENT_REQUEST);
+                        }
                         break;
                     case 2:
                         intentToShowUserProfilePictureActivity();
@@ -530,6 +545,12 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         });
 
         return profilePictureAlertDialog.create();
+    }
+
+    public File getFile() {
+        File f = new File("Prism");
+        if (!f.exists()) f.mkdir();
+        return new File(f, String.valueOf(System.currentTimeMillis() + ".jpg"));
     }
 
     /**

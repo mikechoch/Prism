@@ -40,6 +40,9 @@ public class Message {
 
       public static final String PASSWORD_RESET_EMAIL_SEND_FAIL = "Failed to send password reset email";
 
+      public static final String POST_REPORTED_SUCCESS = "Successfully submit post for content review";
+      public static final String POST_REPORTED_FAIL = "Failed to submit post for content review";
+
       // Toast messages
       public static final String CANNOT_REPOST_OWN_POST = "You cannot repost your own post";
 

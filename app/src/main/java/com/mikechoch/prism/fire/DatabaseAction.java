@@ -455,7 +455,26 @@ public class DatabaseAction {
 
         // Update token in cloud
         currentUserReference.child(Key.USER_TOKEN).setValue(firebaseToken);
+    }
 
+    public static void reportPost(Context context, PrismPost prismPost) {
+        DatabaseReference contentReviewReference = Default.CONTENT_REVIEW_REFERENCE;
+        contentReviewReference
+                .child(prismPost.getUid())
+                .child(currentUserId)
+                .setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Helper.toast(context, "Thank you for reporting this post");
+                    Log.d(Default.TAG_DB, Message.POST_REPORTED_SUCCESS);
+                    Log.e(Default.TAG_DB, prismPost.getUid());
+                } else {
+                    Helper.toast(context, "Unable to report post, please try again later");
+                    Log.e(Default.TAG_DB, Message.POST_REPORTED_FAIL, task.getException());
+                }
+            }
+        });
     }
 
 }

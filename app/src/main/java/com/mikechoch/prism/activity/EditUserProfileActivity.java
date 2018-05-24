@@ -198,7 +198,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeFullNameAlertDialog.setView(changeFullNameRelativeLayout);
         changeFullNameAlertDialog.setIsCancelable(true);
         changeFullNameAlertDialog.setCanceledOnTouchOutside(false);
-        changeFullNameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+        changeFullNameAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -253,7 +253,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeUsernameAlertDialog.setView(changeUsernameRelativeLayout);
         changeUsernameAlertDialog.setIsCancelable(true);
         changeUsernameAlertDialog.setCanceledOnTouchOutside(false);
-        changeUsernameAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+        changeUsernameAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newUsername = usernameAlertDialogEditText.getText().toString().trim();
@@ -323,7 +323,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changePasswordAlertDialog.setView(changePasswordRelativeLayout);
         changePasswordAlertDialog.setIsCancelable(true);
         changePasswordAlertDialog.setCanceledOnTouchOutside(false);
-        changePasswordAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+        changePasswordAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //TODO: add error checking for Old Password
@@ -420,7 +420,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeEmailAlertDialog.setView(changeEmailRelativeLayout);
         changeEmailAlertDialog.setIsCancelable(true);
         changeEmailAlertDialog.setCanceledOnTouchOutside(false);
-        changeEmailAlertDialog.setPositiveButton(Default.BUTTON_SAVE, new DialogInterface.OnClickListener() {
+        changeEmailAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //TODO: add error checking for Old Password

@@ -254,6 +254,8 @@ public class InterfaceAction {
                 switch (which) {
                     case 0:
                         // Report post
+                        AlertDialog reportPostConfirmationAlertDialog = createReportPostConfirmationAlertDialog(context, prismPost);
+                        reportPostConfirmationAlertDialog.show();
                         break;
                     case 1:
                         // Share
@@ -272,6 +274,25 @@ public class InterfaceAction {
         return profilePictureAlertDialog.create();
     }
 
+    private static AlertDialog createReportPostConfirmationAlertDialog(Context context, PrismPost prismPost) {
+        AlertDialog.Builder reportAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
+        reportAlertDialogBuilder.setTitle("Are you sure you want to report this post as inappropriate?");
+        reportAlertDialogBuilder.setMessage("We will review this post and take the appropriate action");
+        reportAlertDialogBuilder.setPositiveButton(Default.BUTTON_REPORT, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                DatabaseAction.reportPost(context, prismPost);
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        return reportAlertDialogBuilder.create();
+    }
+
     /**
      * AlertDialog to confirm the deletion of a post
      * @param context
@@ -279,9 +300,9 @@ public class InterfaceAction {
      * @return finalized AlertDialog for deleting a post
      */
     private static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
-        AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
-        exitAlertDialogBuilder.setTitle("Are you sure you want to delete this post?");
-        exitAlertDialogBuilder.setPositiveButton(Default.BUTTON_DELETE, new DialogInterface.OnClickListener() {
+        AlertDialog.Builder deleteAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
+        deleteAlertDialogBuilder.setTitle("Are you sure you want to delete this post?");
+        deleteAlertDialogBuilder.setPositiveButton(Default.BUTTON_DELETE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -293,7 +314,7 @@ public class InterfaceAction {
                 dialogInterface.cancel();
             }
         });
-        return exitAlertDialogBuilder.create();
+        return deleteAlertDialogBuilder.create();
     }
 
     /**
