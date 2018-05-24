@@ -1,10 +1,14 @@
 package com.mikechoch.prism.helper;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -20,6 +24,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
+import com.mikechoch.prism.activity.ProfilePictureUploadActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
@@ -38,6 +43,34 @@ import java.util.Locale;
 
 public class Helper {
 
+    /**
+     * Takes in a String permission checks the status of the permission
+     * If permission denied then a request will be made if the permission is valid
+     * Currently only handling:
+     * Manifest.permission.WRITE_EXTERNAL_STORAGE
+     * Manifest.permission.CAMERA
+     * @param context
+     * @param permission
+     */
+    public static boolean permissionRequest(Context context, String permission) {
+        int permissionStatus = ContextCompat.checkSelfPermission(context, permission);
+        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+            int permissionRequestCode = -1;
+            switch (permission) {
+                case Manifest.permission.WRITE_EXTERNAL_STORAGE:
+                    permissionRequestCode = Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA;
+                    break;
+                case Manifest.permission.CAMERA:
+                    permissionRequestCode = Default.MY_PERMISSIONS_REQUEST_CAMERA;
+                    break;
+            }
+            if (permissionRequestCode != -1) {
+                ActivityCompat.requestPermissions((Activity) context, new String[]{permission}, permissionRequestCode);
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Takes in a dataSnapshot object and parses its contents
@@ -328,6 +361,18 @@ public class Helper {
         Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
         prismUserProfileIntent.putExtra(Default.PRISM_USER_EXTRA, prismUser);
         context.startActivity(prismUserProfileIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     * @param context
+     * @param profilePictureType
+     */
+    public static void intentToProfilePictureUploadActivity(Context context, int profilePictureType) {
+        Intent galleryImageUploadIntent = new Intent(context, ProfilePictureUploadActivity.class);
+        galleryImageUploadIntent.putExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, profilePictureType);
+        ((Activity) context).startActivityForResult(galleryImageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 

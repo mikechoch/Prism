@@ -1,7 +1,9 @@
 package com.mikechoch.prism.activity;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -9,7 +11,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -23,6 +27,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
+import com.mikechoch.prism.helper.Helper;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
@@ -30,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -50,6 +56,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
 
     private Uri imageUri;
     private String imagePath;
+    private File output;
 
 
     @Override
@@ -83,16 +90,37 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         uploadedProfileImageView = findViewById(R.id.uploaded_profile_crop_image_view);
         saveButton = findViewById(R.id.save_profile_button_card_view);
         uploadProfilePictureProgressBar = findViewById(R.id.upload_profile_picture_progress_bar);
-
         setupUIElements();
 
-        selectImageFromGallery();
+        int imageType = getIntent().getIntExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, -1);
+        handleProfilePictureType(imageType);
     }
 
     @Override
     public void onBackPressed() {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    selectImageFromGallery();
+                } else {
+                    super.onBackPressed();
+                }
+                break;
+            case Default.MY_PERMISSIONS_REQUEST_CAMERA:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    takePictureFromCamera();
+                } else {
+                    super.onBackPressed();
+                }
+                break;
+        }
     }
 
     /**
@@ -153,6 +181,28 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     }
 
     /**
+     *
+     * @param imageType
+     */
+    private void handleProfilePictureType(int imageType) {
+        boolean isAllowed;
+        switch (imageType) {
+            case Default.PROFILE_PICTURE_GALLERY:
+                isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (isAllowed) {
+                    selectImageFromGallery();
+                }
+                break;
+            case Default.PROFILE_PICTURE_CAMERA:
+                isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
+                if (isAllowed) {
+                    takePictureFromCamera();
+                }
+                break;
+        }
+    }
+
+    /**
      * Create an Intent to ask user to select a image they would like to upload
      */
     private void selectImageFromGallery() {
@@ -160,6 +210,19 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         galleryIntent.setType("image/*");
         startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Create an Intent to ask user to take a picture with the phone's camera
+     * Also prepares a file to save the image
+     */
+    private void takePictureFromCamera() {
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File output = new File(dir, "image" + new Date().getTime() + ".jpeg");
+        imageUri = Uri.fromFile(output);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(output));
+        startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST);
     }
 
     /**
@@ -189,7 +252,26 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                     }
                 }
                 break;
-            default:
+            case Default.CAMERA_INTENT_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    Bitmap bitmap = null;
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                        bitmap = BitmapFactory.decodeStream(inputStream);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    String imagePath = FileChooser.getPath(this, imageUri);
+                    bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
+                    imageUri = getImageUri(bitmap);
+                    uploadedProfileImageView.setImageBitmap(bitmap);
+                } else {
+                    if (uploadedProfileImageView.getCroppedImage() == null) {
+                        finish();
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                }
                 break;
         }
     }
