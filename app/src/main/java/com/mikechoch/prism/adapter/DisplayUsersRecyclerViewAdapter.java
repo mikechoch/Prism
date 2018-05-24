@@ -125,23 +125,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                     @Override
                     public void onClick(View v) {
                         boolean performFollow = !CurrentUser.isFollowingPrismUser(prismUser);
-                        handleFollowButtonClick(performFollow);
+                        InterfaceAction.handleFollowButtonClick(context, performFollow, userFollowButton, prismUser);
                     }
                 });
-            }
-        }
-
-        /**
-         * Handle the follow button when clicked to update firebase
-         * @param performFollow
-         */
-        private void handleFollowButtonClick(boolean performFollow) {
-            if (performFollow) {
-                InterfaceAction.toggleSmallFollowButton(context, true, userFollowButton);
-                DatabaseAction.followUser(prismUser);
-            } else {
-                AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(context, prismUser, userFollowButton, null);
-                unfollowAlertDialog.show();
             }
         }
 

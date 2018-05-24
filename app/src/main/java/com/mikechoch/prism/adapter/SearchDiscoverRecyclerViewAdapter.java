@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,8 +24,11 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Discovery;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -212,6 +216,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
         private CardView discoverPrismUserCardView;
         private ImageView discoverPrismUserImageView;
+        private Button discoverPrismUserFollowButton;
         private TextView discoverPrismUserUsername;
         private TextView discoverPrismUserName;
 
@@ -221,6 +226,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
             discoverPrismUserCardView = itemView.findViewById(R.id.discover_prism_user_card_view);
             discoverPrismUserImageView = itemView.findViewById(R.id.discover_prism_user_profile_picture_image_view);
+            discoverPrismUserFollowButton = itemView.findViewById(R.id.discover_prism_user_follow_user_button);
             discoverPrismUserUsername = itemView.findViewById(R.id.discover_prism_user_username_text_view);
             discoverPrismUserName = itemView.findViewById(R.id.discover_prism_user_name_text_view);
 
@@ -231,39 +237,53 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
          * Set data for the PrismPostViewHolder UI elements
          */
         public void setData(PrismUser prismUser) {
+            if (prismUser != null) {
+                Glide.with(context)
+                        .asBitmap()
+                        .thumbnail(0.05f)
+                        .load(prismUser.getProfilePicture().lowResUri)
+                        .apply(new RequestOptions().fitCenter())
+                        .into(new BitmapImageViewTarget(discoverPrismUserImageView) {
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                if (!prismUser.getProfilePicture().isDefault) {
+                                    int whiteOutlinePadding = (int) (1.5 * Default.scale);
+                                    discoverPrismUserImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+                                    discoverPrismUserImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
+                                } else {
+                                    discoverPrismUserImageView.setPadding(0, 0, 0, 0);
+                                    discoverPrismUserImageView.setBackground(null);
+                                }
 
-            Glide.with(context)
-                    .asBitmap()
-                    .thumbnail(0.05f)
-                    .load(prismUser.getProfilePicture().lowResUri)
-                    .apply(new RequestOptions().fitCenter())
-                    .into(new BitmapImageViewTarget(discoverPrismUserImageView) {
-                        @Override
-                        protected void setResource(Bitmap resource) {
-                            if (!prismUser.getProfilePicture().isDefault) {
-                                int whiteOutlinePadding = (int) (1.5 * Default.scale);
-                                discoverPrismUserImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                discoverPrismUserImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                            } else {
-                                discoverPrismUserImageView.setPadding(0, 0, 0, 0);
-                                discoverPrismUserImageView.setBackground(null);
+                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                                drawable.setCircular(true);
+                                discoverPrismUserImageView.setImageDrawable(drawable);
                             }
+                        });
 
-                            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            drawable.setCircular(true);
-                            discoverPrismUserImageView.setImageDrawable(drawable);
+                if (!Helper.isPrismUserCurrentUser(prismUser)) {
+                    discoverPrismUserFollowButton.setVisibility(View.VISIBLE);
+                    InterfaceAction.toggleSmallFollowButton(context, CurrentUser.isFollowingPrismUser(prismUser), discoverPrismUserFollowButton);
+                    discoverPrismUserFollowButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            boolean performFollow = !CurrentUser.isFollowingPrismUser(prismUser);
+                            InterfaceAction.handleFollowButtonClick(context, performFollow, discoverPrismUserFollowButton, prismUser);
                         }
                     });
 
-            discoverPrismUserUsername.setText(prismUser.getUsername());
-            discoverPrismUserName.setText(prismUser.getFullName());
+                    discoverPrismUserFollowButton.setTypeface(Default.sourceSansProLight);
+                }
 
-            discoverPrismUserUsername.setTypeface(Default.sourceSansProBold);
-            discoverPrismUserName.setTypeface(Default.sourceSansProLight);
+                discoverPrismUserUsername.setText(prismUser.getUsername());
+                discoverPrismUserName.setText(prismUser.getFullName());
 
-            discoverPrismUserUsername.setSelected(true);
-            discoverPrismUserName.setSelected(true);
+                discoverPrismUserUsername.setTypeface(Default.sourceSansProBold);
+                discoverPrismUserName.setTypeface(Default.sourceSansProLight);
 
+                discoverPrismUserUsername.setSelected(true);
+                discoverPrismUserName.setSelected(true);
+            }
         }
 
         /**

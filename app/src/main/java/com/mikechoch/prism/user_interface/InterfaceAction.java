@@ -374,4 +374,18 @@ public class InterfaceAction {
         largeFollowButton.setBackground(followingButtonDrawable);
     }
 
+    /**
+     * Handle the follow button when clicked to update firebase
+     * @param performFollow
+     */
+    public static void handleFollowButtonClick(Context context, boolean performFollow, Button userFollowButton, PrismUser prismUser) {
+        if (performFollow) {
+            InterfaceAction.toggleSmallFollowButton(context, true, userFollowButton);
+            DatabaseAction.followUser(prismUser);
+        } else {
+            AlertDialog unfollowAlertDialog = InterfaceAction.createUnfollowConfirmationAlertDialog(context, prismUser, userFollowButton, null);
+            unfollowAlertDialog.show();
+        }
+    }
+
 }
