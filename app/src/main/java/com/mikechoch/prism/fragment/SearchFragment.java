@@ -122,6 +122,13 @@ public class SearchFragment extends Fragment {
             case USER:
                 searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfRandomPrismUsers(), Discovery.USER);
                 break;
+
+            // TODO @Mike take it over from here -- below
+            case LIKE_BY_FOLLOWINGS:
+                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPostsLikedByUserFollowings(), Discovery.LIKE_BY_FOLLOWINGS);
+                break;
+            case REPOST_BY_FOLLOWINGS:
+                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPostsRepostedByUserFollowings(), Discovery.REPOST_BY_FOLLOWINGS);
         }
         prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
         discoveryRecyclerView.setDiscoveryRecyclerView(prismPostDiscoveryRecyclerView);

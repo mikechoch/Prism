@@ -7,16 +7,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.DiscoveryPost;
 import com.mikechoch.prism.attribute.DiscoveryRecyclerView;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fragment.SearchFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,13 +29,23 @@ import java.util.Random;
 public class DiscoverController {
 
 
+    /**
+     * TODO
+     * ALL THE FIREBASE FETCH REQUESTS MADE IN THIS CLASS
+     * WILL NEED TO BE CHANGED ONCE PRISM HAS 500-1000 POSTS
+     * THE CURRENT IMPLEMENTATION IS INEFFICIENT BUT IT'S THE
+     * ONLY OPTION AS THERE IS NOT ENOUGH CONTENT TO PLAY AROUND WITH
+     */
+
     private static DatabaseReference allPostsReference;
     private static DatabaseReference tagsReference;
     private static DatabaseReference usersReference;
 
-    private static ArrayList<PrismPost> listOfPrismPosts;
+    private static ArrayList<PrismPost> listOfAllPrismPosts;
     private static ArrayList<PrismPost> listOfPrismPostsForRandomTag;
     private static ArrayList<PrismUser> listOfRandomPrismUsers;
+    private static ArrayList<DiscoveryPost> listOfPostsLikedByUserFollowings;
+    private static ArrayList<DiscoveryPost> listOfPostsRepostedByUserFollowings;
 
     private static String randomTag;
 
@@ -43,13 +54,96 @@ public class DiscoverController {
         usersReference = Default.USERS_REFERENCE;
         tagsReference = Default.TAGS_REFERENCE;
 
-        listOfPrismPosts = new ArrayList<>();
+        listOfAllPrismPosts = new ArrayList<>();
         listOfPrismPostsForRandomTag = new ArrayList<>();
         listOfRandomPrismUsers = new ArrayList<>();
+        listOfPostsLikedByUserFollowings = new ArrayList<>();
+        listOfPostsRepostedByUserFollowings = new ArrayList<>();
 
         fetchAllPosts(context);
         fetchPostsForRandomTag(context);
         fetchRandomUsers(context);
+        fetchRandomPostsLikedByUserFollowings(context);
+//        fetchRandomPostsRepostedByUserFollowings(context);
+//        fetchRandomPostsUploadByRandomFollowingUser(context);
+    }
+
+    private static void fetchRandomPostsLikedByUserFollowings(Context context) {
+        HashMap<String, PrismUser> randomPostIdsForLike = new HashMap<>();
+        HashMap<String, PrismUser> randomPostIdsForRepost = new HashMap<>();
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot allUsersSnapshot) {
+                for (String followingUserId : CurrentUser.getFollowings()) {
+                    DataSnapshot followingUserSnapshot = allUsersSnapshot.child(followingUserId);
+                    if (followingUserSnapshot.exists()) {
+                        DataSnapshot likesSnapshot = followingUserSnapshot.child(Key.DB_REF_USER_LIKES);
+                        DataSnapshot repostSnapshot = followingUserSnapshot.child(Key.DB_REF_USER_REPOSTS);
+                        PrismUser followingPrismUser = Helper.constructPrismUserObject(followingUserSnapshot);
+                        if (likesSnapshot.exists()) {
+                            for (DataSnapshot postIdSnapshot : likesSnapshot.getChildren()) {
+                                randomPostIdsForLike.put(postIdSnapshot.getKey(), followingPrismUser);
+                            }
+                        }
+                        if (repostSnapshot.exists()) {
+                            for (DataSnapshot postIdSnapshot : repostSnapshot.getChildren()) {
+                                randomPostIdsForRepost.put(postIdSnapshot.getKey(), followingPrismUser);
+                            }
+                        }
+                    }
+                }
+
+                allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot allPostsSnapshot) {
+                        for (Map.Entry<String, PrismUser> post : randomPostIdsForLike.entrySet()) {
+                            DiscoveryPost discoveryPost = constructDiscoveryPost(allPostsSnapshot, post, allUsersSnapshot);
+                            listOfPostsLikedByUserFollowings.add(discoveryPost);
+                        }
+
+                        for (Map.Entry<String, PrismUser> post : randomPostIdsForRepost.entrySet()) {
+                            DiscoveryPost discoveryPost = constructDiscoveryPost(allPostsSnapshot, post, allUsersSnapshot);
+                            listOfPostsRepostedByUserFollowings.add(discoveryPost);
+                        }
+
+
+                        DiscoveryRecyclerView followingLikeRecyclerView = new DiscoveryRecyclerView(Discovery.LIKE_BY_FOLLOWINGS, R.drawable.like_heart, "People you know liked");
+                        SearchFragment.addDiscoveryRecyclerView(context, followingLikeRecyclerView);
+
+                        DiscoveryRecyclerView followingRepostRecyclerView = new DiscoveryRecyclerView(Discovery.REPOST_BY_FOLLOWINGS, R.drawable.repost_iris, "People you know reposted");
+                        SearchFragment.addDiscoveryRecyclerView(context, followingRepostRecyclerView);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            private DiscoveryPost constructDiscoveryPost(DataSnapshot allPostsSnapshot, Map.Entry<String, PrismUser> post, DataSnapshot allUsersSnapshot) {
+                DiscoveryPost discoveryPost = null;
+                String postId = post.getKey();
+                PrismUser followingPrismUser = post.getValue();
+                DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+                if (postSnapshot.exists()) {
+                    PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                    DataSnapshot prismPostAuthorSnapshot = allUsersSnapshot.child(prismPost.getUid());
+                    if (prismPostAuthorSnapshot.exists()) {
+                        PrismUser prismPostAuthor = Helper.constructPrismUserObject(prismPostAuthorSnapshot);
+                        prismPost.setPrismUser(prismPostAuthor);
+                        discoveryPost = new DiscoveryPost(prismPost, followingPrismUser);
+                    }
+                }
+                return discoveryPost;
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private static void fetchRandomUsers(Context context) {
@@ -71,8 +165,6 @@ public class DiscoverController {
                     }
                 }
 
-                // TODO @Mike -- pick it up form here
-                // use `getListOfRandomPrismUsers()` method to get the list ;)
                 DiscoveryRecyclerView recyclerView = new DiscoveryRecyclerView(Discovery.USER, R.drawable.ic_account_white_36dp, "Users");
                 SearchFragment.addDiscoveryRecyclerView(context, recyclerView);
             }
@@ -168,7 +260,7 @@ public class DiscoverController {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                    listOfPrismPosts.add(prismPost);
+                    listOfAllPrismPosts.add(prismPost);
                 }
 
                 ArrayList<DiscoveryRecyclerView> recyclerViews = new ArrayList<DiscoveryRecyclerView>() {{
@@ -176,7 +268,7 @@ public class DiscoverController {
                     add(new DiscoveryRecyclerView(Discovery.REPOST, R.drawable.repost_iris, "Most Reposted"));
                 }};
 
-                fetchUserDetailsAndGenerateRecyclerView(context, listOfPrismPosts, recyclerViews);
+                fetchUserDetailsAndGenerateRecyclerView(context, listOfAllPrismPosts, recyclerViews);
             }
 
             @Override
@@ -187,7 +279,7 @@ public class DiscoverController {
     }
 
     public static ArrayList<PrismPost> generateHighestRepostedPosts() {
-        ArrayList<PrismPost> highestRepostedPosts = new ArrayList<>(listOfPrismPosts);
+        ArrayList<PrismPost> highestRepostedPosts = new ArrayList<>(listOfAllPrismPosts);
         Collections.sort(highestRepostedPosts, new Comparator<PrismPost>() {
             @Override
             public int compare(PrismPost p1, PrismPost p2) {
@@ -198,7 +290,7 @@ public class DiscoverController {
     }
 
     public static ArrayList<PrismPost> generateHighestLikedPosts() {
-        ArrayList<PrismPost> highestLikedPosts = new ArrayList<>(listOfPrismPosts);
+        ArrayList<PrismPost> highestLikedPosts = new ArrayList<>(listOfAllPrismPosts);
         Collections.sort(highestLikedPosts, new Comparator<PrismPost>() {
             @Override
             public int compare(PrismPost p1, PrismPost p2) {
@@ -214,6 +306,14 @@ public class DiscoverController {
 
     public static ArrayList<PrismUser> getListOfRandomPrismUsers() {
         return listOfRandomPrismUsers;
+    }
+
+    public static ArrayList<DiscoveryPost> getListOfPostsLikedByUserFollowings() {
+        return listOfPostsLikedByUserFollowings;
+    }
+
+    public static ArrayList<DiscoveryPost> getListOfPostsRepostedByUserFollowings() {
+        return listOfPostsRepostedByUserFollowings;
     }
 
 

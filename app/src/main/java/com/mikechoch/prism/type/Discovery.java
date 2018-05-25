@@ -5,6 +5,8 @@ public enum Discovery {
     LIKE(),
     REPOST(),
     TAG(),
-    USER()
+    USER(),
+    LIKE_BY_FOLLOWINGS(),
+    REPOST_BY_FOLLOWINGS()
 
 }

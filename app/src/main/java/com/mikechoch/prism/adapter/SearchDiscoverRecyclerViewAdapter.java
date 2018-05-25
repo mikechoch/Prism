@@ -21,6 +21,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.DiscoveryPost;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -63,7 +64,9 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 return PRISM_POST_VIEW_TYPE;
             } else if (data instanceof PrismUser) {
                 return PRISM_USER_VIEW_TYPE;
-            }
+            } /* else if (data instanceof DiscoveryPost) {
+                return DISCOVERY_POST_VIEW_TYPE; // TODO create this
+            } */
         }
         return GOOGLE_AD_VIEW_TYPE;
     }
@@ -84,6 +87,10 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 viewHolder = new GoogleAdViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.discover_prism_post_google_ad_recycler_view_item_layout, parent, false));
                 break;
+             // TODO @MIKE create a new view for DiscoveryPost
+            /* case DISCOVERY_POST_VIEW_TYPE:
+                viewHolder = new DiscoveryPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                        R.layout.discover_discovery_post_recycler_view_item_layout, parent, false)); */
         }
         return viewHolder;
     }
@@ -156,6 +163,12 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                     case TAG:
                         prismPostCount.setText(fancyDate);
                         break;
+                    /* case LIKE_BY_FOLLOWINGS:
+                        // TODO @MIKE
+                        break;
+                    case REPOST_BY_FOLLOWINGS:
+                        // TODO @MIKE
+                        break; */
                 }
                 prismPostCount.setSelected(true);
 
@@ -261,6 +274,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                             }
                         });
 
+                // TODO: this check here should not be necessary since I won't be giving you currentUser in the ArrayList, right?
                 if (!Helper.isPrismUserCurrentUser(prismUser)) {
                     discoverPrismUserFollowButton.setVisibility(View.VISIBLE);
                     InterfaceAction.toggleSmallFollowButton(context, CurrentUser.isFollowingPrismUser(prismUser), discoverPrismUserFollowButton);
