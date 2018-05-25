@@ -83,7 +83,6 @@ public class DiscoverController {
                         if (likesSnapshot.exists()) {
                             for (DataSnapshot postIdSnapshot : likesSnapshot.getChildren()) {
                                 randomPostIdsForLike.put(postIdSnapshot.getKey(), followingPrismUser);
-
                             }
                         }
                         if (repostSnapshot.exists()) {
@@ -166,8 +165,6 @@ public class DiscoverController {
                     }
                 }
 
-                // TODO @Mike -- pick it up form here
-                // use `getListOfRandomPrismUsers()` method to get the list ;)
                 DiscoveryRecyclerView recyclerView = new DiscoveryRecyclerView(Discovery.USER, R.drawable.ic_account_white_36dp, "Users");
                 SearchFragment.addDiscoveryRecyclerView(context, recyclerView);
             }
