@@ -37,11 +37,13 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.BitmapEditingControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -274,6 +276,10 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                     imageUriExtra = data.getData();
                     Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
                     uploadedProfileImageView.setImageBitmap(bitmap);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
+                    bitmapEditingControllerLayout.setupFilterController(bitmap);
                 } else {
                     if (uploadedProfileImageView.getCroppedImage() == null) {
                         super.onBackPressed();
@@ -284,6 +290,10 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
                     uploadedProfileImageView.setImageBitmap(bitmap);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
+                    bitmapEditingControllerLayout.setupFilterController(bitmap);
                 } else {
                     if (uploadedProfileImageView.getCroppedImage() == null) {
                         super.onBackPressed();
@@ -302,9 +312,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         try {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inMutable = true;
-            bitmap = BitmapFactory.decodeStream(inputStream, new Rect(), options);
+            bitmap = BitmapFactory.decodeStream(inputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

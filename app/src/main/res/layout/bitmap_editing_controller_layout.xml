@@ -3,33 +3,38 @@
     android:id="@+id/bitmap_editing_controller_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:clipChildren="true"
+    android:clipToPadding="true"
     android:orientation="horizontal">
 
     <HorizontalScrollView
         android:id="@+id/bitmap_editing_controller_editing_horizontal_scroll_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:scrollbars="none"
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipChildren="true"
+            android:clipToPadding="true">
 
             <LinearLayout
                 android:id="@+id/bitmap_editing_controller_filter_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
-                android:padding="8dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clipChildren="true"
+                android:clipToPadding="true"
                 android:orientation="horizontal"
                 android:visibility="visible">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Filter"
-                    android:textColor="@android:color/white"/>
 
             </LinearLayout>
 
@@ -38,7 +43,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
-                android:padding="8dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clipChildren="true"
+                android:clipToPadding="true"
                 android:orientation="horizontal"
                 android:visibility="gone">
 

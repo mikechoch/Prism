@@ -71,7 +71,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,6 +82,8 @@
             android:paddingBottom="16dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
+            android:clipChildren="true"
+            android:clipToPadding="true"
             android:orientation="vertical">
 
             <LinearLayout
@@ -106,7 +110,10 @@
             <com.mikechoch.prism.user_interface.BitmapEditingControllerLayout
                 android:id="@+id/uploaded_profile_picture_bitmap_editing_controller_layout"
                 android:layout_width="match_parent"
-                android:layout_height="136dp" />
+                android:layout_height="136dp"
+                android:layout_marginTop="8dp"
+                android:clipChildren="true"
+                android:clipToPadding="true"/>
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/uploaded_profile_picture_bitmap_editing_controller_tab_layout"

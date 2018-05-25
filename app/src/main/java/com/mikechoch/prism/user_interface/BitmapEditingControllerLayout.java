@@ -2,18 +2,22 @@ package com.mikechoch.prism.user_interface;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.vision.text.Line;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.Helper;
@@ -61,19 +65,39 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         bitmapEditingControllerFilterLinearLayout = view.findViewById(R.id.bitmap_editing_controller_filter_linear_layout);
         bitmapEditingControllerEditingLinearLayout = view.findViewById(R.id.bitmap_editing_controller_editing_linear_layout);
 
+
+        setupEditingController();
+    }
+
+    public void setupFilterController(Bitmap bitmap) {
+        for (int i = 0; i < 7; i++) {
+            View filterPreview = layoutInflater.inflate(R.layout.filter_preview_layout, null, true);
+            LinearLayout filterPreviewLinearLayout = filterPreview.findViewById(R.id.filter_preview_linear_layout);
+            ImageView filterPreviewImageView = filterPreview.findViewById(R.id.filter_preview_image_view);
+            filterPreviewImageView.setImageBitmap(bitmap);
+            TextView filterPreviewTextView = filterPreview.findViewById(R.id.filter_preview_text_view);
+            filterPreviewTextView.setText("Filter " + (i + 1));
+            filterPreviewTextView.setTypeface(Default.sourceSansProLight);
+
+            bitmapEditingControllerFilterLinearLayout.addView(filterPreviewLinearLayout);
+        }
+
+    }
+
+    private void setupEditingController() {
         for (Edit edit : Edit.values()) {
             View fabView = layoutInflater.inflate(R.layout.edit_fab_layout, null, true);
+            LinearLayout fabLinearLayout = fabView.findViewById(R.id.edit_fab_linear_layout);
             FloatingActionButton fab = fabView.findViewById(R.id.edit_fab);
             TextView fabTextView = fabView.findViewById(R.id.edit_fab_text_view);
-                    Drawable fabIcon = context.getResources().getDrawable(edit.getIcon());
+            Drawable fabIcon = context.getResources().getDrawable(edit.getIcon());
             fabIcon.setTint(Color.WHITE);
             fab.setImageDrawable(fabIcon);
             fabTextView.setText(edit.getTitle());
             fabTextView.setTypeface(Default.sourceSansProLight);
 
-            bitmapEditingControllerEditingLinearLayout.addView(fabView);
+            bitmapEditingControllerEditingLinearLayout.addView(fabLinearLayout);
         }
-
     }
 
     /**
