@@ -32,10 +32,14 @@ public class Default {
     public static Typeface sourceSansProLight;
     public static Typeface sourceSansProBold;
 
-    public static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 99;
+    // Permissions
+    public static final int MY_PERMISSIONS_REQUEST_WRITE_MEDIA = 200;
+    public static final int MY_PERMISSIONS_REQUEST_CAMERA = 201;
+
+    // Intents
     public static final int IMAGE_UPLOAD_INTENT_REQUEST_CODE = 100;
-    public static final int GALLERY_INTENT_REQUEST = 101;
-    public static final int PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE = 102;
+    public static final int PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE = 101;
+    public static final int GALLERY_INTENT_REQUEST = 102;
     public static final int CAMERA_INTENT_REQUEST = 103;
 
     public static final int DISPLAY_USERS_LIKE_CODE = 0;
@@ -58,11 +62,17 @@ public class Default {
     public static final String IMAGE_URI_EXTRA = "ImageUri";
     public static final String IMAGE_DESCRIPTION_EXTRA = "ImageDescription";
     public static final String CROPPED_PROFILE_PICTURE_EXTRA = "CroppedProfilePicture";
+    public static final String PROFILE_PICTURE_TYPE_EXTRA = "ProfilePictureType";
 
     // Bottom Navigation Bar Strings
     public static final String BOTTOM_NAVIGATION_BAR_NAME = "navigation_bar_height";
     public static final String BOTTOM_NAVIGATION_BAR_DEF_TYPE = "dimen";
     public static final String BOTTOM_NAVIGATION_BAR_DEF_PACKAGE = "android";
+
+    // Profile Picture
+    public static final int PROFILE_PICTURE_GALLERY = 0;
+    public static final int PROFILE_PICTURE_CAMERA = 1;
+    public static final int PROFILE_PICTURE_VIEW = 2;
 
     // ViewPager
     public static final int MAIN_VIEW_PAGER_SIZE = 5 - 1;

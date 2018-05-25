@@ -1,21 +1,16 @@
 package com.mikechoch.prism.activity;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewCompat;
@@ -237,10 +232,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     uploadProfilePictureToCloud();
                 }
                 break;
-            case Default.CAMERA_INTENT_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    data.getExtras();
-                }
             default:
                 break;
         }
@@ -522,20 +513,13 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case 0:
-                        Intent imageUploadIntent = new Intent(PrismUserProfileActivity.this, ProfilePictureUploadActivity.class);
-                        startActivityForResult(imageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    case Default.PROFILE_PICTURE_GALLERY:
+                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_GALLERY);
                         break;
-                    case 1:
-                        // TODO: Figure out camera feature
-
-                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            startActivityForResult(takePictureIntent, Default.CAMERA_INTENT_REQUEST);
-                        }
+                    case Default.PROFILE_PICTURE_CAMERA:
+                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_CAMERA);
                         break;
-                    case 2:
+                    case Default.PROFILE_PICTURE_VIEW:
                         intentToShowUserProfilePictureActivity();
                         break;
                     default:
