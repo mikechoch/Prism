@@ -378,6 +378,7 @@ public class CurrentUser {
         if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
             MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
             updateUserProfileFragmentUI(context);
+            DiscoverController.setupDiscoverContent(context);
         } else {
             Intent[] intents;
             Intent mainIntent = new Intent(context, MainActivity.class);
