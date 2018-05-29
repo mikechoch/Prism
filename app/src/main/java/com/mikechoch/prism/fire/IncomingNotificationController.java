@@ -44,49 +44,54 @@ public class IncomingNotificationController {
     }
     
     private static void initializeNotificationEventHandler() {
-        currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
-                .addChildEventListener(new ChildEventListener() {
-                    /* Invoked when app loads and when a new notification is created */
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        generateNotification(dataSnapshot, true, false);
-                    }
 
-                    /* Invoked when an old notification gets updated */
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        generateNotification(dataSnapshot, false, false);
-                    }
+        CurrentUser.notificationsListener = new ChildEventListener() {
+            /* Invoked when app loads and when a new notification is created */
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                generateNotification(dataSnapshot, true, false);
+            }
 
-                    /* Invoked when a notification is deleted */
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        String notificationId = dataSnapshot.getKey();
-                        CurrentUser.removeNotification(notificationId);
-                    }
+            /* Invoked when an old notification gets updated */
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                generateNotification(dataSnapshot, false, false);
+            }
 
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                        // Not sure what to do here
-                    }
+            /* Invoked when a notification is deleted */
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String notificationId = dataSnapshot.getKey();
+                CurrentUser.removeNotification(notificationId);
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                // Not sure what to do here
+            }
 
-            refreshNotificationRecyclerViewAdapter();
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
+            }
+        };
+
+        CurrentUser.notificationsReference = currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS);
+        CurrentUser.notificationsReference.addChildEventListener(CurrentUser.notificationsListener);
+
+        refreshNotificationRecyclerViewAdapter();
     
-            Handler handler = new Handler();
-            final Runnable r = new Runnable() {
-                public void run() {
-                    Log.i(Default.TAG_DEBUG, "Fetching notifications");
-                    refreshNotificationRecyclerViewAdapter();
-                    handler.postDelayed(this, Default.NOTIFICATION_UPDATE_INTERVAL);
-                }
-            };
-            handler.postDelayed(r, Default.NOTIFICATION_UPDATE_INTERVAL);
+        CurrentUser.notificationsHandler = new Handler();
+        CurrentUser.notificationsRunnable = new Runnable() {
+            public void run() {
+                Log.i(Default.TAG_DEBUG, "Fetching notifications");
+                refreshNotificationRecyclerViewAdapter();
+                CurrentUser.notificationsHandler.postDelayed(this, Default.NOTIFICATION_UPDATE_INTERVAL);
+            }
+        };
+
+        CurrentUser.notificationsHandler.postDelayed(CurrentUser.notificationsRunnable, Default.NOTIFICATION_UPDATE_INTERVAL);
+
     }
 
     private static void refreshNotificationRecyclerViewAdapter() {

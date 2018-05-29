@@ -73,7 +73,11 @@
         <activity
             android:name=".activity.PrismPostDetailActivity"
             android:theme="@style/PullLayoutAppTheme" />
-        <activity android:name=".activity.NotificationSettingsActivity"
+        <activity
+            android:name=".activity.NotificationSettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.NoInternetActivity"
             android:screenOrientation="portrait" />
     </application>
 

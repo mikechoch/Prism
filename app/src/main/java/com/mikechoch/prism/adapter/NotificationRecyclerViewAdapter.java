@@ -29,6 +29,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Notification;
 
@@ -95,7 +96,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
             // Cloud database initializations
             auth = FirebaseAuth.getInstance();
-            postAuthorUserReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
+            postAuthorUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
             storageReference = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF);
             allPostsReference = Default.ALL_POSTS_REFERENCE;
 

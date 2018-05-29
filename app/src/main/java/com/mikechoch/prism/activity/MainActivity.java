@@ -1,11 +1,15 @@
 package com.mikechoch.prism.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +50,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.util.NetworkStateReceiver;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
@@ -62,7 +67,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
     /*
      * Globals
@@ -89,6 +94,8 @@ public class MainActivity extends FragmentActivity {
     private RelativeLayout uploadingImageRelativeLayout;
     private FloatingActionButton uploadImageFab;
     private ProgressBar imageUploadProgressBar;
+    private Snackbar networkSnackbar;
+    private NetworkStateReceiver networkStateReceiver;
 
     private Uri profilePictureUri;
     private Uri uploadedImageUri;
@@ -107,6 +114,8 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
         AndroidNetworking.initialize(getApplicationContext());
+        initializeNetworkListener();
+
         auth = FirebaseAuth.getInstance();
         storageReference = Default.STORAGE_REFERENCE;
         allPostsReference = Default.ALL_POSTS_REFERENCE;
@@ -153,6 +162,26 @@ public class MainActivity extends FragmentActivity {
         super.onBackPressed();
         finish();
     }
+
+
+    @Override
+    public void onNetworkConnected() {
+//        CurrentUser.refreshUserProfile(this);
+        if (networkSnackbar != null && networkSnackbar.isShownOrQueued()) {
+            networkSnackbar.dismiss();
+            networkSnackbar = null;
+        }
+    }
+
+    @Override
+    public void onNetworkDisconnected() {
+        CoordinatorLayout coordinatorLayout = findViewById(R.id.main_coordinate_layout);
+        networkSnackbar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
+                Snackbar.LENGTH_INDEFINITE);
+        networkSnackbar.show();
+        Helper.disableSnackbarSwipeDismiss(networkSnackbar.getView());
+    }
+
 
     /**
      * When a permission is allowed, this function will run and you can
@@ -216,6 +245,16 @@ public class MainActivity extends FragmentActivity {
             default:
                 break;
         }
+    }
+
+    /**
+     * Initializes listeners for network (wifi or data) and location
+     * Gets called first thing when app opens up
+     */
+    private void initializeNetworkListener() {
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     /**
@@ -605,4 +644,15 @@ public class MainActivity extends FragmentActivity {
     private String getFirebaseKey() {
         return getResources().getString(R.string.firebase_cloud_messaging_server_key);
     }
-}
+
+    /**
+     * onDestroy is a method that gets invoked when OS tries to kill the activity
+     * This is the last chance for app to finalize closing activities before app
+     * gets shut down
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
+    }}

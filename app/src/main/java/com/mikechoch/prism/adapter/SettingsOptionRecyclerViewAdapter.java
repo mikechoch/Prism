@@ -19,6 +19,7 @@ import com.mikechoch.prism.activity.EditUserProfileActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.Setting;
 
 /**
@@ -108,7 +109,10 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
                         case Default.SETTINGS_OPTION_ABOUT:
                             break;
                         case Default.SETTINGS_OPTION_LOGOUT:
-                            auth.signOut();
+                            // TODO @Mike: I perform signOut activities here (where I set a bunch of CurrentUser objects to null
+                            // Because they will be recreated after new user signs in. The app crashes after signOut is done
+                            // So either when context.startActivity() or context.finish()
+                            CurrentUser.performSignOut();
                             Intent loginIntent = new Intent(context, LoginActivity.class);
                             context.startActivity(loginIntent);
                             ((Activity) context).finish();
