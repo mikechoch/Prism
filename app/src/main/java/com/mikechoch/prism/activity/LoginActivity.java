@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -22,10 +24,20 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -55,15 +67,16 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPasswordHeaderTextView;
 
     private Button loginButton;
-
-    private TextView forgotPasswordTextView;
-    private TextView goToRegisterButton;
+    private Button forgotPasswordTextView;
+    private Button goToRegisterButton;
+    private SignInButton googleSignInButton;
 
     private ProgressBar loginProgressBar;
     private ProgressBar forgotPasswordProgressBar;
 
     private CustomAlertDialogBuilder resetPasswordAlertDialog;
 
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +93,105 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextInputLayout = findViewById(R.id.password_text_input_layout);
         passwordEditText = findViewById(R.id.password_edit_text);
         loginButton = findViewById(R.id.register_submit_button);
-        forgotPasswordTextView = findViewById(R.id.forgot_password_text_view);
-        goToRegisterButton = findViewById(R.id.register_text_view);
+        googleSignInButton = findViewById(R.id.google_sign_in_button);
+        forgotPasswordTextView = findViewById(R.id.forgot_password_button);
+        goToRegisterButton = findViewById(R.id.go_to_register_button);
         loginProgressBar = findViewById(R.id.login_progress_bar);
 
         setupUIElements();
+        buildGoogleSignInClient();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            RelativeLayout view = findViewById(R.id.login_relative_layout);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                String email = account.getEmail();
+                auth.fetchSignInMethodsForEmail(email).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().getSignInMethods().isEmpty()) {
+                                firebaseAuthWithGoogle(account);
+                            } else {
+                                Snackbar.make(view, "An account already exists with the email " + account.getEmail() + ". Please try to login using password or choose Forgot Password", Snackbar.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Log.e(Default.TAG_GOOGLE_CLIENT, "Unable to fetchSignInMethodsForEmail " + account.getEmail());
+                            Helper.toast(LoginActivity.this, "Failed to Sign in with Google");
+                        }
+                    }
+                });
+                //firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                // The ApiException status code indicates the detailed failure reason.
+                Log.e(Default.TAG_GOOGLE_CLIENT, "signInResult:failed code=" + e.getStatusCode());
+                e.printStackTrace();
+                Helper.toast(LoginActivity.this, "Failed to Sign in with Google");
+            }
+        }
+
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        auth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = auth.getCurrentUser();
+                            DatabaseReference usersReference = Default.USERS_REFERENCE.child(user.getUid());
+                            usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        // TODO LOGIN
+                                    } else {
+                                        // TODO create user in firebase
+                                        registerUser(user);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                            // TODO check if user exists in Database or not. If user does not exist in database, register the user else sign in
+                            // Before registering, check if user's email already exists
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.e(Default.TAG_GOOGLE_CLIENT, "signInWithCredential:failure", task.getException());
+                            Helper.toast(LoginActivity.this, "Failed to Sign in with Google", true);
+                            task.getException().printStackTrace();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
+    private void registerUser(FirebaseUser firebaseUser) {
+        
+
+
+    }
+
+    private void buildGoogleSignInClient() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestProfile()
+                .requestEmail()
+                .requestId()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     @Override
@@ -92,6 +199,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
     }
+
+    private void attemptLoginWithGoogle() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE);
+    }
+
 
     /**
      * Setup the image view at the top of the Login Default.screen
@@ -172,7 +285,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void sendResetPasswordEmail(String email, DialogInterface dialog) {
         forgotPasswordProgressBar.setVisibility(View.VISIBLE);
-        FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -246,8 +358,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 // If input is username, extract email from database
                 if (!isInputOfTypeEmail(emailOrUsername)) {
-                    DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(emailOrUsername);
-                    accountReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    DatabaseReference accountsReference = Default.ACCOUNT_REFERENCE.child(emailOrUsername);
+                    accountsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
@@ -297,6 +409,11 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setTypeface(Default.sourceSansProLight);
         forgotPasswordTextView.setTypeface(Default.sourceSansProLight);
         goToRegisterButton.setTypeface(Default.sourceSansProLight);
+        googleSignInButton.setSize(SignInButton.SIZE_WIDE);
+        googleSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
+
+        TextView googleSignInButtonTextView = ((TextView) googleSignInButton.getChildAt(0));
+        googleSignInButtonTextView.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
         setupEmailEditText();
@@ -304,6 +421,17 @@ public class LoginActivity extends AppCompatActivity {
         setupLoginButton();
         setupForgotPassword();
         setupGoToRegisterButton();
+        setupSignInWithGoogleButton();
+    }
+
+    private void setupSignInWithGoogleButton() {
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                googleSignInClient.signOut(); // TODO delete this
+                attemptLoginWithGoogle();
+            }
+        });
     }
 
     /**
@@ -325,25 +453,6 @@ public class LoginActivity extends AppCompatActivity {
     private void intentToMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         CurrentUser.prepareAppForUser(this, intent);
-
-        // TODO @Mike if you want to get iconImageView to do its shit, you can maybe pass it into `prepareAppForUser`
-//        Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
-//        ActivityOptionsCompat options = ActivityOptionsCompat.
-//                makeSceneTransitionAnimation(LoginActivity.this, iconImageView, "icon");
-//
-//        iconImageView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                startActivity(mainActivityIntent, options.toBundle());
-////                    overridePendingTransition(enterAnim, exitAnim);
-//                iconImageView.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        finish();
-//                    }
-//                }, 1000);
-//            }
-//        }, 250);
     }
 
     /**

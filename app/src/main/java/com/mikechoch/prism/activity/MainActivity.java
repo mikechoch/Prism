@@ -1,14 +1,12 @@
 package com.mikechoch.prism.activity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -190,12 +188,12 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA:
+            case Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // Code here for allowing write permission
                 }
                 break;
-            case Default.MY_PERMISSIONS_REQUEST_CAMERA:
+            case Default.MY_PERMISSIONS_CAMERA_REQUEST_CODE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // Code here for allowing write permission
                 }
@@ -642,7 +640,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     }
 
     private String getFirebaseKey() {
-        return getResources().getString(R.string.firebase_cloud_messaging_server_key);
+        return getString(R.string.firebase_cloud_messaging_server_key);
     }
 
     /**

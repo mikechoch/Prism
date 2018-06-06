@@ -2,12 +2,10 @@ package com.mikechoch.prism.activity;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,14 +19,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
@@ -43,7 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -147,14 +142,14 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA:
+            case Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     selectImageFromGallery();
                 } else {
                     super.onBackPressed();
                 }
                 break;
-            case Default.MY_PERMISSIONS_REQUEST_CAMERA:
+            case Default.MY_PERMISSIONS_CAMERA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     takePictureFromCamera();
                 } else {
@@ -249,7 +244,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     private void selectImageFromGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST);
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST_CODE);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
@@ -263,7 +258,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         File output = new File(dir, "image" + new Date().getTime() + ".jpeg");
         imageUriExtra = Uri.fromFile(output);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(output));
-        startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST);
+        startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST_CODE);
     }
 
     /**
@@ -271,7 +266,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
-            case Default.GALLERY_INTENT_REQUEST:
+            case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
                     Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
@@ -286,7 +281,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                     }
                 }
                 break;
-            case Default.CAMERA_INTENT_REQUEST:
+            case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
                     uploadedProfileImageView.setImageBitmap(bitmap);

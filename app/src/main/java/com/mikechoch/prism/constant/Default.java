@@ -32,15 +32,18 @@ public class Default {
     public static Typeface sourceSansProLight;
     public static Typeface sourceSansProBold;
 
-    // Permissions
-    public static final int MY_PERMISSIONS_REQUEST_WRITE_MEDIA = 200;
-    public static final int MY_PERMISSIONS_REQUEST_CAMERA = 201;
+    // Permissions Result Request Codes
+    public static final int MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE = 200;
+    public static final int MY_PERMISSIONS_CAMERA_REQUEST_CODE = 201;
 
-    // Intents
+    // Intent Request Codes
     public static final int IMAGE_UPLOAD_INTENT_REQUEST_CODE = 100;
     public static final int PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE = 101;
-    public static final int GALLERY_INTENT_REQUEST = 102;
-    public static final int CAMERA_INTENT_REQUEST = 103;
+    public static final int GALLERY_INTENT_REQUEST_CODE = 102;
+    public static final int CAMERA_INTENT_REQUEST_CODE = 103;
+
+    // Login Result Request Codes
+    public static final int SIGN_IN_WITH_GOOGLE_REQUEST_CODE = 300;
 
     public static final int DISPLAY_USERS_LIKE_CODE = 0;
     public static final int DISPLAY_USERS_REPOST_CODE = 1;
@@ -120,7 +123,8 @@ public class Default {
     public static final String BUTTON_REPORT = "REPORT";
 
     // Log Message Tags
-    public static final String TAG_DB = "Firebase Database";
+    public static final String TAG_DB = "FirebaseDatabase";
+    public static final String TAG_GOOGLE_CLIENT = "GoogleSignInClient";
     public static final String TAG_DEBUG = "Debug Output";
     public static final String TAG_NOTIFICATION = "Prism Notification";
 

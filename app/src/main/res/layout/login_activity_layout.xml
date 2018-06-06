@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/register_text_view"
+        android:layout_above="@id/bottom_activity_tab"
         android:background="@android:color/transparent"
         android:isScrollContainer="false">
 
@@ -92,46 +93,64 @@
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_selector" />
 
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_sign_in_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/register_submit_button"
+                android:layout_marginBottom="24dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp" />
+
             <ProgressBar
                 android:id="@+id/login_progress_bar"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/password_text_input_layout"
+                android:layout_below="@id/google_sign_in_button"
                 android:layout_marginTop="28dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="invisible"
                 android:indeterminate="true"
                 android:indeterminateDrawable="@drawable/circle_progress_foreground" />
 
-            <TextView
-                android:id="@+id/forgot_password_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="16dp"
-                android:layout_below="@id/login_progress_bar"
-                android:text="Forgot Password?"
-                android:textSize="18sp"
-                android:textColor="@android:color/white"
-                android:textAlignment="center" />
+
 
         </RelativeLayout>
 
     </ScrollView>
 
-    <TextView
-        android:id="@+id/register_text_view"
+    <!-- TODO @Mike please review below code -->
+    <LinearLayout
+        android:id="@+id/bottom_activity_tab"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Register"
-        android:textSize="18sp"
-        android:textColor="@android:color/white"
-        android:textAlignment="center" />
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/forgot_password_button"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:text="Forgot Password?"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:background="@drawable/button_selector_dark"/>
+
+        <Button
+            android:id="@+id/go_to_register_button"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:text="Register"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:background="@drawable/button_selector_dark"/>
+
+
+    </LinearLayout>
 
 </RelativeLayout>

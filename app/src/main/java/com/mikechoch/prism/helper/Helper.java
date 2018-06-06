@@ -62,10 +62,10 @@ public class Helper {
             int permissionRequestCode = -1;
             switch (permission) {
                 case Manifest.permission.WRITE_EXTERNAL_STORAGE:
-                    permissionRequestCode = Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA;
+                    permissionRequestCode = Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE;
                     break;
                 case Manifest.permission.CAMERA:
-                    permissionRequestCode = Default.MY_PERMISSIONS_REQUEST_CAMERA;
+                    permissionRequestCode = Default.MY_PERMISSIONS_CAMERA_REQUEST_CODE;
                     break;
             }
             if (permissionRequestCode != -1) {

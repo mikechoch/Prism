@@ -168,17 +168,17 @@ public class ImageUploadActivity extends AppCompatActivity {
     private void selectImageFromGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select an image"), Default.GALLERY_INTENT_REQUEST);
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select an image"), Default.GALLERY_INTENT_REQUEST_CODE);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
      * When an Activity is going to send back a result onActivityResult will tale responsibility
-     * GALLERY_INTENT_REQUEST: intents back a Gallery imageUri to be rotated and ready for upload
+     * GALLERY_INTENT_REQUEST_CODE: intents back a Gallery imageUri to be rotated and ready for upload
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
-            case Default.GALLERY_INTENT_REQUEST:
+            case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUri = data.getData();
                     Bitmap bitmap = null;

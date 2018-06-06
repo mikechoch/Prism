@@ -11,6 +11,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
@@ -54,6 +57,15 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isUserSignedIn() {
+        return FirebaseAuth.getInstance().getCurrentUser() != null ||
+                GoogleSignIn.getLastSignedInAccount(this) != null;
+    }
+
+    /**
      * AsyncTask for handling 1000ms delay on animation and then deciding if user is logged in
      * If logged in already go to MainActivity
      * Otherwise, go to LoginActivity
@@ -88,9 +100,10 @@ public class SplashActivity extends AppCompatActivity {
                     intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
                 }
             }
+            FirebaseAuth.getInstance().signOut(); // TODO delete this
 
-            boolean isSignedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
-            if (!isSignedIn) {
+//            if (!isUserSignedIn()) {
+            if (true) {
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
