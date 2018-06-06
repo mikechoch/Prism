@@ -321,7 +321,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             final GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
+                    Helper.intentToPrismPostDetailActivity(context, prismPost);
                     return true;
                 }
 

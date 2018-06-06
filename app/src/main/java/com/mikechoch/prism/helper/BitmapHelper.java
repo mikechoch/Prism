@@ -8,6 +8,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -18,6 +21,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
+import com.mikechoch.prism.constant.Default;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -26,6 +31,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class BitmapHelper {
+
+    private static float lumR = 0.3086f;
+    private static float lumG = 0.6094f;
+    private static float lumB = 0.0820f;
 
     /**
      *
@@ -158,21 +167,14 @@ public class BitmapHelper {
                 String tagOrientation = (String) tagOrientationField.get(null);
                 orientation = (Integer) getAttributeInt.invoke(exifInstance, new Object[] { tagOrientation, 1});
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
+        } catch (ClassNotFoundException |
+                SecurityException |
+                IllegalArgumentException |
+                NoSuchMethodException |
+                IllegalAccessException |
+                InstantiationException |
+                NoSuchFieldException |
+                InvocationTargetException e) {
             e.printStackTrace();
         }
 
@@ -374,4 +376,71 @@ public class BitmapHelper {
 
         return output;
     }
+
+    /**
+     *
+     * @param bitmap
+     * @param isHeight
+     * @param size
+     * @return
+     */
+    public static Bitmap scaleBitmap(Bitmap bitmap, boolean isHeight, float size) {
+        if (isHeight) {
+            int width = (int) (bitmap.getWidth() * (size / bitmap.getHeight()));
+            System.out.println(width);
+            return Bitmap.createScaledBitmap(bitmap, width, (int) size, true);
+        } else {
+            int height = (int) (bitmap.getHeight() * (size / bitmap.getWidth()));
+            return Bitmap.createScaledBitmap(bitmap, (int) size, height, true);
+        }
+    }
+
+    public static float[] createEditMatrix(float brightness, float contrast, float saturation) {
+        return new float[] {lumR * (contrast - saturation) + saturation, lumG * (contrast - saturation), lumB * (contrast - saturation), 0, brightness,
+                            lumR * (contrast - saturation), lumG * (contrast - saturation) + saturation, lumB * (contrast - saturation), 0, brightness,
+                            lumR * (contrast - saturation), lumG * (contrast - saturation), lumB * (contrast - saturation) + saturation, 0, brightness,
+                            0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 1};
+    }
+
+    /**
+     *
+     * @param brightness
+     * @return
+     */
+    public static float[] createBrightnessMatrix(float brightness) {
+        return new float[] {1, 0, 0, 0, brightness,
+                            0, 1, 0, 0, brightness,
+                            0, 0, 1, 0, brightness,
+                            0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 1};
+    }
+
+    /**
+     *
+     * @param contrast
+     * @return
+     */
+    public static float[] createContrastMatrix(float contrast) {
+        return new float[] {contrast, 0, 0, 0, 0,
+                            0, contrast, 0, 0, 0,
+                            0, 0, contrast, 0, 0,
+                            0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 1};
+    }
+
+
+    /**
+     *
+     * @param saturation
+     * @return
+     */
+    public static float[] createSaturationMatrix(float saturation) {
+        return new float[] {lumR * (1 - saturation) + saturation, lumG * (1 - saturation), lumB * (1 - saturation), 0, 0,
+                            lumR * (1 - saturation), lumG * (1 - saturation) + saturation, lumB * (1 - saturation), 0, 0,
+                            lumR * (1 - saturation), lumG * (1 - saturation), lumB * (1 - saturation) + saturation, 0, 0,
+                            0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 1};
+    }
+
 }

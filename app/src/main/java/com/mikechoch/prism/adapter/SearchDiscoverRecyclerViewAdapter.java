@@ -182,7 +182,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 prismPostImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Helper.intentToPrismPostDetailActivity(context, prismPost, prismPostImageView);
+                        Helper.intentToPrismPostDetailActivity(context, prismPost);
                     }
                 });
 

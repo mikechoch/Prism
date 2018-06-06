@@ -25,22 +25,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical">
 
-                <TextView
-                    android:id="@+id/toolbar_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="Update profile picture"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"/>
-
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
+                    android:gravity="center"
                     android:layout_marginEnd="16dp"
                     android:orientation="horizontal">
 
@@ -51,14 +41,26 @@
                         android:layout_marginEnd="16dp"
                         android:cropToPadding="false"
                         android:src="@drawable/ic_image_white_48dp"
+                        android:scaleType="fitCenter"
                         android:background="?selectableItemBackgroundBorderless" />
 
                     <ImageView
                         android:id="@+id/upload_image_toolbar_camera_button"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
+                        android:layout_marginEnd="16dp"
                         android:cropToPadding="false"
                         android:src="@drawable/ic_camera_white_48dp"
+                        android:scaleType="fitCenter"
+                        android:background="?selectableItemBackgroundBorderless" />
+
+                    <ImageView
+                        android:id="@+id/upload_image_toolbar_restart_button"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:cropToPadding="false"
+                        android:src="@drawable/ic_restart_white_48dp"
+                        android:scaleType="fitCenter"
                         android:background="?selectableItemBackgroundBorderless" />
 
                 </LinearLayout>
@@ -92,13 +94,16 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:clipChildren="true"
+                android:clipToPadding="true"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical">
 
                 <com.theartofdev.edmodo.cropper.CropImageView
                     android:id="@+id/uploaded_profile_crop_image_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_height="match_parent"
                     android:cropToPadding="true"
                     android:scaleType="fitCenter"
                     android:elevation="6dp"
