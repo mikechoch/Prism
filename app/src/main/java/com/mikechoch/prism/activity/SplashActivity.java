@@ -1,24 +1,10 @@
 package com.mikechoch.prism.activity;
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -30,9 +16,6 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * Created by mikechoch on 1/21/18.

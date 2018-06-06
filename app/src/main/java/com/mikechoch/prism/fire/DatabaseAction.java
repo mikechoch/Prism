@@ -152,8 +152,6 @@ public class DatabaseAction {
      * USER_LIKES and USER_REPOSTS section. Then the post is deleted under
      * USER_UPLOADS for the post owner. And then the post itself is
      * deleted from ALL_POSTS. Finally, the mainRecyclerViewAdapter is refreshed
-     * TODO: Fix the crashing bug when prismPost is null
-     * TODO: Remove prismPost under TAGS when post is deleted
      */
     public static void deletePost(PrismPost prismPost) {
         FirebaseStorage.getInstance().getReferenceFromUrl(prismPost.getImage())
@@ -169,21 +167,20 @@ public class DatabaseAction {
                             if (postSnapshot.exists()) {
 
                                 DeleteHelper.deleteLikedUsers(postSnapshot, prismPost);
+
                                 DeleteHelper.deleteRepostedUsers(postSnapshot, prismPost);
 
-                                usersReference.child(prismPost.getPrismUser().getUid())
-                                        .child(Key.DB_REF_USER_UPLOADS)
-                                        .child(postId).removeValue();
+                                DeleteHelper.deletePostFromUserUploads(prismPost);
 
-                                allPostsReference.child(postId).removeValue();
+                                DeleteHelper.deletePostFromAllPosts(prismPost);
 
-                                ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
-                                for (String hashTag : listOfHashTags) {
-                                    tagsReference.child(hashTag).removeValue();
-                                }
+                                DeleteHelper.deletePostUnderItsHashTags(prismPost);
+
+                                DeleteHelper.deletePostRelatedNotifications(prismPost);
 
                                 CurrentUser.deletePost(prismPost);
 
+                                // Update UI after the post is deleted
                                 PrismPostRecyclerViewAdapter.prismPostArrayList.remove(prismPost);
                                 refreshMainRecyclerViewAdapter();
 
@@ -457,6 +454,11 @@ public class DatabaseAction {
         currentUserReference.child(Key.USER_TOKEN).setValue(firebaseToken);
     }
 
+    /**
+     *
+     * @param context
+     * @param prismPost
+     */
     public static void reportPost(Context context, PrismPost prismPost) {
         DatabaseReference contentReviewReference = Default.CONTENT_REVIEW_REFERENCE;
         contentReviewReference
@@ -516,6 +518,47 @@ class DeleteHelper {
                         .removeValue();
             }
         }
+    }
+
+    static void deletePostFromUserUploads(PrismPost prismPost) {
+        usersReference.child(prismPost.getPrismUser().getUid())
+                .child(Key.DB_REF_USER_UPLOADS)
+                .child(prismPost.getPostId()).removeValue();
+    }
+
+    static void deletePostUnderItsHashTags(PrismPost prismPost) {
+        ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+        DatabaseReference tagsReference = Default.TAGS_REFERENCE;
+
+        for (String hashTag : listOfHashTags) {
+            tagsReference.child(hashTag).removeValue();
+        }
+    }
+
+    static void deletePostRelatedNotifications(PrismPost prismPost) {
+
+        usersReference.child(prismPost.getPrismUser().getUid())
+            .child(Key.DB_REF_USER_NOTIFICATIONS).orderByKey().startAt(prismPost.getPostId())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot notifSnapshot : dataSnapshot.getChildren()) {
+                            notifSnapshot.getRef().removeValue();
+                        }
+                    }
+                }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    static void deletePostFromAllPosts(PrismPost prismPost) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference.child(prismPost.getPostId()).removeValue();
     }
 
 }

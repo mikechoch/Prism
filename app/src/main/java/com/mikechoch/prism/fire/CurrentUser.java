@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
@@ -14,15 +16,18 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.NoInternetActivity;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +52,11 @@ public class CurrentUser {
     public static UserPreference preference;
 
     public static ArrayList<PrismPost> news_feed;
+
+    public static DatabaseReference notificationsReference;
+    public static ChildEventListener notificationsListener;
+    public static Handler notificationsHandler;
+    public static Runnable notificationsRunnable;
 
     /**
      * Key: String postId
@@ -89,7 +99,14 @@ public class CurrentUser {
     }
 
     public static void prepareAppForUser(Context context, Intent intent) {
-        new CurrentUser(context, intent);
+        if (Helper.isNetworkAvailable(context)) {
+            new CurrentUser(context, intent);
+        } else {
+            Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
+            context.startActivity(noInternetIntent);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            ((Activity) context).finish();
+        }
     }
 
     /**
@@ -263,7 +280,11 @@ public class CurrentUser {
         notifications_map = new HashMap<>();
         notifications = new ArrayList<>();
 
-        DatabaseAction.fetchUserProfile(context, intent);
+
+
+        if (Helper.isNetworkAvailable(context)) {
+            DatabaseAction.fetchUserProfile(context, intent);
+        }
     }
 
     public static void refreshUserProfile(Context context) {
@@ -378,6 +399,7 @@ public class CurrentUser {
         if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
             MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
             updateUserProfileFragmentUI(context);
+            DiscoverController.setupDiscoverContent(context);
         } else {
             Intent[] intents;
             Intent mainIntent = new Intent(context, MainActivity.class);
@@ -390,6 +412,21 @@ public class CurrentUser {
             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             ((Activity) context).finish();
         }
+
+    }
+
+    public static void performSignOut() {
+       CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);
+       CurrentUser.notificationsHandler.removeCallbacks(CurrentUser.notificationsRunnable);
+
+       CurrentUser.firebaseUser = null;
+       CurrentUser.prismUser = null;
+       CurrentUser.preference = null;
+
+       FirebaseAuth.getInstance().signOut();
+
+//       CurrentUser.news_feed = null;  // TODO should do this?
+
 
     }
 

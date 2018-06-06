@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +18,7 @@ import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -361,6 +365,27 @@ public class Helper {
         galleryImageUploadIntent.putExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, profilePictureType);
         ((Activity) context).startActivityForResult(galleryImageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    /**
+     * Disables the snackBar dismiss on swipe to right
+     */
+    public static void disableSnackbarSwipeDismiss(final View snackBarView) {
+        snackBarView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                snackBarView.getViewTreeObserver().removeOnPreDrawListener(this);
+                ((CoordinatorLayout.LayoutParams) snackBarView.getLayoutParams()).setBehavior(null);
+                return true;
+            }
+        });
     }
 
 }

@@ -46,4 +46,7 @@ public class Message {
       // Toast messages
       public static final String CANNOT_REPOST_OWN_POST = "You cannot repost your own post";
 
+      // Snackbar messages
+      public static final String NO_INTERNET = "Network unavailable. Some app funct";
+
 }
