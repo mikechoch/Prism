@@ -6,6 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -30,9 +35,11 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.FileChooser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.user_interface.BitmapEditingControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,8 +62,9 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     private TextView toolbarTextView;
     private ImageView toolbarGalleryButton;
     private ImageView toolbarCameraButton;
+    private ImageView toolbarRestartButton;
     private LinearLayout uploadedProfileImageViewLinearLayout;
-    private CropImageView uploadedProfileImageView;
+    public static CropImageView uploadedProfileImageView;
     private BitmapEditingControllerLayout bitmapEditingControllerLayout;
     private TabLayout bitmapEditingControllerTabLayout;
     private Button saveButton;
@@ -64,6 +72,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
 
     private Uri imageUriExtra;
     private File output;
+    private Bitmap outputBitmap;
 
 
     @Override
@@ -95,6 +104,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         toolbarTextView = findViewById(R.id.toolbar_text_view);
         toolbarGalleryButton = findViewById(R.id.upload_image_toolbar_gallery_button);
         toolbarCameraButton = findViewById(R.id.upload_image_toolbar_camera_button);
+        toolbarRestartButton = findViewById(R.id.upload_image_toolbar_restart_button);
         uploadedProfileImageViewLinearLayout = findViewById(R.id.uploaded_profile_crop_image_view_limiter);
         uploadedProfileImageView = findViewById(R.id.uploaded_profile_crop_image_view);
         bitmapEditingControllerLayout = findViewById(R.id.uploaded_profile_picture_bitmap_editing_controller_layout);
@@ -129,13 +139,32 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             }
         });
 
+        toolbarRestartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadedProfileImageView.setImageBitmap(outputBitmap);
+
+                bitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
+                bitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
+                bitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+
+                bitmapEditingControllerLayout.isAdjusting = false;
+                bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+            }
+        });
+
         uploadedProfileImageViewLinearLayout.getLayoutParams().height = (int) (Default.screenHeight * 0.5);
     }
 
     @Override
     public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        if (bitmapEditingControllerLayout.isAdjusting) {
+            bitmapEditingControllerLayout.isAdjusting = false;
+            bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+        } else {
+            finish();
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
     }
 
     @Override
@@ -168,20 +197,6 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     }
 
     /**
-     * When the ImageView holding the cropped image is clicked, Gallery is opened
-     * Select a new image to crop for profile picture
-     */
-    private void setupUploadedProfileImageView() {
-        uploadedProfileImageView.setForeground(getResources().getDrawable(R.drawable.image_upload_selector));
-        uploadedProfileImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectImageFromGallery();
-            }
-        });
-    }
-
-    /**
      * Setup saveButton, so once an image is selected and cropped it will return the Profile
      * The cropped image will be stored in the cloud under the user and replaced in the app UIs
      */
@@ -209,10 +224,8 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         setupToolbar();
 
         // Setup Typefaces for all text based UI elements
-        toolbarTextView.setTypeface(Default.sourceSansProBold);
         saveButton.setTypeface(Default.sourceSansProLight);
 
-        setupUploadedProfileImageView();
         setupSaveButton();
     }
 
@@ -265,16 +278,13 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
      *
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case Default.GALLERY_INTENT_REQUEST_CODE:
+        switch (requestCode) {
+            case Default.GALLERY_INTENT_REQUEST:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
-                    Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
-                    uploadedProfileImageView.setImageBitmap(bitmap);
+                    outputBitmap = createBitmapFromImageUri(imageUriExtra);
+                    populatePreviewImageView(outputBitmap);
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-                    bitmapEditingControllerLayout.setupFilterController(bitmap);
                 } else {
                     if (uploadedProfileImageView.getCroppedImage() == null) {
                         super.onBackPressed();
@@ -283,12 +293,9 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                 break;
             case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    Bitmap bitmap = createBitmapFromImageUri(imageUriExtra);
-                    uploadedProfileImageView.setImageBitmap(bitmap);
+                    outputBitmap = createBitmapFromImageUri(imageUriExtra);
+                    populatePreviewImageView(outputBitmap);
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-                    bitmapEditingControllerLayout.setupFilterController(bitmap);
                 } else {
                     if (uploadedProfileImageView.getCroppedImage() == null) {
                         super.onBackPressed();
@@ -296,6 +303,29 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    /**
+     *
+     * @param bitmap
+     */
+    private void populatePreviewImageView(Bitmap bitmap) {
+        float maxHeight = Default.screenHeight * 0.5f;
+        Bitmap tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
+        bitmapEditingControllerLayout.alteredBitmap = tempBitmap.copy(tempBitmap.getConfig(), true);
+        bitmapEditingControllerLayout.bitmapPreview = tempBitmap.copy(tempBitmap.getConfig(), true);
+        uploadedProfileImageView.setImageBitmap(bitmapEditingControllerLayout.alteredBitmap);
+
+        maxHeight = 56 * Default.scale;
+        tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
+        bitmapEditingControllerLayout.setupFilterController(tempBitmap.copy(tempBitmap.getConfig(), true));
+
+        bitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
+        bitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
+        bitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+
+        bitmapEditingControllerLayout.isAdjusting = false;
+        bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
     }
 
     /**

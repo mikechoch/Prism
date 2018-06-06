@@ -382,7 +382,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * ZoomControlLinearLayout is setup for the ImageView, which controls all zoom functionality
      */
     private void setupPrismPostImageView() {
-        supportStartPostponedEnterTransition();
         populatePrismPostImageView();
 
         detailZoomControlLinearLayout.addContext(this);
@@ -402,7 +401,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                 .listener(new RequestListener<Bitmap>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                        startPostponedEnterTransition();
                         return false;
                     }
 
@@ -450,7 +448,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                         collapsingToolbarLayoutLayoutParams.setScrollFlags(isScrollImage ? scrollFlags : noScrollFlags);
                         collapsingToolbarLayout.setLayoutParams(collapsingToolbarLayoutLayoutParams);
 
-                        startPostponedEnterTransition();
                         return false;
                     }
                 })

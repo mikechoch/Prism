@@ -128,7 +128,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                     switch (notification.getType()) {
                         case LIKE:
                         case REPOST:
-                            Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost(), null);
+                            Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
                             break;
                         case FOLLOW:
                             Helper.intentToUserProfileActivity(context, notification.getMostRecentUser());
@@ -235,7 +235,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             prismPostThumbnailImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost(), null);
+                    Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
                 }
             });
         }

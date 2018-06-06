@@ -24,6 +24,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,18 +122,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
             userPostImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-
-                    prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_EXTRA, prismPost);
-                    prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA, ViewCompat.getTransitionName(userPostImageView));
-
-                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                            (Activity) context,
-                            userPostImageView,
-                            ViewCompat.getTransitionName(userPostImageView));
-
-                    context.startActivity(prismPostDetailIntent, options.toBundle());
-//                    ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    Helper.intentToPrismPostDetailActivity(context, prismPost);
                 }
             });
         }

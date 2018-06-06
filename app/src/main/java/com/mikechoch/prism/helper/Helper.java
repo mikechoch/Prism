@@ -335,24 +335,11 @@ public class Helper {
      * Intent from the current clicked PrismPost to the PrismPostDetail
      * @param context
      * @param prismPost
-     * @param prismPostImageView
      */
-    public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost, ImageView prismPostImageView) {
+    public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost) {
         Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
         prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_EXTRA, prismPost);
-
-        ActivityOptionsCompat options = null;
-        if (prismPostImageView != null) {
-            prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA, ViewCompat.getTransitionName(prismPostImageView));
-
-            options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    (Activity) context,
-                    prismPostImageView,
-                    ViewCompat.getTransitionName(prismPostImageView));
-
-        }
-
-        context.startActivity(prismPostDetailIntent, options != null ? options.toBundle() : null);
+        context.startActivity(prismPostDetailIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 

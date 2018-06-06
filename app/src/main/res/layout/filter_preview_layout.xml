@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/filter_preview_linear_layout"
     android:layout_width="52dp"
     android:layout_height="wrap_content"
@@ -19,7 +20,8 @@
     <android.support.v7.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp">
+        android:layout_margin="8dp"
+        app:cardBackgroundColor="@android:color/white">
 
         <ImageView
             android:id="@+id/filter_preview_image_view"
