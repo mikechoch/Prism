@@ -279,7 +279,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case Default.GALLERY_INTENT_REQUEST:
+            case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
                     outputBitmap = createBitmapFromImageUri(imageUriExtra);

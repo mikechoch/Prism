@@ -208,13 +208,6 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Generate a random Default profile picture
-     */
-    private String generateDefaultProfilePic() {
-        // TODO @mike this '10' should be replaced with DefaultProfilePictures.values().length right?c
-        return String.valueOf(new Random().nextInt(10));
-    }
 
     /**
      * Setup the register button
@@ -262,7 +255,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         DatabaseReference profileReference = usersDatabaseRef.child(uid);
                                         profileReference.child(Key.USER_PROFILE_FULL_NAME).setValue(fullName);
                                         profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
-                                        profileReference.child(Key.USER_PROFILE_PIC).setValue(generateDefaultProfilePic());
+                                        profileReference.child(Key.USER_PROFILE_PIC).setValue(ProfileHelper.generateDefaultProfilePic());
 
                                         DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
                                         notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);

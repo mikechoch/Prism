@@ -3,6 +3,7 @@ package com.mikechoch.prism.helper;
 import android.support.design.widget.TextInputLayout;
 import android.util.Patterns;
 
+import java.util.Random;
 import java.util.regex.Pattern;
 
 public class ProfileHelper {
@@ -118,6 +119,14 @@ public class ProfileHelper {
             passwordTextInputLayout.setError("Password must be at least 6 characters long");
             return false;
         }
+    }
+
+    /**
+     * Generate a random Default profile picture
+     */
+    public static String generateDefaultProfilePic() {
+        // TODO @mike this '10' should be replaced with DefaultProfilePictures.values().length right?c
+        return String.valueOf(new Random().nextInt(10));
     }
 
 }

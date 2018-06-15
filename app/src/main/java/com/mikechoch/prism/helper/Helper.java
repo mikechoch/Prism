@@ -20,6 +20,7 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -386,6 +387,12 @@ public class Helper {
                 return true;
             }
         });
+    }
+
+    /* TODO use this */
+    public static void toggleProgressBar(ProgressBar progressBar, boolean showProgressBar) {
+        int visibility = showProgressBar ? View.VISIBLE : View.GONE;
+        progressBar.setVisibility(visibility);
     }
 
 }

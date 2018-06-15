@@ -100,10 +100,8 @@ public class SplashActivity extends AppCompatActivity {
                     intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
                 }
             }
-            FirebaseAuth.getInstance().signOut(); // TODO delete this
 
-//            if (!isUserSignedIn()) {
-            if (true) {
+            if (!isUserSignedIn()) {
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);

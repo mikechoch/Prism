@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -38,15 +37,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class LoginActivity extends AppCompatActivity {
@@ -58,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     
     private ImageView iconImageView;
 
-    private TextInputLayout emailTextInputLayout;
+    private TextInputLayout emailOrUsernameTextInputLayout;
     private EditText emailOrUsernameEditText;
     private TextInputLayout passwordTextInputLayout;
     private EditText passwordEditText;
@@ -88,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
-        emailTextInputLayout = findViewById(R.id.email_text_input_layout);
+        emailOrUsernameTextInputLayout = findViewById(R.id.email_text_input_layout);
         emailOrUsernameEditText = findViewById(R.id.email_edit_text);
         passwordTextInputLayout = findViewById(R.id.password_text_input_layout);
         passwordEditText = findViewById(R.id.password_edit_text);
@@ -119,7 +121,9 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.getResult().getSignInMethods().isEmpty()) {
                                 firebaseAuthWithGoogle(account);
                             } else {
-                                Snackbar.make(view, "An account already exists with the email " + account.getEmail() + ". Please try to login using password or choose Forgot Password", Snackbar.LENGTH_SHORT).show();
+                                if (task.getResult().getSignInMethods().get(0).equalsIgnoreCase("google.com")) {
+                                    Snackbar.make(view, "An account already exists with the email " + account.getEmail(), Snackbar.LENGTH_LONG).show();
+                                }
                             }
                         } else {
                             Log.e(Default.TAG_GOOGLE_CLIENT, "Unable to fetchSignInMethodsForEmail " + account.getEmail());
@@ -145,16 +149,16 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = auth.getCurrentUser();
-                            DatabaseReference usersReference = Default.USERS_REFERENCE.child(user.getUid());
-                            usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            FirebaseUser firebaseUser = auth.getCurrentUser();
+                            DatabaseReference userReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
+                            userReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.exists()) {
+                                public void onDataChange(DataSnapshot userSnapshot) {
+                                    if (userSnapshot.exists()) {
                                         // TODO LOGIN
                                     } else {
-                                        // TODO create user in firebase
-                                        registerUser(user);
+                                        // TODO create firebaseUser in firebase
+                                        registerUser(firebaseUser);
                                     }
                                 }
 
@@ -163,8 +167,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                 }
                             });
-                            // TODO check if user exists in Database or not. If user does not exist in database, register the user else sign in
-                            // Before registering, check if user's email already exists
+                            // TODO check if firebaseUser exists in Database or not. If firebaseUser does not exist in database, register the firebaseUser else sign in
+                            // Before registering, check if firebaseUser's email already exists
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -178,8 +182,82 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+
+    private void askUserForUsername(FirebaseUser firebaseUser) {
+        View chooseUsernameView = getLayoutInflater().inflate(R.layout.choose_username_alert_dialog_layout, null);
+        RelativeLayout chooseUsernameRelativeLayout = chooseUsernameView.findViewById(R.id.choose_username_alert_dialog_relative_layout);
+
+        TextView chooseUsernameHeaderTextView = chooseUsernameView.findViewById(R.id.choose_username_header_text_view);
+        TextInputLayout chooseUsernameTextInputLayout = chooseUsernameView.findViewById(R.id.choose_username_text_input_layout);
+        EditText chooseUsernameEditText = chooseUsernameView.findViewById(R.id.choose_username_edit_text);
+        ProgressBar chooseUsernameProgressBar = chooseUsernameView.findViewById(R.id.choose_username_progress_bar);
+
+        chooseUsernameHeaderTextView.setTypeface(Default.sourceSansProLight);
+        chooseUsernameTextInputLayout.setTypeface(Default.sourceSansProLight);
+        chooseUsernameEditText.setTypeface(Default.sourceSansProLight);
+
+        CustomAlertDialogBuilder chooseUsernameAlertDialog = new CustomAlertDialogBuilder(this, chooseUsernameRelativeLayout);
+        chooseUsernameAlertDialog.setView(chooseUsernameView);
+        chooseUsernameAlertDialog.setIsCancelable(true);
+        chooseUsernameAlertDialog.setCanceledOnTouchOutside(false);
+        chooseUsernameAlertDialog.setPositiveButton(Default.BUTTON_SUBMIT, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                chooseUsernameProgressBar.setVisibility(View.VISIBLE);
+
+                // Register firebaseUser -- TODO This is almost same as the one in register activity, so Generify it
+                String uid = firebaseUser.getUid();
+                String email = firebaseUser.getEmail();
+                String username = Helper.getFirebaseEncodedUsername(email.split("@")[0]);
+                UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                firebaseUser.updateProfile(profile);
+
+                DatabaseReference usersReference = Default.USERS_REFERENCE;
+                DatabaseReference profileReference = usersReference.child(uid);
+                profileReference.child(Key.USER_PROFILE_FULL_NAME).setValue(firebaseUser.getDisplayName());
+                profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
+
+                String profilePic = ProfileHelper.generateDefaultProfilePic();
+                if (firebaseUser.getPhotoUrl() != null) {
+                    profilePic = firebaseUser.getPhotoUrl().toString();
+                }
+                profileReference.child(Key.USER_PROFILE_PIC).setValue(profilePic);
+
+                DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
+                notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);
+                notificationPreference.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).setValue(true);
+                notificationPreference.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).setValue(true);
+
+                DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(username);
+                accountReference.setValue(email);
+
+                intentToMainActivity();
+
+
+            }
+        }).setNegativeButton(Default.BUTTON_CANCEL, null)
+          .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        chooseUsernameProgressBar.setVisibility(View.GONE);
+                    }
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) { }
+        });
+
+        chooseUsernameAlertDialog.show();
+    }
+
+
+    /**
+     * TODO Clean this up
+     * @param firebaseUser
+     */
     private void registerUser(FirebaseUser firebaseUser) {
-        
+        askUserForUsername(firebaseUser);
+
+
 
 
     }
@@ -227,7 +305,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                emailTextInputLayout.setErrorEnabled(false);
+                emailOrUsernameTextInputLayout.setErrorEnabled(false);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -321,6 +399,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String email = resetEmailEditText.getText().toString();
+                // TODO: Check if email is valid or not before sending the email
                 sendResetPasswordEmail(email, dialog);
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null)
@@ -366,7 +445,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String email = (String) dataSnapshot.getValue();
                                 attemptLogin(email, password);
                             } else {
-                                emailTextInputLayout.setError("Username not found");
+                                emailOrUsernameTextInputLayout.setError("Username not found");
                                 toggleLoginProgressBar(false);
                             }
                         }
@@ -402,7 +481,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void setupUIElements() {
         // Setup Typefaces for all text based UI elements
-        emailTextInputLayout.setTypeface(Default.sourceSansProLight);
+        emailOrUsernameTextInputLayout.setTypeface(Default.sourceSansProLight);
         emailOrUsernameEditText.setTypeface(Default.sourceSansProLight);
         passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
         passwordEditText.setTypeface(Default.sourceSansProLight);
@@ -428,7 +507,6 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                googleSignInClient.signOut(); // TODO delete this
                 attemptLoginWithGoogle();
             }
         });
@@ -488,11 +566,11 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Email/Username validation check
      */
-    private boolean isEmailOrUsernameValid(String email) {
-        boolean isValid = (Patterns.EMAIL_ADDRESS.matcher(email).matches()) ||
-                (email.length() >=  5 && email.length() <= 30);
+    private boolean isEmailOrUsernameValid(String emailOrUsername) {
+        boolean isValid = (Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) ||
+                (emailOrUsername.length() >=  5 && emailOrUsername.length() <= 30);
         if (!isValid) {
-           emailTextInputLayout.setError("Invalid username/email");
+           emailOrUsernameTextInputLayout.setError("Invalid username/email");
         }
         return isValid;
     }
