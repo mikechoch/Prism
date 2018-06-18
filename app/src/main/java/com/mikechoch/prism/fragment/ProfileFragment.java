@@ -125,7 +125,9 @@ public class ProfileFragment extends Fragment {
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (!CurrentUser.prismUser.getProfilePicture().isDefault) {
+                        if (CurrentUser.prismUser != null
+                                && CurrentUser.prismUser.getProfilePicture() != null
+                                && !CurrentUser.prismUser.getProfilePicture().isDefault) {
                             int whiteOutlinePadding = (int) (1 * Default.scale);
                             userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
                             userProfileImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));

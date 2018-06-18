@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -37,8 +40,10 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.TimeUnit;
 import com.mikechoch.prism.fire.CurrentUser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -365,6 +370,30 @@ public class Helper {
         galleryImageUploadIntent.putExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, profilePictureType);
         ((Activity) context).startActivityForResult(galleryImageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Create an Intent to ask user to select a image they would like to upload
+     */
+    public static void selectImageFromGallery(Context context) {
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        ((Activity) context).startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Create an Intent to ask user to take a picture with the phone's camera
+     * Also prepares a file to save the image
+     */
+    public static Uri takePictureFromCamera(Context context) {
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File output = new File(dir, "image" + new Date().getTime() + ".jpeg");
+        Uri imageUriExtra = Uri.fromFile(output);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(output));
+        ((Activity) context).startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST);
+        return imageUriExtra;
     }
 
     public static boolean isNetworkAvailable(Context context) {

@@ -29,6 +29,7 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.type.Filter;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 public class BitmapEditingControllerLayout extends RelativeLayout {
 
@@ -40,6 +41,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     public LinearLayout bitmapEditingControllerFilterLinearLayout;
     private LinearLayout bitmapEditingControllerEditingLinearLayout;
     public static LinearLayout filterEditingSeekBarLinearLayout;
+    private CropImageView cropImageView;
     private SeekBar filterEditingSeekBar;
     private TextView filterEditingTextView;
     private TabLayout bitmapEditingControllerTabLayout;
@@ -104,20 +106,8 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                     filterEditingTextView.setText(String.valueOf(progress - 100));
 
                     if (isFilter) {
-                        switch (currentFilter) {
-                            case NORMAL:
-
-                                break;
-                            case SHADE:
-
-                                break;
-                            case COLORLESS:
-
-                                break;
-                            case COLORFUL:
-
-                                break;
-                        }
+                        // If you ever want to add filter adjustment it goes here
+                        // Add an OnClick for second filter click
                     } else {
                         switch (currentEdit) {
                             case BRIGHTNESS:
@@ -161,7 +151,8 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     /**
      *
      */
-    private void applyEffectsToBitmap() {
+    private void
+    applyEffectsToBitmap() {
         modifiedBitmap = bitmapPreview.copy(bitmapPreview.getConfig(), true);
 
         Canvas canvas = new Canvas(modifiedBitmap);
@@ -173,7 +164,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
         canvas.drawBitmap(modifiedBitmap, matrix, paint);
 
-        ProfilePictureUploadActivity.uploadedProfileImageView.setImageBitmap(modifiedBitmap);
+        cropImageView.setImageBitmap(modifiedBitmap);
     }
 
     /**
@@ -190,17 +181,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             filterPreviewImageView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (currentFilter.equals(filter)) {
-                        if (!filter.equals(Filter.NORMAL)) {
-                            isAdjusting = true;
-                            filterEditingSeekBarLinearLayout.setVisibility(View.VISIBLE);
-
-                            filterEditingSeekBar.setProgress(100);
-                            filterEditingTextView.setText("0");
-
-                            // TODO: allow adjusting based on percentage of seek bar
-                        }
-                    } else {
+                    if (!currentFilter.equals(filter)) {
                         CardView.LayoutParams filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
                         filterPreviewLayoutParams.setMargins((int) (0 * Default.scale), (int) (0 * Default.scale), (int) (0 * Default.scale), (int) (0 * Default.scale));
                         currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
@@ -282,7 +263,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                     paint.setColorFilter(new ColorMatrixColorFilter(cm));
                     canvas.drawBitmap(modifiedBitmap, matrix, paint);
 
-                    ProfilePictureUploadActivity.uploadedProfileImageView.setImageBitmap(modifiedBitmap);
+                    cropImageView.setImageBitmap(modifiedBitmap);
                 }
             });
             editFabTextView.setText(edit.getTitle());
@@ -357,4 +338,11 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             }
         });
     }
+
+    public void attachCropImageView(CropImageView cropImageView) {
+        this.cropImageView = cropImageView;
+
+    }
+
+
 }

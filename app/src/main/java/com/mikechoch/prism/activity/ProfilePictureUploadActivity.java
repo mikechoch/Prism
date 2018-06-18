@@ -5,12 +5,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -28,25 +22,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
-import com.mikechoch.prism.helper.FileChooser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.user_interface.BitmapEditingControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -60,13 +47,12 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
      */
 
     private Toolbar toolbar;
-    private TextView toolbarTextView;
     private ImageView toolbarGalleryButton;
     private ImageView toolbarCameraButton;
     private ImageView toolbarRestartButton;
     private LinearLayout uploadedProfileImageViewLinearLayout;
     public static CropImageView uploadedProfileImageView;
-    private BitmapEditingControllerLayout bitmapEditingControllerLayout;
+    private BitmapEditingControllerLayout profilePictureBitmapEditingControllerLayout;
     private TabLayout bitmapEditingControllerTabLayout;
     private Button saveButton;
     private ProgressBar uploadProfilePictureProgressBar;
@@ -102,18 +88,18 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
-        toolbarTextView = findViewById(R.id.toolbar_text_view);
         toolbarGalleryButton = findViewById(R.id.upload_image_toolbar_gallery_button);
         toolbarCameraButton = findViewById(R.id.upload_image_toolbar_camera_button);
         toolbarRestartButton = findViewById(R.id.upload_image_toolbar_restart_button);
         uploadedProfileImageViewLinearLayout = findViewById(R.id.uploaded_profile_crop_image_view_limiter);
         uploadedProfileImageView = findViewById(R.id.uploaded_profile_crop_image_view);
-        bitmapEditingControllerLayout = findViewById(R.id.uploaded_profile_picture_bitmap_editing_controller_layout);
+        profilePictureBitmapEditingControllerLayout = findViewById(R.id.uploaded_profile_picture_bitmap_editing_controller_layout);
         bitmapEditingControllerTabLayout = findViewById(R.id.uploaded_profile_picture_bitmap_editing_controller_tab_layout);
-        saveButton = findViewById(R.id.save_profile_button_card_view);
+        saveButton = findViewById(R.id.save_profile_picture_button);
         uploadProfilePictureProgressBar = findViewById(R.id.upload_profile_picture_progress_bar);
 
-        bitmapEditingControllerLayout.attachTabLayout(bitmapEditingControllerTabLayout);
+        profilePictureBitmapEditingControllerLayout.attachTabLayout(bitmapEditingControllerTabLayout);
+        profilePictureBitmapEditingControllerLayout.attachCropImageView(uploadedProfileImageView);
 
         setupUIElements();
 
@@ -125,7 +111,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (isAllowed) {
-                    selectImageFromGallery();
+                    Helper.selectImageFromGallery(ProfilePictureUploadActivity.this);
                 }
             }
         });
@@ -135,7 +121,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
                 if (isAllowed) {
-                    takePictureFromCamera();
+                    imageUriExtra = Helper.takePictureFromCamera(ProfilePictureUploadActivity.this);
                 }
             }
         });
@@ -145,12 +131,12 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 uploadedProfileImageView.setImageBitmap(outputBitmap);
 
-                bitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
-                bitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
-                bitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+                profilePictureBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
+                profilePictureBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
+                profilePictureBitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
 
-                bitmapEditingControllerLayout.isAdjusting = false;
-                bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+                profilePictureBitmapEditingControllerLayout.isAdjusting = false;
+                profilePictureBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
             }
         });
 
@@ -159,9 +145,9 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (bitmapEditingControllerLayout.isAdjusting) {
-            bitmapEditingControllerLayout.isAdjusting = false;
-            bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+        if (profilePictureBitmapEditingControllerLayout.isAdjusting) {
+            profilePictureBitmapEditingControllerLayout.isAdjusting = false;
+            profilePictureBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
         } else {
             finish();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -174,14 +160,14 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         switch (requestCode) {
             case Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    selectImageFromGallery();
+                    Helper.selectImageFromGallery(this);
                 } else {
                     super.onBackPressed();
                 }
                 break;
             case Default.MY_PERMISSIONS_REQUEST_CAMERA:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    takePictureFromCamera();
+                    imageUriExtra = Helper.takePictureFromCamera(this);
                 } else {
                     super.onBackPressed();
                 }
@@ -240,39 +226,16 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             case Default.PROFILE_PICTURE_GALLERY:
                 isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (isAllowed) {
-                    selectImageFromGallery();
+                    Helper.selectImageFromGallery(this);
                 }
                 break;
             case Default.PROFILE_PICTURE_CAMERA:
                 isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
                 if (isAllowed) {
-                    takePictureFromCamera();
+                    imageUriExtra = Helper.takePictureFromCamera(this);
                 }
                 break;
         }
-    }
-
-    /**
-     * Create an Intent to ask user to select a image they would like to upload
-     */
-    private void selectImageFromGallery() {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        galleryIntent.setType("image/*");
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     * Create an Intent to ask user to take a picture with the phone's camera
-     * Also prepares a file to save the image
-     */
-    private void takePictureFromCamera() {
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        File output = new File(dir, "image" + new Date().getTime() + ".jpeg");
-        imageUriExtra = Uri.fromFile(output);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(output));
-        startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST);
     }
 
     /**
@@ -283,7 +246,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             case Default.GALLERY_INTENT_REQUEST:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
-                    outputBitmap = createBitmapFromImageUri(imageUriExtra);
+                    outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
                     populatePreviewImageView(outputBitmap);
 
                 } else {
@@ -294,7 +257,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                 break;
             case Default.CAMERA_INTENT_REQUEST:
                 if (resultCode == RESULT_OK) {
-                    outputBitmap = createBitmapFromImageUri(imageUriExtra);
+                    BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
                     populatePreviewImageView(outputBitmap);
 
                 } else {
@@ -313,52 +276,20 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     private void populatePreviewImageView(Bitmap bitmap) {
         float maxHeight = Default.screenHeight * 0.5f;
         Bitmap tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        bitmapEditingControllerLayout.alteredBitmap = tempBitmap.copy(tempBitmap.getConfig(), true);
-        bitmapEditingControllerLayout.bitmapPreview = tempBitmap.copy(tempBitmap.getConfig(), true);
-        uploadedProfileImageView.setImageBitmap(bitmapEditingControllerLayout.alteredBitmap);
+        profilePictureBitmapEditingControllerLayout.alteredBitmap = tempBitmap.copy(tempBitmap.getConfig(), true);
+        profilePictureBitmapEditingControllerLayout.bitmapPreview = tempBitmap.copy(tempBitmap.getConfig(), true);
+        uploadedProfileImageView.setImageBitmap(profilePictureBitmapEditingControllerLayout.alteredBitmap);
 
         maxHeight = 56 * Default.scale;
         tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        bitmapEditingControllerLayout.setupFilterController(tempBitmap.copy(tempBitmap.getConfig(), true));
+        profilePictureBitmapEditingControllerLayout.setupFilterController(tempBitmap.copy(tempBitmap.getConfig(), true));
 
-        bitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
-        bitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
-        bitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+        profilePictureBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
+        profilePictureBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
+        profilePictureBitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
 
-        bitmapEditingControllerLayout.isAdjusting = false;
-        bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-    }
-
-    /**
-     *
-     * @param imageUri
-     * @return
-     */
-    private Bitmap createBitmapFromImageUri(Uri imageUri) {
-        Bitmap bitmap = null;
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            bitmap = BitmapFactory.decodeStream(inputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String imagePath = FileChooser.getPath(this, imageUri);
-        bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
-        imageUriExtra = getImageUri(bitmap);
-
-        return bitmap;
-    }
-
-    /**
-     *
-     */
-    private Uri getImageUri(Bitmap inImage) {
-//        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-//        String path = MediaStore.Images.Media.insertImage(getContentResolver(), inImage, "Title", null);
-        String path = BitmapHelper.insertImage(this.getContentResolver(), inImage, null, null);
-        return Uri.parse(path);
+        profilePictureBitmapEditingControllerLayout.isAdjusting = false;
+        profilePictureBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -442,7 +373,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            Uri uri = getImageUri(uploadedProfileImageView.getCroppedImage());
+            Uri uri = BitmapHelper.getImageUri(ProfilePictureUploadActivity.this, uploadedProfileImageView.getCroppedImage());
 
             Intent data = new Intent();
             data.putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, uri.toString());

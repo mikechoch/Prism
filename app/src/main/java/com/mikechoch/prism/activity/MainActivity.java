@@ -1,14 +1,12 @@
 package com.mikechoch.prism.activity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -211,7 +209,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
-            // If requestCode is for ImageUploadActivity
+            // If requestCode is for PrismPostImageEditActivity
             case Default.IMAGE_UPLOAD_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     uploadingImageTextView.setText("Uploading image...");
@@ -468,7 +466,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * Intent to Upload Image Activity from Main Activity
      */
     private void intentToUploadImageActivity() {
-        Intent imageUploadIntent = new Intent( MainActivity.this, ImageUploadActivity.class);
+        Intent imageUploadIntent = new Intent( MainActivity.this, PrismPostImageEditActivity.class);
         startActivityForResult(imageUploadIntent, Default.IMAGE_UPLOAD_INTENT_REQUEST_CODE);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
