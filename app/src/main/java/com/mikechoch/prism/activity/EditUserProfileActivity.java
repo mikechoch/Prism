@@ -192,7 +192,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
         fullNameEditText.setSelection(oldFullName.length());
         fullNameAlertDialogEditText.setText(oldFullName);
         fullNameAlertDialogEditText.setSelection(oldFullName.length());
-        //TODO: Add TextWatcher and error checking here for newFullNameEditText
 
         changeFullNameAlertDialog = new CustomAlertDialogBuilder(this, changeFullNameRelativeLayout);
         changeFullNameAlertDialog.setView(changeFullNameRelativeLayout);
@@ -246,8 +245,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
         String oldUsername = this.usernameEditText.getText().toString();
         usernameAlertDialogEditText.setText(oldUsername);
         usernameAlertDialogEditText.setSelection(oldUsername.length());
-
-        //TODO: Add TextWatcher and error checking here for usernameEditText
 
         changeUsernameAlertDialog = new CustomAlertDialogBuilder(this, changeUsernameRelativeLayout);
         changeUsernameAlertDialog.setView(changeUsernameRelativeLayout);
@@ -326,7 +323,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changePasswordAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO: add error checking for Old Password
+                // TODO: add error checking for Old Password
                 String oldPassword = oldPasswordAlertDialogEditText.getText().toString().trim();
                 String newPassword = newPasswordAlertDialogEditText.getText().toString().trim();
                 if (oldPassword.equals(newPassword)) {
@@ -414,8 +411,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
         oldEmailAlertDialogEditText.setText(oldEmail);
         oldEmailAlertDialogEditText.setSelection(oldEmail.length());
 
-        //TODO: Add TextWatcher and error checking here for emailEditText
-
         changeEmailAlertDialog = new CustomAlertDialogBuilder(this, changeEmailRelativeLayout);
         changeEmailAlertDialog.setView(changeEmailRelativeLayout);
         changeEmailAlertDialog.setIsCancelable(true);
@@ -483,7 +478,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
      * @param dialog
      */
     private void updateFullName(String newFullName, DialogInterface dialog) {
-        // TODO update in
         // 1) USERS -> CurrentUser.uid -> "fullname"
         currentUserReference.child(Key.USER_PROFILE_FULL_NAME).setValue(newFullName)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -506,8 +500,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void updateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
-        // TODO check new username isn't taken
-        // TODO update in
+        // Update in
         // 1) ACCOUNTS -> CurrentUser.username
         // 2) USERS -> CurrentUser.uid -> "username"
         // 3) FirebaseUser.displayname
@@ -560,7 +553,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void updatePassword(String oldPassword, String newPassword, DialogInterface dialog) {
-        // TODO update in
+        // Update in
         // 1) FirebaseUser.newPassword
         String email = CurrentUser.firebaseUser.getEmail();
         AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
@@ -602,9 +595,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void updateEmail(String newEmail, String password, DialogInterface dialog) {
-        // TODO check new email isn't taken
-        // TODO update in
-        // TODO ReAuthenticate and update CurrentUser.firebaseUser
         // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
         // 2) FirebaseUser.newEmail
         String email = CurrentUser.firebaseUser.getEmail();

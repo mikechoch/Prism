@@ -541,7 +541,7 @@ public class LoginActivity extends AppCompatActivity {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
+                 if (task.isSuccessful()) {
                     intentToMainActivity();
                 } else {
                     passwordTextInputLayout.setError("Invalid email/username or password");
