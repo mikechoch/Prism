@@ -46,6 +46,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.AuthenticationController;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -101,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         loginProgressBar = findViewById(R.id.login_progress_bar);
 
         setupUIElements();
-        buildGoogleSignInClient();
+        googleSignInClient = AuthenticationController.buildGoogleSignInClient(this);
     }
 
     @Override
@@ -109,178 +110,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            RelativeLayout view = findViewById(R.id.login_relative_layout);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                String email = account.getEmail();
-                auth.fetchSignInMethodsForEmail(email).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().getSignInMethods().isEmpty()) {
-                                firebaseAuthWithGoogle(account);
-                            } else {
-                                if (task.getResult().getSignInMethods().get(0).equalsIgnoreCase("google.com")) {
-                                    Snackbar.make(view, "An account already exists with the email " + account.getEmail(), Snackbar.LENGTH_LONG).show();
-                                }
-                            }
-                        } else {
-                            Log.e(Default.TAG_GOOGLE_CLIENT, "Unable to fetchSignInMethodsForEmail " + account.getEmail());
-                            Helper.toast(LoginActivity.this, "Failed to Sign in with Google");
-                        }
-                    }
-                });
-                //firebaseAuthWithGoogle(account);
-            } catch (ApiException e) {
-                // The ApiException status code indicates the detailed failure reason.
-                Log.e(Default.TAG_GOOGLE_CLIENT, "signInResult:failed code=" + e.getStatusCode());
-                e.printStackTrace();
-                Helper.toast(LoginActivity.this, "Failed to Sign in with Google");
-            }
+            AuthenticationController.handleGoogleIntentResult(LoginActivity.this, data);
         }
 
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = auth.getCurrentUser();
-                            DatabaseReference userReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
-                            userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot userSnapshot) {
-                                    if (userSnapshot.exists()) {
-                                        // TODO LOGIN
-                                    } else {
-                                        // TODO create firebaseUser in firebase
-                                        registerUser(firebaseUser);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-                            // TODO check if firebaseUser exists in Database or not. If firebaseUser does not exist in database, register the firebaseUser else sign in
-                            // Before registering, check if firebaseUser's email already exists
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.e(Default.TAG_GOOGLE_CLIENT, "signInWithCredential:failure", task.getException());
-                            Helper.toast(LoginActivity.this, "Failed to Sign in with Google", true);
-                            task.getException().printStackTrace();
-                        }
-
-                        // ...
-                    }
-                });
-    }
-
-
-    private void askUserForUsername(FirebaseUser firebaseUser) {
-        View chooseUsernameView = getLayoutInflater().inflate(R.layout.choose_username_alert_dialog_layout, null);
-        RelativeLayout chooseUsernameRelativeLayout = chooseUsernameView.findViewById(R.id.choose_username_alert_dialog_relative_layout);
-
-        TextView chooseUsernameHeaderTextView = chooseUsernameView.findViewById(R.id.choose_username_header_text_view);
-        TextInputLayout chooseUsernameTextInputLayout = chooseUsernameView.findViewById(R.id.choose_username_text_input_layout);
-        EditText chooseUsernameEditText = chooseUsernameView.findViewById(R.id.choose_username_edit_text);
-        ProgressBar chooseUsernameProgressBar = chooseUsernameView.findViewById(R.id.choose_username_progress_bar);
-
-        chooseUsernameHeaderTextView.setTypeface(Default.sourceSansProLight);
-        chooseUsernameTextInputLayout.setTypeface(Default.sourceSansProLight);
-        chooseUsernameEditText.setTypeface(Default.sourceSansProLight);
-
-        CustomAlertDialogBuilder chooseUsernameAlertDialog = new CustomAlertDialogBuilder(this, chooseUsernameRelativeLayout);
-        chooseUsernameAlertDialog.setView(chooseUsernameView);
-        chooseUsernameAlertDialog.setIsCancelable(true);
-        chooseUsernameAlertDialog.setCanceledOnTouchOutside(false);
-        chooseUsernameAlertDialog.setPositiveButton(Default.BUTTON_SUBMIT, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                chooseUsernameProgressBar.setVisibility(View.VISIBLE);
-
-                // Register firebaseUser -- TODO This is almost same as the one in register activity, so Generify it
-                String uid = firebaseUser.getUid();
-                String email = firebaseUser.getEmail();
-                String username = Helper.getFirebaseEncodedUsername(email.split("@")[0]);
-                UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
-                firebaseUser.updateProfile(profile);
-
-                DatabaseReference usersReference = Default.USERS_REFERENCE;
-                DatabaseReference profileReference = usersReference.child(uid);
-                profileReference.child(Key.USER_PROFILE_FULL_NAME).setValue(firebaseUser.getDisplayName());
-                profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
-
-                String profilePic = ProfileHelper.generateDefaultProfilePic();
-                if (firebaseUser.getPhotoUrl() != null) {
-                    profilePic = firebaseUser.getPhotoUrl().toString();
-                }
-                profileReference.child(Key.USER_PROFILE_PIC).setValue(profilePic);
-
-                DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
-                notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);
-                notificationPreference.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).setValue(true);
-                notificationPreference.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).setValue(true);
-
-                DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(username);
-                accountReference.setValue(email);
-
-                intentToMainActivity();
-
-
-            }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null)
-          .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        chooseUsernameProgressBar.setVisibility(View.GONE);
-                    }
-                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) { }
-        });
-
-        chooseUsernameAlertDialog.show();
-    }
-
-
-    /**
-     * TODO Clean this up
-     * @param firebaseUser
-     */
-    private void registerUser(FirebaseUser firebaseUser) {
-        askUserForUsername(firebaseUser);
-
-
-
-
-    }
-
-    private void buildGoogleSignInClient() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestProfile()
-                .requestEmail()
-                .requestId()
-                .build();
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-    }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-    }
-
-    private void attemptLoginWithGoogle() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE);
     }
 
 
@@ -507,7 +346,7 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                attemptLoginWithGoogle();
+                AuthenticationController.initiateSignInWithGoogle(LoginActivity.this, googleSignInClient);
             }
         });
     }

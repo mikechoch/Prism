@@ -61,8 +61,7 @@ public class SplashActivity extends AppCompatActivity {
      * @return
      */
     public boolean isUserSignedIn() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null ||
-                GoogleSignIn.getLastSignedInAccount(this) != null;
+        return FirebaseAuth.getInstance().getCurrentUser() != null;// || GoogleSignIn.getLastSignedInAccount(this) != null;
     }
 
     /**
@@ -101,6 +100,8 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
 
+            // TODO Delete this
+            FirebaseAuth.getInstance().signOut();
             if (!isUserSignedIn()) {
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
