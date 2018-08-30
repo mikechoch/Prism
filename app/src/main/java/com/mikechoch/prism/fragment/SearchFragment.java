@@ -2,7 +2,6 @@ package com.mikechoch.prism.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -17,15 +16,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.mikechoch.prism.OnFetchListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
-import com.mikechoch.prism.attribute.DiscoveryRecyclerView;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.fire.DiscoverController;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -38,7 +37,15 @@ public class SearchFragment extends Fragment {
     private CardView searchCardView;
     private TextView searchBarHintTextView;
 
-    public static ArrayList<DiscoveryRecyclerView> searchDiscoverRecyclerViews;
+    private static HashMap<Discovery, SearchDiscoverRecyclerViewAdapter> discoveryHorizontalRecyclerViewAdapterHashMap;
+    private static HashMap<Discovery, LinearLayout> discoveryLinearLayoutHashMap;
+
+    private static HashMap<Discovery, OnFetchListener> discoveryOnFetchListenerHashMap;
+
+    private static ArrayList<Object> prismUsers;
+    private static ArrayList<Object> likedPrismPosts;
+    private static ArrayList<Object> repostedPrismPosts;
+    private static ArrayList<Object> prismTags;
 
 
     public static final SearchFragment newInstance() {
@@ -71,8 +78,18 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        searchDiscoverRecyclerViews = new ArrayList<>();
-        DiscoverController.setupDiscoverContent(getActivity());
+        prismUsers = new ArrayList<>();
+        likedPrismPosts = new ArrayList<>();
+        repostedPrismPosts = new ArrayList<>();
+        prismTags = new ArrayList<>();
+
+        discoveryHorizontalRecyclerViewAdapterHashMap = new HashMap<>();
+        discoveryLinearLayoutHashMap = new HashMap<>();
+        discoveryOnFetchListenerHashMap = new HashMap<>();
+
+        for (Discovery discovery : Discovery.values()) {
+            addDiscoveryRecyclerView(getActivity(), discovery);
+        }
 
         return view;
     }
@@ -80,17 +97,81 @@ public class SearchFragment extends Fragment {
     /**
      *
      * @param context
-     * @param discoveryRecyclerView
+     * @param discovery
      */
-    public static void addDiscoveryRecyclerView(Context context, DiscoveryRecyclerView discoveryRecyclerView) {
+    public static void addDiscoveryRecyclerView(Context context, Discovery discovery) {
+        switch (discovery) {
+            case USER:
+                OnFetchListener prismUsersOnFetchListener = updateDiscoveryItem(context, discovery, prismUsers);
+                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchListener);
+                prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
+//                FirebaseAction.fetchSuggestedPrismUsers(prismUsersOnFetchListener);
+                break;
+            case LIKE:
+                OnFetchListener likedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, likedPrismPosts);
+                discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchListener);
+                likedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
+//                FirebaseAction.fetchMostLikedPrismPosts(likedPrismPostOnFetchListener);
+                break;
+            case REPOST:
+                OnFetchListener repostedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, repostedPrismPosts);
+                discoveryOnFetchListenerHashMap.put(discovery, repostedPrismPostOnFetchListener);
+                repostedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
+//                FirebaseAction.fetchMostLikedPrismPosts(repostedPrismPostOnFetchListener);
+                break;
+            case TAG:
+                OnFetchListener tagsOnFetchListener = updateDiscoveryItem(context, discovery, prismTags);
+                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchListener);
+                tagsOnFetchListener.onPostsSuccess(new ArrayList<>());
+//                FirebaseAction.fetchSuggestedTags(tagsOnFetchListener);
+                break;
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * @param discovery
+     * @param arrayList
+     * @return
+     */
+    private static OnFetchListener updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
+        if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery)) {
+            LinearLayout propertyRecyclerViewLinearLayout = createDiscoveryRecyclerView(context, discovery, arrayList);
+            searchLinearLayout.addView(propertyRecyclerViewLinearLayout);
+        }
+
+        return new OnFetchListener() {
+            @Override
+            public void onPostsSuccess(ArrayList<Object> fetchResults) {
+                arrayList.clear();
+                arrayList.addAll(fetchResults);
+                discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery).notifyDataSetChanged();
+                int linearLayoutScrollViewVisibility = arrayList.size() > 0 ? View.VISIBLE : View.GONE;
+                discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
+//                if (FirebaseAction.loadingCount == 0) {
+////                    searchBarProgressBar.setVisibility(View.GONE);
+////                }
+                refreshDiscoveryAdapters();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+    }
+
+    private static LinearLayout createDiscoveryRecyclerView(Context context, Discovery discovery, ArrayList<Object> arrayList) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View discoveryRecyclerViewLayout = layoutInflater.inflate(R.layout.search_discovery_recycler_view_layout, null, false);
 
+        LinearLayout discoveryRecyclerViewLinearLayout = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view_linear_layout);
         ImageView recyclerViewTitleIcon = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view_title_icon);
-        recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(discoveryRecyclerView.getTitleIcon()));
-
         TextView recyclerViewTitleTextView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view_title_text_view);
-        recyclerViewTitleTextView.setText(discoveryRecyclerView.getTitle());
+
+        recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(discovery.getIcon()));
+        recyclerViewTitleTextView.setText(discovery.getTitle());
         recyclerViewTitleTextView.setTypeface(Default.sourceSansProBold);
 
         RecyclerView prismPostDiscoveryRecyclerView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view);
@@ -104,37 +185,25 @@ public class SearchFragment extends Fragment {
         prismPostDiscoveryRecyclerView.setItemAnimator(discoveryDefaultItemAnimator);
         prismPostDiscoveryRecyclerView.addItemDecoration(discoveryDividerItemDecoration);
 
-        SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = null;
-        switch (discoveryRecyclerView.getDiscoveryType()) {
-            case LIKE:
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestLikedPosts(), Discovery.LIKE);
-                break;
-            case REPOST:
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.generateHighestRepostedPosts(), Discovery.REPOST);
-                break;
-            case TAG:
-                LinearLayout.LayoutParams titleTextViewLayoutParams = (LinearLayout.LayoutParams) recyclerViewTitleTextView.getLayoutParams();
-                titleTextViewLayoutParams.setMarginStart(0);
-                recyclerViewTitleTextView.setLayoutParams(titleTextViewLayoutParams);
-//                recyclerViewTitleTextView.setTextSize(17f);
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPrismPostsForRandomTag(), Discovery.TAG);
-                break;
-            case USER:
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfRandomPrismUsers(), Discovery.USER);
-                break;
+        SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, arrayList, discovery);
+        discoveryHorizontalRecyclerViewAdapterHashMap.put(discovery, searchDiscoverRecyclerViewAdapter);
+        discoveryLinearLayoutHashMap.put(discovery, discoveryRecyclerViewLinearLayout);
 
-            // TODO @Mike take it over from here -- below
-            case LIKE_BY_FOLLOWINGS:
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPostsLikedByUserFollowings(), Discovery.LIKE_BY_FOLLOWINGS);
-                break;
-            case REPOST_BY_FOLLOWINGS:
-                searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, DiscoverController.getListOfPostsRepostedByUserFollowings(), Discovery.REPOST_BY_FOLLOWINGS);
+        return discoveryRecyclerViewLinearLayout;
+    }
+
+    /**
+     *
+     */
+    public static void refreshDiscoveryAdapters() {
+        for (Discovery discovery : Discovery.values()) {
+            SearchDiscoverRecyclerViewAdapter adapter = discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery);
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+                int linearLayoutScrollViewVisibility = adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE;
+                discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
+            }
         }
-        prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
-        discoveryRecyclerView.setDiscoveryRecyclerView(prismPostDiscoveryRecyclerView);
-        searchDiscoverRecyclerViews.add(discoveryRecyclerView);
-
-        searchLinearLayout.addView(discoveryRecyclerViewLayout);
     }
 
 }

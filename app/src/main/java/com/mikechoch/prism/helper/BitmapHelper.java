@@ -6,7 +6,9 @@ package com.mikechoch.prism.helper;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
@@ -23,7 +25,9 @@ import android.provider.MediaStore;
 
 import com.mikechoch.prism.constant.Default;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -441,6 +445,38 @@ public class BitmapHelper {
                             lumR * (1 - saturation), lumG * (1 - saturation), lumB * (1 - saturation) + saturation, 0, 0,
                             0, 0, 0, 1, 0,
                             0, 0, 0, 0, 1};
+    }
+
+    /**
+     *
+     * @param imageUriExtra
+     * @return
+     */
+    public static Bitmap createBitmapFromImageUri(Context context, Uri imageUriExtra) {
+        Bitmap bitmap = null;
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(imageUriExtra);
+            bitmap = BitmapFactory.decodeStream(inputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String imagePath = FileChooser.getPath(context, imageUriExtra);
+        bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
+        imageUriExtra = getImageUri(context, bitmap);
+
+        return bitmap;
+    }
+
+    /**
+     *
+     */
+    public static Uri getImageUri(Context context, Bitmap inImage) {
+//        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+//        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+//        String path = MediaStore.Images.Media.insertImage(getContentResolver(), inImage, "Title", null);
+        String path = BitmapHelper.insertImage(context.getContentResolver(), inImage, null, null);
+        return Uri.parse(path);
     }
 
 }

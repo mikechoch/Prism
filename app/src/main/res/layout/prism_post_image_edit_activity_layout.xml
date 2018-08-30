@@ -89,7 +89,7 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/uploaded_profile_crop_image_view_limiter"
+                android:id="@+id/uploaded_post_crop_image_view_limiter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -101,19 +101,18 @@
                 android:orientation="vertical">
 
                 <com.theartofdev.edmodo.cropper.CropImageView
-                    android:id="@+id/uploaded_profile_crop_image_view"
+                    android:id="@+id/uploaded_post_crop_image_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cropToPadding="true"
                     android:scaleType="fitCenter"
                     android:elevation="6dp"
-                    app:cropShape="oval"
-                    app:cropFixAspectRatio="true" />
+                    app:cropShape="rectangle" />
 
             </LinearLayout>
 
             <com.mikechoch.prism.user_interface.BitmapEditingControllerLayout
-                android:id="@+id/uploaded_profile_picture_bitmap_editing_controller_layout"
+                android:id="@+id/uploaded_post_bitmap_editing_controller_layout"
                 android:layout_width="match_parent"
                 android:layout_height="136dp"
                 android:layout_marginTop="8dp"
@@ -121,7 +120,7 @@
                 android:clipToPadding="true"/>
 
             <android.support.design.widget.TabLayout
-                android:id="@+id/uploaded_profile_picture_bitmap_editing_controller_tab_layout"
+                android:id="@+id/uploaded_post_bitmap_editing_controller_tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
@@ -133,24 +132,15 @@
                 app:tabSelectedTextColor="@color/colorAccent" />
 
             <Button
-                android:id="@+id/save_profile_picture_button"
+                android:id="@+id/image_edit_next_upload_activity_button"
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:layout_marginTop="16dp"
-                android:text="SAVE"
+                android:text="NEXT"
                 android:textSize="19sp"
                 android:clickable="true"
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_selector" />
-
-            <ProgressBar
-                android:id="@+id/upload_profile_picture_progress_bar"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                android:indeterminate="true"
-                android:indeterminateDrawable="@drawable/circle_progress_foreground" />
 
         </LinearLayout>
 

@@ -40,7 +40,10 @@
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.ImageUploadActivity"
+            android:name=".activity.PrismPostImageEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PrismPostDescriptionActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.ProfilePictureUploadActivity"

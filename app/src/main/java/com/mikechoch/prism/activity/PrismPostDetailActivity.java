@@ -238,48 +238,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Only necessary listener here is the onTransitionEnd
-     * Shows the animations and menu items after the ImageView shared transition has occurred
-     */
-    private void setupSharedTransitionListener() {
-        Transition sharedElementEnterTransition = getWindow().getSharedElementEnterTransition();
-        sharedElementEnterTransition.addListener(new Transition.TransitionListener() {
-            @Override
-            public void onTransitionStart(Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                for (int i = 0; i < menu.size(); i++) {
-                    MenuItem menuItem = menu.getItem(i);
-                    menuItem.setVisible(true);
-                }
-
-                showCollapseUpButton(0);
-                showDragArrow(0);
-                hideCollapseUpButton(4000);
-                hideDragArrow(3000);
-            }
-
-            @Override
-            public void onTransitionCancel(Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionPause(Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionResume(Transition transition) {
-
-            }
-        });
-    }
-
-    /**
      * A method to find height of the status bar
      */
     private int getStatusBarHeight() {
@@ -827,7 +785,11 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setupUIElements() {
-        setupSharedTransitionListener();
+        showCollapseUpButton(0);
+        showDragArrow(0);
+        hideCollapseUpButton(4000);
+        hideDragArrow(3000);
+
         setupAppBarLayout();
         setupToolbar();
         setupStatusBar();
