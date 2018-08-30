@@ -1,6 +1,7 @@
 package com.mikechoch.prism.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -28,6 +29,9 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 /**
@@ -253,15 +257,24 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent prismPostDescriptionIntent = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
+                try {
+                    Intent prismPostDescriptionIntent = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                uploadedPostCropImageView.getCroppedImage().compress(Bitmap.CompressFormat.JPEG, 10, stream);
-                byte[] byteArray = stream.toByteArray();
+                    String filename = String.valueOf(System.currentTimeMillis());
 
-                prismPostDescriptionIntent.putExtra("EditedPrismPostImage", byteArray);
-                startActivity(prismPostDescriptionIntent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
+                    uploadedPostCropImageView.getCroppedImage().compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+                    stream.close();
+                    uploadedPostCropImageView.getCroppedImage().recycle();
+
+                    prismPostDescriptionIntent.putExtra("EditedPrismPostFilePath", filename);
+                    startActivity(prismPostDescriptionIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
