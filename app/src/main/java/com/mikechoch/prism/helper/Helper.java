@@ -379,7 +379,7 @@ public class Helper {
     public static void selectImageFromGallery(Context context) {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
-        ((Activity) context).startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST);
+        ((Activity) context).startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
@@ -393,7 +393,7 @@ public class Helper {
         File output = new File(dir, "image" + new Date().getTime() + ".jpeg");
         Uri imageUriExtra = Uri.fromFile(output);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(output));
-        ((Activity) context).startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST);
+        ((Activity) context).startActivityForResult(cameraIntent, Default.CAMERA_INTENT_REQUEST_CODE);
         return imageUriExtra;
     }
 

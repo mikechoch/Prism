@@ -156,14 +156,14 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Default.MY_PERMISSIONS_REQUEST_WRITE_MEDIA:
+            case Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Helper.selectImageFromGallery(this);
                 } else {
                     super.onBackPressed();
                 }
                 break;
-            case Default.MY_PERMISSIONS_REQUEST_CAMERA:
+            case Default.MY_PERMISSIONS_CAMERA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     imageUriExtra = Helper.takePictureFromCamera(this);
                 } else {
@@ -198,7 +198,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case Default.GALLERY_INTENT_REQUEST:
+            case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
                     outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
@@ -210,7 +210,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                     }
                 }
                 break;
-            case Default.CAMERA_INTENT_REQUEST:
+            case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
                     populatePreviewImageView(outputBitmap);
