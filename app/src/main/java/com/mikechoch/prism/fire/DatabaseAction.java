@@ -24,6 +24,7 @@ import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.callback.OnFetchUserProfileCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Notification;
@@ -219,7 +220,7 @@ public class DatabaseAction {
                 .child(prismUser.getUid())
                 .setValue(timestamp);
 
-        CurrentUser.followUser(prismUser);
+        CurrentUser.followUser(prismUser, timestamp);
 
         if (!Helper.isPrismUserCurrentUser(prismUser.getUid())) {
             OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
@@ -291,76 +292,62 @@ public class DatabaseAction {
      * Then fetches CurrentUser's liked, reposted and uploaded posts
      * And then refresh the mainRecyclerViewAdapter
      */
-    static void fetchUserProfile(Context context, Intent intent) {
-        HashMap<String, Long> liked_posts_map = new HashMap<>();
-        HashMap<String, Long> reposted_posts_map = new HashMap<>();
-        HashMap<String, Long> uploaded_posts_map = new HashMap<>();
-
+    static void constructCurrentUserProfile(OnFetchUserProfileCallback callback) {
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
-                if (usersSnapshot.exists()) {
-                    CurrentUser.prismUser = Helper.constructPrismUserObject(usersSnapshot
-                            .child(CurrentUser.firebaseUser.getUid()));
+                DataSnapshot currentUserSnapshot = usersSnapshot.child(currentUserId);
+                if (currentUserSnapshot.exists()) {
+                    CurrentUser.prismUser = Helper.constructPrismUserObject(currentUserSnapshot);
+                    CurrentUser.preference = ProfileFetcher.fetchUserPreferences(currentUserSnapshot);
 
-                    DataSnapshot currentUserSnapshot = usersSnapshot
-                            .child(CurrentUser.prismUser.getUid());
+                    CurrentUser.liked_posts_map = ProfileFetcher.fetchLikedPosts(currentUserSnapshot);
+                    CurrentUser.reposted_posts_map = ProfileFetcher.fetchRepostedPosts(currentUserSnapshot);
+                    CurrentUser.uploaded_posts_map = ProfileFetcher.fetchUploadedPosts(currentUserSnapshot);
 
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_LIKES)) {
-                        liked_posts_map.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_LIKES).getValue());
-                    }
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_REPOSTS)) {
-                        reposted_posts_map.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_REPOSTS).getValue());
-                    }
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_UPLOADS)) {
-                        uploaded_posts_map.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_UPLOADS).getValue());
-                    }
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
-                        CurrentUser.followers.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getValue());
-                    }
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
-                        CurrentUser.followings.putAll((Map) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getValue());
-                    }
+                    CurrentUser.followers = ProfileFetcher.fetchUserFollowers(currentUserSnapshot);
+                    CurrentUser.followings = ProfileFetcher.fetchUserFollowings(currentUserSnapshot);
 
-                    if (currentUserSnapshot.hasChild(Key.DB_REF_USER_PREFERENCES)) {
-                        DataSnapshot preferenceSnapshot = currentUserSnapshot.child(Key.DB_REF_USER_PREFERENCES);
-                        boolean allowLike = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).getValue();
-                        boolean allowRepost = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).getValue();
-                        boolean allowFollow = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).getValue();
-                        CurrentUser.preference = new UserPreference(allowLike, allowRepost, allowFollow);
-                    }
-
-                    allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            ArrayList<PrismPost> userLikes = getListOfPrismPosts(dataSnapshot, usersSnapshot, liked_posts_map);
-                            ArrayList<PrismPost> userReposts = getListOfPrismPosts(dataSnapshot, usersSnapshot, reposted_posts_map);
-                            ArrayList<PrismPost> userUploads = getListOfPrismPosts(dataSnapshot, usersSnapshot, uploaded_posts_map);
-
-                            CurrentUser.likePosts(userLikes, liked_posts_map);
-                            CurrentUser.repostPosts(userReposts, reposted_posts_map);
-                            CurrentUser.uploadPosts(userUploads, uploaded_posts_map);
-                            CurrentUser.combineUploadsAndReposts();
-
-                            // TODO --> constructNewsFeed(context, intent);
-                            CurrentUser.refreshInterface(context, intent);
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.e(Default.TAG_DB, Message.FETCH_POST_INFO_FAIL, databaseError.toException());
-                        }
-                    });
-
+                    populateUserProfilePosts(usersSnapshot, callback);
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
+                callback.onFailure();
             }
         });
     }
+
+    private static void populateUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
+        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot allPostsSnapshot) {
+                if (allPostsSnapshot.exists()) {
+                    ArrayList<PrismPost> userLikes = ProfileFetcher.getListOfPrismPosts(allPostsSnapshot,
+                            usersSnapshot, CurrentUser.liked_posts_map);
+                    ArrayList<PrismPost> userReposts = ProfileFetcher.getListOfPrismPosts(allPostsSnapshot,
+                            usersSnapshot, CurrentUser.reposted_posts_map);
+                    ArrayList<PrismPost> userUploads = ProfileFetcher.getListOfPrismPosts(allPostsSnapshot,
+                            usersSnapshot, CurrentUser.uploaded_posts_map);
+
+                    CurrentUser.likePosts(userLikes);
+                    CurrentUser.repostPosts(userReposts);
+                    CurrentUser.uploadPosts(userUploads);
+                    CurrentUser.combineUploadsAndReposts();
+                    // TODO: constructNewsFeed();
+                }
+                callback.onSuccess();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(Default.TAG_DB, Message.FETCH_POST_INFO_FAIL, databaseError.toException());
+                callback.onFailure();
+            }
+        });
+    }
+
 
     private static void constructNewsFeed(Context context, Intent intent) {
         ArrayList<String> followings = CurrentUser.getFollowings();
@@ -406,31 +393,7 @@ public class DatabaseAction {
         });
     }
 
-    /**
-     * Takes in a hashMap of prismPost postIds and also takes in dataSnapshot
-     * referencing to `ALL_POSTS` and `USERS` and constructs PrismPost objects
-     * for each postId in the hashMap and puts all prismPost objects in a list.
-     * Gets called for getting user liked_posts, reposted_posts, and uploaded_posts
-     */
-    private static ArrayList<PrismPost> getListOfPrismPosts(DataSnapshot allPostsRefSnapshot,
-                                                            DataSnapshot usersSnapshot,
-                                                            HashMap<String, Long> mapOfPostIds) {
-        ArrayList<PrismPost> listOfPrismPosts = new ArrayList<>();
-        for (Object key : mapOfPostIds.keySet()) {
-            String postId = (String) key;
-            DataSnapshot postSnapshot = allPostsRefSnapshot.child(postId);
 
-            if (postSnapshot.exists()) {
-                PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                DataSnapshot userSnapshot = usersSnapshot.child(prismPost.getUid());
-                PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                prismPost.setPrismUser(prismUser);
-
-                listOfPrismPosts.add(prismPost);
-            }
-        }
-        return listOfPrismPosts;
-    }
 
     /**
      * Refresh mainContentFragment's recyclerViewAdapter
@@ -480,6 +443,114 @@ public class DatabaseAction {
     }
 
 }
+
+
+class ProfileFetcher {
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static HashMap<String, Long> fetchLikedPosts(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_LIKES)) {
+            return (HashMap<String, Long>) currentUserSnapshot.child(Key.DB_REF_USER_LIKES).getValue();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static HashMap<String, Long> fetchRepostedPosts(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_REPOSTS)) {
+            return (HashMap<String, Long>) currentUserSnapshot.child(Key.DB_REF_USER_REPOSTS).getValue();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static HashMap<String, Long> fetchUploadedPosts(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_UPLOADS)) {
+            return (HashMap<String, Long>) currentUserSnapshot.child(Key.DB_REF_USER_UPLOADS).getValue();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static HashMap<String, Long> fetchUserFollowers(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_FOLLOWERS)) {
+            return (HashMap<String, Long>) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWERS).getValue();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static HashMap<String, Long> fetchUserFollowings(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_FOLLOWINGS)) {
+            return (HashMap<String, Long>) currentUserSnapshot.child(Key.DB_REF_USER_FOLLOWINGS).getValue();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     *
+     * @param currentUserSnapshot
+     * @return
+     */
+    static UserPreference fetchUserPreferences(DataSnapshot currentUserSnapshot) {
+        if (currentUserSnapshot.hasChild(Key.DB_REF_USER_PREFERENCES)) {
+            DataSnapshot preferenceSnapshot = currentUserSnapshot.child(Key.DB_REF_USER_PREFERENCES);
+            boolean allowLike = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).getValue();
+            boolean allowRepost = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).getValue();
+            boolean allowFollow = (boolean) preferenceSnapshot.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).getValue();
+            return new UserPreference(allowLike, allowRepost, allowFollow);
+        }
+        return Default.USER_PREFERENCE;
+    }
+
+    /**
+     * Takes in a hashMap of prismPost postIds and also takes in dataSnapshot
+     * referencing to `ALL_POSTS` and `USERS` and constructs PrismPost objects
+     * for each postId in the hashMap and puts all prismPost objects in a list.
+     * Gets called for getting user liked_posts, reposted_posts, and uploaded_posts
+     */
+    static ArrayList<PrismPost> getListOfPrismPosts(DataSnapshot allPostsSnapshot,
+                                                            DataSnapshot usersSnapshot,
+                                                            HashMap<String, Long> mapOfPostIds)
+    {
+        ArrayList<PrismPost> listOfPrismPosts = new ArrayList<>();
+        for (String postId : mapOfPostIds.keySet()) {
+            DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+            if (postSnapshot.exists()) {
+                PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                DataSnapshot userSnapshot = usersSnapshot.child(prismPost.getUid());
+                PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                prismPost.setPrismUser(prismUser);
+
+                listOfPrismPosts.add(prismPost);
+            }
+        }
+        return listOfPrismPosts;
+    }
+
+
+}
+
 
 
 class DeleteHelper {

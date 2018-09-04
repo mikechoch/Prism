@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mikechoch.prism.attribute.UserPreference;
 
 import java.util.Arrays;
 import java.util.List;
@@ -135,4 +136,6 @@ public class Default {
     public static final String HIDDEN_PASSWORD = "********";
 
     public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
+
+    public static final UserPreference USER_PREFERENCE = new UserPreference(true, true, true);
 }

@@ -25,6 +25,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.callback.OnFetchUserProfileCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 
@@ -61,9 +62,9 @@ public class CurrentUser {
      * Key: String postId
      * Value: long timestamp
     **/
-    private static HashMap<String, Long> liked_posts_map;
-    private static HashMap<String, Long> reposted_posts_map;
-    private static HashMap<String, Long> uploaded_posts_map;
+    static HashMap<String, Long> liked_posts_map;
+    static HashMap<String, Long> reposted_posts_map;
+    static HashMap<String, Long> uploaded_posts_map;
 
     /** ArrayList of PrismPost objects for above structures **/
     private static ArrayList<PrismPost> liked_posts;
@@ -82,10 +83,10 @@ public class CurrentUser {
 
     /**
      * Key: String uid
-     * Value: String username
+     * Value: Long timestamp
      */
-    static HashMap<String, String> followers;
-    static HashMap<String, String> followings;
+    static HashMap<String, Long> followers;
+    static HashMap<String, Long> followings;
 
 
 
@@ -126,8 +127,8 @@ public class CurrentUser {
     /**
      * Adds given prismUser to CurrentUser's followings HashMap
      */
-    static void followUser(PrismUser prismUser) {
-        followings.put(prismUser.getUid(), prismUser.getUsername());
+    static void followUser(PrismUser prismUser, Long timestamp) {
+        followings.put(prismUser.getUid(), timestamp);
     }
 
 
@@ -164,11 +165,10 @@ public class CurrentUser {
     }
 
     /**
-     * Adds list of liked prismPosts to CurrentUser's liked_posts list and hashMap
+     * Adds list of liked prismPosts to CurrentUser's liked_posts list
      */
-    static void likePosts(ArrayList<PrismPost> likedPosts, HashMap<String, Long> likePostsMap) {
+    static void likePosts(ArrayList<PrismPost> likedPosts) {
         liked_posts.addAll(likedPosts);
-        liked_posts_map.putAll(likePostsMap);
     }
 
     /**
@@ -195,11 +195,10 @@ public class CurrentUser {
     }
 
     /**
-     * Adds the list of reposted prismPosts to CurrentUser's reposted_posts list and hashMap
+     * Adds the list of reposted prismPosts to CurrentUser's reposted_posts list
      */
-    static void repostPosts(ArrayList<PrismPost> repostedPosts, HashMap<String, Long> repostedPostsMap) {
+    static void repostPosts(ArrayList<PrismPost> repostedPosts) {
         reposted_posts.addAll(repostedPosts);
-        reposted_posts_map.putAll(repostedPostsMap);
         for (PrismPost prismPost : repostedPosts) {
             prismPost.setIsReposted(true);
         }
@@ -225,9 +224,8 @@ public class CurrentUser {
     /**
      * Adds the list of uploaded prismPosts to CurrentUser's uploaded_posts list and hashMap
      */
-    static void uploadPosts(ArrayList<PrismPost> uploadedPosts, HashMap<String, Long> uploadedPostsMap) {
+    static void uploadPosts(ArrayList<PrismPost> uploadedPosts) {
         uploaded_posts.addAll(uploadedPosts);
-        uploaded_posts_map.putAll(uploadedPostsMap);
     }
 
     /**
@@ -279,10 +277,16 @@ public class CurrentUser {
         notifications_map = new HashMap<>();
         notifications = new ArrayList<>();
 
-
-
         if (Helper.isNetworkAvailable(context)) {
-            DatabaseAction.fetchUserProfile(context, intent);
+            DatabaseAction.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
+                @Override
+                public void onSuccess() {
+                    CurrentUser.refreshInterface(context, intent);
+                }
+
+                @Override
+                public void onFailure() { }
+            });
         }
     }
 
