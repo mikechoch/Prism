@@ -247,6 +247,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Object exception) {
+                                toggleProgressBar(false);
                                 if (exception instanceof FirebaseAuthWeakPasswordException) {
                                     passwordTextInputLayout.setError("Password is too weak");
                                 }
