@@ -205,22 +205,6 @@ public class Helper {
     }
 
     /**
-     * Takes the user inputted formatted usernmae and replaces the
-     * period `.` character with a dash `-` so that it can be saved in firebase
-     */
-    public static String getFirebaseEncodedUsername(String inputUsername) {
-        return inputUsername.replace(Default.USERNAME_PERIOD, Default.USERNAME_PERIOD_REPLACE);
-    }
-
-    /**
-     * Takes the username stored in firebase and replaces the dash `-`
-     * character with the period `.` so
-     */
-    public static String getFirebaseDecodedUsername(String encodedUsername) {
-        return encodedUsername.replace(Default.USERNAME_PERIOD_REPLACE, Default.USERNAME_PERIOD);
-    }
-
-    /**
      * Checks to see if given prismPost has been reposted by given
      * prismUser by comparing the uid of prismPost author by given
      * prismUser. If uids match, post author = given prismUser and

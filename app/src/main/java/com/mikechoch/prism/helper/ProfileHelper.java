@@ -2,6 +2,9 @@ package com.mikechoch.prism.helper;
 
 import android.support.design.widget.TextInputLayout;
 import android.util.Patterns;
+import android.widget.EditText;
+
+import com.mikechoch.prism.constant.Default;
 
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -125,8 +128,100 @@ public class ProfileHelper {
      * Generate a random Default profile picture
      */
     public static String generateDefaultProfilePic() {
-        // TODO @mike this '10' should be replaced with DefaultProfilePictures.values().length right?c
+        // TODO @mike this '10' should be replaced with DefaultProfilePictures.values().length right?
         return String.valueOf(new Random().nextInt(10));
+    }
+
+    /**
+     * Cleans the fullName entered and returns the clean version
+     */
+    public static String getFormattedFullName(EditText fullNameEditText) {
+        return fullNameEditText.getText().toString().trim().replaceAll(" +", " ");
+
+    }
+
+    /**
+     * Cleans the username entered and returns the clean version
+     */
+    public static String getFormattedUsername(EditText usernameEditText) {
+        return usernameEditText.getText().toString().trim().toLowerCase();
+    }
+
+
+    /**
+     * Cleans the email entered and returns the clean version
+     */
+    public static String getFormattedEmail(EditText emailEditText) {
+        return emailEditText.getText().toString().trim().toLowerCase();
+    }
+
+    /**
+     * Cleans the password entered and returns the clean version
+     */
+    public static String getFormattedPassword(EditText passwordEditText) {
+        return passwordEditText.getText().toString().trim();
+    }
+
+    /**
+     * Takes the user inputted formatted usernmae and replaces the
+     * period `.` character with a dash `-` so that it can be saved in firebase
+     */
+    public static String getFirebaseEncodedUsername(String inputUsername) {
+        return inputUsername.replace(Default.USERNAME_PERIOD, Default.USERNAME_PERIOD_REPLACE);
+    }
+
+    /**
+     * Takes the username stored in firebase and replaces the dash `-`
+     * character with the period `.` so
+     */
+    public static String getFirebaseDecodedUsername(String encodedUsername) {
+        return encodedUsername.replace(Default.USERNAME_PERIOD_REPLACE, Default.USERNAME_PERIOD);
+    }
+
+    /**
+     * Checks to see if what firebaseUser typed in the username/email editText
+     * is of type email or username. The purpose is that if the firebaseUser
+     * enters an email, we can directly attemptLogin otherwise for username,
+     * we have to go to the database and extract the email for the given
+     * username
+     * @param emailOrUsername text from the email/username editText
+     * @return True if input is an email and False if it's a username
+     */
+    public static boolean isInputOfTypeEmail(String emailOrUsername) {
+        return Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches();
+    }
+
+    public static boolean areLoginCredentialsValid(String emailOrUsername, String password,
+                                                   TextInputLayout passwordTextInputLayout,
+                                                   TextInputLayout emailOrUsernameTextInputLayout)
+    {
+
+        boolean isEmail = isInputOfTypeEmail(emailOrUsername);
+        if (isEmail && !isEmailValid(emailOrUsername, emailOrUsernameTextInputLayout)) {
+            emailOrUsernameTextInputLayout.setError("Invalid email");
+            return false;
+        }
+        if (!isEmail && !isUsernameValid(emailOrUsername, emailOrUsernameTextInputLayout)) {
+            emailOrUsernameTextInputLayout.setError("Invalid username");
+            return false;
+        }
+        if (!isPasswordValid(password, emailOrUsernameTextInputLayout)) {
+            passwordTextInputLayout.setError("Invalid Password");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean areRegistrationCredentialsValid(String fullname, String email, String username, String password,
+                                                          TextInputLayout fullnameTextInputLayout, TextInputLayout emailTextInputLayout,
+                                                          TextInputLayout usernameTextInputLayout, TextInputLayout passwordTextInputLayout)
+    {
+        boolean isFullNameValid = ProfileHelper.isFullNameValid(fullname, fullnameTextInputLayout);
+        boolean isUsernameValid = ProfileHelper.isUsernameValid(username, usernameTextInputLayout);
+        boolean isEmailValid = ProfileHelper.isEmailValid(email, emailTextInputLayout);
+        boolean isPasswordValid = ProfileHelper.isPasswordValid(password, passwordTextInputLayout);
+        return isFullNameValid && isUsernameValid && isEmailValid && isPasswordValid;
     }
 
 }

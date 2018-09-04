@@ -100,8 +100,6 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
 
-            // TODO Delete this
-            FirebaseAuth.getInstance().signOut();
             if (!isUserSignedIn()) {
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);

@@ -25,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,10 +35,12 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.FirebaseProfileAction;
+import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
-
-import java.util.Random;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -220,79 +221,65 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 toggleProgressBar(true);
-                final String fullName = getFormattedFullName();
-                final String inputUsername = getFormattedUsername();
-                final String username = Helper.getFirebaseEncodedUsername(inputUsername);
-                final String email = getFormattedEmail();
-                final String password = getFormattedPassword();
+                final String fullName = ProfileHelper.getFormattedFullName(fullNameEditText);
+                final String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
+                final String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
+                final String email = ProfileHelper.getFormattedEmail(emailEditText);
+                final String password = ProfileHelper.getFormattedPassword(passwordEditText);
 
-                if (!areInputsValid(fullName, inputUsername, email, password)) {
+
+                if (!ProfileHelper.areRegistrationCredentialsValid(fullName, email, inputUsername, password,
+                        fullNameTextInputLayout, emailTextInputLayout, usernameTextInputLayout, passwordTextInputLayout)) {
                     toggleProgressBar(false);
                     return;
                 }
 
-                DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
-                accountReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChild(username)) {
+
+                FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
+                    @Override
+                    public void onSuccess(boolean usernameTaken) {
+                        if (usernameTaken) {
                             usernameTextInputLayout.setError("Username is taken. Try again");
                             toggleProgressBar(false);
                             return;
                         }
-                        // else -> attempt creation of new firebaseUser
-                        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                        FirebaseProfileAction.registerUserWithEmailAndPassword(email, password, new OnFirebaseUserRegistrationCallback() {
                             @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
-                                    if (user != null) {
-                                        UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
-                                        user.updateProfile(profile);
-                                        String uid = user.getUid();
-                                        String email = user.getEmail();
-
-                                        DatabaseReference profileReference = usersDatabaseRef.child(uid);
-                                        profileReference.child(Key.USER_PROFILE_FULL_NAME).setValue(fullName);
-                                        profileReference.child(Key.USER_PROFILE_USERNAME).setValue(username);
-                                        profileReference.child(Key.USER_PROFILE_PIC).setValue(ProfileHelper.generateDefaultProfilePic());
-
-                                        DatabaseReference notificationPreference = profileReference.child(Key.DB_REF_USER_PREFERENCES);
-                                        notificationPreference.child(Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION).setValue(true);
-                                        notificationPreference.child(Key.PREFERENCE_ALLOW_REPOST_NOTIFICATION).setValue(true);
-                                        notificationPreference.child(Key.PREFERENCE_ALLOW_FOLLOW_NOTIFICATION).setValue(true);
-
-                                        DatabaseReference accountReference = Default.ACCOUNT_REFERENCE.child(username);
-                                        accountReference.setValue(email);
-
+                            public void onSuccess(FirebaseUser firebaseUser) {
+                                FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, username, new OnPrismUserRegistrationCallback() {
+                                    @Override
+                                    public void onSuccess() {
                                         intentToMainActivity();
                                     }
-                                } else {
-                                    toggleProgressBar(false);
-                                    Log.e(Default.TAG_DB, Message.USER_ACCOUNT_CREATION_FAIL);
-                                    try {
-                                        throw task.getException();
-                                    } catch (FirebaseAuthWeakPasswordException weakPassword) {
-                                        passwordTextInputLayout.setError("Password is too weak");
-                                    } catch (FirebaseAuthInvalidCredentialsException invalidEmail) {
-                                        emailTextInputLayout.setError("Invalid email");
-                                    } catch (FirebaseAuthUserCollisionException existEmail) {
-                                        emailTextInputLayout.setError("Email already exists");
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                                });
+                            }
 
+                            @Override
+                            public void onFailure(Object exception) {
+                                if (exception instanceof FirebaseAuthWeakPasswordException) {
+                                    passwordTextInputLayout.setError("Password is too weak");
+                                }
+                                if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+                                    emailTextInputLayout.setError("Invalid email");
+                                }
+                                if (exception instanceof FirebaseAuthUserCollisionException) {
+                                    emailTextInputLayout.setError("Email already exists");
+                                }
+                                if (exception instanceof Exception) {
+                                    ((Exception) exception).printStackTrace();
                                 }
                             }
                         });
+
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onFailure() {
                         toggleProgressBar(false);
-                        Log.e(Default.TAG_DB, Message.USER_EXIST_CHECK_FAIL, databaseError.toException());
                     }
                 });
+
             }
         });
     }
@@ -330,24 +317,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void intentToMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         CurrentUser.prepareAppForUser(this, intent);
-
-        // TODO @Mike if you want to get iconImageView to do its shit, you can maybe pass it into `prepareAppForUser`
-//        Intent mainActivityIntent = new Intent(RegisterActivity.this, MainActivity.class);
-//        ActivityOptionsCompat options = ActivityOptionsCompat.
-//                makeSceneTransitionAnimation(RegisterActivity.this, iconImageView, "icon");
-//        iconImageView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                startActivity(mainActivityIntent, options.toBundle());
-////                    overridePendingTransition(enterAnim, exitAnim);
-//                iconImageView.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        finish();
-//                    }
-//                }, 1000);
-//            }
-//        }, 250);
     }
 
     /**
@@ -373,44 +342,4 @@ public class RegisterActivity extends AppCompatActivity {
         registerProgressBar.setVisibility(progressVisibility);
     }
 
-    /**
-     * Verify that all inputs to the EditText fields are valid
-     */
-    private boolean areInputsValid(String fullName, String username, String email, String password) {
-        boolean isFullNameValid = ProfileHelper.isFullNameValid(fullName, fullNameTextInputLayout);
-        boolean isUsernameValid = ProfileHelper.isUsernameValid(username, usernameTextInputLayout);
-        boolean isEmailValid = ProfileHelper.isEmailValid(email, emailTextInputLayout);
-        boolean isPasswordValid = ProfileHelper.isPasswordValid(password, passwordTextInputLayout);
-        return isFullNameValid && isUsernameValid && isEmailValid && isPasswordValid;
-    }
-
-    /**
-     * Cleans the fullName entered and returns the clean version
-     */
-    public String getFormattedFullName() {
-        return fullNameEditText.getText().toString().trim().replaceAll(" +", " ");
-
-    }
-
-    /**
-     * Cleans the username entered and returns the clean version
-     */
-    public String getFormattedUsername() {
-        return usernameEditText.getText().toString().trim().toLowerCase();
-    }
-
-
-    /**
-     * Cleans the email entered and returns the clean version
-     */
-    public String getFormattedEmail() {
-        return emailEditText.getText().toString().trim().toLowerCase();
-    }
-
-    /**
-     * Cleans the password entered and returns the clean version
-     */
-    public String getFormattedPassword() {
-        return passwordEditText.getText().toString().trim();
-    }
 }

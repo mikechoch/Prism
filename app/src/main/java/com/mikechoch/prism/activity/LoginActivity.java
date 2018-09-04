@@ -48,6 +48,8 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.AuthenticationController;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.FirebaseProfileAction;
+import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
@@ -149,7 +151,12 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isEmailOrUsernameValid(s.toString().trim());
+                            String input = s.toString().trim();
+                            if (ProfileHelper.isInputOfTypeEmail(input)) {
+                                ProfileHelper.isEmailValid(input, emailOrUsernameTextInputLayout);
+                            } else {
+                                ProfileHelper.isUsernameValid(input, emailOrUsernameTextInputLayout);
+                            }
                         }
                     }
                 }, 2000);
@@ -177,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
-                            isPasswordValid(s.toString().trim());
+                            ProfileHelper.isPasswordValid(s.toString().trim(), passwordTextInputLayout);
                         }
                     }
                 }, 2000);
@@ -266,38 +273,32 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 toggleLoginProgressBar(true);
-                String emailOrUsername = getFormattedEmailOrUsername();
-                String password = getFormattedPassword();
 
-                if (!isEmailOrUsernameValid(emailOrUsername) || !isPasswordValid(password)) {
+                String emailOrUsername = ProfileHelper.getFormattedEmail(emailOrUsernameEditText);
+                String password = ProfileHelper.getFormattedPassword(passwordEditText);
+                boolean isEmail = ProfileHelper.isInputOfTypeEmail(emailOrUsername);
+
+                if (!ProfileHelper.areLoginCredentialsValid(emailOrUsername, password, passwordTextInputLayout, emailOrUsernameTextInputLayout)) {
                     toggleLoginProgressBar(false);
                     return;
                 }
 
-                // If input is username, extract email from database
-                if (!isInputOfTypeEmail(emailOrUsername)) {
-                    DatabaseReference accountsReference = Default.ACCOUNT_REFERENCE.child(emailOrUsername);
-                    accountsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                if (isEmail) {
+                    String email = emailOrUsername;
+                    attemptLogin(email, password);
+                } else {
+                    String username = emailOrUsername;
+                    FirebaseProfileAction.fetchEmailForUsername(username, new OnFetchEmailForUsernameCallback() {
                         @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                String email = (String) dataSnapshot.getValue();
-                                attemptLogin(email, password);
-                            } else {
-                                emailOrUsernameTextInputLayout.setError("Username not found");
-                                toggleLoginProgressBar(false);
-                            }
+                        public void onSuccess(String email) {
+                            attemptLogin(email, password);
                         }
 
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.wtf(Default.TAG_DB, Message.USER_EXIST_CHECK_FAIL, databaseError.toException());
-                            Helper.toast(LoginActivity.this, "An error occurred logging in");
+                        public void onFailure() {
                             toggleLoginProgressBar(false);
                         }
                     });
-                } else {
-                    attemptLogin(emailOrUsername, password);
                 }
             }
         });
@@ -377,7 +378,8 @@ public class LoginActivity extends AppCompatActivity {
      * Also display a loading spinner until onComplete
      */
     private void attemptLogin(String email, String password) {
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                  if (task.isSuccessful()) {
@@ -400,52 +402,6 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setVisibility(buttonVisibility);
         goToRegisterButton.setVisibility(buttonVisibility);
         loginProgressBar.setVisibility(progressVisibility);
-    }
-
-    /**
-     * Email/Username validation check
-     */
-    private boolean isEmailOrUsernameValid(String emailOrUsername) {
-        boolean isValid = (Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) ||
-                (emailOrUsername.length() >=  5 && emailOrUsername.length() <= 30);
-        if (!isValid) {
-           emailOrUsernameTextInputLayout.setError("Invalid username/email");
-        }
-        return isValid;
-    }
-
-    /**
-     * Password validation check
-     */
-    private boolean isPasswordValid(String password) {
-        return password.length() > 5;
-    }
-
-    /**
-     * Checks to see if what firebaseUser typed in the username/email editText
-     * is of type email or username. The purpose is that if the firebaseUser
-     * enters an email, we can directly attemptLogin otherwise for username,
-     * we have to go to the database and extract the email for the given
-     * username
-     * @param emailOrUsername text from the email/username editText
-     * @return True if input is an email and False if it's a username
-     */
-    private boolean isInputOfTypeEmail(String emailOrUsername) {
-        return Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches();
-    }
-
-    /**
-     * Cleans the email or username entered and returns the clean version
-     */
-    private String getFormattedEmailOrUsername() {
-        return emailOrUsernameEditText.getText().toString().trim();
-    }
-
-    /**
-     * Cleans the password entered and returns the clean version
-     */
-    private String getFormattedPassword() {
-        return passwordEditText.getText().toString().trim();
     }
 
 }

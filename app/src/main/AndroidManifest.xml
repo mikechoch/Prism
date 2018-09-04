@@ -55,6 +55,9 @@
             android:name=".activity.RegisterActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.RegisterUsernameActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.DisplayUsersActivity"
             android:screenOrientation="portrait" />
         <activity

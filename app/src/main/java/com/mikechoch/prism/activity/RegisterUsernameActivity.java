@@ -1,5 +1,6 @@
 package com.mikechoch.prism.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
@@ -14,8 +15,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.FirebaseProfileAction;
+import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
 public class RegisterUsernameActivity extends AppCompatActivity {
@@ -24,6 +32,7 @@ public class RegisterUsernameActivity extends AppCompatActivity {
     private TextInputLayout usernameTextInputLayout;
     private EditText usernameEditText;
     private Button nextButton;
+    private String fullName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +48,18 @@ public class RegisterUsernameActivity extends AppCompatActivity {
         usernameTextInputLayout.setTypeface(Default.sourceSansProLight);
         usernameEditText.setTypeface(Default.sourceSansProLight);
 
+        Intent intent = getIntent();
+        fullName = intent.getStringExtra("fullName");
+
         usernameEditText.requestFocus();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameEditText.getText().toString().trim();
-                if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
-                    //TODO: Go to MainActivity
-                }
+                String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
+                String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
+                createPrismUser(username);
             }
         });
 
@@ -63,7 +74,7 @@ public class RegisterUsernameActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ProfileHelper.isFullNameValid(s.toString().trim(), usernameTextInputLayout);
+                        ProfileHelper.isUsernameValid(s.toString().trim(), usernameTextInputLayout);
                     }
                 }, 2000);
             }
@@ -77,10 +88,9 @@ public class RegisterUsernameActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 switch(actionId) {
                     case EditorInfo.IME_ACTION_DONE:
-                        String username = usernameEditText.getText().toString().trim();
-                        if (ProfileHelper.isFullNameValid(username, usernameTextInputLayout)) {
-                            //TODO: Go to MainActivity
-                        }
+                        String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
+                        String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
+                        createPrismUser(username);
                         return true;
                 }
                 return false;
@@ -88,4 +98,47 @@ public class RegisterUsernameActivity extends AppCompatActivity {
         });
     }
 
-}
+    public void createPrismUser(String username) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
+            FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
+                @Override
+                public void onSuccess(boolean usernameTaken) {
+                    if (usernameTaken) {
+                        usernameTextInputLayout.setError("Username is taken");
+                    } else {
+                        FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, username, new OnPrismUserRegistrationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                intentToMainActivity();
+//                                Intent intent = new Intent(RegisterUsernameActivity.this, MainActivity.class);
+//                                CurrentUser.prepareAppForUser(RegisterUsernameActivity.this, intent);
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure() {
+                    // TODO Log this
+                }
+            });
+        }
+    }
+
+    /**
+     * Intent to Main Activity from Login Activity
+     * TODO Rename this method
+     */
+    private void intentToMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        CurrentUser.prepareAppForUser(this, intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        FirebaseAuth.getInstance().signOut();
+        super.onBackPressed();
+    }
+
+ }

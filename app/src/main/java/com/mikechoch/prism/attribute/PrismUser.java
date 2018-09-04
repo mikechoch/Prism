@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.ProfileHelper;
 
 /**
  * Created by mikechoch on 1/30/18.
@@ -38,7 +39,7 @@ public class PrismUser implements Parcelable {
     }
 
     public String getUsername() {
-        return Helper.getFirebaseDecodedUsername(username);
+        return ProfileHelper.getFirebaseDecodedUsername(username);
     }
 
     public String getFullName() {

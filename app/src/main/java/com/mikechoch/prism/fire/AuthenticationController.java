@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.util.Log;
@@ -15,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,14 +31,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.RegisterUsernameActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.fire.callback.OnUsernameExistCallback;
+import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
@@ -78,6 +77,7 @@ public class AuthenticationController {
      * @param googleSignInClient - Used to get signIn intent
      */
     public static void initiateSignInWithGoogle(Context context, GoogleSignInClient googleSignInClient) {
+        googleSignInClient.signOut();
         Intent signInIntent = googleSignInClient.getSignInIntent();
         ((Activity) context).startActivityForResult(signInIntent, Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE);
     }
@@ -94,7 +94,7 @@ public class AuthenticationController {
         try {
             final GoogleSignInAccount account = task.getResult(ApiException.class);
             AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-            authenticateCredentials(((Activity) context), account.getEmail(), credential);
+            authenticateCredentials(((Activity) context), account, credential);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             Log.e(Default.TAG_GOOGLE_CLIENT, "signInResult:failed code=" + e.getStatusCode());
@@ -109,15 +109,15 @@ public class AuthenticationController {
      * registered then authCredential object is used and FirebaseAuth sign in happens. If that is
      * successful, then the user is signed in to the app and eventually gets taken to Home page
      * @param context - Gets passed along methods
-     * @param email - Used to check if email is already registered or not
+     * @param account - Used to get email and check if email is already registered or not
      * @param credential - Used to perform Firebase Authentication
      */
-    private static void authenticateCredentials(final Activity context, final String email, final AuthCredential credential) {
-        auth.fetchSignInMethodsForEmail(email).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+    private static void authenticateCredentials(final Activity context, final GoogleSignInAccount account, final AuthCredential credential) {
+        auth.fetchSignInMethodsForEmail(account.getEmail()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
             @Override
             public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                 if (task.isSuccessful()) {
-                    if (!isEmailAlreadyRegisteredWithPassword(context, email, task.getResult().getSignInMethods())) {
+                    if (!isEmailAlreadyRegisteredWithPassword(context, account.getEmail(), task.getResult().getSignInMethods())) {
                         performSignInWithCredential(context, credential);
                     }
                 }
@@ -134,14 +134,15 @@ public class AuthenticationController {
                             public void onSuccess(AuthResult authResult) {
                                 FirebaseUser firebaseUser = authResult.getUser();
                                 // TODO check if user needs to create a username or not
-                                doesUserHaveUsername(firebaseUser, new OnUsernameExistCallback() {
+                                FirebaseProfileAction.doesUserHaveUsername(firebaseUser, new OnPrismUserProfileExistCallback() {
                                     @Override
-                                    public void onSuccess(boolean usernameExists) {
-                                        if (usernameExists) {
-                                            signInUser(context, firebaseUser);
+                                    public void onSuccess(boolean prismUserExists) {
+                                        if (prismUserExists) {
+                                            signInUser(context);
                                         } else {
-                                            CustomAlertDialogBuilder createUsernameDialog = createUsernameDialog(context, firebaseUser);
-                                            createUsernameDialog.show();
+                                            Intent intent = new Intent(context, RegisterUsernameActivity.class);
+                                            intent.putExtra("fullName", account.getDisplayName());
+                                            context.startActivity(intent);
                                         }
                                     }
 
@@ -189,7 +190,7 @@ public class AuthenticationController {
                 // Register firebaseUser -- TODO This is almost same as the one in register activity, so Generify it
                 String uid = firebaseUser.getUid();
                 String email = firebaseUser.getEmail();
-                String username = Helper.getFirebaseEncodedUsername(email.split("@")[0]);
+                String username = ProfileHelper.getFirebaseEncodedUsername(email.split("@")[0]);
                 UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
                 firebaseUser.updateProfile(profile);
 
@@ -229,20 +230,7 @@ public class AuthenticationController {
         return chooseUsernameAlertDialog;
     }
 
-    private static void doesUserHaveUsername(FirebaseUser firebaseUser, OnUsernameExistCallback callback) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot currentUserSnapshot) {
-                callback.onSuccess(currentUserSnapshot.hasChild(Key.USER_PROFILE_USERNAME));
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                callback.onFailure();
-            }
-        });
-    }
 
 
     /**
@@ -250,16 +238,10 @@ public class AuthenticationController {
      * user to main page of the app. finish() is called to clear backStack so user can't go
      * back to Login page onBackPress
      * @param context - Used to intent user and clear back stack
-     * @param firebaseUser - Used to parse name, email and other profile details to save in DB
      */
-    private static void signInUser(Activity context, FirebaseUser firebaseUser) {
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
-
-        currentUserReference.child(Key.USER_PROFILE_FULL_NAME).setValue(firebaseUser.getDisplayName());
-        Helper.toast(context, "Sign in successful");
-
-
-        context.finish();
+    private static void signInUser(Activity context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        CurrentUser.prepareAppForUser(context, intent);
     }
 
     /**
@@ -275,6 +257,7 @@ public class AuthenticationController {
         if (alreadyRegistered) {
             RelativeLayout view = ((Activity) context).findViewById(R.id.login_relative_layout);
             Snackbar.make(view, "Email " + email + " is already registered. Please login with password", Snackbar.LENGTH_LONG).show();
+
         }
         return alreadyRegistered;
     }
