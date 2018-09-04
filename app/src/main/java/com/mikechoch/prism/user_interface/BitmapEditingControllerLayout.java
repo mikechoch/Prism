@@ -23,7 +23,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.ProfilePictureUploadActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;

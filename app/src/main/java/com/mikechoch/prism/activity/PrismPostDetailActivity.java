@@ -21,7 +21,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
-import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;

@@ -20,10 +20,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
-import com.mikechoch.prism.helper.Helper;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class PrismPostDescriptionActivity extends AppCompatActivity {

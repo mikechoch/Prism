@@ -27,9 +27,7 @@ import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.user_interface.BitmapEditingControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 

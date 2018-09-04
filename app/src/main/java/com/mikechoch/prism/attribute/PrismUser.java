@@ -3,7 +3,6 @@ package com.mikechoch.prism.attribute;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
 /**
