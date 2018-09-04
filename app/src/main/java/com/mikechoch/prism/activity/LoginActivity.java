@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPasswordHeaderTextView;
 
     private Button loginButton;
-    private Button forgotPasswordTextView;
+    private Button forgotPassword;
     private Button goToRegisterButton;
     private SignInButton googleSignInButton;
 
@@ -81,9 +81,9 @@ public class LoginActivity extends AppCompatActivity {
         emailOrUsernameEditText = findViewById(R.id.email_edit_text);
         passwordTextInputLayout = findViewById(R.id.password_text_input_layout);
         passwordEditText = findViewById(R.id.password_edit_text);
-        loginButton = findViewById(R.id.register_submit_button);
+        loginButton = findViewById(R.id.login_submit_button);
         googleSignInButton = findViewById(R.id.google_sign_in_button);
-        forgotPasswordTextView = findViewById(R.id.forgot_password_button);
+        forgotPassword = findViewById(R.id.forgot_password_button);
         goToRegisterButton = findViewById(R.id.go_to_register_button);
         loginProgressBar = findViewById(R.id.login_progress_bar);
 
@@ -97,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (requestCode == Default.SIGN_IN_WITH_GOOGLE_REQUEST_CODE) {
             AuthenticationController.handleGoogleIntentResult(LoginActivity.this, data);
+            toggleLoginProgressBar(false);
         }
 
     }
@@ -183,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
      *
      */
     private void setupForgotPassword() {
-        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createForgotPasswordAlertDialog().show();
@@ -310,7 +311,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextInputLayout.setTypeface(Default.sourceSansProLight);
         passwordEditText.setTypeface(Default.sourceSansProLight);
         loginButton.setTypeface(Default.sourceSansProLight);
-        forgotPasswordTextView.setTypeface(Default.sourceSansProLight);
+        forgotPassword.setTypeface(Default.sourceSansProLight);
         goToRegisterButton.setTypeface(Default.sourceSansProLight);
         googleSignInButton.setSize(SignInButton.SIZE_WIDE);
         googleSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
@@ -331,6 +332,7 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                toggleLoginProgressBar(true);
                 AuthenticationController.initiateSignInWithGoogle(LoginActivity.this, googleSignInClient);
             }
         });
@@ -381,10 +383,13 @@ public class LoginActivity extends AppCompatActivity {
      * Toggles the login button and register button to hide and shows the progress bar spinner
      */
     private void toggleLoginProgressBar(boolean showProgressBar) {
-        int progressVisibility = showProgressBar ? View.VISIBLE : View.INVISIBLE;
-        int buttonVisibility = showProgressBar ? View.INVISIBLE : View.VISIBLE;
+        int progressVisibility = showProgressBar ? View.VISIBLE : View.GONE;
+        int buttonVisibility = showProgressBar ? View.GONE : View.VISIBLE;
         loginButton.setVisibility(buttonVisibility);
         goToRegisterButton.setVisibility(buttonVisibility);
+        googleSignInButton.setVisibility(buttonVisibility);
+        forgotPassword.setVisibility(buttonVisibility);
+
         loginProgressBar.setVisibility(progressVisibility);
     }
 
