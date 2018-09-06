@@ -10,7 +10,7 @@ import com.mikechoch.prism.fire.CurrentUser;
  * Created by parth on 3/4/18.
  */
 
-public enum Notification {
+public enum NotificationType {
 
     LIKE("like", Key.DB_REF_POST_LIKED_USERS, Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
     UNLIKE("like", Key.DB_REF_POST_LIKED_USERS, Key.PREFERENCE_ALLOW_LIKE_NOTIFICATION, R.drawable.ic_notification_badge_heart_white_36dp, Default.DISPLAY_USERS_LIKE_CODE),
@@ -28,7 +28,7 @@ public enum Notification {
     private final int notifIcon;
     private final int notifUserDisplayCode;
 
-    Notification(String notifIdSuffix, String dbRefKey, String dbUseNotifrPrefKey, int notifIcon, int notifUserDisplayCode) {
+    NotificationType(String notifIdSuffix, String dbRefKey, String dbUseNotifrPrefKey, int notifIcon, int notifUserDisplayCode) {
         this.notifIdSuffix = notifIdSuffix;
         this.DB_REF_KEY = dbRefKey;
         this.DB_USER_NOTIF_PREF_KEY = dbUseNotifrPrefKey;
@@ -56,15 +56,15 @@ public enum Notification {
         return DB_USER_NOTIF_PREF_KEY;
     }
 
-    public static Notification getNotificationType(String notificationId) {
+    public static NotificationType getType(String notificationId) {
         if (notificationId.endsWith("_like")) {
-            return Notification.LIKE;
+            return NotificationType.LIKE;
         }
         if (notificationId.endsWith("_repost")) {
-            return Notification.REPOST;
+            return NotificationType.REPOST;
         }
         if (notificationId.endsWith("_follow")) {
-            return Notification.FOLLOW;
+            return NotificationType.FOLLOW;
         }
         return null;
     }
@@ -73,15 +73,15 @@ public enum Notification {
         return notificationId.replace(this.getNotifIdSuffix(), "");
     }
 
-    public static String createLikeRepostNotificationId(PrismPost prismPost, Notification type) {
+    public static String createLikeRepostNotificationId(PrismPost prismPost, NotificationType type) {
         return prismPost.getPostId() + type.getNotifIdSuffix();
     }
 
     public static String createFollowNotificationId() {
-        return CurrentUser.prismUser.getUid() + Notification.FOLLOW.getNotifIdSuffix();
+        return CurrentUser.prismUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
     }
 
-    public static int generateLikeRepostPushNotificationId(PrismPost prismPost, Notification type) {
+    public static int generateLikeRepostPushNotificationId(PrismPost prismPost, NotificationType type) {
         String id = createLikeRepostNotificationId(prismPost, type);
         return id.hashCode();
     }
@@ -94,10 +94,10 @@ public enum Notification {
 
 
     /**
-     * Overriding the toString method for the Notification enum
+     * Overriding the toString method for the NotificationType enum
      * Checks which enum type is being used
-     * Used for displaying in each Notification item TexView
-     * @return - returns the appropriate String related to the Notification
+     * Used for displaying in each NotificationType item TexView
+     * @return - returns the appropriate String related to the NotificationType
      */
     @Override
     public String toString() {

@@ -18,7 +18,7 @@ import com.mikechoch.prism.attribute.PushNotification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.NotificationKey;
-import com.mikechoch.prism.type.Notification;
+import com.mikechoch.prism.type.NotificationType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -109,8 +109,8 @@ public class OutgoingNotificationController {
     }
 
     private static void createLikeNotification(PrismPost prismPost, long actionTimestamp) {
-        Notification type = Notification.LIKE;
-        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
+        NotificationType type = NotificationType.LIKE;
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -121,8 +121,8 @@ public class OutgoingNotificationController {
     }
 
     private static void createRepostNotification(PrismPost prismPost, long actionTimestamp) {
-        Notification type = Notification.REPOST;
-        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
+        NotificationType type = NotificationType.REPOST;
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -133,8 +133,8 @@ public class OutgoingNotificationController {
     }
 
     private static void createFollowNotification(PrismUser prismUser, long actionTimestamp) {
-        Notification type = Notification.FOLLOW;
-        String notificationId = Notification.createFollowNotificationId();
+        NotificationType type = NotificationType.FOLLOW;
+        String notificationId = NotificationType.createFollowNotificationId();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -145,8 +145,8 @@ public class OutgoingNotificationController {
     }
 
     private static void revertLikeNotification(PrismPost prismPost) {
-        Notification type = Notification.UNLIKE;
-        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
+        NotificationType type = NotificationType.UNLIKE;
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -177,8 +177,8 @@ public class OutgoingNotificationController {
     }
 
     private static void revertRepostNotification(PrismPost prismPost) {
-        Notification type = Notification.UNREPOST;
-        String notificationId = Notification.createLikeRepostNotificationId(prismPost, type);
+        NotificationType type = NotificationType.UNREPOST;
+        String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
@@ -209,7 +209,7 @@ public class OutgoingNotificationController {
     }
 
     private static void revertFollowNotification(PrismUser prismUser) {
-        String notificationId = Notification.createFollowNotificationId();
+        String notificationId = NotificationType.createFollowNotificationId();
 
         DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
@@ -239,7 +239,7 @@ public class OutgoingNotificationController {
         });
     }
 
-    private static void generatePushNotification(String notificationReceiverPrismUserId, Notification type, Object object, long actionTimestamp) {
+    private static void generatePushNotification(String notificationReceiverPrismUserId, NotificationType type, Object object, long actionTimestamp) {
         usersReference.child(notificationReceiverPrismUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -260,7 +260,7 @@ public class OutgoingNotificationController {
 
                                 triggerPushNotification(userToken, pushNotification);
                             } else {
-                                Log.d("Notification", "User does not allow push notification");
+                                Log.d("NotificationType", "User does not allow push notification");
                             }
                         }
                     }
@@ -271,8 +271,8 @@ public class OutgoingNotificationController {
 
     }
 
-    private static PushNotification constructPushNotification(Notification type, PrismPost prismPost, long actionTimestamp) {
-        int notificationId = Notification.generateLikeRepostPushNotificationId(prismPost, type);
+    private static PushNotification constructPushNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
+        int notificationId = NotificationType.generateLikeRepostPushNotificationId(prismPost, type);
         PushNotification pushNotification = new PushNotification();
         pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
         pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
@@ -283,8 +283,8 @@ public class OutgoingNotificationController {
         return pushNotification;
     }
 
-    private static PushNotification constructPushNotification(Notification type, PrismUser prismUser, long actionTimestamp) {
-        int notificationId = Notification.generateFollowPushNotificationId();
+    private static PushNotification constructPushNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
+        int notificationId = NotificationType.generateFollowPushNotificationId();
         PushNotification pushNotification = new PushNotification();
         pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
         pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);

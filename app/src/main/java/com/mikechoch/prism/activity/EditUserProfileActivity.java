@@ -22,7 +22,6 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +33,8 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.FirebaseProfileAction;
+import com.mikechoch.prism.fire.callback.OnPasswordChangeCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
@@ -323,32 +324,20 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changePasswordAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // TODO: add error checking for Old Password
-                String oldPassword = oldPasswordAlertDialogEditText.getText().toString().trim();
-                String newPassword = newPasswordAlertDialogEditText.getText().toString().trim();
+                String oldPassword = ProfileHelper.getFormattedPassword(oldPasswordAlertDialogEditText);
+                String newPassword = ProfileHelper.getFormattedPassword(newPasswordAlertDialogEditText);
+
                 if (oldPassword.equals(newPassword)) {
                     dialog.dismiss();
                     return;
                 }
                 if (ProfileHelper.isPasswordValid(newPassword, newPasswordAlertDialogTextInputLayout)) {
                     togglePasswordAlertDialogAttributes(true);
-                    updatePassword(oldPassword, newPassword, dialog);
+                    attemptChangePassword(oldPassword, newPassword, dialog);
                 }
 
-
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null
-        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-
-            }
-        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-
-            }
-        });
+        }).setNegativeButton(Default.BUTTON_CANCEL, null);
 
         return changePasswordAlertDialog;
     }
@@ -469,7 +458,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         fullNameEditText.setText(CurrentUser.prismUser.getFullName());
         usernameEditText.setText(CurrentUser.prismUser.getUsername());
         passwordEditText.setText(Default.HIDDEN_PASSWORD);
-        emailEditText.setText(CurrentUser.firebaseUser.getEmail());
+        emailEditText.setText(CurrentUser.getFirebaseUser().getEmail());
     }
 
     /**
@@ -532,7 +521,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(newUsername).build();
-                            CurrentUser.firebaseUser.updateProfile(profileUpdate);
+                            CurrentUser.getFirebaseUser().updateProfile(profileUpdate);
                             CurrentUser.prismUser.setUsername(newUsername);
                             usernameEditText.setText(newUsername);
                             Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_SUCCESS);
@@ -552,54 +541,39 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
     }
 
-    private void updatePassword(String oldPassword, String newPassword, DialogInterface dialog) {
-        // Update in
-        // 1) FirebaseUser.newPassword
-        String email = CurrentUser.firebaseUser.getEmail();
-        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
-        CurrentUser.firebaseUser.reauthenticate(credential)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            CurrentUser.firebaseUser.updatePassword(newPassword)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                CurrentUser.updateLocalCurrentUser();
-                                                passwordEditText.setText(Default.HIDDEN_PASSWORD);
-                                                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_SUCCESS);
-                                            } else {
-                                                Log.e(Default.TAG_DB, Message.PASSWORD_UPDATE_FAIL, task.getException());
-                                                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_FAIL);
-                                                try {
-                                                    throw task.getException();
-                                                } catch (FirebaseAuthWeakPasswordException weakPassword) {
-                                                    newPasswordAlertDialogTextInputLayout.setError("Password is too weak");
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                            dialog.dismiss();
-                                        }
-                                    });
-                        } else {
-                            Log.e(Default.TAG_DB, Message.REAUTH_FAIL);
-                            togglePasswordAlertDialogAttributes(false);
-                            oldPasswordAlertDialogTextInputLayout.setError("Incorrect password");
-                        }
-                    }
-                });
+    private void attemptChangePassword(String oldPassword, String newPassword, DialogInterface dialog) {
+        FirebaseProfileAction.changePassword(oldPassword, newPassword, new OnPasswordChangeCallback() {
+            @Override
+            public void onSuccess() {
+                passwordEditText.setText(Default.HIDDEN_PASSWORD);
+                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_SUCCESS);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+                Log.e(Default.TAG_DB, Message.PASSWORD_UPDATE_FAIL, e);
+                Helper.toast(EditUserProfileActivity.this, Message.PASSWORD_UPDATE_FAIL);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onIncorrectPassword() {
+                Log.e(Default.TAG_DB, Message.REAUTH_FAIL);
+                togglePasswordAlertDialogAttributes(false);
+                oldPasswordAlertDialogTextInputLayout.setError("Incorrect password");
+            }
+        });
 
     }
 
     private void updateEmail(String newEmail, String password, DialogInterface dialog) {
         // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
         // 2) FirebaseUser.newEmail
-        String email = CurrentUser.firebaseUser.getEmail();
+        String email = CurrentUser.getFirebaseUser().getEmail();
         AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        CurrentUser.firebaseUser.reauthenticate(credential)
+        CurrentUser.getFirebaseUser().reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -609,7 +583,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
                                 return;
                             }
                             if (ProfileHelper.isEmailValid(newEmail, newEmailAlertDialogTextInputLayout)) {
-                                CurrentUser.firebaseUser.updateEmail(newEmail)
+                                CurrentUser.getFirebaseUser().updateEmail(newEmail)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -620,7 +594,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
-                                                                CurrentUser.updateLocalCurrentUser();
                                                                 emailEditText.setText(newEmail);
                                                                 Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_SUCCESS);
                                                             } else {

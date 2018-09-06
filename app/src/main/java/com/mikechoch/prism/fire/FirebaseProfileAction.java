@@ -4,8 +4,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -21,6 +25,7 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnPasswordChangeCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
@@ -147,6 +152,37 @@ public class FirebaseProfileAction {
                 callback.onFailure();
             }
         });
+    }
+
+    public static void changePassword(String oldPassword, String newPassword, OnPasswordChangeCallback callback) {
+        String email = CurrentUser.getFirebaseUser().getEmail();
+        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
+        CurrentUser.getFirebaseUser().reauthenticate(credential)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CurrentUser.getFirebaseUser().updatePassword(newPassword)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        callback.onSuccess();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        callback.onFailure(e);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onIncorrectPassword();
+                    }
+                });
+
     }
 
 }

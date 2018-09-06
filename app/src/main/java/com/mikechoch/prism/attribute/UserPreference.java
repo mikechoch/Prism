@@ -1,5 +1,8 @@
 package com.mikechoch.prism.attribute;
 
+import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.NotificationType;
+
 public class UserPreference {
 
     private boolean allowLikePushNotification;
@@ -12,27 +15,58 @@ public class UserPreference {
         this.allowFollowPushNotification = allowFollowPushNotification;
     }
 
-    public boolean allowLikePushNotification() {
-        return allowLikePushNotification;
-    }
+//    public boolean doesAllowLikePushNotification() {
+//        return allowLikePushNotification;
+//    }
 
-    public void setAllowLikePushNotification(boolean allowLikePushNotification) {
+    private void setAllowLikePushNotification(boolean allowLikePushNotification) {
         this.allowLikePushNotification = allowLikePushNotification;
     }
 
-    public boolean allowRepostPushNotification() {
-        return allowRepostPushNotification;
-    }
+//    public boolean doesAllowRepostPushNotification() {
+//        return allowRepostPushNotification;
+//    }
 
-    public void setAllowRepostPushNotification(boolean allowRepostPushNotification) {
+    private void setAllowRepostPushNotification(boolean allowRepostPushNotification) {
         this.allowRepostPushNotification = allowRepostPushNotification;
     }
 
-    public boolean allowFollowPushNotification() {
-        return allowFollowPushNotification;
-    }
+//    public boolean doesAllowFollowPushNotification() {
+//        return allowFollowPushNotification;
+//    }
 
-    public void setAllowFollowPushNotification(boolean allowFollowPushNotification) {
+    private void setAllowFollowPushNotification(boolean allowFollowPushNotification) {
         this.allowFollowPushNotification = allowFollowPushNotification;
     }
+
+    public boolean doesAllowPushNotification(NotificationType type) {
+        switch (type) {
+            case LIKE:
+                return this.allowLikePushNotification;
+
+            case REPOST:
+                return this.allowRepostPushNotification;
+            case FOLLOW:
+                return this.allowFollowPushNotification;
+        }
+        return true;
+    }
+
+
+    public void setPushNotificationPreference(NotificationType type, boolean allowPushNotification) {
+        switch (type) {
+            case LIKE:
+                CurrentUser.preference.setAllowLikePushNotification(allowPushNotification);
+                break;
+
+            case REPOST:
+                CurrentUser.preference.setAllowRepostPushNotification(allowPushNotification);
+                break;
+
+            case FOLLOW:
+                CurrentUser.preference.setAllowFollowPushNotification(allowPushNotification);
+                break;
+        }
+    }
+
 }

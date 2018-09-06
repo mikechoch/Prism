@@ -9,11 +9,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.type.Notification;
+import com.mikechoch.prism.type.NotificationType;
 
 public class NotificationSettingsActivity extends AppCompatActivity {
 
@@ -38,21 +37,21 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         likeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                DatabaseAction.updatePreferenceForPushNotification(Notification.LIKE, isChecked);
+                DatabaseAction.updatePreferenceForPushNotification(NotificationType.LIKE, isChecked);
             }
         });
 
         repostSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                DatabaseAction.updatePreferenceForPushNotification(Notification.REPOST, isChecked);
+                DatabaseAction.updatePreferenceForPushNotification(NotificationType.REPOST, isChecked);
             }
         });
 
         followSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                DatabaseAction.updatePreferenceForPushNotification(Notification.FOLLOW, isChecked);
+                DatabaseAction.updatePreferenceForPushNotification(NotificationType.FOLLOW, isChecked);
             }
         });
 
@@ -68,10 +67,10 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         repostSwitch.setTypeface(Default.sourceSansProBold);
         followSwitch.setTypeface(Default.sourceSansProBold);
 
-        UserPreference userPreference = CurrentUser.preference;
-        likeSwitch.setChecked(userPreference.allowLikePushNotification());
-        repostSwitch.setChecked(userPreference.allowRepostPushNotification());
-        followSwitch.setChecked(userPreference.allowFollowPushNotification());
+
+        likeSwitch.setChecked(CurrentUser.preference.doesAllowPushNotification(NotificationType.LIKE));
+        repostSwitch.setChecked(CurrentUser.preference.doesAllowPushNotification(NotificationType.REPOST));
+        followSwitch.setChecked(CurrentUser.preference.doesAllowPushNotification(NotificationType.FOLLOW));
     }
 
     @Override

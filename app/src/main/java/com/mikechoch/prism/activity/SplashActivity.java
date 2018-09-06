@@ -11,7 +11,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
@@ -58,7 +57,7 @@ public class SplashActivity extends AppCompatActivity {
      * @return
      */
     public boolean isUserSignedIn() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;// || GoogleSignIn.getLastSignedInAccount(this) != null;
+        return CurrentUser.getFirebaseUser() != null;// || GoogleSignIn.getLastSignedInAccount(this) != null;
     }
 
     /**

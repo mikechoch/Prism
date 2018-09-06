@@ -31,7 +31,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.type.Notification;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 
@@ -144,7 +144,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             populateProfilePic();
 
             prismPostThumbnailImageView.setImageDrawable(null);
-            if (!notification.getType().equals(Notification.FOLLOW)) {
+            if (!notification.getType().equals(NotificationType.FOLLOW)) {
                 populatePrismPostThumbnail();
             }
         }
@@ -153,7 +153,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
          * Populates the notificationDescriptionLinearLayout, notificationTypeTextView, and notificationTypeImageView
          * notificationDescriptionLinearLayout gets the user and # of others who performed the action
          * notificationTypeTextView gets the notification type and time since the action occurred
-         * notificationTypeImageView gets the icon of the Notification
+         * notificationTypeImageView gets the icon of the NotificationType
          */
         private void populateNotificationInfoFields() {
             String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());

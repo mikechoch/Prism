@@ -2,17 +2,11 @@ package com.mikechoch.prism.fire;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -29,17 +23,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.RegisterUsernameActivity;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.helper.ProfileHelper;
-import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 import java.util.List;
 

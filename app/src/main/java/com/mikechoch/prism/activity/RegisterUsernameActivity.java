@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -98,7 +97,7 @@ public class RegisterUsernameActivity extends AppCompatActivity {
     }
 
     public void createPrismUser(String username) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
         if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
             FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
                 @Override
@@ -106,7 +105,7 @@ public class RegisterUsernameActivity extends AppCompatActivity {
                     if (usernameTaken) {
                         usernameTextInputLayout.setError("Username is taken");
                     } else {
-                        FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, username, new OnPrismUserRegistrationCallback() {
+                        FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, username, new OnPrismUserRegistrationCallback() {
                             @Override
                             public void onSuccess() {
                                 intentToMainActivity();

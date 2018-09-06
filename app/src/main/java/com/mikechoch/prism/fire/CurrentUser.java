@@ -43,11 +43,6 @@ public class CurrentUser {
     /*
      * Globals
      */
-    private static FirebaseAuth auth;
-    public static FirebaseUser firebaseUser;
-    private static DatabaseReference currentUserReference;
-    private static DatabaseReference allPostReference;
-    
     public static PrismUser prismUser;
     public static UserPreference preference;
 
@@ -74,11 +69,11 @@ public class CurrentUser {
 
     /**
      * Key: String notificationId
-     * Value: Notification object
+     * Value: NotificationType object
      */
     private static HashMap<String, Notification> notifications_map;
 
-    /** ArrayList of Notification objects for above structures **/
+    /** ArrayList of NotificationType objects for above structures **/
     private static ArrayList<Notification> notifications;
 
     /**
@@ -89,32 +84,15 @@ public class CurrentUser {
     static HashMap<String, Long> followings;
 
 
-
-    private CurrentUser(Context context, Intent intent) {
-        updateLocalCurrentUser();
-        currentUserReference = Default.USERS_REFERENCE.child(firebaseUser.getUid());
-        allPostReference = Default.ALL_POSTS_REFERENCE;
-        
-        refreshUserProfile(context, intent);
-    }
-
     public static void prepareAppForUser(Context context, Intent intent) {
         if (Helper.isNetworkAvailable(context)) {
-            new CurrentUser(context, intent);
+            refreshUserProfile(context, intent);
         } else {
             Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
             context.startActivity(noInternetIntent);
             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             ((Activity) context).finish();
         }
-    }
-
-    /**
-     *
-     */
-    public static void updateLocalCurrentUser() {
-        auth = FirebaseAuth.getInstance();
-        firebaseUser = auth.getCurrentUser();
     }
 
     /**
@@ -262,6 +240,9 @@ public class CurrentUser {
      * Also fetches user's followers and followings.
      */
     private static void refreshUserProfile(Context context, Intent intent) {
+        prismUser = null;
+        preference = null;
+
         liked_posts = new ArrayList<>();
         reposted_posts = new ArrayList<>();
         uploaded_posts = new ArrayList<>();
@@ -418,18 +399,20 @@ public class CurrentUser {
 
     }
 
+    public static FirebaseUser getFirebaseUser() {
+        return FirebaseAuth.getInstance().getCurrentUser();
+    }
+
     public static void performSignOut() {
        CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);
        CurrentUser.notificationsHandler.removeCallbacks(CurrentUser.notificationsRunnable);
 
-       CurrentUser.firebaseUser = null;
        CurrentUser.prismUser = null;
        CurrentUser.preference = null;
 
        FirebaseAuth.getInstance().signOut();
 
 //       CurrentUser.news_feed = null;  // TODO should do this?
-
 
     }
 

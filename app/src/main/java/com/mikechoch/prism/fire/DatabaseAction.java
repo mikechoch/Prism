@@ -10,7 +10,6 @@ import android.util.Pair;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +26,7 @@ import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnFetchUserProfileCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.type.Notification;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,30 +42,24 @@ import java.util.Map;
 
 public class DatabaseAction {
 
-    // Using firebaseUser here instead of prismUser because CurrentUser.prismUser might not be created
-    private static String currentUserId = CurrentUser.firebaseUser.getUid();
-    private static String currentUsername = CurrentUser.firebaseUser.getDisplayName();
-    private static DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
-    private static DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-    private static DatabaseReference usersReference = Default.USERS_REFERENCE;
-    private static DatabaseReference tagsReference = Default.TAGS_REFERENCE;
-
     /**
      * Adds prismPost to CurrentUser's USER_LIKES section
      * Adds userId to prismPost's LIKED_USERS section
      * Performs like locally on CurrentUser
      */
     public static void performLike(PrismPost prismPost) {
-        String postId = prismPost.getPostId();
+        String currentUserId = CurrentUser.prismUser.getUid();
         long actionTimestamp = Calendar.getInstance().getTimeInMillis();
-        DatabaseReference postReference = allPostsReference.child(postId);
+
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
 
         postReference.child(Key.DB_REF_POST_LIKED_USERS)
                 .child(currentUserId)
                 .setValue(actionTimestamp);
 
         currentUserReference.child(Key.DB_REF_USER_LIKES)
-                .child(postId)
+                .child(prismPost.getPostId())
                 .setValue(actionTimestamp);
 
         CurrentUser.likePost(prismPost);
@@ -83,14 +76,17 @@ public class DatabaseAction {
      * Performs unlike locally on CurrentUser*
      */
     public static void performUnlike(PrismPost prismPost) {
-        String postId = prismPost.getPostId();
-        DatabaseReference postReference = allPostsReference.child(postId);
+        String currentUserId = CurrentUser.prismUser.getUid();
+
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+
         postReference.child(Key.DB_REF_POST_LIKED_USERS)
                 .child(currentUserId)
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_LIKES)
-                .child(postId)
+                .child(prismPost.getPostId())
                 .removeValue();
 
         CurrentUser.unlikePost(prismPost);
@@ -105,16 +101,18 @@ public class DatabaseAction {
      * Performs repost locally on CurrentUser
      */
     public static void performRepost(PrismPost prismPost) {
-        String postId = prismPost.getPostId();
+        String currentUserId = CurrentUser.prismUser.getUid();
         long timestamp = Calendar.getInstance().getTimeInMillis();
-        DatabaseReference postReference = allPostsReference.child(postId);
+
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
 
         postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
                 .child(currentUserId)
                 .setValue(timestamp);
 
         currentUserReference.child(Key.DB_REF_USER_REPOSTS)
-                .child(postId)
+                .child(prismPost.getPostId())
                 .setValue(timestamp);
 
         CurrentUser.repostPost(prismPost);
@@ -130,15 +128,17 @@ public class DatabaseAction {
      * Performs unrepost locally on CurrentUser
      */
     public static void performUnrepost(PrismPost prismPost) {
-        String postId = prismPost.getPostId();
-        DatabaseReference postReference = allPostsReference.child(postId);
+        String currentUserId = CurrentUser.prismUser.getUid();
+
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
 
         postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
                 .child(currentUserId)
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_REPOSTS)
-                .child(postId)
+                .child(prismPost.getPostId())
                 .removeValue();
 
         CurrentUser.unrepostPost(prismPost);
@@ -155,6 +155,8 @@ public class DatabaseAction {
      * deleted from ALL_POSTS. Finally, the mainRecyclerViewAdapter is refreshed
      */
     public static void deletePost(PrismPost prismPost) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+
         FirebaseStorage.getInstance().getReferenceFromUrl(prismPost.getImage())
                 .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -209,11 +211,14 @@ public class DatabaseAction {
      * adds CurrentUser's uid to prismUser's FOLLOWINGS section
      */
     public static void followUser(PrismUser prismUser) {
-        DatabaseReference userReference = usersReference.child(prismUser.getUid());
+        String currentUserId = CurrentUser.prismUser.getUid();
         long timestamp = Calendar.getInstance().getTimeInMillis();
 
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUser.getUid());
+
         userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                .child(CurrentUser.prismUser.getUid())
+                .child(currentUserId)
                 .setValue(timestamp);
 
         currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
@@ -232,10 +237,13 @@ public class DatabaseAction {
      * removes CurrentUser's uid from prismUser's FOLLOWINGS section
      */
     public static void unfollowUser(PrismUser prismUser) {
-        DatabaseReference userReference = usersReference.child(prismUser.getUid());
+        String currentUserId = CurrentUser.prismUser.getUid();
+
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUser.getUid());
 
         userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                .child(CurrentUser.prismUser.getUid())
+                .child(currentUserId)
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
@@ -248,26 +256,20 @@ public class DatabaseAction {
 
     }
 
-    public static void updatePreferenceForPushNotification(Notification type, boolean allowPushNotification) {
+    public static void updatePreferenceForPushNotification(NotificationType type, boolean allowPushNotification) {
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+
         currentUserReference.child(Key.DB_REF_USER_PREFERENCES)
                 .child(type.getdbUserNotifPrefKey())
                 .setValue(allowPushNotification);
 
-        switch (type) {
-            case LIKE:
-                CurrentUser.preference.setAllowLikePushNotification(allowPushNotification);
-                break;
-            case REPOST:
-                CurrentUser.preference.setAllowRepostPushNotification(allowPushNotification);
-                break;
-            case FOLLOW:
-                CurrentUser.preference.setAllowFollowPushNotification(allowPushNotification);
-                break;
-        }
+        CurrentUser.preference.setPushNotificationPreference(type, allowPushNotification);
     }
 
     public static void updateViewedTimestampForAllNotifications() {
         long timestamp = System.currentTimeMillis();
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -293,10 +295,11 @@ public class DatabaseAction {
      * And then refresh the mainRecyclerViewAdapter
      */
     static void constructCurrentUserProfile(OnFetchUserProfileCallback callback) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
-                DataSnapshot currentUserSnapshot = usersSnapshot.child(currentUserId);
+                DataSnapshot currentUserSnapshot = usersSnapshot.child(CurrentUser.getFirebaseUser().getUid());
                 if (currentUserSnapshot.exists()) {
                     CurrentUser.prismUser = Helper.constructPrismUserObject(currentUserSnapshot);
                     CurrentUser.preference = ProfileFetcher.fetchUserPreferences(currentUserSnapshot);
@@ -320,6 +323,7 @@ public class DatabaseAction {
     }
 
     private static void populateUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot allPostsSnapshot) {
@@ -353,6 +357,9 @@ public class DatabaseAction {
         ArrayList<String> followings = CurrentUser.getFollowings();
         ArrayList<Pair<String, PrismUser>> listOfPrismPosts = new ArrayList<>();
         CurrentUser.news_feed = new ArrayList<>();
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
@@ -404,7 +411,7 @@ public class DatabaseAction {
 
     public static void handleFirebaseTokenRefreshActivities(Context context) {
         String firebaseToken = FirebaseInstanceId.getInstance().getToken();
-        boolean isUserLoggedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
+        boolean isUserLoggedIn = CurrentUser.getFirebaseUser() != null;
         if (firebaseToken == null || !isUserLoggedIn) {
             return;
         }
@@ -414,6 +421,7 @@ public class DatabaseAction {
         preferences.edit().putString(Default.FIREBASE_TOKEN, firebaseToken).apply();
 
         // Update token in cloud
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
         currentUserReference.child(Key.USER_TOKEN).setValue(firebaseToken);
     }
 
@@ -426,7 +434,7 @@ public class DatabaseAction {
         DatabaseReference contentReviewReference = Default.CONTENT_REVIEW_REFERENCE;
         contentReviewReference
                 .child(prismPost.getUid())
-                .child(currentUserId)
+                .child(CurrentUser.prismUser.getUid())
                 .setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -555,13 +563,12 @@ class ProfileFetcher {
 
 class DeleteHelper {
 
-    private static DatabaseReference usersReference = Default.USERS_REFERENCE;
-
     /**
      * Helper method that goes to all users who have liked the given
      * prismPost and deletes the postId under their USER_LIKES section
      */
     static void deleteLikedUsers(DataSnapshot postSnapshot, PrismPost post) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         HashMap<String, String> likedUsers = new HashMap<>();
         if (postSnapshot.child(Key.DB_REF_POST_LIKED_USERS).getChildrenCount() > 0) {
             likedUsers.putAll((Map) postSnapshot.child(Key.DB_REF_POST_LIKED_USERS).getValue());
@@ -579,6 +586,7 @@ class DeleteHelper {
      * prismPost and deletes the postId under their USER_REPOSTS section
      */
     static void deleteRepostedUsers(DataSnapshot postSnapshot, PrismPost post) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         HashMap<String, String> repostedUsers = new HashMap<>();
         if (postSnapshot.child(Key.DB_REF_POST_REPOSTED_USERS).getChildrenCount() > 0) {
             repostedUsers.putAll((Map) postSnapshot.child(Key.DB_REF_POST_REPOSTED_USERS).getValue());
@@ -592,6 +600,7 @@ class DeleteHelper {
     }
 
     static void deletePostFromUserUploads(PrismPost prismPost) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
                 .child(Key.DB_REF_USER_UPLOADS)
                 .child(prismPost.getPostId()).removeValue();
@@ -607,7 +616,7 @@ class DeleteHelper {
     }
 
     static void deletePostRelatedNotifications(PrismPost prismPost) {
-
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
             .child(Key.DB_REF_USER_NOTIFICATIONS).orderByKey().startAt(prismPost.getPostId())
             .addListenerForSingleValueEvent(new ValueEventListener() {

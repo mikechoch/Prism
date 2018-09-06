@@ -415,7 +415,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                     InterfaceAction.startMoreActionButtonAnimation(moreButton);
                     // TODO: Show more menu
                     // TODO: Decide what goes in more
-                    boolean isCurrentUserThePostCreator = CurrentUser.firebaseUser.getUid().equals(prismPost.getPrismUser().getUid());
+                    boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
                     AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(context, prismPost, isCurrentUserThePostCreator);
                     morePrismPostAlertDialog.show();
                 }

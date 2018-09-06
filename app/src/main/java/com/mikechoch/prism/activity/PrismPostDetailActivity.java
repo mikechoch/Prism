@@ -134,7 +134,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                 super.onBackPressed();
                 break;
             case R.id.prism_post_detail_action_more:
-                boolean isCurrentUserThePostCreator = CurrentUser.firebaseUser.getUid().equals(prismPost.getPrismUser().getUid());
+                boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
                 AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(this, prismPost, isCurrentUserThePostCreator);
                 morePrismPostAlertDialog.show();
                 break;

@@ -36,7 +36,7 @@ public class Message {
       public static final String EMAIL_UPDATE_FAIL = "Failed to update email";
       public static final String EMAIL_UPDATE_SUCCESS = "Email successfully updated";
 
-      public static final String CANNOT_NOTIFY_USER = "Notification message received, but notification manager is null";
+      public static final String CANNOT_NOTIFY_USER = "NotificationType message received, but notification manager is null";
 
       public static final String PASSWORD_RESET_EMAIL_SEND_FAIL = "Failed to send password reset email";
 

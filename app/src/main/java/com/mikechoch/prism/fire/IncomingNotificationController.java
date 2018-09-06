@@ -8,20 +8,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.type.Notification;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.Collections;
 
 public class IncomingNotificationController {
 
-    private static DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.firebaseUser.getUid());
-    private static DatabaseReference allPostReference = Default.ALL_POSTS_REFERENCE;
 
     static void initializeNotifications() {
         fetchUserNotifications();
@@ -29,6 +28,7 @@ public class IncomingNotificationController {
     }
     
     private static void fetchUserNotifications() {
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -44,7 +44,7 @@ public class IncomingNotificationController {
     }
     
     private static void initializeNotificationEventHandler() {
-
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
         CurrentUser.notificationsListener = new ChildEventListener() {
             /* Invoked when app loads and when a new notification is created */
             @Override
@@ -108,15 +108,15 @@ public class IncomingNotificationController {
      */
     private static void generateNotification(DataSnapshot dataSnapshot, boolean isNewNotification, boolean refreshAdapter) {
         String notificationId = dataSnapshot.getKey();
-        Notification type = Notification.getNotificationType(notificationId);
+        NotificationType type = NotificationType.getType(notificationId);
         String mostRecentUid = (String) dataSnapshot.child(Key.NOTIFICATION_MOST_RECENT_USER).getValue();
-
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
 
         long actionTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_ACTION_TIMESTAMP).getValue();
         long viewedTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
         boolean viewed = viewedTimestamp > actionTimestamp;
 
-        com.mikechoch.prism.attribute.Notification notification = new com.mikechoch.prism.attribute.Notification();
+        Notification notification = new Notification();
         notification.setType(type);
         notification.setActionTimestamp(actionTimestamp);
         notification.setViewed(viewed);
@@ -125,7 +125,7 @@ public class IncomingNotificationController {
             case LIKE:
             case REPOST:
                 String postId = type.decodeNotificationPostId(notificationId);
-                allPostReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+                allPostsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot postSnapshot) {
                         if (postSnapshot.exists()) {

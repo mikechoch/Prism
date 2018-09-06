@@ -127,7 +127,7 @@ public class Default {
     public static final String TAG_DB = "FirebaseDatabase";
     public static final String TAG_GOOGLE_CLIENT = "GoogleSignInClient";
     public static final String TAG_DEBUG = "Debug Output";
-    public static final String TAG_NOTIFICATION = "Prism Notification";
+    public static final String TAG_NOTIFICATION = "Prism NotificationType";
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
