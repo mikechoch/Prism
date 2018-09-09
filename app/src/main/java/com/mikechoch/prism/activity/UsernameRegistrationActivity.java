@@ -16,15 +16,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
-public class RegisterUsernameActivity extends AppCompatActivity {
+public class UsernameRegistrationActivity extends AppCompatActivity {
+
+    private Boolean SHOULD_SIGN_OUT = Boolean.TRUE;
 
     private TextView usernamePromptTextView;
     private TextInputLayout usernameTextInputLayout;
@@ -108,9 +112,8 @@ public class RegisterUsernameActivity extends AppCompatActivity {
                         FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, username, new OnPrismUserRegistrationCallback() {
                             @Override
                             public void onSuccess() {
+                                SHOULD_SIGN_OUT = Boolean.FALSE;
                                 intentToMainActivity();
-//                                Intent intent = new Intent(RegisterUsernameActivity.this, MainActivity.class);
-//                                CurrentUser.prepareAppForUser(RegisterUsernameActivity.this, intent);
                             }
                         });
                     }
@@ -130,13 +133,23 @@ public class RegisterUsernameActivity extends AppCompatActivity {
      */
     private void intentToMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         CurrentUser.prepareAppForUser(this, intent);
     }
 
     @Override
     public void onBackPressed() {
-        FirebaseAuth.getInstance().signOut();
         super.onBackPressed();
+    }
+
+    @Override
+    public void onPause() {
+        if (SHOULD_SIGN_OUT) {
+            Helper.toast(this, "Failed to sign in with Google");
+            FirebaseAuth.getInstance().signOut();
+            finish();
+        }
+        super.onPause();
     }
 
  }

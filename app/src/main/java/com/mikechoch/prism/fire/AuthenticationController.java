@@ -25,7 +25,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
-import com.mikechoch.prism.activity.RegisterUsernameActivity;
+import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.helper.Helper;
@@ -128,7 +128,7 @@ public class AuthenticationController {
                                         if (prismUserExists) {
                                             signInUser(context);
                                         } else {
-                                            Intent intent = new Intent(context, RegisterUsernameActivity.class);
+                                            Intent intent = new Intent(context, UsernameRegistrationActivity.class);
                                             intent.putExtra("fullName", account.getDisplayName());
                                             context.startActivity(intent);
                                         }
