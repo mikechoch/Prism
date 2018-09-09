@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -39,7 +38,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.register_username_activity_layout);
+        setContentView(R.layout.username_registration_activity_layout);
 
         usernamePromptTextView = findViewById(R.id.register_username_activity_prompt_text_view);
         usernameTextInputLayout = findViewById(R.id.register_username_activity_text_input_layout);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,52 +14,82 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.EditUserProfileActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.MoreOption;
 import com.mikechoch.prism.type.Setting;
 
 /**
  * Created by mikechoch on 2/7/18.
  */
 
-public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<SettingsOptionRecyclerViewAdapter.ViewHolder> {
+public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
 
     /*
      * Global variables
      */
+    private final int SETTING_ITEM_TYPE = 0;
+    private final int MORE_OPTION_ITEM_TYPE = 1;
+
     private Context context;
+    private Object[] dataSet;
 
-
-    private FirebaseAuth auth;
-
-
-    public SettingsOptionRecyclerViewAdapter(Context context) {
+    public OptionRecyclerViewAdapter(Context context, Object[] dataSet) {
         this.context = context;
+        this.dataSet = dataSet;
+    }
 
-        auth = FirebaseAuth.getInstance();
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        RecyclerView.ViewHolder viewHolder = null;
+        switch (viewType) {
+            case SETTING_ITEM_TYPE:
+                viewHolder = new SettingViewHolder(
+                        LayoutInflater.from(context)
+                                .inflate(R.layout.option_recycler_view_item_layout, parent, false));
+                break;
+            case MORE_OPTION_ITEM_TYPE:
+                viewHolder = new MoreOptionViewHolder(
+                        LayoutInflater.from(context)
+                                .inflate(R.layout.option_recycler_view_item_layout, parent, false));
+                break;
+        }
+        return viewHolder;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.settings_recycler_view_item_layout, parent, false));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Object item = dataSet[position];
+        if (item instanceof Setting) {
+            ((SettingViewHolder) holder).setData((Setting) item);
+        } else if (item instanceof MoreOption) {
+            ((MoreOptionViewHolder) holder).setData((MoreOption) item);
+        }
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setData(Setting.values()[position]);
+    public int getItemViewType(final int position) {
+        int viewType = -1;
+        Object item = dataSet[position];
+        if (item instanceof Setting) {
+            viewType = SETTING_ITEM_TYPE;
+        } else if (item instanceof MoreOption) {
+            viewType = MORE_OPTION_ITEM_TYPE;
+        }
+        return viewType;
     }
 
     @Override
     public int getItemCount() {
-        return Setting.values().length;
+        return dataSet.length;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class SettingViewHolder extends RecyclerView.ViewHolder {
 
         private RelativeLayout settingsOptionRelativeLayout;
         private TextView settingsOptionTextView;
@@ -67,7 +98,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         private Setting setting;
 
 
-        public ViewHolder(View itemView) {
+        public SettingViewHolder(View itemView) {
             super(itemView);
 
             // SettingOptions UI initializations
@@ -126,7 +157,7 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         }
 
         /**
-         * settingsOptionTextView
+         * moreOptionsOptionTextView
          * Get the Setting enum title and populate the TextView
          */
         private void setupSettingsOptionTextView() {
@@ -149,6 +180,76 @@ public class SettingsOptionRecyclerViewAdapter extends RecyclerView.Adapter<Sett
         private void populateUIElements() {
             // Setup Typefaces for all text based UI elements
             settingsOptionTextView.setTypeface(Default.sourceSansProLight);
+
+            setupSettingsOptionRelativeLayout();
+            setupSettingsOptionTextView();
+            setupSettingsOptionImageView();
+        }
+    }
+
+    public class MoreOptionViewHolder extends RecyclerView.ViewHolder {
+
+        private RelativeLayout settingsOptionRelativeLayout;
+        private TextView moreOptionsOptionTextView;
+        private ImageView settingsOptionImageView;
+
+        private MoreOption moreOption;
+
+
+        public MoreOptionViewHolder(View itemView) {
+            super(itemView);
+
+            // SettingOptions UI initializations
+            settingsOptionRelativeLayout = itemView.findViewById(R.id.settings_recycler_view_item_relative_layout);
+            moreOptionsOptionTextView = itemView.findViewById(R.id.settings_recycler_view_item_text_view);
+            settingsOptionImageView = itemView.findViewById(R.id.settings_recycler_view_item_icon);
+        }
+
+        /**
+         * Set data for the ViewHolder UI elements
+         */
+        public void setData(MoreOption moreOption) {
+            this.moreOption = moreOption;
+            populateUIElements();
+        }
+
+        /**
+         * settingsOptionRelativeLayout
+         * Set the onClickListener switch statement for each option
+         */
+        private void setupSettingsOptionRelativeLayout() {
+            settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }
+
+        /**
+         * moreOptionsOptionTextView
+         * Get the Setting enum title and populate the TextView
+         */
+        private void setupSettingsOptionTextView() {
+            moreOptionsOptionTextView.setText(moreOption.getTitle());
+        }
+
+        /**
+         * settingsOptionImageView
+         * Get the Setting enum icon and populate the ImageView
+         */
+        private void setupSettingsOptionImageView() {
+            Drawable settingsIcon = context.getResources().getDrawable(moreOption.getIcon());
+            settingsIcon.setTint(Color.WHITE);
+            settingsOptionImageView.setImageDrawable(settingsIcon);
+        }
+
+        /**
+         * Populate all UI elements with data
+         */
+        private void populateUIElements() {
+            // Setup Typefaces for all text based UI elements
+            moreOptionsOptionTextView.setTypeface(Default.sourceSansProLight);
 
             setupSettingsOptionRelativeLayout();
             setupSettingsOptionTextView();

@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
                 android:textColor="@color/colorAccent"
-                android:inputType="textCapWords"
+                android:inputType="text"
                 android:background="@null"/>
 
         </android.support.design.widget.TextInputLayout>

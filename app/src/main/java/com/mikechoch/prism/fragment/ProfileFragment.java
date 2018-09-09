@@ -22,9 +22,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
-import com.mikechoch.prism.adapter.SettingsOptionRecyclerViewAdapter;
+import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.Setting;
 
 /**
  * Created by mikechoch on 1/22/18.
@@ -94,7 +95,7 @@ public class ProfileFragment extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         settingsRecyclerView.setLayoutManager(linearLayoutManager);
-        SettingsOptionRecyclerViewAdapter settingsRecyclerViewAdapter = new SettingsOptionRecyclerViewAdapter(getActivity());
+        OptionRecyclerViewAdapter settingsRecyclerViewAdapter = new OptionRecyclerViewAdapter(getActivity(), Setting.values());
         settingsRecyclerView.setAdapter(settingsRecyclerViewAdapter);
 
         setupUIElements();
