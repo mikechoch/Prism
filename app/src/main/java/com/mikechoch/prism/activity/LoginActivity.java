@@ -24,9 +24,12 @@ import android.widget.TextView;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
@@ -37,6 +40,8 @@ import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -70,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_activity_layout);
+        setContentView(R.layout.login_acti vity_layout);
 
         // User authentication instance
         auth = FirebaseAuth.getInstance();
@@ -192,21 +197,55 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
+    /**
+     * TODO Refactor this
+     * @param email
+     * @param dialog
+     */
     private void sendResetPasswordEmail(String email, DialogInterface dialog) {
         forgotPasswordProgressBar.setVisibility(View.VISIBLE);
-        auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+        auth.fetchSignInMethodsForEmail(email).addOnSuccessListener(new OnSuccessListener<SignInMethodQueryResult>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Helper.toast(LoginActivity.this, "Email sent", true);
+            public void onSuccess(SignInMethodQueryResult signInMethodQueryResult) {
+                List<String> methods = signInMethodQueryResult.getSignInMethods();
+                if (methods.contains("password")) {
+                    sendEmail(email);
                 } else {
-                     Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                     Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, task.getException());
+                    Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
+                    Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
                 }
                 forgotPasswordProgressBar.setVisibility(View.GONE);
                 dialog.dismiss();
             }
+
+            void sendEmail(String email){
+                auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Helper.toast(LoginActivity.this, "Email sent", true);
+                        } else {
+                            Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
+                            Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, task.getException());
+                        }
+                        forgotPasswordProgressBar.setVisibility(View.GONE);
+                        dialog.dismiss();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
+                Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, e);
+                forgotPasswordProgressBar.setVisibility(View.GONE);
+                dialog.dismiss();
+            }
         });
+
+
     }
 
     private CustomAlertDialogBuilder createForgotPasswordAlertDialog() {
