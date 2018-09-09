@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_acti vity_layout);
+        setContentView(R.layout.login_activity_layout);
 
         // User authentication instance
         auth = FirebaseAuth.getInstance();
