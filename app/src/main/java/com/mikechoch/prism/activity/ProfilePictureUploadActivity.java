@@ -228,7 +228,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                     Helper.selectImageFromGallery(this);
                 }
                 break;
-            case Default.PROFILE_PICTURE_CAMERA:
+            case Default.PROFILE_PICTURE_SELFIE:
                 isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
                 if (isAllowed) {
                     imageUriExtra = Helper.takePictureFromCamera(this);

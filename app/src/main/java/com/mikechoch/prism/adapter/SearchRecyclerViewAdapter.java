@@ -25,6 +25,7 @@ import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
 
@@ -147,7 +148,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             peopleLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToUserProfileActivity(context, prismUser);
+                    IntentHelper.intentToUserProfileActivity(context, prismUser);
                 }
             });
         }

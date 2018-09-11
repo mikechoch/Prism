@@ -30,6 +30,7 @@ import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
 
@@ -240,7 +241,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, username, new OnPrismUserRegistrationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        intentToMainActivity();
+                                        IntentHelper.intentToMainActivity(RegisterActivity.this, true);
                                     }
                                 });
                             }
@@ -299,15 +300,6 @@ public class RegisterActivity extends AppCompatActivity {
         setupRegisterButton();
         setupLoginButton();
 
-    }
-
-    /**
-     * Intent to Main Activity from Register Activity
-     * TODO Rename this method
-     */
-    private void intentToMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        CurrentUser.prepareAppForUser(this, intent);
     }
 
     /**

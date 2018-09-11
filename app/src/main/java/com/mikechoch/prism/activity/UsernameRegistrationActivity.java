@@ -23,6 +23,7 @@ import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
 public class UsernameRegistrationActivity extends AppCompatActivity {
@@ -100,7 +101,6 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
     }
 
     public void createPrismUser(String username) {
-
         if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
             FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
                 @Override
@@ -112,7 +112,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess() {
                                 SHOULD_SIGN_OUT = Boolean.FALSE;
-                                intentToMainActivity();
+                                IntentHelper.intentToMainActivity(UsernameRegistrationActivity.this, true);
                             }
                         });
                     }
@@ -124,16 +124,6 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    /**
-     * Intent to Main Activity from Login Activity
-     * TODO Rename this method
-     */
-    private void intentToMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        CurrentUser.prepareAppForUser(this, intent);
     }
 
     @Override

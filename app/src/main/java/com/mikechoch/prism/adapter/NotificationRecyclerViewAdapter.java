@@ -31,6 +31,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
@@ -128,10 +129,10 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                     switch (notification.getType()) {
                         case LIKE:
                         case REPOST:
-                            Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
+                            IntentHelper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
                             break;
                         case FOLLOW:
-                            Helper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                            IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
                             break;
                         default:
                             break;
@@ -178,7 +179,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             usernameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                    IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
                 }
             });
 
@@ -191,7 +192,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                 userCountTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        intentToDisplayUsersActivity(notification.getType().getNotifUserDisplayCode());
+                        IntentHelper.intentToDisplayUsersActivity(context, notification.getPrismPost().getPostId(), notification.getType().getNotifUserDisplayCode());
                     }
                 });
                 if (otherCount == 1) {
@@ -204,18 +205,6 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             }
             notificationDescriptionLinearLayout.addView(usernameTextView);
             notificationDescriptionLinearLayout.addView(userCountTextView);
-        }
-
-        /**
-         * Intent to DisplayUserActivity with the correct intentType code
-         * @param displayUsersCode
-         */
-        private void intentToDisplayUsersActivity(int displayUsersCode) {
-            Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
-            displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
-            displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, notification.getPrismPost().getPostId());
-            context.startActivity(displayUsersIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**
@@ -235,7 +224,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             prismPostThumbnailImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
+                    IntentHelper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
                 }
             });
         }
@@ -272,7 +261,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             userProfilePicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                    IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
                 }
             });
         }

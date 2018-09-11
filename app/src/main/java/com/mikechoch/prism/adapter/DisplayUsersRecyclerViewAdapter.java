@@ -22,6 +22,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
             userRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToUserProfileActivity(context, prismUser);
+                    IntentHelper.intentToUserProfileActivity(context, prismUser);
                 }
             });
         }

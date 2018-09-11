@@ -324,42 +324,6 @@ public class Helper {
     }
 
     /**
-     * Intent from the current clicked PrismPost to the PrismPostDetail
-     * @param context
-     * @param prismPost
-     */
-    public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost) {
-        Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
-        prismPostDetailIntent.putExtra(Default.PRISM_POST_DETAIL_EXTRA, prismPost);
-        context.startActivity(prismPostDetailIntent);
-        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-     * @param context
-     * @param prismUser
-     */
-    public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
-        Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
-        prismUserProfileIntent.putExtra(Default.PRISM_USER_EXTRA, prismUser);
-        context.startActivity(prismUserProfileIntent);
-        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     *
-     * @param context
-     * @param profilePictureType
-     */
-    public static void intentToProfilePictureUploadActivity(Context context, int profilePictureType) {
-        Intent galleryImageUploadIntent = new Intent(context, ProfilePictureUploadActivity.class);
-        galleryImageUploadIntent.putExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, profilePictureType);
-        ((Activity) context).startActivityForResult(galleryImageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);
-        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
      * Create an Intent to ask user to select a image they would like to upload
      */
     public static void selectImageFromGallery(Context context) {

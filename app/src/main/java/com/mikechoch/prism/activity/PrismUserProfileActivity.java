@@ -18,6 +18,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -42,9 +44,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -52,6 +56,8 @@ import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
+import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
@@ -391,7 +397,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToDisplayUsersActivity(2);
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(), Default.DISPLAY_USERS_FOLLOWER_CODE);
             }
         });
 
@@ -399,7 +405,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followingRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToDisplayUsersActivity(3);
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(),Default.DISPLAY_USERS_FOLLOWING_CODE);
             }
         });
     }
@@ -441,7 +447,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     AlertDialog setProfilePictureAlertDialog = createSetProfilePictureAlertDialog();
                     setProfilePictureAlertDialog.show();
                 } else {
-                    intentToShowUserProfilePictureActivity();
+                    IntentHelper.intentToShowUserProfilePictureActivity(PrismUserProfileActivity.this, prismUser, userProfilePicImageView);
                 }
             }
         });
@@ -473,62 +479,47 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Intent to ShowUserProfilePictureActivity
-     * Where the hi-res PrismUser profile picture will be shown
-     */
-    private void intentToShowUserProfilePictureActivity() {
-        Intent showProfilePictureIntent = new Intent(PrismUserProfileActivity.this, ShowUserProfilePictureActivity.class);
-
-        showProfilePictureIntent.putExtra(Default.PRISM_USER_EXTRA, prismUser);
-        showProfilePictureIntent.putExtra(Default.PRISM_USER_PROFILE_PICTURE_TRANSITION_NAME_EXTRA, ViewCompat.getTransitionName(userProfilePicImageView));
-
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                userProfilePicImageView,
-                ViewCompat.getTransitionName(userProfilePicImageView));
-
-        startActivity(showProfilePictureIntent, options.toBundle());
-    }
-
-    /**
-     * Intent to DisplayUserActivity with the correct intentType code
-     * @param displayUsersCode
-     */
-    private void intentToDisplayUsersActivity(int displayUsersCode) {
-        Intent displayUsersIntent = new Intent(PrismUserProfileActivity.this, DisplayUsersActivity.class);
-        displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
-        displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, prismUser.getUid());
-        startActivity(displayUsersIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
      * Create an AlertDialog for when the userProfilePicImageView is clicked
      * Gives the option to take a picture or select one from gallery
      */
     private AlertDialog createSetProfilePictureAlertDialog() {
-        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
-        profilePictureAlertDialog.setTitle("Set profile picture");
-        profilePictureAlertDialog.setItems(InterfaceAction.setProfilePicStrings, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case Default.PROFILE_PICTURE_GALLERY:
-                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_GALLERY);
-                        break;
-                    case Default.PROFILE_PICTURE_CAMERA:
-                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_CAMERA);
-                        break;
-                    case Default.PROFILE_PICTURE_VIEW:
-                        intentToShowUserProfilePictureActivity();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
+        RecyclerView recyclerView = new RecyclerView(this);
 
-        return profilePictureAlertDialog.create();
+        AlertDialog.Builder moreOptionAlertDialogBuilder = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
+        moreOptionAlertDialogBuilder.setView(recyclerView);
+        AlertDialog moreOptionAlertDialog = moreOptionAlertDialogBuilder.create();
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(this, ProfilePictureOption.values(), prismUser, userProfilePicImageView);
+        recyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
+
+        return moreOptionAlertDialog;
+
+
+
+//        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
+//        profilePictureAlertDialog.setTitle("Set profile picture");
+//        profilePictureAlertDialog.setItems(InterfaceAction.setProfilePicStrings, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                switch (which) {
+//                    case Default.PROFILE_PICTURE_GALLERY:
+//                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_GALLERY);
+//                        break;
+//                    case Default.PROFILE_PICTURE_SELFIE:
+//                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_SELFIE);
+//                        break;
+//                    case Default.PROFILE_PICTURE_VIEW:
+//                        intentToShowUserProfilePictureActivity();
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        });
+
+//        return profilePictureAlertDialog.create();
     }
 
     public File getFile() {
@@ -672,18 +663,9 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         accountEditInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToEditUserProfileActivity();
+                IntentHelper.intentToEditUserProfileActivity(PrismUserProfileActivity.this);
             }
         });
-    }
-
-    /**
-     * Intent to EditUserProfileActivity where the user can modify their account information
-     */
-    private void intentToEditUserProfileActivity() {
-        Intent editUserProfileIntent = new Intent(PrismUserProfileActivity.this, EditUserProfileActivity.class);
-        startActivity(editUserProfileIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
