@@ -55,7 +55,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     @Override
     public int getItemViewType(int position) {
-        if (position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
+        if (RECYCLER_VIEW_AD_THRESHOLD == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
             int realPosition  = getRealPosition(position);
             Object data = prismDataArrayList.get(realPosition);
             if (data instanceof PrismPost){
@@ -95,7 +95,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
+        if (RECYCLER_VIEW_AD_THRESHOLD == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
             int realPosition  = getRealPosition(position);
             Object data = prismDataArrayList.get(realPosition);
             if (data instanceof PrismPost){

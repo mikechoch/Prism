@@ -10,6 +10,7 @@ import com.mikechoch.prism.OnFetchListener;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class DiscoverController {
 
     private static String randomTag;
 
-    public static void setupDiscoverContent(Context context) {
+    public static void setupDiscoverContent(OnInitializeDiscoveryCallback callback) {
         allPostsReference = Default.ALL_POSTS_REFERENCE;
         usersReference = Default.USERS_REFERENCE;
         tagsReference = Default.TAGS_REFERENCE;
@@ -50,9 +51,10 @@ public class DiscoverController {
         listOfPrismPostsForRandomTag = new ArrayList<>();
         listOfRandomPrismUsers = new ArrayList<>();
 
-        fetchAllPosts(context);
-        fetchPostsForRandomTag(context);
-        fetchRandomUsers(context);
+        fetchAllPosts(callback);
+//        fetchPostsForRandomTag();
+//        fetchRandomUsers();
+
     }
 
     private static void fetchRandomUsers(Context context) {
@@ -86,28 +88,27 @@ public class DiscoverController {
     }
 
 
-//    private static void fetchUserDetailsAndGenerateRecyclerView(Context context, ArrayList<PrismPost> prismPosts, List<DiscoveryRecyclerView> recyclerViews) {
-//        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (PrismPost prismPost : prismPosts) {
-//                    DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
-//                    if (postAuthorUserSnapshot.exists()) {
-//                        PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
-//                        prismPost.setPrismUser(prismUser);
-//                    }
-//                }
-//
-//                for (DiscoveryRecyclerView recyclerView : recyclerViews) {
-//                    SearchFragment.addDiscoveryRecyclerView(context, recyclerView);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) { }
-//        });
-//    }
+    private static void fetchUserDetailsAndGenerateRecyclerView(OnInitializeDiscoveryCallback callback, ArrayList<Object> prismPosts) {
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (Object post : prismPosts) {
+                    PrismPost prismPost = (PrismPost) post;
+                    DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
+                    if (postAuthorUserSnapshot.exists()) {
+                        PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
+                        prismPost.setPrismUser(prismUser);
+                    }
+                }
+
+                callback.onSuccess();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
 
 
     private static void fetchPostsForRandomTag(Context context) {
@@ -163,7 +164,7 @@ public class DiscoverController {
      * will be expensive. So at that point, we should only pull posts
      * from last 1 week or last few days to show on discover page
      */
-    private static void fetchAllPosts(Context context) {
+    private static void fetchAllPosts(OnInitializeDiscoveryCallback callback) {
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -172,20 +173,19 @@ public class DiscoverController {
                     listOfAllPrismPosts.add(prismPost);
                 }
 
-//                ArrayList<DiscoveryRecyclerView> recyclerViews = new ArrayList<DiscoveryRecyclerView>() {{
-//                    add(new DiscoveryRecyclerView(Discovery.LIKE, R.drawable.like_heart, "Most Liked"));
-//                    add(new DiscoveryRecyclerView(Discovery.REPOST, R.drawable.repost_iris, "Most Reposted"));
-//                }};
-//
-//                fetchUserDetailsAndGenerateRecyclerView(context, listOfAllPrismPosts, recyclerViews);
+                fetchUserDetailsAndGenerateRecyclerView(callback, listOfAllPrismPosts);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) { }
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure();
+            }
         });
 
 
     }
+
+
 
     public static void generateHighestRepostedPosts(OnFetchListener onFetchListener) {
         ArrayList<Object> highestRepostedPosts = new ArrayList<>(listOfAllPrismPosts);
@@ -199,7 +199,7 @@ public class DiscoverController {
     }
 
     public static void generateHighestLikedPosts(OnFetchListener onFetchListener) {
-        ArrayList<Object> highestLikedPosts = new ArrayList<>();
+        ArrayList<Object> highestLikedPosts = new ArrayList<>(listOfAllPrismPosts);
         Collections.sort(highestLikedPosts, new Comparator<Object>() {
             @Override
             public int compare(Object p1, Object p2) {
