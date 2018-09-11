@@ -22,6 +22,7 @@ import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DiscoverController;
+import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
@@ -82,9 +83,23 @@ public class SearchFragment extends Fragment {
         discoveryLinearLayoutHashMap = new HashMap<>();
         discoveryOnFetchListenerHashMap = new HashMap<>();
 
-        for (Discovery discovery : Discovery.values()) {
-            addDiscoveryRecyclerView(getActivity(), discovery);
-        }
+        DiscoverController.setupDiscoverContent(new OnInitializeDiscoveryCallback() {
+            @Override
+            public void onSuccess() {
+                for (Discovery discovery : Discovery.values()) {
+                    addDiscoveryRecyclerView(getActivity(), discovery);
+                }
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+
+
+
+
 
         return view;
     }
@@ -180,6 +195,7 @@ public class SearchFragment extends Fragment {
         prismPostDiscoveryRecyclerView.addItemDecoration(discoveryDividerItemDecoration);
 
         SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, arrayList, discovery);
+        prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
         discoveryHorizontalRecyclerViewAdapterHashMap.put(discovery, searchDiscoverRecyclerViewAdapter);
         discoveryLinearLayoutHashMap.put(discovery, discoveryRecyclerViewLinearLayout);
 
