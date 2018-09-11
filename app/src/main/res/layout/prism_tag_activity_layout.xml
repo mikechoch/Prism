@@ -50,7 +50,7 @@
                     android:padding="16dp"
                     android:cropToPadding="false"
                     android:elevation="5dp"
-                    android:src="@drawable/ic_pound_white_48dp"
+                    android:src="@drawable/tag_page_image"
                     android:background="@drawable/circular_background_frame" />
 
                 <TextView

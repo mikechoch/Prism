@@ -1,6 +1,7 @@
 package com.mikechoch.prism.adapter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,10 +19,14 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.EditUserProfileActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.NotificationSettingsActivity;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.MoreOption;
 import com.mikechoch.prism.type.Setting;
+import com.mikechoch.prism.user_interface.InterfaceAction;
+
+import java.lang.reflect.Array;
 
 /**
  * Created by mikechoch on 2/7/18.
@@ -37,10 +42,27 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private Context context;
     private Object[] dataSet;
+    private PrismPost prismPost;
+    private boolean isCurrentUser;
+    private AlertDialog moreOptionAlertDialog;
 
+    // Setting constructor
     public OptionRecyclerViewAdapter(Context context, Object[] dataSet) {
         this.context = context;
         this.dataSet = dataSet;
+    }
+
+    // MoreOption constructor
+    public OptionRecyclerViewAdapter(Context context, Object[] dataSet, PrismPost prismPost, boolean isCurrentUser, AlertDialog moreOptionAlertDialog) {
+        this.context = context;
+        this.dataSet = dataSet;
+        this.prismPost = prismPost;
+        this.isCurrentUser = isCurrentUser;
+        this.moreOptionAlertDialog = moreOptionAlertDialog;
+
+        if (!isCurrentUser) {
+            this.dataSet = new Object[]{dataSet[0], dataSet[1]};
+        }
     }
 
     @NonNull
@@ -123,7 +145,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int settingOptionId = setting.getOptionId();
+                    int settingOptionId = setting.getId();
                     switch(settingOptionId) {
                         case Default.SETTINGS_OPTION_APP:
                             break;
@@ -161,7 +183,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
          * Get the Setting enum title and populate the TextView
          */
         private void setupSettingsOptionTextView() {
-            settingsOptionTextView.setText(setting.getOptionTitle());
+            settingsOptionTextView.setText(setting.getTitle());
         }
 
         /**
@@ -169,7 +191,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
          * Get the Setting enum icon and populate the ImageView
          */
         private void setupSettingsOptionImageView() {
-            Drawable settingsIcon = context.getResources().getDrawable(setting.getOptionIcon());
+            Drawable settingsIcon = context.getResources().getDrawable(setting.getIcon());
             settingsIcon.setTint(Color.WHITE);
             settingsOptionImageView.setImageDrawable(settingsIcon);
         }
@@ -221,7 +243,25 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    moreOptionAlertDialog.dismiss();
+                    switch (moreOption.getId()) {
+                        case Default.MORE_OPTION_REPORT:
+                            // Report post
+                            AlertDialog reportPostConfirmationAlertDialog = InterfaceAction.createReportPostConfirmationAlertDialog(context, prismPost);
+                            reportPostConfirmationAlertDialog.show();
+                            break;
+                        case Default.MORE_OPTION_SHARE:
+                            // Share
+                            // TODO: Discuss what we should do about Share for now
+                            break;
+                        case Default.MORE_OPTION_DELETE:
+                            // Delete
+                            AlertDialog deleteConfirmationAlertDialog = InterfaceAction.createDeleteConfirmationAlertDialog(context, prismPost);
+                            deleteConfirmationAlertDialog.show();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
         }

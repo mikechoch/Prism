@@ -75,7 +75,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     private final int GOOGLE_AD_VIEW_TYPE = 1;
 
     private Context context;
-    private RecyclerView moreOptionsRecyclerView;
     public static ArrayList<PrismPost> prismPostArrayList;
 
 
@@ -418,21 +417,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 @Override
                 public void onClick(View view) {
                     InterfaceAction.startMoreActionButtonAnimation(moreButton);
-                    // TODO: Show more menu
-                    // TODO: Decide what goes in more
-                    moreOptionsRecyclerView = new RecyclerView(context);
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-                    moreOptionsRecyclerView.setLayoutManager(linearLayoutManager);
-                    OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(context, MoreOption.values());
-                    moreOptionsRecyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
 
-                    AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
-                    profilePictureAlertDialog.setView(moreOptionsRecyclerView);
-                    profilePictureAlertDialog.create().show();
-
-//                    boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
-//                    AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(context, prismPost, isCurrentUserThePostCreator);
-//                    morePrismPostAlertDialog.show();
+                    boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
+                    AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(context, prismPost, isCurrentUserThePostCreator);
+                    morePrismPostAlertDialog.show();
                 }
             });
         }
@@ -443,8 +431,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         private void setupRepostActionButton() {
             InterfaceAction.setupRepostActionButton(context, repostButton, isPostReposted);
 
-            String repostStringTail = Helper.getSingularOrPluralText(" repost", repostCount);
-            repostsCountTextView.setText(repostCount + repostStringTail);
+            String repostString = repostCount + Helper.getSingularOrPluralText(" repost", repostCount);
+            repostsCountTextView.setText(repostString);
 
             repostButton.setOnClickListener(new View.OnClickListener() {
                 @Override

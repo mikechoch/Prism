@@ -54,12 +54,6 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.search_fragment_layout, container, false);
 
@@ -95,23 +89,24 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     *
      * @param context
      * @param discovery
      */
     public static void addDiscoveryRecyclerView(Context context, Discovery discovery) {
         switch (discovery) {
-            case USER:
-                OnFetchListener prismUsersOnFetchListener = updateDiscoveryItem(context, discovery, prismUsers);
-                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchListener);
-                prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                FirebaseAction.fetchSuggestedPrismUsers(prismUsersOnFetchListener);
-                break;
             case LIKE:
                 OnFetchListener likedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, likedPrismPosts);
                 discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchListener);
                 likedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
 //                FirebaseAction.fetchMostLikedPrismPosts(likedPrismPostOnFetchListener);
+                break;
+            case USER:
+                OnFetchListener prismUsersOnFetchListener = updateDiscoveryItem(context, discovery, prismUsers);
+                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchListener);
+                prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
+//                FirebaseAction.fetchSuggestedPrismUsers(prismUsersOnFetchListener);
+
+                // TODO: Add a banner ad here between the scroll views
                 break;
             case REPOST:
                 OnFetchListener repostedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, repostedPrismPosts);
@@ -129,7 +124,6 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     *
      * @param context
      * @param discovery
      * @param arrayList
@@ -150,8 +144,8 @@ public class SearchFragment extends Fragment {
                 int linearLayoutScrollViewVisibility = arrayList.size() > 0 ? View.VISIBLE : View.GONE;
                 discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
 //                if (FirebaseAction.loadingCount == 0) {
-////                    searchBarProgressBar.setVisibility(View.GONE);
-////                }
+//                    searchBarProgressBar.setVisibility(View.GONE);
+//                }
                 refreshDiscoveryAdapters();
             }
 

@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
@@ -14,11 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
+import com.mikechoch.prism.type.MoreOption;
 
 /**
  * Created by mikechoch on 2/26/18.
@@ -33,9 +37,6 @@ public class InterfaceAction {
     public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 
     private Context context;
-
-    private static String[] morePostOptionsCurrentUser = {"Report post", "Share", "Delete"};
-    private static String[] morePostOptions = {"Report post", "Share"};
 
     // Use bounce interpolator with amplitude 0.2 and frequency 20, gives bounce affect on buttons
     private AnimationBounceInterpolator buttonAnimationBounceInterpolator = new AnimationBounceInterpolator(0.2, 20);
@@ -53,18 +54,18 @@ public class InterfaceAction {
         this.context = context;
 
         // Load all animations from anim folder for action buttons
-        this.likeHeartBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.like_animation);
-        this.repostIrisBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.repost_animation);
-        this.unrepostIrisBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.unrepost_animation);
-        this.likeButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
-        this.shareButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
-        this.moreButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
+        likeHeartBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.like_animation);
+        repostIrisBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.repost_animation);
+        unrepostIrisBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.unrepost_animation);
+        likeButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
+        shareButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
+        moreButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
 
         //
-        this.likeButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
-        this.shareButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
-        this.moreButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
-        this.likeHeartBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
+        likeButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
+        shareButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
+        moreButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
+        likeHeartBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
     }
 
     /**
@@ -246,35 +247,21 @@ public class InterfaceAction {
      * @return finalized AlertDialog for more button click
      */
     public static AlertDialog createMorePrismPostAlertDialog(Context context, PrismPost prismPost, boolean isCurrentUser) {
-        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
-        profilePictureAlertDialog.setItems(isCurrentUser ? morePostOptionsCurrentUser : morePostOptions, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                switch (which) {
-                    case 0:
-                        // Report post
-                        AlertDialog reportPostConfirmationAlertDialog = createReportPostConfirmationAlertDialog(context, prismPost);
-                        reportPostConfirmationAlertDialog.show();
-                        break;
-                    case 1:
-                        // Share
+        RecyclerView recyclerView = new RecyclerView(context);
 
-                        break;
-                    case 2:
-                        // Delete
-                        AlertDialog deleteConfirmationAlertDialog = createDeleteConfirmationAlertDialog(context, prismPost);
-                        deleteConfirmationAlertDialog.show();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-        return profilePictureAlertDialog.create();
+        AlertDialog.Builder moreOptionAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
+        moreOptionAlertDialogBuilder.setView(recyclerView);
+        AlertDialog moreOptionAlertDialog = moreOptionAlertDialogBuilder.create();
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(context, MoreOption.values(), prismPost, isCurrentUser, moreOptionAlertDialog);
+        recyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
+
+        return moreOptionAlertDialog;
     }
 
-    private static AlertDialog createReportPostConfirmationAlertDialog(Context context, PrismPost prismPost) {
+    public static AlertDialog createReportPostConfirmationAlertDialog(Context context, PrismPost prismPost) {
         AlertDialog.Builder reportAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         reportAlertDialogBuilder.setTitle("Are you sure you want to report this post as inappropriate?");
         reportAlertDialogBuilder.setMessage("We will review this post and take the appropriate action");
@@ -299,7 +286,7 @@ public class InterfaceAction {
      * @param prismPost
      * @return finalized AlertDialog for deleting a post
      */
-    private static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
+    public static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
         AlertDialog.Builder deleteAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         deleteAlertDialogBuilder.setTitle("Are you sure you want to delete this post?");
         deleteAlertDialogBuilder.setPositiveButton(Default.BUTTON_DELETE, new DialogInterface.OnClickListener() {

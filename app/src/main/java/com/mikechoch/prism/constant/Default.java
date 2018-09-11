@@ -67,6 +67,7 @@ public class Default {
     public static final String IMAGE_DESCRIPTION_EXTRA = "ImageDescription";
     public static final String CROPPED_PROFILE_PICTURE_EXTRA = "CroppedProfilePicture";
     public static final String PROFILE_PICTURE_TYPE_EXTRA = "ProfilePictureType";
+    public static final String UPLOAD_IMAGE_INTENT_KEY = "UploadImage";
 
     // Bottom Navigation Bar Strings
     public static final String BOTTOM_NAVIGATION_BAR_NAME = "navigation_bar_height";
@@ -101,6 +102,11 @@ public class Default {
     public static final int SETTINGS_OPTION_HELP = 3;
     public static final int SETTINGS_OPTION_ABOUT = 4;
     public static final int SETTINGS_OPTION_LOGOUT = 5;
+
+    // More Option
+    public static final int MORE_OPTION_REPORT = 0;
+    public static final int MORE_OPTION_SHARE = 1;
+    public static final int MORE_OPTION_DELETE = 2;
 
     public static final int POSTS_COLUMNS = 3;
 

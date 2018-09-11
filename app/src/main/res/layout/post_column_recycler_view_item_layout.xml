@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
+        android:foreground="@drawable/image_upload_selector"
         android:adjustViewBounds="true" />
 
     <ImageView

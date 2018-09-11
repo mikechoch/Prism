@@ -152,6 +152,10 @@ public class PrismTagActivity extends AppCompatActivity {
                             Log.e(Default.TAG_DB, postId);
                         }
                     }
+                    String tagPostCount = String.valueOf(prismTagPostsArrayList.size());
+                    postsCountTextView.setText(tagPostCount);
+                    String tagCountLabel = Helper.getSingularOrPluralText("post", prismTagPostsArrayList.size());
+                    postsLabelTextView.setText(tagCountLabel);
                     fetchPrismUserDetailsForPrismPosts();
                 }
             }
@@ -267,8 +271,9 @@ public class PrismTagActivity extends AppCompatActivity {
 
         setupAppBarLayout();
 
-        toolbarTagNameTextView.setText("#" + tag);
-        tagNameTextView.setText("#" + tag);
+        String tagString = "#" + tag;
+        toolbarTagNameTextView.setText(tagString);
+        tagNameTextView.setText(tagString);
     }
 
 }

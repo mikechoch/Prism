@@ -111,9 +111,10 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
 
     private void intentBackToMainActivitySuccess() {
         Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mainActivityIntent.putExtra(Default.UPLOAD_IMAGE_INTENT_KEY, true);
         mainActivityIntent.putExtra(Default.IMAGE_URI_EXTRA, imageUri.toString());
         mainActivityIntent.putExtra(Default.IMAGE_DESCRIPTION_EXTRA, descriptionEditText.getText().toString().trim());
-        setResult(RESULT_OK, mainActivityIntent);
         startActivity(mainActivityIntent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

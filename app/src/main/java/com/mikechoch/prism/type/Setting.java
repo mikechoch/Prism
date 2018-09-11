@@ -16,26 +16,26 @@ public enum Setting {
     ABOUT("About",  R.drawable.ic_information_outline_white_36dp, Default.SETTINGS_OPTION_ABOUT),
     LOGOUT("Logout",  R.drawable.ic_logout_white_36dp, Default.SETTINGS_OPTION_LOGOUT);
 
-    private final String optionTitle;
-    private final int optionIcon;
-    private final int optionId;
+    private final String title;
+    private final int icon;
+    private final int id;
 
     Setting(String title, int icon, int id) {
-        this.optionTitle = title;
-        this.optionIcon = icon;
-        this.optionId = id;
+        this.title = title;
+        this.icon = icon;
+        this.id = id;
     }
 
-    public String getOptionTitle() {
-        return optionTitle;
+    public String getTitle() {
+        return title;
     }
 
-    public int getOptionIcon() {
-        return optionIcon;
+    public int getIcon() {
+        return icon;
     }
 
-    public int getOptionId() {
-        return optionId;
+    public int getId() {
+        return id;
     }
 
 }

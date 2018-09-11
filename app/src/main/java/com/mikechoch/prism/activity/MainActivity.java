@@ -153,6 +153,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         setupUIElements();
 
         new InterfaceAction(this);
+
+        Intent uploadIntent = getIntent();
+        if (uploadIntent.getBooleanExtra(Default.UPLOAD_IMAGE_INTENT_KEY, false)) {
+            uploadPrismPostToFirebase(uploadIntent);
+        }
     }
 
     @Override
@@ -204,45 +209,36 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     }
 
     /**
-     * Called when an activity is intent with startActivityForResult and the result is intent back
-     * This allows you to check the requestCode that came back and do something
+     *
+     * @param uploadIntent
      */
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            // If requestCode is for PrismPostImageEditActivity
-            case Default.IMAGE_UPLOAD_INTENT_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    uploadingImageTextView.setText("Uploading image...");
-                    imageUploadProgressBar.setProgress(0);
-                    imageUploadProgressBar.setIndeterminate(false);
-                    uploadingImageRelativeLayout.setVisibility(View.VISIBLE);
-                    prismDecorationRelativeLayout.setVisibility(View.GONE);
+    private void uploadPrismPostToFirebase(Intent uploadIntent) {
+        uploadingImageTextView.setText("Uploading image...");
+        imageUploadProgressBar.setProgress(0);
+        imageUploadProgressBar.setIndeterminate(false);
+        uploadingImageRelativeLayout.setVisibility(View.VISIBLE);
+        prismDecorationRelativeLayout.setVisibility(View.GONE);
 
-                    params.setScrollFlags(0);
-                    toolbar.setLayoutParams(params);
+        params.setScrollFlags(0);
+        toolbar.setLayoutParams(params);
 
-                    uploadedImageUri = Uri.parse(data.getStringExtra(Default.IMAGE_URI_EXTRA));
-                    uploadedImageDescription = data.getStringExtra(Default.IMAGE_DESCRIPTION_EXTRA);
+        uploadedImageUri = Uri.parse(uploadIntent.getStringExtra(Default.IMAGE_URI_EXTRA));
+        uploadedImageDescription = uploadIntent.getStringExtra(Default.IMAGE_DESCRIPTION_EXTRA);
 
-                    Glide.with(this)
-                            .asBitmap()
-                            .thumbnail(0.05f)
-                            .load(uploadedImageUri)
-                            .apply(new RequestOptions().centerCrop())
-                            .into(new BitmapImageViewTarget(imageUploadPreview) {
-                                @Override
-                                protected void setResource(Bitmap resource) {
-                                    RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                                    drawable.setCircular(true);
-                                    imageUploadPreview.setImageDrawable(drawable);
-                                }
-                            });
-                    uploadPostToCloud();
-                }
-                break;
-            default:
-                break;
-        }
+        Glide.with(this)
+                .asBitmap()
+                .thumbnail(0.05f)
+                .load(uploadedImageUri)
+                .apply(new RequestOptions().centerCrop())
+                .into(new BitmapImageViewTarget(imageUploadPreview) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                        drawable.setCircular(true);
+                        imageUploadPreview.setImageDrawable(drawable);
+                    }
+                });
+        uploadPostToCloud();
     }
 
     /**
@@ -467,7 +463,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      */
     private void intentToUploadImageActivity() {
         Intent imageUploadIntent = new Intent( MainActivity.this, PrismPostImageEditActivity.class);
-        startActivityForResult(imageUploadIntent, Default.IMAGE_UPLOAD_INTENT_REQUEST_CODE);
+        startActivity(imageUploadIntent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
