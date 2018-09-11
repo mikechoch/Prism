@@ -182,6 +182,7 @@ public class SearchFragment extends Fragment {
         SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, arrayList, discovery);
         discoveryHorizontalRecyclerViewAdapterHashMap.put(discovery, searchDiscoverRecyclerViewAdapter);
         discoveryLinearLayoutHashMap.put(discovery, discoveryRecyclerViewLinearLayout);
+        prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
 
         return discoveryRecyclerViewLinearLayout;
     }

@@ -192,13 +192,18 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                         .into(new BitmapImageViewTarget(prismPostUserProfilePicture) {
                             @Override
                             protected void setResource(Bitmap resource) {
+                                if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
+                                    int whiteOutlinePadding = (int) (1.5 * Default.scale);
+                                    prismPostUserProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+                                    prismPostUserProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
+                                } else {
+                                    prismPostUserProfilePicture.setPadding(0, 0, 0, 0);
+                                    prismPostUserProfilePicture.setBackground(null);
+                                }
+
                                 RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
                                 drawable.setCircular(true);
                                 prismPostUserProfilePicture.setImageDrawable(drawable);
-
-                                int whiteOutlinePadding = (int) (1 * Default.scale);
-                                prismPostUserProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                prismPostUserProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
                             }
                         });
 
