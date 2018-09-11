@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.mikechoch.prism.OnFetchListener;
+import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
@@ -46,7 +46,7 @@ public class SearchFragment extends Fragment {
     private static HashMap<Discovery, SearchDiscoverRecyclerViewAdapter> discoveryHorizontalRecyclerViewAdapterHashMap;
     private static HashMap<Discovery, LinearLayout> discoveryLinearLayoutHashMap;
 
-    private static HashMap<Discovery, OnFetchListener> discoveryOnFetchListenerHashMap;
+    private static HashMap<Discovery, OnFetchCallback> discoveryOnFetchListenerHashMap;
 
     private static ArrayList<Object> prismUsers;
     private static ArrayList<Object> likedPrismPosts;
@@ -111,15 +111,15 @@ public class SearchFragment extends Fragment {
     public static void addDiscoveryRecyclerView(Context context, Discovery discovery) {
         switch (discovery) {
             case LIKE:
-                OnFetchListener likedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, likedPrismPosts);
-                discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchListener);
-                DiscoverController.generateHighestLikedPosts(likedPrismPostOnFetchListener);
+                OnFetchCallback likedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, likedPrismPosts);
+                discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchCallback);
+                DiscoverController.generateHighestLikedPosts(likedPrismPostOnFetchCallback);
                 break;
             case USER:
-                OnFetchListener prismUsersOnFetchListener = updateDiscoveryItem(context, discovery, prismUsers);
-                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchListener);
-                prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchListener);
+                OnFetchCallback prismUsersOnFetchCallback = updateDiscoveryItem(context, discovery, prismUsers);
+                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchCallback);
+                prismUsersOnFetchCallback.onSuccess(new ArrayList<>());
+//                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchCallback);
 
                 View googleAdView = LayoutInflater.from(context).inflate(
                         R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
@@ -133,16 +133,16 @@ public class SearchFragment extends Fragment {
 
                 break;
             case REPOST:
-                OnFetchListener repostedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, repostedPrismPosts);
-                discoveryOnFetchListenerHashMap.put(discovery, repostedPrismPostOnFetchListener);
-                repostedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
-                DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchListener);
+                OnFetchCallback repostedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, repostedPrismPosts);
+                discoveryOnFetchListenerHashMap.put(discovery, repostedPrismPostOnFetchCallback);
+                repostedPrismPostOnFetchCallback.onSuccess(new ArrayList<>());
+                DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchCallback);
                 break;
             case TAG:
-                OnFetchListener tagsOnFetchListener = updateDiscoveryItem(context, discovery, prismTags);
-                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchListener);
-                tagsOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                DiscoverController.getListOfPrismPostsForRandomTag(tagsOnFetchListener);
+                OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
+                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
+                tagsOnFetchCallback.onSuccess(new ArrayList<>());
+//                DiscoverController.getListOfPrismPostsForRandomTag(tagsOnFetchCallback);
                 break;
         }
     }
@@ -153,15 +153,15 @@ public class SearchFragment extends Fragment {
      * @param arrayList
      * @return
      */
-    private static OnFetchListener updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
+    private static OnFetchCallback updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
         if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery)) {
             LinearLayout propertyRecyclerViewLinearLayout = createDiscoveryRecyclerView(context, discovery, arrayList);
             searchLinearLayout.addView(propertyRecyclerViewLinearLayout);
         }
 
-        return new OnFetchListener() {
+        return new OnFetchCallback() {
             @Override
-            public void onPostsSuccess(ArrayList<Object> fetchResults) {
+            public void onSuccess(ArrayList<Object> fetchResults) {
                 arrayList.clear();
                 arrayList.addAll(fetchResults);
                 discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery).notifyDataSetChanged();

@@ -23,9 +23,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
-import com.mikechoch.prism.fire.callback.OnPasswordChangeCallback;
+import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
@@ -154,7 +155,7 @@ public class FirebaseProfileAction {
         });
     }
 
-    public static void changePassword(String oldPassword, String newPassword, OnPasswordChangeCallback callback) {
+    public static void changePassword(String oldPassword, String newPassword, OnChangePasswordCallback callback) {
         String email = CurrentUser.getFirebaseUser().getEmail();
         AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
         CurrentUser.getFirebaseUser().reauthenticate(credential)
@@ -179,10 +180,44 @@ public class FirebaseProfileAction {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        callback.onIncorrectPassword();
+                        callback.onIncorrectPassword(e);
                     }
                 });
+    }
 
+    public static void changeEmail(String password, String newEmail, OnChangeEmailCallback callback) {
+        String currentEmail = CurrentUser.getFirebaseUser().getEmail();
+        AuthCredential credential = EmailAuthProvider.getCredential(currentEmail, password);
+
+        CurrentUser.getFirebaseUser().reauthenticate(credential)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CurrentUser.getFirebaseUser().updateEmail(newEmail)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
+                                            accountReference.child(CurrentUser.prismUser.getUsername())
+                                                    .setValue(newEmail);
+                                            callback.onSuccess();
+                                        } else {
+                                            try {
+                                                throw task.getException();
+                                            } catch (FirebaseAuthInvalidCredentialsException invalidEmail) {
+                                                callback.onInvalidEmail(invalidEmail);
+                                            } catch (FirebaseAuthUserCollisionException emailExists) {
+                                                callback.onEmailAlreadyExist(emailExists);
+                                            } catch (Exception e) {
+                                                callback.onFailure(e);
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(callback::onIncorrectPassword);
     }
 
 }

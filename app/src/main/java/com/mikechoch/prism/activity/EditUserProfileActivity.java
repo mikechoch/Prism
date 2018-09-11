@@ -34,7 +34,8 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
-import com.mikechoch.prism.fire.callback.OnPasswordChangeCallback;
+import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
+import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
@@ -407,11 +408,20 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeEmailAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO: add error checking for Old Password
-                String password = passwordAlertDialogEditText.getText().toString().trim();
-                String newEmail = newEmailAlertDialogEditText.getText().toString().trim();
-                toggleEmailAlertDialogAttributes(true);
-                updateEmail(newEmail, password, dialog);
+
+                String password = ProfileHelper.getFormattedPassword(passwordAlertDialogEditText);
+                String newEmail = ProfileHelper.getFormattedEmail(newEmailAlertDialogEditText);
+
+                if (CurrentUser.getFirebaseUser().getEmail().equals(newEmail)) {
+                    dialog.dismiss();
+                    return;
+                }
+                if (ProfileHelper.isEmailValid(newEmail, newEmailAlertDialogTextInputLayout)) {
+                    toggleEmailAlertDialogAttributes(true);
+                    attemptUpdateEmail(password, newEmail, dialog);
+
+                }
+
 
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null
@@ -542,7 +552,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void attemptChangePassword(String oldPassword, String newPassword, DialogInterface dialog) {
-        FirebaseProfileAction.changePassword(oldPassword, newPassword, new OnPasswordChangeCallback() {
+        FirebaseProfileAction.changePassword(oldPassword, newPassword, new OnChangePasswordCallback() {
             @Override
             public void onSuccess() {
                 passwordEditText.setText(Default.HIDDEN_PASSWORD);
@@ -559,8 +569,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onIncorrectPassword() {
-                Log.e(Default.TAG_DB, Message.REAUTH_FAIL);
+            public void onIncorrectPassword(Exception e) {
+                Log.e(Default.TAG_DB, Message.REAUTH_FAIL, e);
                 togglePasswordAlertDialogAttributes(false);
                 oldPasswordAlertDialogTextInputLayout.setError("Incorrect password");
             }
@@ -568,68 +578,44 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
     }
 
-    private void updateEmail(String newEmail, String password, DialogInterface dialog) {
-        // 1) ACCOUNTS -> CurrentUser.username.value = newEmail
-        // 2) FirebaseUser.newEmail
-        String email = CurrentUser.getFirebaseUser().getEmail();
-        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        CurrentUser.getFirebaseUser().reauthenticate(credential)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            if (email.equals(newEmail)) {
-                                dialog.dismiss();
-                                return;
-                            }
-                            if (ProfileHelper.isEmailValid(newEmail, newEmailAlertDialogTextInputLayout)) {
-                                CurrentUser.getFirebaseUser().updateEmail(newEmail)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
-                                                    accountReference.child(CurrentUser.prismUser.getUsername()).setValue(newEmail)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                emailEditText.setText(newEmail);
-                                                                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_SUCCESS);
-                                                            } else {
-                                                                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_FAIL);
-                                                            }
-                                                            dialog.dismiss();
-                                                        }
-                                                    });
+    private void attemptUpdateEmail(String password, String newEmail, DialogInterface dialog) {
 
-                                                } else {
-                                                    toggleEmailAlertDialogAttributes(false);
-                                                    Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, task.getException());
-                                                    Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_FAIL);
-                                                    try {
-                                                        throw task.getException();
-                                                    } catch (FirebaseAuthInvalidCredentialsException invalidEmail) {
-                                                        newEmailAlertDialogTextInputLayout.setError("Invalid email");
-                                                    } catch (FirebaseAuthUserCollisionException existEmail) {
-                                                        newEmailAlertDialogTextInputLayout.setError("Email already exists");
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
+        FirebaseProfileAction.changeEmail(password, newEmail, new OnChangeEmailCallback() {
+            @Override
+            public void onSuccess() {
+                emailEditText.setText(newEmail);
+                dialog.dismiss();
+                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_SUCCESS);
+            }
 
-                                            }
-                                        });
-                            } else {
-                                toggleEmailAlertDialogAttributes(false);
-                            }
-                        } else {
-                            Log.e(Default.TAG_DB, Message.REAUTH_FAIL);
-                            toggleEmailAlertDialogAttributes(false);
-                            passwordAlertDialogTextInputLayout.setError("Incorrect password");
-                        }
-                    }
-                });
+            @Override
+            public void onFailure(Exception e) {
+                dialog.dismiss();
+                if (e != null) { Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, e); }
+                Helper.toast(EditUserProfileActivity.this, Message.EMAIL_UPDATE_FAIL);
+            }
+
+            @Override
+            public void onIncorrectPassword(Exception e) {
+                toggleEmailAlertDialogAttributes(false);
+                passwordAlertDialogTextInputLayout.setError("Incorrect password");
+                Log.e(Default.TAG_DB, Message.REAUTH_FAIL, e);
+            }
+
+            @Override
+            public void onEmailAlreadyExist(FirebaseAuthUserCollisionException existEmail) {
+                toggleEmailAlertDialogAttributes(false);
+                newEmailAlertDialogTextInputLayout.setError("Email already exists");
+                Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, existEmail);
+            }
+
+            @Override
+            public void onInvalidEmail(FirebaseAuthInvalidCredentialsException invalidEmail) {
+                toggleEmailAlertDialogAttributes(false);
+                newEmailAlertDialogTextInputLayout.setError("Invalid email");
+                Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, invalidEmail);
+            }
+        });
     }
 
 }
