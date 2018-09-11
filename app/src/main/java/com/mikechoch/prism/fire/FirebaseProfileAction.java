@@ -24,12 +24,14 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
+import com.mikechoch.prism.fire.callback.OnChangeUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
 import java.util.HashMap;
@@ -43,7 +45,7 @@ public class FirebaseProfileAction {
      * @param callback
      */
     public static void isUsernameTaken(String username, OnUsernameTakenCallback callback) {
-        DatabaseReference accountsReference = Default.ACCOUNT_REFERENCE;
+        DatabaseReference accountsReference = Default.ACCOUNTS_REFERENCE;
 
         accountsReference.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -63,18 +65,18 @@ public class FirebaseProfileAction {
      *
      * @param user
      * @param fullname
-     * @param username
+     * @param firebaseEncodedUsername
      * @param callback
      */
-    public static void createPrismUserInFirebase(FirebaseUser user, String fullname, String username, OnPrismUserRegistrationCallback callback) {
-        DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
+    public static void createPrismUserInFirebase(FirebaseUser user, String fullname, String firebaseEncodedUsername, OnPrismUserRegistrationCallback callback) {
+        DatabaseReference accountReference = Default.ACCOUNTS_REFERENCE;
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(user.getUid());
         DatabaseReference notificationPreference = currentUserReference.child(Key.DB_REF_USER_PREFERENCES);
         String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : ProfileHelper.generateDefaultProfilePic();
 
         Map<String, Object> profileMap = new HashMap<String, Object>() {{
             put(Key.USER_PROFILE_FULL_NAME, fullname);
-            put(Key.USER_PROFILE_USERNAME, username);
+            put(Key.USER_PROFILE_USERNAME, firebaseEncodedUsername);
             put(Key.USER_PROFILE_PIC, photoUrl);
         }};
 
@@ -86,9 +88,9 @@ public class FirebaseProfileAction {
 
         currentUserReference.updateChildren(profileMap);
         notificationPreference.updateChildren(preferencesMap);
-        accountReference.child(username).setValue(user.getEmail());
+        accountReference.child(firebaseEncodedUsername).setValue(user.getEmail());
         user.updateProfile(new UserProfileChangeRequest.Builder()
-                .setDisplayName(username).build());
+                .setDisplayName(firebaseEncodedUsername).build());
 
         callback.onSuccess();
     }
@@ -137,7 +139,7 @@ public class FirebaseProfileAction {
 
 
     public static void fetchEmailForUsername(String username, OnFetchEmailForUsernameCallback callback) {
-        DatabaseReference usernameAccountReference = Default.ACCOUNT_REFERENCE.child(username);
+        DatabaseReference usernameAccountReference = Default.ACCOUNTS_REFERENCE.child(username);
         usernameAccountReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot usernameSnapshot) {
@@ -198,7 +200,7 @@ public class FirebaseProfileAction {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
+                                            DatabaseReference accountReference = Default.ACCOUNTS_REFERENCE;
                                             accountReference.child(CurrentUser.prismUser.getUsername())
                                                     .setValue(newEmail);
                                             callback.onSuccess();
@@ -218,6 +220,52 @@ public class FirebaseProfileAction {
                     }
                 })
                 .addOnFailureListener(callback::onIncorrectPassword);
+    }
+
+    public static void changeUsername(String oldUsername, String newUsername, OnChangeUsernameCallback callback) {
+        String oldFirebaseEncodedUsername = ProfileHelper.getFirebaseEncodedUsername(oldUsername);
+        String newFirebaseEncodedUsername = ProfileHelper.getFirebaseEncodedUsername(newUsername);
+        FirebaseProfileAction.isUsernameTaken(newFirebaseEncodedUsername, new OnUsernameTakenCallback() {
+            @Override
+            public void onSuccess(boolean usernameTaken) {
+                if (usernameTaken) {
+                    callback.onUsernameTaken();
+                } else {
+                    String oldUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + oldFirebaseEncodedUsername;
+                    String newUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + newFirebaseEncodedUsername;
+                    String newUsernameProfilePath = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.prismUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
+
+                    HashMap<String, Object> usernamePaths = new HashMap<String, Object>() {{
+                        put(oldUsernameAccountPath, null);
+                        put(newUsernameAccountPath, CurrentUser.getFirebaseUser().getEmail());
+                        put(newUsernameProfilePath, newFirebaseEncodedUsername);
+                    }};
+
+                    DatabaseReference rootReference = Default.ROOT_REFERENCE;
+                    rootReference.updateChildren(usernamePaths)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    CurrentUser.getFirebaseUser().updateProfile(
+                                            new UserProfileChangeRequest
+                                                    .Builder()
+                                                    .setDisplayName(newFirebaseEncodedUsername)
+                                                    .build());
+
+                                    CurrentUser.prismUser.setUsername(newUsername);
+
+                                    callback.onSuccess();
+                                }
+                            })
+                            .addOnFailureListener(callback::onFailure);
+                }
+            }
+
+            @Override
+            public void onFailure() { }
+        });
+
+
     }
 
 }

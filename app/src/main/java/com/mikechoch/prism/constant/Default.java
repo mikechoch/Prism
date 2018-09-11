@@ -16,10 +16,11 @@ public class Default {
 
     private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
+    public static final DatabaseReference ROOT_REFERENCE = databaseReference;
     public static final DatabaseReference ALL_POSTS_REFERENCE = databaseReference.child(Key.DB_REF_ALL_POSTS);
     public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);
     public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
-    public static final DatabaseReference ACCOUNT_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
+    public static final DatabaseReference ACCOUNTS_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
     public static final DatabaseReference CONTENT_REVIEW_REFERENCE = databaseReference.child(Key.DB_REF_CONTENT_REVIEW);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();

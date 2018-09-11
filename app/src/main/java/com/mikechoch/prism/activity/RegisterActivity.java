@@ -213,7 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
                 toggleProgressBar(true);
                 final String fullName = ProfileHelper.getFormattedFullName(fullNameEditText);
                 final String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
-                final String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
+                final String firebaseEncodedUsername = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
                 final String email = ProfileHelper.getFormattedEmail(emailEditText);
                 final String password = ProfileHelper.getFormattedPassword(passwordEditText);
 
@@ -225,7 +225,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
 
-                FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
+                FirebaseProfileAction.isUsernameTaken(firebaseEncodedUsername, new OnUsernameTakenCallback() {
                     @Override
                     public void onSuccess(boolean usernameTaken) {
                         if (usernameTaken) {
@@ -237,7 +237,7 @@ public class RegisterActivity extends AppCompatActivity {
                         FirebaseProfileAction.registerUserWithEmailAndPassword(email, password, new OnFirebaseUserRegistrationCallback() {
                             @Override
                             public void onSuccess(FirebaseUser firebaseUser) {
-                                FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, username, new OnPrismUserRegistrationCallback() {
+                                FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                                     @Override
                                     public void onSuccess() {
                                         intentToMainActivity();
