@@ -6,7 +6,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.mikechoch.prism.OnFetchListener;
+import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -187,7 +187,7 @@ public class DiscoverController {
 
 
 
-    public static void generateHighestRepostedPosts(OnFetchListener onFetchListener) {
+    public static void generateHighestRepostedPosts(OnFetchCallback onFetchCallback) {
         ArrayList<Object> highestRepostedPosts = new ArrayList<>(listOfAllPrismPosts);
         Collections.sort(highestRepostedPosts, new Comparator<Object>() {
             @Override
@@ -195,10 +195,10 @@ public class DiscoverController {
                 return ((PrismPost) p2).getReposts().compareTo(((PrismPost) p1).getReposts());
             }
         });
-        onFetchListener.onPostsSuccess(highestRepostedPosts);
+        onFetchCallback.onSuccess(highestRepostedPosts);
     }
 
-    public static void generateHighestLikedPosts(OnFetchListener onFetchListener) {
+    public static void generateHighestLikedPosts(OnFetchCallback onFetchCallback) {
         ArrayList<Object> highestLikedPosts = new ArrayList<>(listOfAllPrismPosts);
         Collections.sort(highestLikedPosts, new Comparator<Object>() {
             @Override
@@ -206,14 +206,14 @@ public class DiscoverController {
                 return ((PrismPost) p2).getLikes().compareTo(((PrismPost) p1).getLikes());
             }
         });
-        onFetchListener.onPostsSuccess(highestLikedPosts);
+        onFetchCallback.onSuccess(highestLikedPosts);
     }
 
-//    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag(OnFetchListener onFetchListener) {
+//    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag(OnFetchCallback onFetchListener) {
 //        return listOfPrismPostsForRandomTag;
 //    }
 //
-//    public static ArrayList<PrismUser> getListOfRandomPrismUsers(OnFetchListener onFetchListener) {
+//    public static ArrayList<PrismUser> getListOfRandomPrismUsers(OnFetchCallback onFetchListener) {
 //        return listOfRandomPrismUsers;
 //    }
 
