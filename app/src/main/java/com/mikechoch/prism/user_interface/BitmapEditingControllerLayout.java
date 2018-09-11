@@ -150,8 +150,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     /**
      *
      */
-    private void
-    applyEffectsToBitmap() {
+    private void applyEffectsToBitmap() {
         modifiedBitmap = bitmapPreview.copy(bitmapPreview.getConfig(), true);
 
         Canvas canvas = new Canvas(modifiedBitmap);
@@ -176,13 +175,29 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             View filterPreview = layoutInflater.inflate(R.layout.filter_preview_layout, null, true);
             LinearLayout filterPreviewLinearLayout = filterPreview.findViewById(R.id.filter_preview_linear_layout);
             ImageView filterPreviewImageView = filterPreview.findViewById(R.id.filter_preview_image_view);
-            filterPreviewImageView.setImageBitmap(bitmap);
+
+            Bitmap tempBitmap = bitmap.copy(bitmap.getConfig(), true);
+
+            Canvas canvas = new Canvas(tempBitmap);
+            Paint paint = new Paint();
+            ColorMatrix cm = new ColorMatrix();
+            Matrix matrix = new Matrix();
+
+            float b = getEditSeekBarValue(filter.getBrightness(), Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
+            float c = getEditSeekBarValue(filter.getContrast(), Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
+            float s = getEditSeekBarValue(filter.getSaturation(), Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
+
+            cm.set(BitmapHelper.createEditMatrix(b, c, s));
+            paint.setColorFilter(new ColorMatrixColorFilter(cm));
+            canvas.drawBitmap(tempBitmap, matrix, paint);
+
+            filterPreviewImageView.setImageBitmap(tempBitmap);
             filterPreviewImageView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!currentFilter.equals(filter)) {
                         CardView.LayoutParams filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
-                        filterPreviewLayoutParams.setMargins((int) (0 * Default.scale), (int) (0 * Default.scale), (int) (0 * Default.scale), (int) (0 * Default.scale));
+                        filterPreviewLayoutParams.setMargins(0, 0, 0, 0);
                         currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
 
                         currentFilter = filter;
@@ -213,7 +228,6 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
             bitmapEditingControllerFilterLinearLayout.addView(filterPreviewLinearLayout);
         }
-
     }
 
     private void setupEditingController() {

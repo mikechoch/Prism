@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
@@ -42,15 +43,12 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
     private Context context;
     private ArrayList<?> prismDataArrayList;
     private Discovery discoveryType;
-    private Random random;
 
 
     public SearchDiscoverRecyclerViewAdapter(Context context, ArrayList<?> prismDataArrayList, Discovery discoveryType) {
         this.context = context;
         this.prismDataArrayList = prismDataArrayList;
         this.discoveryType = discoveryType;
-        random = new Random();
-        random.setSeed(Long.MAX_VALUE);
     }
 
     @Override

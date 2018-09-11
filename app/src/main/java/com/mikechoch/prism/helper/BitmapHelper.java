@@ -43,7 +43,7 @@ public class BitmapHelper {
      * @param description
      * @return
      */
-    public static String insertImage(ContentResolver cr, Bitmap source, String title, String description) {
+    private static String insertImage(ContentResolver cr, Bitmap source, String title, String description) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, title);
         values.put(MediaStore.Images.Media.DESCRIPTION, description);
@@ -57,11 +57,10 @@ public class BitmapHelper {
             url = cr.insert(externalContentUri, values);
 
             if (source != null) {
-                OutputStream imageOut = cr.openOutputStream(url);
-                try {
-                    source.compress(Bitmap.CompressFormat.JPEG, 50, imageOut);
-                } finally {
-                    imageOut.close();
+                if (url != null) {
+                    try (OutputStream imageOut = cr.openOutputStream(url)) {
+                        source.compress(Bitmap.CompressFormat.JPEG, 50, imageOut);
+                    }
                 }
             } else {
                 System.out.println("Failed to create thumbnail, removing original");
@@ -89,57 +88,51 @@ public class BitmapHelper {
      * @param bitmap
      * @return
      */
-    public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
-        try {
-            int orientation = getExifOrientation(src);
+    private static Bitmap rotateBitmap(String src, Bitmap bitmap) {
+        int orientation = getExifOrientation(src);
 
-            if (orientation == 1) {
-                return bitmap;
-            }
-
-            Matrix matrix = new Matrix();
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                    matrix.setScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    matrix.setRotate(180);
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                    matrix.setRotate(180);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSPOSE:
-                    matrix.setRotate(90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    matrix.setRotate(90);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSVERSE:
-                    matrix.setRotate(-90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    matrix.setRotate(-90);
-                    break;
-                default:
-                    return bitmap;
-            }
-
-            try {
-                Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                bitmap.recycle();
-                return oriented;
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                return bitmap;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (orientation == 1) {
+            return bitmap;
         }
 
-        return bitmap;
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+
+        try {
+            Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return oriented;
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return bitmap;
+        }
     }
 
     /**
@@ -148,7 +141,7 @@ public class BitmapHelper {
      * @return
      * @throws IOException
      */
-    private static int getExifOrientation(String src) throws IOException {
+    private static int getExifOrientation(String src) {
         int orientation = 1;
 
         try {
@@ -157,15 +150,13 @@ public class BitmapHelper {
              * ExifInterface exif = new ExifInterface(src);
              * orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
              */
-            if (Build.VERSION.SDK_INT >= 5) {
-                Class<?> exifClass = Class.forName("android.media.ExifInterface");
-                Constructor<?> exifConstructor = exifClass.getConstructor(new Class[] { String.class });
-                Object exifInstance = exifConstructor.newInstance(new Object[] { src });
-                Method getAttributeInt = exifClass.getMethod("getAttributeInt", new Class[] { String.class, int.class });
-                Field tagOrientationField = exifClass.getField("TAG_ORIENTATION");
-                String tagOrientation = (String) tagOrientationField.get(null);
-                orientation = (Integer) getAttributeInt.invoke(exifInstance, new Object[] { tagOrientation, 1});
-            }
+            Class<?> exifClass = Class.forName("android.media.ExifInterface");
+            Constructor<?> exifConstructor = exifClass.getConstructor(String.class);
+            Object exifInstance = exifConstructor.newInstance(src);
+            Method getAttributeInt = exifClass.getMethod("getAttributeInt", String.class, int.class);
+            Field tagOrientationField = exifClass.getField("TAG_ORIENTATION");
+            String tagOrientation = (String) tagOrientationField.get(null);
+            orientation = (Integer) getAttributeInt.invoke(exifInstance, new Object[] { tagOrientation, 1});
         } catch (ClassNotFoundException |
                 SecurityException |
                 IllegalArgumentException |
@@ -386,7 +377,6 @@ public class BitmapHelper {
     public static Bitmap scaleBitmap(Bitmap bitmap, boolean isHeight, float size) {
         if (isHeight) {
             int width = (int) (bitmap.getWidth() * (size / bitmap.getHeight()));
-            System.out.println(width);
             return Bitmap.createScaledBitmap(bitmap, width, (int) size, true);
         } else {
             int height = (int) (bitmap.getHeight() * (size / bitmap.getWidth()));
@@ -398,46 +388,6 @@ public class BitmapHelper {
         return new float[] {lumR * (contrast - saturation) + saturation, lumG * (contrast - saturation), lumB * (contrast - saturation), 0, brightness,
                             lumR * (contrast - saturation), lumG * (contrast - saturation) + saturation, lumB * (contrast - saturation), 0, brightness,
                             lumR * (contrast - saturation), lumG * (contrast - saturation), lumB * (contrast - saturation) + saturation, 0, brightness,
-                            0, 0, 0, 1, 0,
-                            0, 0, 0, 0, 1};
-    }
-
-    /**
-     *
-     * @param brightness
-     * @return
-     */
-    public static float[] createBrightnessMatrix(float brightness) {
-        return new float[] {1, 0, 0, 0, brightness,
-                            0, 1, 0, 0, brightness,
-                            0, 0, 1, 0, brightness,
-                            0, 0, 0, 1, 0,
-                            0, 0, 0, 0, 1};
-    }
-
-    /**
-     *
-     * @param contrast
-     * @return
-     */
-    public static float[] createContrastMatrix(float contrast) {
-        return new float[] {contrast, 0, 0, 0, 0,
-                            0, contrast, 0, 0, 0,
-                            0, 0, contrast, 0, 0,
-                            0, 0, 0, 1, 0,
-                            0, 0, 0, 0, 1};
-    }
-
-
-    /**
-     *
-     * @param saturation
-     * @return
-     */
-    public static float[] createSaturationMatrix(float saturation) {
-        return new float[] {lumR * (1 - saturation) + saturation, lumG * (1 - saturation), lumB * (1 - saturation), 0, 0,
-                            lumR * (1 - saturation), lumG * (1 - saturation) + saturation, lumB * (1 - saturation), 0, 0,
-                            lumR * (1 - saturation), lumG * (1 - saturation), lumB * (1 - saturation) + saturation, 0, 0,
                             0, 0, 0, 1, 0,
                             0, 0, 0, 0, 1};
     }

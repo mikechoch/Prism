@@ -85,7 +85,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_picture_upload_activity_layout);
-        
+
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         toolbarGalleryButton = findViewById(R.id.upload_image_toolbar_gallery_button);
@@ -217,7 +217,6 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param imageType
      */
     private void handleProfilePictureType(int imageType) {
@@ -270,7 +269,6 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param bitmap
      */
     private void populatePreviewImageView(Bitmap bitmap) {
@@ -281,8 +279,8 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         uploadedProfileImageView.setImageBitmap(profilePictureBitmapEditingControllerLayout.alteredBitmap);
 
         maxHeight = 56 * Default.scale;
-        tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        profilePictureBitmapEditingControllerLayout.setupFilterController(tempBitmap.copy(tempBitmap.getConfig(), true));
+        Bitmap tinyTempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
+        profilePictureBitmapEditingControllerLayout.setupFilterController(tinyTempBitmap.copy(tinyTempBitmap.getConfig(), true));
 
         profilePictureBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
         profilePictureBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
@@ -303,7 +301,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         }
         try {
             FileOutputStream outputStream = new FileOutputStream(pictureFile);
-            image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             outputStream.close();
 
         } catch (IOException e) {

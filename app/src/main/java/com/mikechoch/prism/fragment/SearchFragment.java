@@ -1,7 +1,9 @@
 package com.mikechoch.prism.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -16,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.OnFetchListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
@@ -97,10 +101,6 @@ public class SearchFragment extends Fragment {
             }
         });
 
-
-
-
-
         return view;
     }
 
@@ -121,7 +121,16 @@ public class SearchFragment extends Fragment {
                 prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
 //                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchListener);
 
-                // TODO: Add a banner ad here between the scroll views
+                View googleAdView = LayoutInflater.from(context).inflate(
+                        R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
+
+                TextView sponsoredAdTextView = googleAdView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
+                AdView adView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_view);
+                sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
+                new AdViewTask().execute(context, adView);
+
+                searchLinearLayout.addView(googleAdView);
+
                 break;
             case REPOST:
                 OnFetchListener repostedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, repostedPrismPosts);
@@ -215,6 +224,38 @@ public class SearchFragment extends Fragment {
                 discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
             }
         }
+    }
+
+    private static class AdViewTask extends AsyncTask<Object, Void, Void> {
+
+        private AdRequest adRequest;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Object... params) {
+            Context asyncContext = (Context) params[0];
+            AdView adView = (AdView) params[1];
+            ((Activity) asyncContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adRequest = new AdRequest.Builder()
+                            .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                            .build();
+                    adView.loadAd(adRequest);
+                }
+            });
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+        }
+
     }
 
 }

@@ -5,7 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -55,8 +61,10 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     private File output;
     private Bitmap outputBitmap;
 
+    private boolean isSavingImage = false;
 
-       @Override
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 //        getMenuInflater().inflate(R.menu.expense_detail_menu, menu);
         return true;
@@ -67,8 +75,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                super.onBackPressed();
                 break;
             default:
                 break;
@@ -140,12 +147,14 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (uploadedPostBitmapEditingControllerLayout.isAdjusting) {
-            uploadedPostBitmapEditingControllerLayout.isAdjusting = false;
-            uploadedPostBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-        } else {
-            finish();
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        if (!isSavingImage) {
+            if (uploadedPostBitmapEditingControllerLayout.isAdjusting) {
+                uploadedPostBitmapEditingControllerLayout.isAdjusting = false;
+                uploadedPostBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+            } else {
+                finish();
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
         }
     }
 
@@ -223,7 +232,6 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param bitmap
      */
     private void populatePreviewImageView(Bitmap bitmap) {
@@ -234,8 +242,8 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         uploadedPostCropImageView.setImageBitmap(uploadedPostBitmapEditingControllerLayout.alteredBitmap);
 
         maxHeight = 56 * Default.scale;
-        tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        uploadedPostBitmapEditingControllerLayout.setupFilterController(tempBitmap.copy(tempBitmap.getConfig(), true));
+        Bitmap tinyTempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
+        uploadedPostBitmapEditingControllerLayout.setupFilterController(tinyTempBitmap.copy(tinyTempBitmap.getConfig(), true));
 
         uploadedPostBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
         uploadedPostBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
@@ -255,26 +263,65 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    Intent prismPostDescriptionIntent = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
-
-                    String filename = String.valueOf(System.currentTimeMillis());
-
-                    FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
-                    uploadedPostCropImageView.getCroppedImage().compress(Bitmap.CompressFormat.PNG, 100, stream);
-
-                    stream.close();
-                    uploadedPostCropImageView.getCroppedImage().recycle();
-
-                    prismPostDescriptionIntent.putExtra("EditedPrismPostFilePath", filename);
-                    startActivity(prismPostDescriptionIntent);
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (!isSavingImage) {
+                    new UploadImageTask().execute();
                 }
             }
         });
+    }
+
+    private class UploadImageTask extends AsyncTask<Object, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            isSavingImage = true;
+        }
+
+        @Override
+        protected String doInBackground(Object... params) {
+            String filename = String.valueOf(System.currentTimeMillis());
+            try {
+                float scale = outputBitmap.getHeight() / (float) uploadedPostBitmapEditingControllerLayout.alteredBitmap.getHeight();
+
+                Bitmap outputBitmapCopy = Bitmap.createBitmap(outputBitmap,
+                        (int) Math.abs(uploadedPostCropImageView.getCropRect().left * scale),
+                        (int) Math.abs(uploadedPostCropImageView.getCropRect().top * scale),
+                        (int) Math.abs(uploadedPostCropImageView.getCropRect().width() * scale),
+                        (int) Math.abs(uploadedPostCropImageView.getCropRect().height() * scale));
+
+                Canvas canvas = new Canvas(outputBitmapCopy);
+                Paint paint = new Paint();
+                ColorMatrix cm = new ColorMatrix();
+                Matrix matrix = new Matrix();
+
+                cm.set(BitmapHelper.createEditMatrix(
+                        uploadedPostBitmapEditingControllerLayout.brightness,
+                        uploadedPostBitmapEditingControllerLayout.contrast,
+                        uploadedPostBitmapEditingControllerLayout.saturation));
+                paint.setColorFilter(new ColorMatrixColorFilter(cm));
+                canvas.drawBitmap(outputBitmapCopy, matrix, paint);
+
+                FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
+                outputBitmapCopy.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return filename;
+        }
+
+        @Override
+        protected void onPostExecute(String filename) {
+            super.onPostExecute(filename);
+
+            Intent prismPostDescriptionIntent = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
+            prismPostDescriptionIntent.putExtra("EditedPrismPostFilePath", filename);
+            startActivity(prismPostDescriptionIntent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            isSavingImage = false;
+        }
+
     }
 
 }
