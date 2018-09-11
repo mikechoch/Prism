@@ -27,6 +27,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Discovery;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
@@ -178,7 +179,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 prismPostImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Helper.intentToPrismPostDetailActivity(context, prismPost);
+                        IntentHelper.intentToPrismPostDetailActivity(context, prismPost);
                     }
                 });
 
@@ -208,7 +209,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 prismPostUserProfilePicture.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Helper.intentToUserProfileActivity(context, prismPost.getPrismUser());
+                        IntentHelper.intentToUserProfileActivity(context, prismPost.getPrismUser());
                     }
                 });
             }

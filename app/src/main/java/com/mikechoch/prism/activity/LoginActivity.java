@@ -38,6 +38,7 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
@@ -390,15 +391,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Intent to Main Activity from Login Activity
-     * TODO Rename this method
-     */
-    private void intentToMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        CurrentUser.prepareAppForUser(this, intent);
-    }
-
-    /**
      * Perform validation checks before attempting sign in
      * Also display a loading spinner until onComplete
      */
@@ -408,7 +400,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                  if (task.isSuccessful()) {
-                    intentToMainActivity();
+                    IntentHelper.intentToMainActivity(LoginActivity.this, true);
                 } else {
                     passwordTextInputLayout.setError("Invalid email/username or password");
                     toggleLoginProgressBar(false);

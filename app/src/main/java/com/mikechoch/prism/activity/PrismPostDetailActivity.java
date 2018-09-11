@@ -51,6 +51,7 @@ import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
@@ -421,7 +422,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         userRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Helper.intentToUserProfileActivity(PrismPostDetailActivity.this, prismPost.getPrismUser());
+                IntentHelper.intentToUserProfileActivity(PrismPostDetailActivity.this, prismPost.getPrismUser());
             }
         });
 
@@ -475,7 +476,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         likesCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToDisplayUsersActivity(0);
+                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), Default.DISPLAY_USERS_LIKE_CODE);
             }
         });
     }
@@ -542,7 +543,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentToDisplayUsersActivity(1);
+                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), Default.DISPLAY_USERS_REPOST_CODE);
             }
         });
     }
@@ -580,19 +581,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCount = prismPost.getReposts() + (performRepost ? 1 : -1);
         prismPost.setReposts(repostCount);
         repostCountTextView.setText(String.valueOf(repostCount));
-    }
-
-    /**
-     * Intent to DisplayUserActivity with the correct intentType code
-     * 0: Likes
-     * 1: Reposts
-     */
-    private void intentToDisplayUsersActivity(int intentType) {
-        Intent userLikesIntent = new Intent(PrismPostDetailActivity.this, DisplayUsersActivity.class);
-        userLikesIntent.putExtra(Default.USERS_INT_EXTRA, intentType);
-        userLikesIntent.putExtra(Default.USERS_DATA_ID_EXTRA, prismPost.getPostId());
-        startActivity(userLikesIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**

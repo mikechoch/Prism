@@ -302,7 +302,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                 paint.setColorFilter(new ColorMatrixColorFilter(cm));
                 canvas.drawBitmap(outputBitmapCopy, matrix, paint);
 
-                FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
+                 FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
                 outputBitmapCopy.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 stream.close();
             } catch (IOException e) {

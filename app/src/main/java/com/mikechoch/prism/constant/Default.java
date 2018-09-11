@@ -47,6 +47,7 @@ public class Default {
     // Login Result Request Codes
     public static final int SIGN_IN_WITH_GOOGLE_REQUEST_CODE = 300;
 
+    // Display Users
     public static final int DISPLAY_USERS_LIKE_CODE = 0;
     public static final int DISPLAY_USERS_REPOST_CODE = 1;
     public static final int DISPLAY_USERS_FOLLOWER_CODE = 2;
@@ -77,7 +78,7 @@ public class Default {
 
     // Profile Picture
     public static final int PROFILE_PICTURE_GALLERY = 0;
-    public static final int PROFILE_PICTURE_CAMERA = 1;
+    public static final int PROFILE_PICTURE_SELFIE = 1;
     public static final int PROFILE_PICTURE_VIEW = 2;
 
     // ViewPager

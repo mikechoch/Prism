@@ -52,6 +52,7 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.MoreOption;
 import com.mikechoch.prism.type.Setting;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -243,7 +244,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 postInformationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Helper.intentToUserProfileActivity(context, prismPost.getPrismUser());
+                        IntentHelper.intentToUserProfileActivity(context, prismPost.getPrismUser());
                     }
                 });
             }
@@ -325,7 +326,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             final GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    Helper.intentToPrismPostDetailActivity(context, prismPost);
+                    IntentHelper.intentToPrismPostDetailActivity(context, prismPost);
                     return true;
                 }
 
@@ -455,7 +456,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             repostsCountTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    intentToDisplayUsersActivity(Default.DISPLAY_USERS_REPOST_CODE);
+                    IntentHelper.intentToDisplayUsersActivity(context, postId, Default.DISPLAY_USERS_REPOST_CODE);
                 }
             });
         }
@@ -479,21 +480,9 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             likesCountTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    intentToDisplayUsersActivity(Default.DISPLAY_USERS_LIKE_CODE);
+                    IntentHelper.intentToDisplayUsersActivity(context, postId, Default.DISPLAY_USERS_LIKE_CODE);
 ;                }
             });
-        }
-
-        /**
-         * Intent to DisplayUserActivity with the correct intentType code
-         * @param displayUsersCode
-         */
-        private void intentToDisplayUsersActivity(int displayUsersCode) {
-            Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
-            displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
-            displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, postId);
-            context.startActivity(displayUsersIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         /**

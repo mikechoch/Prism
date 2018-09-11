@@ -21,6 +21,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
             userPostImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Helper.intentToPrismPostDetailActivity(context, prismPost);
+                    IntentHelper.intentToPrismPostDetailActivity(context, prismPost);
                 }
             });
         }
