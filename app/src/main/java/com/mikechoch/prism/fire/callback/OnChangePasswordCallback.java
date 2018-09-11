@@ -1,7 +1,7 @@
 package com.mikechoch.prism.fire.callback;
 
-public interface OnPasswordChangeCallback {
+public interface OnChangePasswordCallback {
     void onSuccess();
     void onFailure(Exception exception);
-    void onIncorrectPassword();
+    void onIncorrectPassword(Exception exception);
 }
