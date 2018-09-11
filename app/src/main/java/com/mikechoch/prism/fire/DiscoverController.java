@@ -6,6 +6,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.OnFetchListener;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -34,9 +35,9 @@ public class DiscoverController {
     private static DatabaseReference tagsReference;
     private static DatabaseReference usersReference;
 
-    private static ArrayList<PrismPost> listOfAllPrismPosts;
-    private static ArrayList<PrismPost> listOfPrismPostsForRandomTag;
-    private static ArrayList<PrismUser> listOfRandomPrismUsers;
+    private static ArrayList<Object> listOfAllPrismPosts;
+    private static ArrayList<Object> listOfPrismPostsForRandomTag;
+    private static ArrayList<Object> listOfRandomPrismUsers;
 
     private static String randomTag;
 
@@ -186,34 +187,34 @@ public class DiscoverController {
 
     }
 
-    public static ArrayList<PrismPost> generateHighestRepostedPosts() {
-        ArrayList<PrismPost> highestRepostedPosts = new ArrayList<>(listOfAllPrismPosts);
-        Collections.sort(highestRepostedPosts, new Comparator<PrismPost>() {
+    public static void generateHighestRepostedPosts(OnFetchListener onFetchListener) {
+        ArrayList<Object> highestRepostedPosts = new ArrayList<>(listOfAllPrismPosts);
+        Collections.sort(highestRepostedPosts, new Comparator<Object>() {
             @Override
-            public int compare(PrismPost p1, PrismPost p2) {
-                return p2.getReposts().compareTo(p1.getReposts());
+            public int compare(Object p1, Object p2) {
+                return ((PrismPost) p2).getReposts().compareTo(((PrismPost) p1).getReposts());
             }
         });
-        return highestRepostedPosts;
+        onFetchListener.onPostsSuccess(highestRepostedPosts);
     }
 
-    public static ArrayList<PrismPost> generateHighestLikedPosts() {
-        ArrayList<PrismPost> highestLikedPosts = new ArrayList<>(listOfAllPrismPosts);
-        Collections.sort(highestLikedPosts, new Comparator<PrismPost>() {
+    public static void generateHighestLikedPosts(OnFetchListener onFetchListener) {
+        ArrayList<Object> highestLikedPosts = new ArrayList<>();
+        Collections.sort(highestLikedPosts, new Comparator<Object>() {
             @Override
-            public int compare(PrismPost p1, PrismPost p2) {
-                return p2.getLikes().compareTo(p1.getLikes());
+            public int compare(Object p1, Object p2) {
+                return ((PrismPost) p2).getLikes().compareTo(((PrismPost) p1).getLikes());
             }
         });
-        return highestLikedPosts;
+        onFetchListener.onPostsSuccess(highestLikedPosts);
     }
 
-    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag() {
-        return listOfPrismPostsForRandomTag;
-    }
-
-    public static ArrayList<PrismUser> getListOfRandomPrismUsers() {
-        return listOfRandomPrismUsers;
-    }
+//    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag(OnFetchListener onFetchListener) {
+//        return listOfPrismPostsForRandomTag;
+//    }
+//
+//    public static ArrayList<PrismUser> getListOfRandomPrismUsers(OnFetchListener onFetchListener) {
+//        return listOfRandomPrismUsers;
+//    }
 
 }

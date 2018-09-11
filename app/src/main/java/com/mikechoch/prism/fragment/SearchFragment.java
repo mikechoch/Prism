@@ -21,6 +21,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DiscoverController;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
@@ -72,8 +73,8 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        prismUsers = new ArrayList<>();
         likedPrismPosts = new ArrayList<>();
+        prismUsers = new ArrayList<>();
         repostedPrismPosts = new ArrayList<>();
         prismTags = new ArrayList<>();
 
@@ -97,14 +98,13 @@ public class SearchFragment extends Fragment {
             case LIKE:
                 OnFetchListener likedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, likedPrismPosts);
                 discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchListener);
-                likedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                FirebaseAction.fetchMostLikedPrismPosts(likedPrismPostOnFetchListener);
+                DiscoverController.generateHighestLikedPosts(likedPrismPostOnFetchListener);
                 break;
             case USER:
                 OnFetchListener prismUsersOnFetchListener = updateDiscoveryItem(context, discovery, prismUsers);
                 discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchListener);
                 prismUsersOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                FirebaseAction.fetchSuggestedPrismUsers(prismUsersOnFetchListener);
+//                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchListener);
 
                 // TODO: Add a banner ad here between the scroll views
                 break;
@@ -112,13 +112,13 @@ public class SearchFragment extends Fragment {
                 OnFetchListener repostedPrismPostOnFetchListener = updateDiscoveryItem(context, discovery, repostedPrismPosts);
                 discoveryOnFetchListenerHashMap.put(discovery, repostedPrismPostOnFetchListener);
                 repostedPrismPostOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                FirebaseAction.fetchMostLikedPrismPosts(repostedPrismPostOnFetchListener);
+                DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchListener);
                 break;
             case TAG:
                 OnFetchListener tagsOnFetchListener = updateDiscoveryItem(context, discovery, prismTags);
                 discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchListener);
                 tagsOnFetchListener.onPostsSuccess(new ArrayList<>());
-//                FirebaseAction.fetchSuggestedTags(tagsOnFetchListener);
+//                DiscoverController.getListOfPrismPostsForRandomTag(tagsOnFetchListener);
                 break;
         }
     }
