@@ -37,6 +37,7 @@ import com.mikechoch.prism.fire.AuthenticationController;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
+import com.mikechoch.prism.fire.callback.OnSendResetPasswordEmailCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -205,47 +206,27 @@ public class LoginActivity extends AppCompatActivity {
      * @param dialog
      */
     private void sendResetPasswordEmail(String email, DialogInterface dialog) {
-        forgotPasswordProgressBar.setVisibility(View.VISIBLE);
-
-        auth.fetchSignInMethodsForEmail(email).addOnSuccessListener(new OnSuccessListener<SignInMethodQueryResult>() {
+        FirebaseProfileAction.sendResetPasswordEmail(email, new OnSendResetPasswordEmailCallback() {
             @Override
-            public void onSuccess(SignInMethodQueryResult signInMethodQueryResult) {
-                List<String> methods = signInMethodQueryResult.getSignInMethods();
-                if (methods.contains("password")) {
-                    sendEmail(email);
-                } else {
-                    Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                    Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
-                }
-                forgotPasswordProgressBar.setVisibility(View.GONE);
+            public void onSuccess() {
+                Helper.toast(LoginActivity.this, "Email successfully sent", true);
                 dialog.dismiss();
             }
 
-            void sendEmail(String email){
-                auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Helper.toast(LoginActivity.this, "Email sent", true);
-                        } else {
-                            Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                            Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, task.getException());
-                        }
-                        forgotPasswordProgressBar.setVisibility(View.GONE);
-                        dialog.dismiss();
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onAccountNotFoundForEmail() {
+                Helper.toast(LoginActivity.this, "Email is not registered with Prism", true);
+                Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
                 Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
                 Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, e);
-                forgotPasswordProgressBar.setVisibility(View.GONE);
                 dialog.dismiss();
             }
         });
-
 
     }
 
@@ -269,20 +250,13 @@ public class LoginActivity extends AppCompatActivity {
         resetPasswordAlertDialog.setPositiveButton(Default.BUTTON_SUBMIT, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String email = resetEmailEditText.getText().toString();
-                // TODO: Check if email is valid or not before sending the email
-                sendResetPasswordEmail(email, dialog);
+                String email = ProfileHelper.getFormattedEmail(resetEmailEditText);
+                if (ProfileHelper.isEmailValid(email, resetEmailTextInputLayout)) {
+                    forgotPasswordProgressBar.setVisibility(View.VISIBLE);
+                    sendResetPasswordEmail(email, dialog);
+                }
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                    }
-                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
+        }).setNegativeButton(Default.BUTTON_CANCEL, null).setOnDismissListener(null).setOnCancelListener(null);
 
         return resetPasswordAlertDialog;
     }

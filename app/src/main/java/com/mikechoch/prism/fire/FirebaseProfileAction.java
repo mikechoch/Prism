@@ -2,6 +2,7 @@ package com.mikechoch.prism.fire;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,11 +16,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -31,6 +34,7 @@ import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnSendResetPasswordEmailCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -277,6 +281,33 @@ public class FirebaseProfileAction {
                     public void onSuccess(Void aVoid) {
                         CurrentUser.prismUser.setFullName(newFullName);
                         callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public static void sendResetPasswordEmail(String email, OnSendResetPasswordEmailCallback callback) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.fetchSignInMethodsForEmail(email)
+                .addOnSuccessListener(new OnSuccessListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onSuccess(SignInMethodQueryResult signInMethodQueryResult) {
+                        if (signInMethodQueryResult.getSignInMethods().contains("password")) {
+                            sendEmail();
+                        } else {
+                            callback.onAccountNotFoundForEmail();
+                        }
+                    }
+
+                    void sendEmail(){
+                        auth.sendPasswordResetEmail(email)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    callback.onSuccess();
+                                }
+                            })
+                            .addOnFailureListener(callback::onFailure);
                     }
                 })
                 .addOnFailureListener(callback::onFailure);
