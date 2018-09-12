@@ -20,12 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
@@ -33,13 +28,12 @@ import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
+import com.mikechoch.prism.fire.callback.OnChangeFullNameCallback;
 import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.fire.callback.OnChangeUsernameCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
-
-import java.util.HashMap;
 
 /**
  * Created by mikechoch on 2/18/18.
@@ -202,20 +196,14 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                String newFullName = fullNameAlertDialogEditText.getText().toString().trim();
+                String newFullName = ProfileHelper.getFormattedFullName(fullNameAlertDialogEditText);
                 if (newFullName.equals(oldFullName)) {
                     dialog.dismiss();
                     return;
                 }
                 if (ProfileHelper.isFullNameValid(newFullName, fullNameAlertDialogTextInputLayout)) {
-                    changeFullNameAlertDialogProgressBar.setVisibility(View.VISIBLE);
-                    fullNameAlertDialogTextInputLayout.setEnabled(false);
-                    fullNameAlertDialogEditText.setEnabled(false);
-                    changeFullNameAlertDialog.getPositiveButtonElement().setEnabled(false);
-                    changeFullNameAlertDialog.getNegativeButtonElement().setEnabled(false);
-                    changeFullNameAlertDialog.setIsCancelable(false);
-
-                    updateFullName(newFullName, dialog);
+                    toggleFullnameAlertDialogAttributes(true);
+                    attemptUpdateFullName(newFullName, dialog);
                 }
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, null
@@ -227,6 +215,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
             public void onCancel(DialogInterface dialog) { }
         });
         return changeFullNameAlertDialog;
+        // TODO Can we cancel the onDismiss and onCancel listeners, they don't do anything?
     }
 
     /**
@@ -284,14 +273,25 @@ public class EditUserProfileActivity extends AppCompatActivity {
      * @param disableAttributes
      */
     private void toggleUsernameAlertDialogAttributes(boolean disableAttributes) {
-        int visibility = disableAttributes ? View.VISIBLE : View.GONE;
-        changeUsernameAlertDialogProgressBar.setVisibility(visibility);
+        int progressVisibility = disableAttributes ? View.VISIBLE : View.GONE;
+        changeUsernameAlertDialogProgressBar.setVisibility(progressVisibility);
         usernameAlertDialogTextInputLayout.setEnabled(!disableAttributes);
         usernameAlertDialogEditText.setEnabled(!disableAttributes);
         changeUsernameAlertDialog.getPositiveButtonElement().setEnabled(!disableAttributes);
         changeUsernameAlertDialog.getNegativeButtonElement().setEnabled(!disableAttributes);
         changeUsernameAlertDialog.setIsCancelable(!disableAttributes);
     }
+
+    private void toggleFullnameAlertDialogAttributes(boolean disableAttributes) {
+        int progressVisibility = disableAttributes ? View.VISIBLE : View.GONE;
+        changeFullNameAlertDialogProgressBar.setVisibility(progressVisibility);
+        fullNameAlertDialogTextInputLayout.setEnabled(!disableAttributes);
+        fullNameAlertDialogEditText.setEnabled(!disableAttributes);
+        changeFullNameAlertDialog.getPositiveButtonElement().setEnabled(!disableAttributes);
+        changeFullNameAlertDialog.getNegativeButtonElement().setEnabled(!disableAttributes);
+        changeFullNameAlertDialog.setIsCancelable(!disableAttributes);
+    }
+
 
     /**
      * Create an AlertDialog for when the user clicks the password edit text
@@ -476,26 +476,22 @@ public class EditUserProfileActivity extends AppCompatActivity {
      * @param newFullName
      * @param dialog
      */
-    private void updateFullName(String newFullName, DialogInterface dialog) {
-        // 1) USERS -> CurrentUser.uid -> "fullname"
-        currentUserReference.child(Key.USER_PROFILE_FULL_NAME).setValue(newFullName)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            fullNameEditText.setText(newFullName);
-                            CurrentUser.prismUser.setFullName(newFullName);
-                            Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_SUCCESS);
+    private void attemptUpdateFullName(String newFullName, DialogInterface dialog) {
+        FirebaseProfileAction.changeFullName(newFullName, new OnChangeFullNameCallback() {
+            @Override
+            public void onSuccess() {
+                fullNameEditText.setText(newFullName);
+                Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_SUCCESS);
+                dialog.dismiss();
+            }
 
-                        } else {
-                            Log.e(Default.TAG_DB, Message.FULL_NAME_UPDATE_FAIL, task.getException());
-                            Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_FAIL);
-                        }
-                        dialog.dismiss();
-                    }
-                });
-
-
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FULL_NAME_UPDATE_FAIL, e);
+                Helper.toast(EditUserProfileActivity.this, Message.FULL_NAME_UPDATE_FAIL);
+                dialog.dismiss();
+            }
+        });
     }
 
     /**

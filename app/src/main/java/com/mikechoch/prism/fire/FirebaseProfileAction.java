@@ -24,6 +24,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
+import com.mikechoch.prism.fire.callback.OnChangeFullNameCallback;
 import com.mikechoch.prism.fire.callback.OnChangeUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
@@ -264,8 +265,21 @@ public class FirebaseProfileAction {
             @Override
             public void onFailure() { }
         });
+    }
 
-
+    public static void changeFullName(String newFullName, OnChangeFullNameCallback callback) {
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        currentUserReference
+                .child(Key.USER_PROFILE_FULL_NAME)
+                .setValue(newFullName)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CurrentUser.prismUser.setFullName(newFullName);
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
 }
