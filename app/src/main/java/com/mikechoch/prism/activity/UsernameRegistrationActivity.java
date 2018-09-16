@@ -60,8 +60,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
-                String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
-                createPrismUser(username);
+                createPrismUser(inputUsername);
             }
         });
 
@@ -91,8 +90,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
                 switch(actionId) {
                     case EditorInfo.IME_ACTION_DONE:
                         String inputUsername = ProfileHelper.getFormattedUsername(usernameEditText);
-                        String username = ProfileHelper.getFirebaseEncodedUsername(inputUsername);
-                        createPrismUser(username);
+                        createPrismUser(inputUsername);
                         return true;
                 }
                 return false;
@@ -101,14 +99,15 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
     }
 
     public void createPrismUser(String username) {
+        String firebaseEncodedUsername = ProfileHelper.getFirebaseEncodedUsername(username);
         if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
-            FirebaseProfileAction.isUsernameTaken(username, new OnUsernameTakenCallback() {
+            FirebaseProfileAction.isUsernameTaken(firebaseEncodedUsername, new OnUsernameTakenCallback() {
                 @Override
                 public void onSuccess(boolean usernameTaken) {
                     if (usernameTaken) {
                         usernameTextInputLayout.setError("Username is taken");
                     } else {
-                        FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, username, new OnPrismUserRegistrationCallback() {
+                        FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                             @Override
                             public void onSuccess() {
                                 SHOULD_SIGN_OUT = Boolean.FALSE;

@@ -312,7 +312,7 @@ public class LoginActivity extends AppCompatActivity {
                     String email = emailOrUsername;
                     attemptLogin(email, password);
                 } else {
-                    String username = emailOrUsername;
+                    String username = ProfileHelper.getFirebaseEncodedUsername(emailOrUsername);
                     FirebaseProfileAction.fetchEmailForUsername(username, new OnFetchEmailForUsernameCallback() {
                         @Override
                         public void onSuccess(String email) {

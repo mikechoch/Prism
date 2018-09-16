@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -36,6 +34,7 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
 import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
+import com.mikechoch.prism.fire.callback.OnChangeUsernameCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
 import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
@@ -255,14 +254,15 @@ public class EditUserProfileActivity extends AppCompatActivity {
         changeUsernameAlertDialog.setPositiveButton(Default.BUTTON_UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String newUsername = usernameAlertDialogEditText.getText().toString().trim();
-                if (newUsername.equals(oldUsername)) {
+                String newInputUsername = ProfileHelper.getFormattedUsername(usernameAlertDialogEditText);
+                // String newUsername = ProfileHelper.getFirebaseEncodedUsername(newInputUsername);
+                if (newInputUsername.equals(oldUsername)) {
                     dialog.dismiss();
                     return;
                 }
-                if (ProfileHelper.isUsernameValid(newUsername, usernameAlertDialogTextInputLayout)) {
+                if (ProfileHelper.isUsernameValid(newInputUsername, usernameAlertDialogTextInputLayout)) {
                     toggleUsernameAlertDialogAttributes(true);
-                    updateUsername(oldUsername, newUsername, dialog, usernameAlertDialogTextInputLayout);
+                    attemptUpdateUsername(oldUsername, newInputUsername, dialog, usernameAlertDialogTextInputLayout);
                 }
             }
         });
@@ -498,55 +498,38 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
     }
 
-    private void updateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
-        // Update in
-        // 1) ACCOUNTS -> CurrentUser.username
-        // 2) USERS -> CurrentUser.uid -> "username"
-        // 3) FirebaseUser.displayname
+    /**
+     * Update in
+     * 1) ACCOUNTS -> CurrentUser.username
+     * 2) USERS -> CurrentUser.uid -> "username"
+     * 3) FirebaseUser.displayname
+     * @param oldUsername
+     * @param newUsername
+     * @param dialog
+     * @param usernameTextInputLayout
+     */
+    private void attemptUpdateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
 
-        String old_username_account_path = Key.DB_REF_ACCOUNTS + "/" + oldUsername;
-        String new_username_account_path = Key.DB_REF_ACCOUNTS + "/" + newUsername;
-        String new_username_user_path = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.prismUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
-
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference accountReference = Default.ACCOUNT_REFERENCE;
-        accountReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseProfileAction.changeUsername(oldUsername, newUsername, new OnChangeUsernameCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(newUsername)) {
-                    usernameTextInputLayout.setError("Username is taken. Try again");
-                    toggleUsernameAlertDialogAttributes(false);
-                    return;
-                }
-                String email = (String) dataSnapshot.child(oldUsername).getValue();
-
-                HashMap<String, Object> children = new HashMap<>();
-                children.put(old_username_account_path, null);
-                children.put(new_username_account_path, email);
-                children.put(new_username_user_path, newUsername);
-
-                databaseReference.updateChildren(children).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(newUsername).build();
-                            CurrentUser.getFirebaseUser().updateProfile(profileUpdate);
-                            CurrentUser.prismUser.setUsername(newUsername);
-                            usernameEditText.setText(newUsername);
-                            Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_SUCCESS);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, task.getException());
-                            Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_FAIL);
-                        }
-                        dialog.dismiss();
-                    }
-                });
-
+            public void onSuccess() {
+                usernameEditText.setText(newUsername);
+                Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_SUCCESS);
+                dialog.dismiss();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) { }
+            public void onUsernameTaken() {
+                usernameTextInputLayout.setError("Username is taken. Try again");
+                toggleUsernameAlertDialogAttributes(false);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                dialog.dismiss();
+                Log.e(Default.TAG_DB, Message.USERNAME_UPDATE_FAIL, e);
+                Helper.toast(EditUserProfileActivity.this, Message.USERNAME_UPDATE_FAIL);
+            }
         });
 
     }
