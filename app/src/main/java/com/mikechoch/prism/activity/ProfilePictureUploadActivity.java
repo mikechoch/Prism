@@ -99,7 +99,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         uploadProfilePictureProgressBar = findViewById(R.id.upload_profile_picture_progress_bar);
 
         profilePictureBitmapEditingControllerLayout.attachTabLayout(bitmapEditingControllerTabLayout);
-//        profilePictureBitmapEditingControllerLayout.attachCropImageView(uploadedProfileImageView);
+//        profilePictureBitmapEditingControllerLayout.attachPhotoEditorView(uploadedProfileImageView);
 
         setupUIElements();
 

@@ -58,16 +58,17 @@ public class IntentHelper {
      * Intent to Upload Image Activity from Main Activity
      */
     public static void intentToUploadImageSelectionActivity(Context context) {
-        Intent imageUploadIntent = new Intent(context, PrismPostImageSelectionActivity.class);
-        context.startActivity(imageUploadIntent);
+        Intent uploadImageSelectionIntent = new Intent(context, PrismPostImageSelectionActivity.class);
+        context.startActivity(uploadImageSelectionIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
      * Intent to Upload Image Activity from Main Activity
      */
-    public static void intentToUploadImageEditActivity(Context context) {
+    public static void intentToUploadImageEditActivity(Context context, Uri resultUri) {
         Intent uploadImageEditIntent = new Intent(context, PrismPostImageEditActivity.class);
+        uploadImageEditIntent.putExtra(Default.UPLOAD_IMAGE_SELECTION_URI_EXTRA, resultUri);
         context.startActivity(uploadImageEditIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
@@ -76,8 +77,8 @@ public class IntentHelper {
      * Intent to Upload Image Activity from Main Activity
      */
     public static void intentToUploadDescriptionActivity(Context context) {
-        Intent uploadImageSelectionIntent = new Intent(context, PrismPostDescriptionActivity.class);
-        context.startActivity(uploadImageSelectionIntent);
+        Intent uploadDescriptionIntent = new Intent(context, PrismPostDescriptionActivity.class);
+        context.startActivity(uploadDescriptionIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 

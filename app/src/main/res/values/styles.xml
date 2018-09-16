@@ -82,4 +82,6 @@
         <item name="android:textColorAlertDialogListItem">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.UCropTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+
 </resources>

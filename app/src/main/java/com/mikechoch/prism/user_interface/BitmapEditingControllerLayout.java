@@ -28,7 +28,8 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.type.Filter;
-import com.yalantis.ucrop.view.GestureCropImageView;
+
+import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
 
 public class BitmapEditingControllerLayout extends RelativeLayout {
@@ -41,7 +42,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     public LinearLayout bitmapEditingControllerFilterLinearLayout;
     private LinearLayout bitmapEditingControllerEditingLinearLayout;
     public static LinearLayout filterEditingSeekBarLinearLayout;
-    private GestureCropImageView cropImageView;
+    private PhotoEditorView photoEditorView;
     private SeekBar filterEditingSeekBar;
     private TextView filterEditingTextView;
     private TabLayout bitmapEditingControllerTabLayout;
@@ -152,20 +153,19 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
      *
      */
     private void applyEffectsToBitmap() {
-        if (cropImageView.getViewBitmap() != null) {
-            Canvas canvas = new Canvas(cropImageView.getViewBitmap());
-            Paint paint = new Paint();
-            ColorMatrix cm = new ColorMatrix();
-            Matrix matrix = new Matrix();
+        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.RGB_565, true);
+        Canvas canvas = new Canvas(alteredBitmap);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        Matrix matrix = new Matrix();
 
-            cm.reset();
-            paint.reset();
-            matrix.reset();
+        cm.reset();
+        paint.reset();
+        matrix.reset();
 
-            cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
-            paint.setColorFilter(new ColorMatrixColorFilter(cm));
-            canvas.drawBitmap(cropImageView.getViewBitmap(), matrix, paint);
-        }
+        cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+        canvas.drawBitmap(alteredBitmap, matrix, paint);
     }
 
     /**
@@ -345,8 +345,8 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         });
     }
 
-    public void attachCropImageView(GestureCropImageView cropImageView) {
-        this.cropImageView = cropImageView;
+    public void attachPhotoEditorView(PhotoEditorView photoEditorView) {
+        this.photoEditorView = photoEditorView;
     }
 
 
