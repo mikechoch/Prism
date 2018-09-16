@@ -129,62 +129,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Email EditTextLayout Typefaces are set and TextWatcher is setup for error handling
-     */
-    private void setupEmailEditText() {
-        emailOrUsernameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                emailOrUsernameTextInputLayout.setErrorEnabled(false);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (s.length() > 0) {
-                            String input = s.toString().trim();
-                            if (ProfileHelper.isInputOfTypeEmail(input)) {
-                                ProfileHelper.isEmailValid(input, emailOrUsernameTextInputLayout);
-                            } else {
-                                ProfileHelper.isUsernameValid(input, emailOrUsernameTextInputLayout);
-                            }
-                        }
-                    }
-                }, 2000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
-    }
-
-    /**
      * Password EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupPasswordEditText() {
         passwordTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         passwordTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                passwordTextInputLayout.setErrorEnabled(false);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (s.length() > 0) {
-                            ProfileHelper.isPasswordValid(s.toString().trim(), passwordTextInputLayout);
-                        }
-                    }
-                }, 2000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
     }
 
     /**
@@ -294,8 +243,15 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onFailure() {
+                        public void onAccountNotFound() {
+                            emailOrUsernameTextInputLayout.setError("Account does not exist");
                             toggleLoginProgressBar(false);
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            toggleLoginProgressBar(false);
+                            // TODO Log this
                         }
                     });
                 }
@@ -334,7 +290,6 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButtonTextView.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
-        setupEmailEditText();
         setupPasswordEditText();
         setupLoginButton();
         setupForgotPassword();

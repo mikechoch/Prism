@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -65,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
         // User authentication instance
         auth = FirebaseAuth.getInstance();
         usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
-        
+
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
         fullNameTextInputLayout = findViewById(R.id.register_name_text_input_layout);
@@ -102,7 +103,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupFullNameEditText() {
         fullNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -117,7 +119,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -125,13 +128,17 @@ public class RegisterActivity extends AppCompatActivity {
      * Username EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupUsernameEditText() {
+        final Handler handler = new Handler();
         usernameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                usernameTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -142,23 +149,26 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable e) { }
+            public void afterTextChanged(Editable e) {
+            }
         });
-
-
     }
 
     /**
      * Email EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupEmailEditText() {
+        final Handler handler = new Handler();
         emailEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                emailTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -169,7 +179,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -179,13 +190,17 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupPasswordEditText() {
         passwordTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         passwordTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
+        final Handler handler = new Handler();
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                passwordTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -196,7 +211,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 

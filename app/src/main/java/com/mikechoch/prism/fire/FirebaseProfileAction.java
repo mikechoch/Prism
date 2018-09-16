@@ -151,13 +151,13 @@ public class FirebaseProfileAction {
                 if (usernameSnapshot.exists()) {
                     callback.onSuccess((String) usernameSnapshot.getValue());
                 } else {
-                    callback.onFailure();
+                    callback.onAccountNotFound();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }
