@@ -40,6 +40,9 @@
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.PrismPostImageSelectionActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.PrismPostImageEditActivity"
             android:screenOrientation="portrait" />
         <activity

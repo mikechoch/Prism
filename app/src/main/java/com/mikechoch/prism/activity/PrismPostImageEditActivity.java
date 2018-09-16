@@ -1,18 +1,11 @@
 package com.mikechoch.prism.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
+import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -21,21 +14,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
-import com.mikechoch.prism.type.Edit;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.BitmapEditingControllerLayout;
-import com.theartofdev.edmodo.cropper.CropImageView;
+import com.yalantis.ucrop.view.GestureCropImageView;
+import com.yalantis.ucrop.view.OverlayView;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 
 /**
@@ -50,18 +43,14 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ImageView toolbarGalleryButton;
     private ImageView toolbarCameraButton;
-    private ImageView toolbarRestartButton;
-    private LinearLayout uploadedPostImageViewLinearLayout;
-    private CropImageView uploadedPostCropImageView;
+    private RelativeLayout uploadedPostImageViewRelativeLayout;
+    private GestureCropImageView cropView;
     private BitmapEditingControllerLayout uploadedPostBitmapEditingControllerLayout;
     private TabLayout uploadedPostBitmapEditingControllerTabLayout;
-    private Button nextButton;
 
     private Uri imageUriExtra;
     private File output;
     private Bitmap outputBitmap;
-
-    private boolean isSavingImage = false;
 
 
     @Override
@@ -94,15 +83,9 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         // Initialize all UI elements
         toolbarGalleryButton = findViewById(R.id.upload_image_toolbar_gallery_button);
         toolbarCameraButton = findViewById(R.id.upload_image_toolbar_camera_button);
-        toolbarRestartButton = findViewById(R.id.upload_image_toolbar_restart_button);
-        uploadedPostImageViewLinearLayout = findViewById(R.id.uploaded_post_crop_image_view_limiter);
-        uploadedPostCropImageView = findViewById(R.id.uploaded_post_crop_image_view);
-        uploadedPostBitmapEditingControllerLayout = findViewById(R.id.uploaded_post_bitmap_editing_controller_layout);
-        uploadedPostBitmapEditingControllerTabLayout = findViewById(R.id.uploaded_post_bitmap_editing_controller_tab_layout);
-        nextButton = findViewById(R.id.image_edit_next_upload_activity_button);
+        uploadedPostImageViewRelativeLayout = findViewById(R.id.uploaded_post_crop_image_view_limiter);
 
         uploadedPostBitmapEditingControllerLayout.attachTabLayout(uploadedPostBitmapEditingControllerTabLayout);
-        uploadedPostBitmapEditingControllerLayout.attachCropImageView(uploadedPostCropImageView);
 
         setupUIElements();
 
@@ -111,7 +94,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean isAllowed = Helper.permissionRequest(PrismPostImageEditActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (isAllowed) {
-                    Helper.selectImageFromGallery(PrismPostImageEditActivity.this);
+                    IntentHelper.selectImageFromGallery(PrismPostImageEditActivity.this);
                 }
             }
         });
@@ -121,41 +104,18 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean isAllowed = Helper.permissionRequest(PrismPostImageEditActivity.this, Manifest.permission.CAMERA);
                 if (isAllowed) {
-                    imageUriExtra = Helper.takePictureFromCamera(PrismPostImageEditActivity.this);
+                    imageUriExtra = IntentHelper.takePictureFromCamera(PrismPostImageEditActivity.this);
                 }
             }
         });
 
-        toolbarRestartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadedPostCropImageView.setImageBitmap(outputBitmap);
-
-                uploadedPostBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
-                uploadedPostBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
-                uploadedPostBitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
-
-                uploadedPostBitmapEditingControllerLayout.isAdjusting = false;
-                uploadedPostBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-            }
-        });
-
-        uploadedPostImageViewLinearLayout.getLayoutParams().height = (int) (Default.screenHeight * 0.5);
-
-        Helper.selectImageFromGallery(this);
+//        IntentHelper.selectImageFromGallery(this);
     }
 
     @Override
     public void onBackPressed() {
-        if (!isSavingImage) {
-            if (uploadedPostBitmapEditingControllerLayout.isAdjusting) {
-                uploadedPostBitmapEditingControllerLayout.isAdjusting = false;
-                uploadedPostBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-            } else {
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
-        }
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
 
@@ -165,14 +125,14 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         switch (requestCode) {
             case Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Helper.selectImageFromGallery(this);
+                    IntentHelper.selectImageFromGallery(this);
                 } else {
                     super.onBackPressed();
                 }
                 break;
             case Default.MY_PERMISSIONS_CAMERA_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    imageUriExtra = Helper.takePictureFromCamera(this);
+                    imageUriExtra = IntentHelper.takePictureFromCamera(this);
                 } else {
                     super.onBackPressed();
                 }
@@ -193,11 +153,6 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      */
     private void setupUIElements() {
         setupToolbar();
-
-        // Setup Typefaces for all text based UI elements
-        nextButton.setTypeface(Default.sourceSansProLight);
-
-        setupNextButton();
     }
 
     /**
@@ -209,10 +164,10 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
                     outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
-                    populatePreviewImageView(outputBitmap);
+                    initPhotoEditorWithBitmap(outputBitmap);
 
                 } else {
-                    if (uploadedPostCropImageView.getCroppedImage() == null) {
+                    if (cropView.getDrawable() == null) {
                         super.onBackPressed();
                     }
                 }
@@ -220,10 +175,10 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
             case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
-                    populatePreviewImageView(outputBitmap);
+                    initPhotoEditorWithBitmap(outputBitmap);
 
                 } else {
-                    if (uploadedPostCropImageView.getCroppedImage() == null) {
+                    if (cropView.getDrawable() == null) {
                         super.onBackPressed();
                     }
                 }
@@ -234,94 +189,29 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     /**
      * @param bitmap
      */
-    private void populatePreviewImageView(Bitmap bitmap) {
-        float maxHeight = Default.screenHeight * 0.5f;
-        Bitmap tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        uploadedPostBitmapEditingControllerLayout.alteredBitmap = tempBitmap.copy(tempBitmap.getConfig(), true);
-        uploadedPostBitmapEditingControllerLayout.bitmapPreview = tempBitmap.copy(tempBitmap.getConfig(), true);
-        uploadedPostCropImageView.setImageBitmap(uploadedPostBitmapEditingControllerLayout.alteredBitmap);
+    private void initPhotoEditorWithBitmap(Bitmap bitmap) {
+        uploadedPostImageViewRelativeLayout.removeAllViews();
 
-        maxHeight = 56 * Default.scale;
-        Bitmap tinyTempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
-        uploadedPostBitmapEditingControllerLayout.setupFilterController(tinyTempBitmap.copy(tinyTempBitmap.getConfig(), true));
+        LinearLayout.LayoutParams cropViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (Default.screenHeight * 0.6));
 
-        uploadedPostBitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
-        uploadedPostBitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
-        uploadedPostBitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+        cropView = new GestureCropImageView(this);
+        cropView.setLayoutParams(cropViewLayoutParams);
+        cropView.setRotateEnabled(false);
 
-        uploadedPostBitmapEditingControllerLayout.isAdjusting = false;
-        uploadedPostBitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-    }
+        Bitmap tempBitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
+        cropView.setImageBitmap(tempBitmap);
 
-    /**
-     *
-     */
-    private void setupNextButton() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            nextButton.setForeground(getResources().getDrawable(R.drawable.image_upload_selector));
-        }
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isSavingImage) {
-                    new UploadImageTask().execute();
-                }
-            }
-        });
-    }
+        OverlayView cropOverlayView = new OverlayView(this);
+        cropOverlayView.setLayoutParams(cropViewLayoutParams);
+        cropOverlayView.setShowCropFrame(true);
+        cropOverlayView.setShowCropGrid(true);
+        cropOverlayView.setCropFrameColor(Color.WHITE);
+        cropOverlayView.setCropGridColor(Color.WHITE);
+        cropOverlayView.setupCropBounds();
 
-    private class UploadImageTask extends AsyncTask<Object, String, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            isSavingImage = true;
-        }
-
-        @Override
-        protected String doInBackground(Object... params) {
-            String filename = String.valueOf(System.currentTimeMillis());
-            try {
-                float scale = outputBitmap.getHeight() / (float) uploadedPostBitmapEditingControllerLayout.alteredBitmap.getHeight();
-
-                Bitmap outputBitmapCopy = Bitmap.createBitmap(outputBitmap,
-                        (int) Math.abs(uploadedPostCropImageView.getCropRect().left * scale),
-                        (int) Math.abs(uploadedPostCropImageView.getCropRect().top * scale),
-                        (int) Math.abs(uploadedPostCropImageView.getCropRect().width() * scale),
-                        (int) Math.abs(uploadedPostCropImageView.getCropRect().height() * scale));
-
-                Canvas canvas = new Canvas(outputBitmapCopy);
-                Paint paint = new Paint();
-                ColorMatrix cm = new ColorMatrix();
-                Matrix matrix = new Matrix();
-
-                cm.set(BitmapHelper.createEditMatrix(
-                        uploadedPostBitmapEditingControllerLayout.brightness,
-                        uploadedPostBitmapEditingControllerLayout.contrast,
-                        uploadedPostBitmapEditingControllerLayout.saturation));
-                paint.setColorFilter(new ColorMatrixColorFilter(cm));
-                canvas.drawBitmap(outputBitmapCopy, matrix, paint);
-
-                 FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
-                outputBitmapCopy.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return filename;
-        }
-
-        @Override
-        protected void onPostExecute(String filename) {
-            super.onPostExecute(filename);
-
-            Intent prismPostDescriptionIntent = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
-            prismPostDescriptionIntent.putExtra("EditedPrismPostFilePath", filename);
-            startActivity(prismPostDescriptionIntent);
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            isSavingImage = false;
-        }
-
+        uploadedPostImageViewRelativeLayout.addView(cropView);
+        uploadedPostImageViewRelativeLayout.addView(cropOverlayView);
+        uploadedPostBitmapEditingControllerLayout.attachCropImageView(cropView);
     }
 
 }
