@@ -29,6 +29,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
@@ -324,26 +327,29 @@ public class LoginActivity extends AppCompatActivity {
      * Also display a loading spinner until onComplete
      */
     private void attemptLogin(String email, String password) {
-
         auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onSuccess(AuthResult authResult) {
-                        if (authResult.getUser().isEmailVerified()) {
-                            IntentHelper.intentToMainActivity(LoginActivity.this, true);
-                        } else {
-                            IntentHelper.intentToEmailVerificationActivity(LoginActivity.this, true);
-                        }
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().getUser().isEmailVerified()) {
+                                IntentHelper.intentToMainActivity(LoginActivity.this, true);
+                            } else {
+                                IntentHelper.intentToEmailVerificationActivity(LoginActivity.this, true);
+                            }
 
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        passwordTextInputLayout.setError("Invalid email/username or password");
-                        toggleLoginProgressBar(false);
-                        Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, e);
-                        // TODO Figure out a way to show "Account does not exist" error if  exception is due to account not found
+                        } else {
+                            toggleLoginProgressBar(false);
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidUserException noEmailFound) {
+                                emailOrUsernameTextInputLayout.setError("Account does not exist");
+                            } catch (Exception e) {
+                                passwordTextInputLayout.setError("Invalid email/username or password");
+                                toggleLoginProgressBar(false);
+                                Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, e);
+                            }
+                        }
                     }
                 });
     }
