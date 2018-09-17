@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -16,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -31,6 +34,7 @@ import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
@@ -40,9 +44,6 @@ public class RegisterActivity extends AppCompatActivity {
     /*
      * Globals
      */
-    private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authStateListener;
-    private DatabaseReference usersDatabaseRef;
 
     private ImageView iconImageView;
     private TextInputLayout fullNameTextInputLayout;
@@ -62,10 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity_layout);
-
-        // User authentication instance
-        auth = FirebaseAuth.getInstance();
-        usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
 
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
@@ -257,7 +254,20 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        IntentHelper.intentToMainActivity(RegisterActivity.this, true);
+                                        firebaseUser.sendEmailVerification()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Helper.toast(RegisterActivity.this, "An email has been sent to " + email + ". Please click on the verfication link");
+                                                        IntentHelper.intentToEmailVerificationActivity(RegisterActivity.this, true);
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Helper.toast(RegisterActivity.this, "Unable to send verification email");
+                                                    }
+                                                });
                                     }
                                 });
                             }

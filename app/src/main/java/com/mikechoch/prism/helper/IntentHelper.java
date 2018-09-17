@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.activity.EditUserProfileActivity;
+import com.mikechoch.prism.activity.EmailVerificationMessageActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
@@ -22,6 +23,16 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 
 public class IntentHelper {
+
+    public static void intentToEmailVerificationActivity(Context context, boolean shouldClearBackStack) {
+        Intent intent = new Intent(context, EmailVerificationMessageActivity.class);
+        if (shouldClearBackStack) {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        }
+        context.startActivity(intent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
 
     /**
      * Intent to Main Activity from Register Activity

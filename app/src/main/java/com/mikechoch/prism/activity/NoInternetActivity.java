@@ -13,9 +13,5 @@ public class NoInternetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.no_internet_activity_layout);
 
-
-
-
-
     }
 }

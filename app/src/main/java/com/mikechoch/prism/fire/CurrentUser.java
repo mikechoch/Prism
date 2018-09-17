@@ -403,14 +403,30 @@ public class CurrentUser {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    public static boolean isUserSignedIn() {
+        FirebaseUser user = getFirebaseUser();
+        if (user == null) {
+            return false;
+        }
+        if (!user.isEmailVerified()) {
+            performSignOut();
+            return false;
+        }
+        return true;
+    }
+
     public static void performSignOut() {
-       CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);
-       CurrentUser.notificationsHandler.removeCallbacks(CurrentUser.notificationsRunnable);
+        if (CurrentUser.notificationsListener != null) {
+            CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);
+        }
+        if (CurrentUser.notificationsRunnable != null) {
+            CurrentUser.notificationsHandler.removeCallbacks(CurrentUser.notificationsRunnable);
+        }
 
-       CurrentUser.prismUser = null;
-       CurrentUser.preference = null;
+        CurrentUser.prismUser = null;
+        CurrentUser.preference = null;
 
-       FirebaseAuth.getInstance().signOut();
+        FirebaseAuth.getInstance().signOut();
 
 //       CurrentUser.news_feed = null;  // TODO should do this?
 

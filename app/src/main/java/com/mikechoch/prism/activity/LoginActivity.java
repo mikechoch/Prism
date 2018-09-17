@@ -324,19 +324,28 @@ public class LoginActivity extends AppCompatActivity {
      * Also display a loading spinner until onComplete
      */
     private void attemptLogin(String email, String password) {
+
         auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                 if (task.isSuccessful()) {
-                    IntentHelper.intentToMainActivity(LoginActivity.this, true);
-                } else {
-                    passwordTextInputLayout.setError("Invalid email/username or password");
-                    toggleLoginProgressBar(false);
-                    Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, task.getException());
-                }
-            }
-        });
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        if (authResult.getUser().isEmailVerified()) {
+                            IntentHelper.intentToMainActivity(LoginActivity.this, true);
+                        } else {
+                            IntentHelper.intentToEmailVerificationActivity(LoginActivity.this, true);
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        passwordTextInputLayout.setError("Invalid email/username or password");
+                        toggleLoginProgressBar(false);
+                        Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, e);
+                        // TODO Figure out a way to show "Account does not exist" error if  exception is due to account not found
+                    }
+                });
     }
 
     /**

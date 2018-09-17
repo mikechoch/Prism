@@ -17,6 +17,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.helper.IntentHelper;
 
 /**
  * Created by mikechoch on 1/21/18.
@@ -54,13 +55,6 @@ public class SplashActivity extends AppCompatActivity {
         new IntentLoaderTask().execute();
     }
 
-    /**
-     *
-     * @return
-     */
-    public boolean isUserSignedIn() {
-        return CurrentUser.getFirebaseUser() != null;// || GoogleSignIn.getLastSignedInAccount(this) != null;
-    }
 
     /**
      * AsyncTask for handling 1000ms delay on animation and then deciding if user is logged in
@@ -98,7 +92,8 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
 
-            if (!isUserSignedIn()) {
+            // TODO Sexify this and also use IntentHelper
+            if (!CurrentUser.isUserSignedIn()) {
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
