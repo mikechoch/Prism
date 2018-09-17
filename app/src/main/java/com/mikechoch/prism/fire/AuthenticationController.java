@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.constant.Default;
@@ -133,8 +134,9 @@ public class AuthenticationController {
                                     }
 
                                     @Override
-                                    public void onFailure() {
-
+                                    public void onFailure(Exception e) {
+                                        e.printStackTrace();
+                                        Helper.toast(context, "Failed to Sign in");
                                     }
                                 });
                             }

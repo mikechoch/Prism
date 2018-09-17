@@ -110,7 +110,7 @@ public class FirebaseProfileAction {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }
@@ -176,20 +176,10 @@ public class FirebaseProfileAction {
                                         callback.onSuccess();
                                     }
                                 })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        callback.onFailure(e);
-                                    }
-                                });
+                                .addOnFailureListener(callback::onFailure);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.onIncorrectPassword(e);
-                    }
-                });
+                .addOnFailureListener(callback::onIncorrectPassword);
     }
 
     public static void changeEmail(String password, String newEmail, OnChangeEmailCallback callback) {
