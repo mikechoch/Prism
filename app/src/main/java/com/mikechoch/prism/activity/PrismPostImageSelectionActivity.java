@@ -64,6 +64,9 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
     private ImageView rotateActionButton;
     private ImageView aspectRatioActionButton;
     private UCropView uCropView;
+    private ImageView imageView;
+
+    private float imageScale;
 
     private HashMap<AspectRatio, TextView> aspectRatioTextViews;
     private TransformImage currentAction = TransformImage.ASPECT_RATIO_MODE;
@@ -196,18 +199,51 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                supportInvalidateOptionsMenu();
-//                Uri destUri = Uri.fromFile(new File(Environment.DIRECTORY_PICTURES + "IMG_" + System.currentTimeMillis()));
-//                UCrop.of(imageUriExtra, destUri).start(PrismPostImageSelectionActivity.this);
-                float scale = outputBitmap.getHeight() / (float) uCropView.getCropImageView().getViewBitmap().getHeight();
-                int x = (int) (uCropView.getOverlayView().getCropViewRect().left - uCropView.getOverlayView().getPaddingLeft());
-                int y = (int) (uCropView.getOverlayView().getCropViewRect().top - uCropView.getOverlayView().getPaddingTop());
-                int height = (int) (uCropView.getOverlayView().getCropViewRect().height());
-                int width = (int) (uCropView.getOverlayView().getCropViewRect().width());
+                int outputBitmapWidth = uCropView.getCropImageView().getViewBitmap().getWidth();
+                int outputBitmapHeight = uCropView.getCropImageView().getViewBitmap().getHeight();
+                int uCropOverlayWidth = uCropView.getCropImageView().getWidth();
+                int uCropOverlayHeight = uCropView.getCropImageView().getHeight();
 
+                float widthScale = uCropOverlayWidth / (float) outputBitmapWidth;
+                float heightScale = uCropOverlayHeight / (float) outputBitmapHeight;
 
-                Bitmap newBitmap = Bitmap.createBitmap(outputBitmap, 0, 0, width, height);
-                BitmapHelper.storeImage(PrismPostImageSelectionActivity.this, newBitmap);
+                float scale = uCropView.getCropImageView().getCurrentScale();
+                float angle = uCropView.getCropImageView().getCurrentAngle();
+                float x = uCropView.getCropImageView().getTranslationX();
+                float y = uCropView.getCropImageView().getTranslationY();
+
+                int left = (int) ((uCropView.getOverlayView().getCropViewRect().left) / widthScale);
+                int top = (int) ((uCropView.getOverlayView().getCropViewRect().top) / heightScale);
+                int width = (int) (uCropView.getOverlayView().getCropViewRect().width() / widthScale);
+                int height = (int) (uCropView.getOverlayView().getCropViewRect().height() / heightScale);
+
+                int floatTop = uCropView.getCropImageView().getPaddingTop();
+                int floatLeft = uCropView.getCropImageView().getPaddingLeft();
+                int floatBottom = uCropView.getCropImageView().getPaddingBottom();
+                int floatRight = uCropView.getCropImageView().getPaddingRight();
+
+                int w = uCropView.getCropImageView().getViewBitmap().getWidth();
+                int h = uCropView.getCropImageView().getViewBitmap().getHeight();
+
+                uCropView.getCropImageView().setCropRect(uCropView.getOverlayView().getCropViewRect());
+
+                Bitmap newBitmap = Bitmap.createBitmap(uCropView.getCropImageView().getViewBitmap(),
+                        left,
+                        top,
+                        width,
+                        height);
+
+//                Bitmap newBitmap = Bitmap.createBitmap(outputBitmap.getWidth(), outputBitmap.getHeight(), Bitmap.Config.RGB_565);
+
+//                Paint p = new Paint();
+//                p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+//                Canvas c = new Canvas(newBitmap);
+//                c.drawBitmap(outputBitmap, 0, 0, p);
+//                c.drawRect(uCropView.getOverlayView().getCropViewRect(), p);
+                imageView = findViewById(R.id.image_test);
+                imageView.setImageBitmap(newBitmap);
+
+//                BitmapHelper.storeImage(PrismPostImageSelectionActivity.this, newBitmap);
 
 //                uCropView.getCropImageView().cropAndSaveImage(Bitmap.CompressFormat.JPEG, 100, new BitmapCropCallback() {
 //                    @Override
@@ -507,6 +543,7 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
 
         Bitmap tempBitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
         uCropView.getCropImageView().setImageBitmap(tempBitmap);
+        uCropView.getOverlayView().setDrawingCacheEnabled(true);
 
         uCropView.getOverlayView().setShowCropFrame(true);
         uCropView.getOverlayView().setShowCropGrid(true);
