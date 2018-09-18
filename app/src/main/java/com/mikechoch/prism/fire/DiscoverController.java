@@ -42,8 +42,7 @@ public class DiscoverController {
     private static HashMap<String, PrismUser> mapOfPrismUsers;
     private static ArrayList<PrismPost> listOfPostsForRandomHashTag;
 
-
-    public static String randomTag;
+    public static String randomTag = "";
 
     public static void setupDiscoverContent(OnInitializeDiscoveryCallback callback) {
         allPostsReference = Default.ALL_POSTS_REFERENCE;

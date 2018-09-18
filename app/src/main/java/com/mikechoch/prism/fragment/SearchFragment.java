@@ -139,6 +139,7 @@ public class SearchFragment extends Fragment {
                 DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchCallback);
                 break;
             case TAG:
+                discovery.setTitle(DiscoverController.randomTag);
                 OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
                 discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
 //                tagsOnFetchCallback.onSuccess(new ArrayList<>());
