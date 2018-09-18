@@ -29,6 +29,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
@@ -37,6 +40,7 @@ import com.mikechoch.prism.fire.AuthenticationController;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
+import com.mikechoch.prism.fire.callback.OnSendResetPasswordEmailCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -128,62 +132,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Email EditTextLayout Typefaces are set and TextWatcher is setup for error handling
-     */
-    private void setupEmailEditText() {
-        emailOrUsernameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                emailOrUsernameTextInputLayout.setErrorEnabled(false);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (s.length() > 0) {
-                            String input = s.toString().trim();
-                            if (ProfileHelper.isInputOfTypeEmail(input)) {
-                                ProfileHelper.isEmailValid(input, emailOrUsernameTextInputLayout);
-                            } else {
-                                ProfileHelper.isUsernameValid(input, emailOrUsernameTextInputLayout);
-                            }
-                        }
-                    }
-                }, 2000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
-    }
-
-    /**
      * Password EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupPasswordEditText() {
         passwordTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         passwordTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                passwordTextInputLayout.setErrorEnabled(false);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (s.length() > 0) {
-                            ProfileHelper.isPasswordValid(s.toString().trim(), passwordTextInputLayout);
-                        }
-                    }
-                }, 2000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
     }
 
     /**
@@ -205,47 +158,27 @@ public class LoginActivity extends AppCompatActivity {
      * @param dialog
      */
     private void sendResetPasswordEmail(String email, DialogInterface dialog) {
-        forgotPasswordProgressBar.setVisibility(View.VISIBLE);
-
-        auth.fetchSignInMethodsForEmail(email).addOnSuccessListener(new OnSuccessListener<SignInMethodQueryResult>() {
+        FirebaseProfileAction.sendResetPasswordEmail(email, new OnSendResetPasswordEmailCallback() {
             @Override
-            public void onSuccess(SignInMethodQueryResult signInMethodQueryResult) {
-                List<String> methods = signInMethodQueryResult.getSignInMethods();
-                if (methods.contains("password")) {
-                    sendEmail(email);
-                } else {
-                    Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                    Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
-                }
-                forgotPasswordProgressBar.setVisibility(View.GONE);
+            public void onSuccess() {
+                Helper.toast(LoginActivity.this, "Email successfully sent", true);
                 dialog.dismiss();
             }
 
-            void sendEmail(String email){
-                auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Helper.toast(LoginActivity.this, "Email sent", true);
-                        } else {
-                            Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                            Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, task.getException());
-                        }
-                        forgotPasswordProgressBar.setVisibility(View.GONE);
-                        dialog.dismiss();
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onAccountNotFoundForEmail() {
+                Helper.toast(LoginActivity.this, "Email is not registered with Prism", true);
+                Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
                 Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
                 Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, e);
-                forgotPasswordProgressBar.setVisibility(View.GONE);
                 dialog.dismiss();
             }
         });
-
 
     }
 
@@ -269,20 +202,13 @@ public class LoginActivity extends AppCompatActivity {
         resetPasswordAlertDialog.setPositiveButton(Default.BUTTON_SUBMIT, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String email = resetEmailEditText.getText().toString();
-                // TODO: Check if email is valid or not before sending the email
-                sendResetPasswordEmail(email, dialog);
+                String email = ProfileHelper.getFormattedEmail(resetEmailEditText);
+                if (ProfileHelper.isEmailValid(email, resetEmailTextInputLayout)) {
+                    forgotPasswordProgressBar.setVisibility(View.VISIBLE);
+                    sendResetPasswordEmail(email, dialog);
+                }
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                    }
-                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
+        }).setNegativeButton(Default.BUTTON_CANCEL, null).setOnDismissListener(null).setOnCancelListener(null);
 
         return resetPasswordAlertDialog;
     }
@@ -320,8 +246,15 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onFailure() {
+                        public void onAccountNotFound() {
+                            emailOrUsernameTextInputLayout.setError("Account does not exist");
                             toggleLoginProgressBar(false);
+                        }
+
+                        @Override
+                        public void onFailure(Exception exception) {
+                            toggleLoginProgressBar(false);
+                            // TODO Log this
                         }
                     });
                 }
@@ -360,7 +293,6 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButtonTextView.setTypeface(Default.sourceSansProLight);
 
         setupIconImageView();
-        setupEmailEditText();
         setupPasswordEditText();
         setupLoginButton();
         setupForgotPassword();
@@ -397,17 +329,29 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptLogin(String email, String password) {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                 if (task.isSuccessful()) {
-                    IntentHelper.intentToMainActivity(LoginActivity.this, true);
-                } else {
-                    passwordTextInputLayout.setError("Invalid email/username or password");
-                    toggleLoginProgressBar(false);
-                    Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, task.getException());
-                }
-            }
-        });
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().getUser().isEmailVerified()) {
+                                IntentHelper.intentToMainActivity(LoginActivity.this, true);
+                            } else {
+                                IntentHelper.intentToEmailVerificationActivity(LoginActivity.this, true);
+                            }
+
+                        } else {
+                            toggleLoginProgressBar(false);
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidUserException noEmailFound) {
+                                emailOrUsernameTextInputLayout.setError("Account does not exist");
+                            } catch (Exception e) {
+                                passwordTextInputLayout.setError("Invalid email/username or password");
+                                toggleLoginProgressBar(false);
+                                Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, e);
+                            }
+                        }
+                    }
+                });
     }
 
     /**

@@ -1,8 +1,7 @@
 package com.mikechoch.prism.fire.callback;
 
-public interface OnInitializeDiscoveryCallback {
-
+public interface OnSendResetPasswordEmailCallback {
     void onSuccess();
+    void onAccountNotFoundForEmail();
     void onFailure(Exception exception);
-
 }

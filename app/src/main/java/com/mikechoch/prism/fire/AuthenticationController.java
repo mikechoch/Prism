@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.constant.Default;
@@ -120,9 +121,7 @@ public class AuthenticationController {
                         .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                             @Override
                             public void onSuccess(AuthResult authResult) {
-                                FirebaseUser firebaseUser = authResult.getUser();
-                                // TODO check if user needs to create a username or not
-                                FirebaseProfileAction.doesUserHaveUsername(firebaseUser, new OnPrismUserProfileExistCallback() {
+                                FirebaseProfileAction.doesUserHaveUsername(authResult.getUser(), new OnPrismUserProfileExistCallback() {
                                     @Override
                                     public void onSuccess(boolean prismUserExists) {
                                         if (prismUserExists) {
@@ -135,8 +134,9 @@ public class AuthenticationController {
                                     }
 
                                     @Override
-                                    public void onFailure() {
-
+                                    public void onFailure(Exception e) {
+                                        e.printStackTrace();
+                                        Helper.toast(context, "Failed to Sign in");
                                     }
                                 });
                             }

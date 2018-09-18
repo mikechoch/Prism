@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -12,9 +13,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -30,6 +34,7 @@ import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
 
@@ -39,9 +44,6 @@ public class RegisterActivity extends AppCompatActivity {
     /*
      * Globals
      */
-    private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authStateListener;
-    private DatabaseReference usersDatabaseRef;
 
     private ImageView iconImageView;
     private TextInputLayout fullNameTextInputLayout;
@@ -62,10 +64,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity_layout);
 
-        // User authentication instance
-        auth = FirebaseAuth.getInstance();
-        usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child(Key.DB_REF_USER_PROFILES);
-        
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
         fullNameTextInputLayout = findViewById(R.id.register_name_text_input_layout);
@@ -102,7 +100,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupFullNameEditText() {
         fullNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -117,7 +116,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -125,13 +125,17 @@ public class RegisterActivity extends AppCompatActivity {
      * Username EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupUsernameEditText() {
+        final Handler handler = new Handler();
         usernameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                usernameTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -142,23 +146,26 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable e) { }
+            public void afterTextChanged(Editable e) {
+            }
         });
-
-
     }
 
     /**
      * Email EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupEmailEditText() {
+        final Handler handler = new Handler();
         emailEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                emailTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -169,7 +176,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -179,13 +187,17 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupPasswordEditText() {
         passwordTextInputLayout.setPasswordVisibilityToggleEnabled(true);
         passwordTextInputLayout.getPasswordVisibilityToggleDrawable().setTint(Color.WHITE);
+        final Handler handler = new Handler();
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Handler().postDelayed(new Runnable() {
+                passwordTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (s.length() > 0) {
@@ -196,7 +208,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -241,7 +254,20 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        IntentHelper.intentToMainActivity(RegisterActivity.this, true);
+                                        firebaseUser.sendEmailVerification()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Helper.toast(RegisterActivity.this, "An email has been sent to " + email + ". Please click on the verfication link");
+                                                        IntentHelper.intentToEmailVerificationActivity(RegisterActivity.this, true);
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Helper.toast(RegisterActivity.this, "Unable to send verification email");
+                                                    }
+                                                });
                                     }
                                 });
                             }

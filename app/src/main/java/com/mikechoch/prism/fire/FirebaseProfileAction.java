@@ -2,6 +2,7 @@ package com.mikechoch.prism.fire;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,21 +16,25 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnChangeEmailCallback;
+import com.mikechoch.prism.fire.callback.OnChangeFullNameCallback;
 import com.mikechoch.prism.fire.callback.OnChangeUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.fire.callback.OnChangePasswordCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
+import com.mikechoch.prism.fire.callback.OnSendResetPasswordEmailCallback;
 import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -105,7 +110,7 @@ public class FirebaseProfileAction {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }
@@ -146,13 +151,13 @@ public class FirebaseProfileAction {
                 if (usernameSnapshot.exists()) {
                     callback.onSuccess((String) usernameSnapshot.getValue());
                 } else {
-                    callback.onFailure();
+                    callback.onAccountNotFound();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }
@@ -171,20 +176,10 @@ public class FirebaseProfileAction {
                                         callback.onSuccess();
                                     }
                                 })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        callback.onFailure(e);
-                                    }
-                                });
+                                .addOnFailureListener(callback::onFailure);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.onIncorrectPassword(e);
-                    }
-                });
+                .addOnFailureListener(callback::onIncorrectPassword);
     }
 
     public static void changeEmail(String password, String newEmail, OnChangeEmailCallback callback) {
@@ -264,8 +259,48 @@ public class FirebaseProfileAction {
             @Override
             public void onFailure() { }
         });
+    }
 
+    public static void changeFullName(String newFullName, OnChangeFullNameCallback callback) {
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        currentUserReference
+                .child(Key.USER_PROFILE_FULL_NAME)
+                .setValue(newFullName)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        CurrentUser.prismUser.setFullName(newFullName);
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
 
+    public static void sendResetPasswordEmail(String email, OnSendResetPasswordEmailCallback callback) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.fetchSignInMethodsForEmail(email)
+                .addOnSuccessListener(new OnSuccessListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onSuccess(SignInMethodQueryResult signInMethodQueryResult) {
+                        if (signInMethodQueryResult.getSignInMethods().contains("password")) {
+                            sendEmail();
+                        } else {
+                            callback.onAccountNotFoundForEmail();
+                        }
+                    }
+
+                    void sendEmail(){
+                        auth.sendPasswordResetEmail(email)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    callback.onSuccess();
+                                }
+                            })
+                            .addOnFailureListener(callback::onFailure);
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
 }

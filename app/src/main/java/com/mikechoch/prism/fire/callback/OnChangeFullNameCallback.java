@@ -1,8 +1,6 @@
 package com.mikechoch.prism.fire.callback;
 
-public interface OnInitializeDiscoveryCallback {
-
+public interface OnChangeFullNameCallback {
     void onSuccess();
     void onFailure(Exception exception);
-
 }

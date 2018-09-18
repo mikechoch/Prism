@@ -93,6 +93,9 @@
         <activity
             android:name=".activity.NoInternetActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.EmailVerificationMessageActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

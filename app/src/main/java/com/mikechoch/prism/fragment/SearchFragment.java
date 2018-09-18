@@ -96,8 +96,8 @@ public class SearchFragment extends Fragment {
             }
 
             @Override
-            public void onFailure() {
-
+            public void onFailure(Exception e) {
+                e.printStackTrace();
             }
         });
 
@@ -141,8 +141,8 @@ public class SearchFragment extends Fragment {
             case TAG:
                 OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
                 discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
-                tagsOnFetchCallback.onSuccess(new ArrayList<>());
-//                DiscoverController.getListOfPrismPostsForRandomTag(tagsOnFetchCallback);
+//                tagsOnFetchCallback.onSuccess(new ArrayList<>());
+                DiscoverController.generateRandomPostsForHashTag(tagsOnFetchCallback);
                 break;
         }
     }
