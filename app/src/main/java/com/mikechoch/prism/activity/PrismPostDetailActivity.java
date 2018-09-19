@@ -2,7 +2,6 @@ package com.mikechoch.prism.activity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -85,6 +84,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private NestedScrollView prismPostDetailNestedScrollView;
     private ScrollView prismPostDetailScrollView;
     private RelativeLayout prismPostDetailsRelativeLayout;
+    private ImageView moreActionButton;
     private ImageView likeActionButton;
     private TextView likesCountTextView;
     private ImageView repostActionButton;
@@ -161,6 +161,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         prismPostDetailNestedScrollView = findViewById(R.id.prism_post_detail_nested_scroll_view);
         prismPostDetailScrollView = findViewById(R.id.prism_post_detail_scroll_view);
         prismPostDetailsRelativeLayout = findViewById(R.id.prism_post_detail_relative_layout);
+        moreActionButton = findViewById(R.id.prism_post_detail_more_action_button);
         likeActionButton = findViewById(R.id.prism_post_detail_like_action_button);
         likesCountTextView = findViewById(R.id.prism_post_detail_like_count);
         repostActionButton = findViewById(R.id.prism_post_detail_repost_action_button);
@@ -763,8 +764,25 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private void setupActionButtons() {
         setupLikeActionButton();
         setupRepostActionButton();
+        setupMoreActionButton();
         setupCollapseUpButton();
         setupDragArrow();
+    }
+
+    /**
+     *
+     */
+    private void setupMoreActionButton() {
+        moreActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InterfaceAction.startMoreActionButtonAnimation(moreActionButton);
+
+                boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
+                AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(PrismPostDetailActivity.this, prismPost, isCurrentUserThePostCreator);
+                morePrismPostAlertDialog.show();
+            }
+        });
     }
 
     /**

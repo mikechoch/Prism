@@ -100,15 +100,15 @@
                 android:background="@color/colorPrimary"
                 android:orientation="vertical">
 
-                <com.theartofdev.edmodo.cropper.CropImageView
-                    android:id="@+id/uploaded_profile_crop_image_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:cropToPadding="true"
-                    android:scaleType="fitCenter"
-                    android:elevation="6dp"
-                    app:cropShape="oval"
-                    app:cropFixAspectRatio="true" />
+                <!--<com.theartofdev.edmodo.cropper.CropImageView-->
+                    <!--android:id="@+id/uploaded_profile_crop_image_view"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:cropToPadding="true"-->
+                    <!--android:scaleType="fitCenter"-->
+                    <!--android:elevation="6dp"-->
+                    <!--app:cropShape="oval"-->
+                    <!--app:cropFixAspectRatio="true" />-->
 
             </LinearLayout>
 

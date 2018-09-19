@@ -43,6 +43,16 @@
                     android:gravity="start|top"
                     android:background="@null">
 
+                    <ImageView
+                        android:id="@+id/prism_post_detail_more_action_button"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_dots_vertical_black_36dp"
+                        android:tint="@android:color/white"/>
+
                 </com.mikechoch.prism.user_interface.ToolbarPullDownLayout>
 
             </android.support.v7.widget.Toolbar>

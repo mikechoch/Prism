@@ -59,6 +59,7 @@ import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
@@ -125,7 +126,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         // Otherwise intent to LoginActivity
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) {
-            intentToLoginActivity();
+            IntentHelper.intentToLoginActivity(MainActivity.this);
             return;
         }
 
@@ -427,7 +428,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         uploadImageFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                intentToUploadImageActivity();
+                IntentHelper.intentToUploadImageSelectionActivity(MainActivity.this);
             }
         });
     }
@@ -446,25 +447,6 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         TabLayout.Tab currentTab = prismTabLayout.getTabAt(prismViewPager.getCurrentItem());
         currentTab.select();
 
-    }
-
-    /**
-     * Intent to Login Activity from Main Activity
-     */
-    private void intentToLoginActivity() {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     * Intent to Upload Image Activity from Main Activity
-     */
-    private void intentToUploadImageActivity() {
-        Intent imageUploadIntent = new Intent( MainActivity.this, PrismPostImageEditActivity.class);
-        startActivity(imageUploadIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**

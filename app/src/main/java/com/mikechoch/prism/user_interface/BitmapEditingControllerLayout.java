@@ -28,7 +28,9 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.type.Filter;
-import com.theartofdev.edmodo.cropper.CropImageView;
+
+import ja.burhanrashid52.photoeditor.PhotoEditorView;
+
 
 public class BitmapEditingControllerLayout extends RelativeLayout {
 
@@ -40,7 +42,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     public LinearLayout bitmapEditingControllerFilterLinearLayout;
     private LinearLayout bitmapEditingControllerEditingLinearLayout;
     public static LinearLayout filterEditingSeekBarLinearLayout;
-    private CropImageView cropImageView;
+    private PhotoEditorView photoEditorView;
     private SeekBar filterEditingSeekBar;
     private TextView filterEditingTextView;
     private TabLayout bitmapEditingControllerTabLayout;
@@ -151,18 +153,19 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
      *
      */
     private void applyEffectsToBitmap() {
-        modifiedBitmap = bitmapPreview.copy(bitmapPreview.getConfig(), true);
-
-        Canvas canvas = new Canvas(modifiedBitmap);
+        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.RGB_565, true);
+        Canvas canvas = new Canvas(alteredBitmap);
         Paint paint = new Paint();
         ColorMatrix cm = new ColorMatrix();
         Matrix matrix = new Matrix();
 
+        cm.reset();
+        paint.reset();
+        matrix.reset();
+
         cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
-        canvas.drawBitmap(modifiedBitmap, matrix, paint);
-
-        cropImageView.setImageBitmap(modifiedBitmap);
+        canvas.drawBitmap(alteredBitmap, matrix, paint);
     }
 
     /**
@@ -266,17 +269,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                     filterEditingSeekBar.setProgress(progress);
                     filterEditingTextView.setText(progressText);
 
-                    modifiedBitmap = bitmapPreview.copy(bitmapPreview.getConfig(), true);
-                    Canvas canvas = new Canvas(modifiedBitmap);
-                    Paint paint = new Paint();
-                    ColorMatrix cm = new ColorMatrix();
-                    Matrix matrix = new Matrix();
-
-                    cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
-                    paint.setColorFilter(new ColorMatrixColorFilter(cm));
-                    canvas.drawBitmap(modifiedBitmap, matrix, paint);
-
-                    cropImageView.setImageBitmap(modifiedBitmap);
+                    applyEffectsToBitmap();
                 }
             });
             editFabTextView.setText(edit.getTitle());
@@ -352,9 +345,8 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         });
     }
 
-    public void attachCropImageView(CropImageView cropImageView) {
-        this.cropImageView = cropImageView;
-
+    public void attachPhotoEditorView(PhotoEditorView photoEditorView) {
+        this.photoEditorView = photoEditorView;
     }
 
 
