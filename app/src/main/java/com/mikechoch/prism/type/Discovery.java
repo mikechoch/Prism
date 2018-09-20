@@ -9,7 +9,7 @@ public enum Discovery {
     REPOST("Most Reposted", R.drawable.ic_camera_iris_black_36dp),
     TAG("Tags", R.drawable.ic_pound_white_48dp);
 
-    private final String title;
+    private String title;
     private final int icon;
 
     Discovery(String title, int icon) {
@@ -23,5 +23,9 @@ public enum Discovery {
 
     public int getIcon() {
         return icon;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
