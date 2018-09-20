@@ -40,7 +40,7 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'com.amitshekhar.android:android-networking:1.0.1'
     implementation 'ja.burhanrashid52:photoeditor:0.3.3'
-    implementation 'com.github.yalantis:ucrop:2.2.2-native'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
     testImplementation 'junit:junit:4.12'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

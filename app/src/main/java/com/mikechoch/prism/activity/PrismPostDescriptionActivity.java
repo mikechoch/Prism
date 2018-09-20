@@ -1,26 +1,22 @@
 package com.mikechoch.prism.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.ads.AdRequest;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
@@ -34,10 +30,10 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
      * Global variables
      */
     private Toolbar toolbar;
+    private TextView nextButton;
     private ImageView previewImageView;
     private TextInputLayout descriptionTextInputLayout;
     private EditText descriptionEditText;
-    private Button uploadButton;
 
     private Uri imageUri;
 
@@ -69,16 +65,15 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
-
+        nextButton = findViewById(R.id.prism_post_description_next_button);
         previewImageView = findViewById(R.id.prism_post_preview_image_view);
         descriptionTextInputLayout = findViewById(R.id.prism_post_description_text_input_layout);
         descriptionEditText = findViewById(R.id.prism_post_description_edit_text);
-        uploadButton = findViewById(R.id.description_upload_post_button);
 
         String filename = getIntent().getStringExtra("EditedPrismPostFilePath");
 
-        Bitmap bitmap = null;
-        FileInputStream fileInputStream = null;
+        Bitmap bitmap;
+        FileInputStream fileInputStream;
         try {
             fileInputStream = openFileInput(filename);
             bitmap = BitmapFactory.decodeStream(fileInputStream);
@@ -98,13 +93,6 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         }
 
         setupUIElements();
-
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intentBackToMainActivitySuccess();
-            }
-        });
     }
 
     @Override
@@ -135,12 +123,25 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
      * Setup all UI elements
      */
     private void setupUIElements() {
-        setupToolbar();
-
         // Setup Typefaces for all text based UI elements
         descriptionEditText.setTypeface(Default.sourceSansProLight);
-        uploadButton.setTypeface(Default.sourceSansProLight);
+        nextButton.setTypeface(Default.sourceSansProBold);
 
+        setupToolbar();
+        setupNextButton();
     }
+
+    /**
+     *
+     */
+    private void setupNextButton() {
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intentBackToMainActivitySuccess();
+            }
+        });
+    }
+
 
 }

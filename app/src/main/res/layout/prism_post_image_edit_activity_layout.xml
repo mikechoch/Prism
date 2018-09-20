@@ -33,7 +33,7 @@
                     android:gravity="center"
                     android:layout_marginEnd="16dp"
                     android:orientation="horizontal">
-                    
+
                     <TextView
                         android:id="@+id/prism_post_image_edit_next_button"
                         android:layout_width="wrap_content"
@@ -64,6 +64,7 @@
             android:id="@+id/prism_post_image_edit_photo_editor_view_limiter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="24dp"
             android:gravity="center"
             android:layout_gravity="center"
             android:clipChildren="true"

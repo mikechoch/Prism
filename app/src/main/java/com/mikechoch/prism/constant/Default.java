@@ -71,6 +71,7 @@ public class Default {
     public static final String PROFILE_PICTURE_TYPE_EXTRA = "ProfilePictureType";
     public static final String UPLOAD_IMAGE_INTENT_KEY = "UploadImage";
     public static final String UPLOAD_IMAGE_SELECTION_URI_EXTRA = "UploadImageSelectionUri";
+    public static final String UPLOAD_IMAGE_SELECTION_TYPE_EXTRA = "UploadImageSelectionType";
 
     // Bottom Navigation Bar Strings
     public static final String BOTTOM_NAVIGATION_BAR_NAME = "navigation_bar_height";
