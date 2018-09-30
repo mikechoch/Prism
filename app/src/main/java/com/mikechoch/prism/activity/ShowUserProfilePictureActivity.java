@@ -23,10 +23,6 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 public class ShowUserProfilePictureActivity extends AppCompatActivity {
-
-    /*
-    * Globals
-    */
     
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;

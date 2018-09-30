@@ -34,10 +34,6 @@ import com.mikechoch.prism.helper.ProfileHelper;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
-
     private ImageView iconImageView;
     private TextInputLayout fullNameTextInputLayout;
     private EditText fullNameEditText;

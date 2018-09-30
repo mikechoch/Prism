@@ -29,9 +29,6 @@ import com.mikechoch.prism.type.Setting;
 
 public class ProfileFragment extends Fragment {
 
-    /*
-     * Globals
-     */
     private FirebaseAuth auth;
     private DatabaseReference userReference;
     

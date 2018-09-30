@@ -66,9 +66,6 @@ import java.util.Map;
 
 public class PrismUserProfileActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private StorageReference storageReference;
     private DatabaseReference currentUserReference;
     private DatabaseReference usersReference;

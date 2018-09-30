@@ -12,9 +12,6 @@ import android.widget.RelativeLayout;
 
 public class ToolbarPullDownLayout extends RelativeLayout {
 
-    /*
-     * Globals
-     */
     private Context context;
 
     private float viewTouchDownX;

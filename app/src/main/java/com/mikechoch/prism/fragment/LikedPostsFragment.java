@@ -22,9 +22,6 @@ import java.util.ArrayList;
 
 public class LikedPostsFragment extends Fragment {
 
-    /*
-     * Globals
-     */
     private SwipeRefreshLayout likedPostsSwipeRefreshLayout;
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;

@@ -57,9 +57,6 @@ import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 public class PrismPostDetailActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private int scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED;
     private int noScrollFlags = 0;
 

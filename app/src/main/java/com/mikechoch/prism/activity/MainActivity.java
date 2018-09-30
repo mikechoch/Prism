@@ -68,9 +68,6 @@ import java.util.Calendar;
 
 public class MainActivity extends FragmentActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
-    /*
-     * Globals
-     */
     private FirebaseAuth auth;
     private DatabaseReference allPostsReference;
     private StorageReference storageReference;

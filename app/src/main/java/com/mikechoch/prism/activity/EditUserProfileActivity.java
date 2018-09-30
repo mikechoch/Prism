@@ -33,9 +33,6 @@ import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class EditUserProfileActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private DatabaseReference currentUserReference;
 
     private Toolbar toolbar;

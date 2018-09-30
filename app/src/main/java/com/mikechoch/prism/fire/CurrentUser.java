@@ -36,9 +36,6 @@ import java.util.HashMap;
 
 public class CurrentUser {
 
-    /*
-     * Globals
-     */
     public static PrismUser prismUser;
     public static UserPreference preference;
 

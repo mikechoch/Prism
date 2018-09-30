@@ -39,9 +39,6 @@ import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class LoginActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private FirebaseAuth auth;
     
     private ImageView iconImageView;

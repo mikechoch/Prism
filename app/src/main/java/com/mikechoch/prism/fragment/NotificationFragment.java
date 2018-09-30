@@ -25,9 +25,6 @@ import java.util.ArrayList;
 
 public class NotificationFragment extends Fragment {
 
-    /*
-     * Globals
-     */
     private DatabaseReference databaseReferenceAllPosts;
     private DatabaseReference usersReference;
 

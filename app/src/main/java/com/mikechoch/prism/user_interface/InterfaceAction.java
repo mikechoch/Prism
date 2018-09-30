@@ -26,9 +26,6 @@ import com.mikechoch.prism.type.MoreOption;
 
 public class InterfaceAction {
 
-    /*
-     * Globals
-     */
     public static String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
     public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 

@@ -23,10 +23,6 @@ import java.util.ArrayList;
 
 public class UploadedRepostedPostsFragment extends Fragment {
 
-    /*
-     * Globals
-     */
-
     private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;
 

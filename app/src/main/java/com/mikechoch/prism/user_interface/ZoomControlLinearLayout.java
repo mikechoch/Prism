@@ -12,9 +12,6 @@ import java.text.DecimalFormat;
 
 public class ZoomControlLinearLayout extends LinearLayout {
 
-    /*
-     * Globals
-     */
     private Context context;
 
     private ScaleGestureDetector mScaleDetector;
