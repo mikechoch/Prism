@@ -16,3 +16,5 @@ app/google-services.json
 app/app.iml
 local.properties
 app/src/main/res/values/api_keys.xml
+functions/node_modules
+.idea/vcs.xml
