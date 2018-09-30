@@ -27,10 +27,6 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.Setting;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class ProfileFragment extends Fragment {
 
     /*

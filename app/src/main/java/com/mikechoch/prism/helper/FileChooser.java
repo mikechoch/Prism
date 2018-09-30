@@ -10,9 +10,6 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
-/**
- * Created by mikechoch on 1/21/18.
- */
 
 public class FileChooser {
 

@@ -20,10 +20,6 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class LikedPostsFragment extends Fragment {
 
     /*

@@ -1,9 +1,5 @@
 package com.mikechoch.prism.constant;
 
-/**
- * Created by parth on 2/5/18.
- */
-
 public class Message {
 
      // Log.i()

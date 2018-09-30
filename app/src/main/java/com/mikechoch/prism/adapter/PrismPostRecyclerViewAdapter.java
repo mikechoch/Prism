@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -15,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -43,7 +41,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
@@ -53,8 +50,6 @@ import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
-import com.mikechoch.prism.type.MoreOption;
-import com.mikechoch.prism.type.Setting;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.io.File;
@@ -62,15 +57,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 1/21/18.
- */
-
 public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    /*
-     * Global variables
-     */
     private int RECYCLER_VIEW_AD_THRESHOLD = 5;
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int GOOGLE_AD_VIEW_TYPE = 1;

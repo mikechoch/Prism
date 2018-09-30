@@ -140,11 +140,11 @@ public class Default {
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
-    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should 10seconds or 30 seconds
+    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should be 10 seconds or 30 seconds
 
     public static final String HIDDEN_PASSWORD = "********";
 
     public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
 
-    public static final UserPreference USER_PREFERENCE = new UserPreference(true, true, true);
+    public static final UserPreference USER_PREFERENCE = new UserPreference(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
 }

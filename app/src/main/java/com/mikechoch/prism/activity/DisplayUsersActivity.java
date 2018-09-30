@@ -31,15 +31,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by mikechoch on 1/30/18.
- */
 
 public class DisplayUsersActivity extends AppCompatActivity {
 
-    /*
-     * Global variables
-     */
     private final static int LIKE_USERS = 0;
     private final static int REPOST_USERS = 1;
     private final static int FOLLOWER_USERS = 2;

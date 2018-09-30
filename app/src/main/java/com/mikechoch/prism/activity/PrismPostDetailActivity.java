@@ -55,11 +55,6 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
-
-/**
- * Created by mikechoch on 2/19/18.
- */
-
 public class PrismPostDetailActivity extends AppCompatActivity {
 
     /*

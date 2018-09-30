@@ -23,22 +23,14 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.MoreOption;
 import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.type.Setting;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
-/**
- * Created by mikechoch on 2/7/18.
- */
-
 public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
 
-    /*
-     * Global variables
-     */
     private final int SETTING_ITEM_TYPE = 0;
     private final int MORE_OPTION_ITEM_TYPE = 1;
     private final int PROFILE_PICTURE_OPTION_ITEM_TYPE = 2;

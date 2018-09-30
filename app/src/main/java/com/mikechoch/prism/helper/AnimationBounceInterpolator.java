@@ -1,9 +1,5 @@
 package com.mikechoch.prism.helper;
 
-/**
- * Created by mikechoch on 1/25/18.
- */
-
 public class AnimationBounceInterpolator implements android.view.animation.Interpolator {
     private double mAmplitude = 1;
     private double mFrequency = 10;

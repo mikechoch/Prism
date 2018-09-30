@@ -1,9 +1,5 @@
 package com.mikechoch.prism.constant;
 
-/**
- * Created by parth on 1/22/18.
- */
-
 public class Key {
 
     // DO NOT CHANGE ANY OF THESE //

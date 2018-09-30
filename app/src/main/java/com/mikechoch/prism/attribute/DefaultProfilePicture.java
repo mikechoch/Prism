@@ -1,9 +1,5 @@
 package com.mikechoch.prism.attribute;
 
-/**
- * Created by mikechoch on 1/31/18.
- */
-
 public enum DefaultProfilePicture {
 
     DEFAULT_PROFILE_PIC_0("android.resource://com.mikechoch.prism/drawable/default_prof_0", "android.resource://com.mikechoch.prism/drawable/default_prof_0_low"),

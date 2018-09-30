@@ -34,12 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
-/**
- * Created by parth on 2/25/18.
- */
-
 public class DatabaseAction {
 
     /**

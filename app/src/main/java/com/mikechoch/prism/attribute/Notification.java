@@ -4,10 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.mikechoch.prism.type.NotificationType;
 
-/**
- * Created by parth on 3/4/18.
- */
-
 public class Notification implements Comparable<Notification> {
 
     private NotificationType type;

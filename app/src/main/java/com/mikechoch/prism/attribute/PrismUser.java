@@ -5,10 +5,6 @@ import android.os.Parcelable;
 
 import com.mikechoch.prism.helper.ProfileHelper;
 
-/**
- * Created by mikechoch on 1/30/18.
- */
-
 public class PrismUser implements Parcelable {
 
     private String uid;

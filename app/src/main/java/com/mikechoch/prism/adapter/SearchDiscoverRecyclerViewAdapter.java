@@ -19,7 +19,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
@@ -32,7 +31,6 @@ import com.mikechoch.prism.type.Discovery;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

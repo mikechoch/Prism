@@ -8,15 +8,8 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.LikedPostsFragment;
 import com.mikechoch.prism.fragment.UploadedRepostedPostsFragment;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    /*
-     * Global variables
-     */
     private int NUM_ITEMS = Default.USER_POSTS_VIEW_PAGER_SIZE;
 
 

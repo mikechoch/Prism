@@ -1,8 +1,6 @@
 package com.mikechoch.prism.adapter;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -36,15 +33,8 @@ import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 1/21/18.
- */
-
 public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<NotificationRecyclerViewAdapter.ViewHolder> {
 
-    /*
-     * Global variables
-     */
     private Context context;
     public static ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList;
 

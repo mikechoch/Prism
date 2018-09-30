@@ -8,10 +8,6 @@ import android.view.ViewGroup;
 
 import com.mikechoch.prism.R;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class TrendingContentFragment extends Fragment {
 
 

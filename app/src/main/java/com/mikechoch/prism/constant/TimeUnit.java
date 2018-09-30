@@ -1,9 +1,5 @@
 package com.mikechoch.prism.constant;
 
-/**
- * Created by mikechoch on 1/29/18.
- */
-
 public class TimeUnit {
 
     public static final int SECONDS_UNIT = 60;

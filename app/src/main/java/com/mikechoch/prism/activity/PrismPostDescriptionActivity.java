@@ -1,14 +1,11 @@
 package com.mikechoch.prism.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,7 +17,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.ads.AdRequest;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
@@ -30,9 +26,6 @@ import java.io.IOException;
 
 public class PrismPostDescriptionActivity extends AppCompatActivity {
 
-    /*
-     * Global variables
-     */
     private Toolbar toolbar;
     private ImageView previewImageView;
     private TextInputLayout descriptionTextInputLayout;

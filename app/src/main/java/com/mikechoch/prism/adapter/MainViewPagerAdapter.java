@@ -10,15 +10,8 @@ import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.fragment.ProfileFragment;
 import com.mikechoch.prism.fragment.SearchFragment;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    /*
-     * Global variables
-     */
     private int NUM_ITEMS = Default.MAIN_VIEW_PAGER_SIZE;
 
 

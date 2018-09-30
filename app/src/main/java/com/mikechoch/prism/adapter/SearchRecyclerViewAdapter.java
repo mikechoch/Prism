@@ -24,7 +24,6 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;

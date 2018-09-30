@@ -9,10 +9,6 @@ import android.widget.Button;
 
 import com.mikechoch.prism.R;
 
-/**
- * Created by mikechoch on 3/20/18.
- */
-
 public class CustomAlertDialogBuilder extends AlertDialog.Builder {
 
     /*
