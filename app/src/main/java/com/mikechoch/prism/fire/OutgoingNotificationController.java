@@ -28,9 +28,6 @@ import java.util.HashMap;
 public class OutgoingNotificationController {
 
 
-    private static DatabaseReference usersReference = Default.USERS_REFERENCE;
-    private static DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-
     private static Handler handler = new Handler();
     private static HashMap<String, Runnable> likeNotificationHandlers = new HashMap<>();
     private static HashMap<String, Runnable> repostNotificationHandlers = new HashMap<>();
@@ -112,6 +109,7 @@ public class OutgoingNotificationController {
         NotificationType type = NotificationType.LIKE;
         String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
@@ -124,7 +122,7 @@ public class OutgoingNotificationController {
         NotificationType type = NotificationType.REPOST;
         String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
 
-        DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
+        DatabaseReference notificationReference = Default.USERS_REFERENCE.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         insertNotificationDataToCloud(notificationReference, actionTimestamp);
@@ -136,7 +134,7 @@ public class OutgoingNotificationController {
         NotificationType type = NotificationType.FOLLOW;
         String notificationId = NotificationType.createFollowNotificationId();
 
-        DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
+        DatabaseReference notificationReference = Default.USERS_REFERENCE.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         insertNotificationDataToCloud(notificationReference, actionTimestamp);
@@ -149,7 +147,8 @@ public class OutgoingNotificationController {
         String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
-        DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        DatabaseReference notificationReference = Default.USERS_REFERENCE.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         allPostsReference.child(prismPost.getPostId()).child(DB_REF).orderByValue().limitToLast(1)
@@ -181,7 +180,8 @@ public class OutgoingNotificationController {
         String notificationId = NotificationType.createLikeRepostNotificationId(prismPost, type);
         String DB_REF = type.getDatabaseRefKey();
 
-        DatabaseReference notificationReference = usersReference.child(prismPost.getUid())
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        DatabaseReference notificationReference = Default.USERS_REFERENCE.child(prismPost.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         allPostsReference.child(prismPost.getPostId()).child(DB_REF).orderByValue().limitToLast(1)
@@ -211,7 +211,7 @@ public class OutgoingNotificationController {
     private static void revertFollowNotification(PrismUser prismUser) {
         String notificationId = NotificationType.createFollowNotificationId();
 
-        DatabaseReference notificationReference = usersReference.child(prismUser.getUid())
+        DatabaseReference notificationReference = Default.USERS_REFERENCE.child(prismUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS).child(notificationId);
 
         notificationReference.removeValue();
@@ -240,6 +240,7 @@ public class OutgoingNotificationController {
     }
 
     private static void generatePushNotification(String notificationReceiverPrismUserId, NotificationType type, Object object, long actionTimestamp) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(notificationReceiverPrismUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

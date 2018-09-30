@@ -45,9 +45,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private final static int FOLLOWER_USERS = 2;
     private final static int FOLLOWING_USERS = 3;
 
-    private final DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-    private final DatabaseReference usersReference = Default.USERS_REFERENCE;
-
     private Toolbar toolbar;
     private TextView toolbarTextView;
     private ProgressBar likeRepostProgressBar;
@@ -186,6 +183,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getLikedUsers(String postId) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.child(postId).child(Key.DB_REF_POST_LIKED_USERS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -212,6 +210,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getRepostedUsers(String postId) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.child(postId).child(Key.DB_REF_POST_REPOSTED_USERS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -238,6 +237,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getFollowings(String userId) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(userId).child(Key.DB_REF_USER_FOLLOWINGS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -263,6 +263,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Gets give user's followers and then fetches user details for each userId
      */
     private void getFollowers(String userId) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(userId).child(Key.DB_REF_USER_FOLLOWERS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -290,6 +291,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * firebaseUser in the hashMap and creates a PrismUser object for each user
      */
     private void fetchUserDetails(HashMap<String, Long> usersMap) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
