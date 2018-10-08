@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,6 +34,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -162,7 +162,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
             // Image initializations
             progressBar = itemView.findViewById(R.id.prism_post_progress_bar);
-            prismPostRelativeLayout = itemView.findViewById(R.id.prism_post_item_relative_layout);
+            prismPostRelativeLayout = itemView.findViewById(R.id.under_maintenance_activity_relative_layout);
             userProfilePicImageView = itemView.findViewById(R.id.recycler_view_profile_pic_image_view);
             postInformationRelativeLayout = itemView.findViewById(R.id.recycler_view_post_info_relative_layout);
             prismUserTextView = itemView.findViewById(R.id.recycler_view_user_text_view);
@@ -554,72 +554,85 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
     }
 
-    /**
-     *
-     */
+
     public class GoogleAdViewHolder extends RecyclerView.ViewHolder {
 
-        private LinearLayout adLinearLayout;
-        private TextView sponsroedAdTextView;
+        private LinearLayout sponsoredLinearLayout;
+        private TextView sponsoredAdTextView;
         private AdView adView;
+        private ProgressBar adProgressBar;
+        private LinearLayout adFailedLinearLayout;
+        private TextView adFailedTextView;
         private AdRequest adRequest;
 
-        public GoogleAdViewHolder(View itemView) {
+
+        GoogleAdViewHolder(View itemView) {
             super(itemView);
 
-            adLinearLayout = itemView.findViewById(R.id.prism_post_google_ad_item_linear_layout);
-            sponsroedAdTextView = itemView.findViewById(R.id.prism_post_sponsored_ad_text_view);
+            sponsoredLinearLayout = itemView.findViewById(R.id.prism_post_google_ad_sponsored_linear_layout);
+            sponsoredAdTextView = itemView.findViewById(R.id.prism_post_sponsored_ad_text_view);
             adView = itemView.findViewById(R.id.prism_post_google_ad_view);
+            adProgressBar = itemView.findViewById(R.id.prism_post_google_ad_item_progress_bar);
+            adFailedLinearLayout = itemView.findViewById(R.id.prism_post_google_ad_item_failed_ad_layout);
+            adFailedTextView = itemView.findViewById(R.id.prism_post_google_ad_item_failed_ad_layout_title);
 
-            sponsroedAdTextView.setTypeface(Default.sourceSansProBold);
-
-            new AdViewTask().execute();
+            setData();
         }
 
         /**
-         * Set data for the GoogleAdViewHolder UI elements
+         * Set data method for GoogleAdViewHolder
+         * Usually for normal ViewHolders we expect an object as a param, but in this case
+         * we are just showing an ad
          */
-        public void setData() {
-
+        private void setData() {
+            populateInterfaceElements();
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements for GoogleAdViewHolder
          */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
+        private void populateInterfaceElements() {
+            sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
+            adFailedTextView.setTypeface(Default.sourceSansProBold);
 
+            adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+            adView.setAdListener(new AdListener() {
+                @Override
+                public void onAdLoaded() {
+                    // Code to be executed when an ad finishes loading.
+                    sponsoredLinearLayout.setVisibility(View.VISIBLE);
+                    adView.setVisibility(View.VISIBLE);
+                    adProgressBar.setVisibility(View.GONE);
+                    adFailedLinearLayout.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAdFailedToLoad(int errorCode) {
+                    // Code to be executed when an ad request fails.
+                    sponsoredLinearLayout.setVisibility(View.GONE);
+                    adView.setVisibility(View.GONE);
+                    adProgressBar.setVisibility(View.GONE);
+                    adFailedLinearLayout.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAdOpened() {
+                    // Code to be executed when an ad opens an overlay that
+                    // covers the screen.
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    // Code to be executed when the user has left the app.
+                }
+
+                @Override
+                public void onAdClosed() {
+                    // Code to be executed when when the user is about to return
+                    // to the app after tapping on an ad.
+                }
+            });
         }
-
-        /**
-         *
-         */
-        private class AdViewTask extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                ((Activity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adRequest = new AdRequest.Builder().build();
-                        adView.loadAd(adRequest);
-                    }
-                });
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void v) {
-                super.onPostExecute(v);
-
-            }
-
-        }
-
     }
 }

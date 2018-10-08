@@ -14,12 +14,14 @@
     android:background="@color/backgroundColor">
 
     <LinearLayout
+        android:id="@+id/prism_post_google_ad_sponsored_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_gravity="center"
         android:paddingBottom="8dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="48dp"
@@ -43,7 +45,47 @@
         android:id="@+id/prism_post_google_ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:adSize="MEDIUM_RECTANGLE"
         app:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
+
+    <ProgressBar
+        android:id="@+id/prism_post_google_ad_item_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/circle_progress_foreground"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:id="@+id/prism_post_google_ad_item_failed_ad_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/prism_post_google_ad_item_failed_ad_layout_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ad Failed to Load"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
+
+        <ImageView
+            android:id="@+id/prism_post_google_ad_item_failed_ad_layout_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_alert_white_48dp"
+            android:tint="@color/colorAccent"/>
+
+    </LinearLayout>
 
 </LinearLayout>

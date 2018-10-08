@@ -1,9 +1,7 @@
 package com.mikechoch.prism.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
@@ -13,14 +11,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.DiscoveryPost;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -34,10 +36,9 @@ import java.util.ArrayList;
 
 public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int RECYCLER_VIEW_AD_THRESHOLD = 0;
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int PRISM_USER_VIEW_TYPE = 1;
-    private final int GOOGLE_AD_VIEW_TYPE = 2;
+    private final int DISCOVERY_POST_VIEW_TYPE = 2;
 
     private Context context;
     private ArrayList<?> prismDataArrayList;
@@ -52,54 +53,41 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     @Override
     public int getItemViewType(int position) {
-        if (RECYCLER_VIEW_AD_THRESHOLD == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
-            int realPosition  = getRealPosition(position);
-            Object data = prismDataArrayList.get(realPosition);
-            if (data instanceof PrismPost){
-                return PRISM_POST_VIEW_TYPE;
-            } else if (data instanceof PrismUser) {
-                return PRISM_USER_VIEW_TYPE;
-            } /* else if (data instanceof DiscoveryPost) {
-                return DISCOVERY_POST_VIEW_TYPE; // TODO create this
-            } */
+        int viewType = PRISM_POST_VIEW_TYPE;
+        Object data = prismDataArrayList.get(position);
+        if (data instanceof PrismUser) {
+            viewType = PRISM_USER_VIEW_TYPE;
+        } else if (data instanceof DiscoveryPost) {
+            return DISCOVERY_POST_VIEW_TYPE;
         }
-        return GOOGLE_AD_VIEW_TYPE;
+        return viewType;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder viewHolder = null;
+        RecyclerView.ViewHolder viewHolder = new PrismPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                R.layout.discover_prism_post_recycler_view_item_layout, parent, false));
         switch (viewType) {
-            case PRISM_POST_VIEW_TYPE:
-                viewHolder = new PrismPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.discover_prism_post_recycler_view_item_layout, parent, false));
-                break;
             case PRISM_USER_VIEW_TYPE:
                 viewHolder = new PrismUserViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.discover_prism_user_recycler_view_item_layout, parent, false));
                 break;
-            case GOOGLE_AD_VIEW_TYPE:
-                viewHolder = new GoogleAdViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.discover_prism_post_google_ad_recycler_view_item_layout, parent, false));
+            case DISCOVERY_POST_VIEW_TYPE:
+                // TODO @MIKE create a new view for DiscoveryPost
+                //  viewHolder = new DiscoveryPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                //          R.layout.discover_discovery_post_recycler_view_item_layout, parent, false));
                 break;
-             // TODO @MIKE create a new view for DiscoveryPost
-            /* case DISCOVERY_POST_VIEW_TYPE:
-                viewHolder = new DiscoveryPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.discover_discovery_post_recycler_view_item_layout, parent, false)); */
         }
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (RECYCLER_VIEW_AD_THRESHOLD == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != RECYCLER_VIEW_AD_THRESHOLD - 1) {
-            int realPosition  = getRealPosition(position);
-            Object data = prismDataArrayList.get(realPosition);
-            if (data instanceof PrismPost){
-                ((PrismPostViewHolder) holder).setData((PrismPost) data);
-            } else if (data instanceof PrismUser) {
-                ((PrismUserViewHolder) holder).setData((PrismUser) data);
-            }
+        Object data = prismDataArrayList.get(position);
+        if (data instanceof PrismPost){
+            ((PrismPostViewHolder) holder).setData((PrismPost) data);
+        } else if (data instanceof PrismUser) {
+            ((PrismUserViewHolder) holder).setData((PrismUser) data);
         }
     }
 
@@ -108,13 +96,6 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         return prismDataArrayList.size();
     }
 
-    private int getRealPosition(int position) {
-        if (RECYCLER_VIEW_AD_THRESHOLD == 0) {
-            return position;
-        } else {
-            return position - position / RECYCLER_VIEW_AD_THRESHOLD;
-        }
-    }
 
     public class PrismPostViewHolder extends RecyclerView.ViewHolder {
 
@@ -132,11 +113,11 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             prismPostCount = itemView.findViewById(R.id.discover_prism_post_date_count_text_view);
             prismPostUserProfilePicture = itemView.findViewById(R.id.discover_prism_post_profile_picture_image_view);
 
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(PrismPost prismPost) {
             if (prismPost.getPrismUser() != null) {
@@ -217,13 +198,14 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         /**
          * Populate all UI elements with data
          */
-        private void populateUIElements() {
+        private void populateInterfaceElements() {
             // Setup Typefaces for all text based UI elements
             prismPostUsername.setTypeface(Default.sourceSansProBold);
             prismPostCount.setTypeface(Default.sourceSansProLight);
 
         }
     }
+
 
     public class PrismUserViewHolder extends RecyclerView.ViewHolder {
 
@@ -233,6 +215,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         private TextView discoverPrismUserUsername;
         private TextView discoverPrismUserName;
 
+        private PrismUser prismUser;
 
         private PrismUserViewHolder(View itemView) {
             super(itemView);
@@ -243,13 +226,31 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             discoverPrismUserUsername = itemView.findViewById(R.id.discover_prism_user_username_text_view);
             discoverPrismUserName = itemView.findViewById(R.id.discover_prism_user_name_text_view);
 
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(PrismUser prismUser) {
+            this.prismUser = prismUser;
+            populateInterfaceElements();
+        }
+
+        /**
+         * Populate all interface elements for PrismUserViewHolder
+         */
+        private void populateInterfaceElements() {
+            discoverPrismUserUsername.setTypeface(Default.sourceSansProBold);
+            discoverPrismUserName.setTypeface(Default.sourceSansProLight);
+
+            setupPrismUserView();
+        }
+
+        /**
+         * Setup PrismUser view for PrismUserViewHolder
+         */
+        private void setupPrismUserView() {
             if (prismUser != null) {
                 Glide.with(context)
                         .asBitmap()
@@ -292,84 +293,10 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 discoverPrismUserUsername.setText(prismUser.getUsername());
                 discoverPrismUserName.setText(prismUser.getFullName());
 
-                discoverPrismUserUsername.setTypeface(Default.sourceSansProBold);
-                discoverPrismUserName.setTypeface(Default.sourceSansProLight);
-
                 discoverPrismUserUsername.setSelected(true);
                 discoverPrismUserName.setSelected(true);
             }
         }
-
-        /**
-         * Populate all UI elements with data
-         */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
-
-        }
-    }
-
-    public class GoogleAdViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView sponsoredAdTextView;
-        private AdView adView;
-        private AdRequest adRequest;
-
-        public GoogleAdViewHolder(View itemView) {
-            super(itemView);
-
-            sponsoredAdTextView = itemView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
-            adView = itemView.findViewById(R.id.discover_prism_post_google_ad_view);
-
-            sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
-
-            new AdViewTask().execute();
-        }
-
-        /**
-         * Set data for the GoogleAdViewHolder UI elements
-         */
-        public void setData() {
-
-        }
-
-        /**
-         * Populate all UI elements with data
-         */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
-
-        }
-
-
-        private class AdViewTask extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                ((Activity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adRequest = new AdRequest.Builder()
-                                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                                .build();
-                        adView.loadAd(adRequest);
-                    }
-                });
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void v) {
-                super.onPostExecute(v);
-            }
-
-        }
-
     }
 
 }

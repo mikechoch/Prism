@@ -16,8 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
@@ -119,10 +121,54 @@ public class SearchFragment extends Fragment {
                 View googleAdView = LayoutInflater.from(context).inflate(
                         R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
 
+                LinearLayout sponsoredLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_sponsored_linear_layout);
                 TextView sponsoredAdTextView = googleAdView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
                 AdView adView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_view);
+                ProgressBar adProgressBar = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_progress_bar);
+                LinearLayout adFailedLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout);
+                TextView adFailedTextView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout_title);
+
                 sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
-                new AdViewTask().execute(context, adView);
+                adFailedTextView.setTypeface(Default.sourceSansProBold);
+
+                AdRequest adRequest = new AdRequest.Builder().build();
+                adView.loadAd(adRequest);
+                adView.setAdListener(new AdListener() {
+                    @Override
+                    public void onAdLoaded() {
+                        // Code to be executed when an ad finishes loading.
+                        sponsoredLinearLayout.setVisibility(View.VISIBLE);
+                        adView.setVisibility(View.VISIBLE);
+                        adProgressBar.setVisibility(View.GONE);
+                        adFailedLinearLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(int errorCode) {
+                        // Code to be executed when an ad request fails.
+                        sponsoredLinearLayout.setVisibility(View.GONE);
+                        adView.setVisibility(View.GONE);
+                        adProgressBar.setVisibility(View.GONE);
+                        adFailedLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAdOpened() {
+                        // Code to be executed when an ad opens an overlay that
+                        // covers the screen.
+                    }
+
+                    @Override
+                    public void onAdLeftApplication() {
+                        // Code to be executed when the user has left the app.
+                    }
+
+                    @Override
+                    public void onAdClosed() {
+                        // Code to be executed when when the user is about to return
+                        // to the app after tapping on an ad.
+                    }
+                });
 
                 searchLinearLayout.addView(googleAdView);
 
@@ -220,38 +266,6 @@ public class SearchFragment extends Fragment {
                 discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
             }
         }
-    }
-
-    private static class AdViewTask extends AsyncTask<Object, Void, Void> {
-
-        private AdRequest adRequest;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Object... params) {
-            Context asyncContext = (Context) params[0];
-            AdView adView = (AdView) params[1];
-            ((Activity) asyncContext).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adRequest = new AdRequest.Builder()
-                            .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                            .build();
-                    adView.loadAd(adRequest);
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
-        }
-
     }
 
 }
