@@ -24,9 +24,12 @@ import com.mikechoch.prism.activity.PrismPostImageSelectionActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.ProfilePictureUploadActivity;
 import com.mikechoch.prism.activity.ShowUserProfilePictureActivity;
+import com.mikechoch.prism.activity.SplashActivity;
+import com.mikechoch.prism.activity.UnderMaintenanceActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.PictureUpload;
 
@@ -35,6 +38,24 @@ import java.util.Date;
 
 public class IntentHelper {
 
+    /**
+     *
+     * @param context
+     */
+    public static void resetApplication(Context context) {
+        Intent resetApplicationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        if (resetApplicationIntent != null) {
+            resetApplicationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        }
+        context.startActivity(resetApplicationIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     * @param context
+     * @param shouldClearBackStack
+     */
     public static void intentToEmailVerificationActivity(Context context, boolean shouldClearBackStack) {
         Intent intent = new Intent(context, EmailVerificationMessageActivity.class);
         if (shouldClearBackStack) {
@@ -96,11 +117,15 @@ public class IntentHelper {
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
+    /**
+     *
+     * @param context
+     */
     public static void intentToNoInternetActivity(Context context) {
         Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
+        noInternetIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(noInternetIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        ((Activity) context).finish();
     }
 
     /**
@@ -202,4 +227,11 @@ public class IntentHelper {
         context.startActivity(showProfilePictureIntent, options.toBundle());
     }
 
+    public static void intentToUnderMaintenancewActivity(Context context, String message) {
+        Intent intent = new Intent(context, UnderMaintenanceActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(Key.STATUS_MESSAGE, message);
+        context.startActivity(intent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
 }

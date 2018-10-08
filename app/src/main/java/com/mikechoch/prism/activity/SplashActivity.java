@@ -90,9 +90,7 @@ public class SplashActivity extends AppCompatActivity {
 
                     @Override
                     public void onStatusUnderMaintenance(String message) {
-                        Intent intent = new Intent(SplashActivity.this, UnderMaintenanceActivity.class);
-                        intent.putExtra(Key.STATUS_MESSAGE, message);
-                        startActivity(intent);
+                        IntentHelper.intentToUnderMaintenancewActivity(SplashActivity.this, message);
                     }
 
                     @Override
