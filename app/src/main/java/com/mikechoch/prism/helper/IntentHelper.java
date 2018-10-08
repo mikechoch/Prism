@@ -16,6 +16,7 @@ import com.mikechoch.prism.activity.EditUserProfileActivity;
 import com.mikechoch.prism.activity.EmailVerificationMessageActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.NoInternetActivity;
 import com.mikechoch.prism.activity.PrismPostDescriptionActivity;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismPostImageEditActivity;
@@ -93,6 +94,13 @@ public class IntentHelper {
         Intent uploadDescriptionIntent = new Intent(context, PrismPostDescriptionActivity.class);
         context.startActivity(uploadDescriptionIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    public static void intentToNoInternetActivity(Context context) {
+        Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
+        context.startActivity(noInternetIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        ((Activity) context).finish();
     }
 
     /**

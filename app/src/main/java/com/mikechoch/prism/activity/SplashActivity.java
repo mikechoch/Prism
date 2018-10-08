@@ -19,6 +19,7 @@ import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
 public class SplashActivity extends AppCompatActivity {
@@ -69,33 +70,37 @@ public class SplashActivity extends AppCompatActivity {
             Default.initailzeScreenSizeElements(SplashActivity.this);
             Default.initializeTypeface(SplashActivity.this);
 
-            DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
-                @Override
-                public void onStatusActive() {
-                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                    if (!CurrentUser.isUserSignedIn()) {
-                        IntentHelper.intentToLoginActivity(SplashActivity.this);
-                    } else {
-                        if (isNotificationIntent()) {
-                            intent = getNotificationIntent(intent);
+            if (!Helper.isNetworkAvailable(SplashActivity.this)) {
+                IntentHelper.intentToNoInternetActivity(SplashActivity.this);;
+            } else {
+
+                DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
+                    @Override
+                    public void onStatusActive() {
+                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                        if (!CurrentUser.isUserSignedIn()) {
+                            IntentHelper.intentToLoginActivity(SplashActivity.this);
+                        } else {
+                            if (isNotificationIntent()) {
+                                intent = getNotificationIntent(intent);
+                            }
+                            CurrentUser.prepareAppForUser(SplashActivity.this, intent);
                         }
-                        CurrentUser.prepareAppForUser(SplashActivity.this, intent);
                     }
-                }
 
-                @Override
-                public void onStatusUnderMaintenance(String message) {
-                    Intent intent = new Intent(SplashActivity.this, UnderMaintenanceActivity.class);
-                    intent.putExtra(Key.STATUS_MESSAGE, message);
-                    startActivity(intent);
-                }
+                    @Override
+                    public void onStatusUnderMaintenance(String message) {
+                        Intent intent = new Intent(SplashActivity.this, UnderMaintenanceActivity.class);
+                        intent.putExtra(Key.STATUS_MESSAGE, message);
+                        startActivity(intent);
+                    }
 
-                @Override
-                public void onStatusCheckFailed(Exception e) {
-                    Log.e(Default.TAG_DB, "Failed to perform maintenance check", e);
-                }
-            });
-
+                    @Override
+                    public void onStatusCheckFailed(Exception e) {
+                        Log.e(Default.TAG_DB, "Failed to perform maintenance check", e);
+                    }
+                });
+            }
 
             return null;
         }

@@ -78,14 +78,7 @@ public class CurrentUser {
 
 
     public static void prepareAppForUser(Context context, Intent intent) {
-        if (Helper.isNetworkAvailable(context)) {
-            refreshUserProfile(context, intent);
-        } else {
-            Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
-            context.startActivity(noInternetIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            ((Activity) context).finish();
-        }
+        refreshUserProfile(context, intent);
     }
 
     /**
