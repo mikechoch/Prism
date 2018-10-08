@@ -37,10 +37,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-/**
- * Created by parth on 2/16/18.
- */
-
 public class Helper {
 
     /**

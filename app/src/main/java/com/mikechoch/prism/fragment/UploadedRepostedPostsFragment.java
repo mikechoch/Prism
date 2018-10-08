@@ -21,15 +21,7 @@ import com.mikechoch.prism.fire.CurrentUser;
 
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class UploadedRepostedPostsFragment extends Fragment {
-
-    /*
-     * Globals
-     */
 
     private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;

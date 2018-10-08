@@ -22,15 +22,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
-/**
- * Created by mikechoch on 3/10/18.
- */
-
 public class ShowUserProfilePictureActivity extends AppCompatActivity {
-
-    /*
-    * Globals
-    */
     
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;

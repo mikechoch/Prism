@@ -29,15 +29,8 @@ import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.type.Setting;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
-/**
- * Created by mikechoch on 2/7/18.
- */
-
 public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
 
-    /*
-     * Global variables
-     */
     private final int SETTING_ITEM_TYPE = 0;
     private final int MORE_OPTION_ITEM_TYPE = 1;
     private final int PROFILE_PICTURE_OPTION_ITEM_TYPE = 2;

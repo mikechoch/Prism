@@ -20,22 +20,17 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DiscoverController;
+import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-
-/**
- * Created by mikechoch on 1/22/18.
- */
 
 public class SearchFragment extends Fragment {
 

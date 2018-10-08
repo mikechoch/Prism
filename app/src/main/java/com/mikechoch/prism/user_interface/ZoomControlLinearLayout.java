@@ -10,16 +10,8 @@ import android.widget.LinearLayout;
 
 import java.text.DecimalFormat;
 
-
-/**
- * Created by mikechoch on 2/26/18.
- */
-
 public class ZoomControlLinearLayout extends LinearLayout {
 
-    /*
-     * Globals
-     */
     private Context context;
 
     private ScaleGestureDetector mScaleDetector;

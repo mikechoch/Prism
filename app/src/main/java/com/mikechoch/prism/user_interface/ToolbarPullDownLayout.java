@@ -10,16 +10,8 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RelativeLayout;
 
-
-/**
- * Created by mikechoch on 2/26/18.
- */
-
 public class ToolbarPullDownLayout extends RelativeLayout {
 
-    /*
-     * Globals
-     */
     private Context context;
 
     private float viewTouchDownX;

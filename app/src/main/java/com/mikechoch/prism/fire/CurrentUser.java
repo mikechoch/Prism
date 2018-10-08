@@ -34,15 +34,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-/**
- * Created by parth on 1/25/18.
- */
-
 public class CurrentUser {
 
-    /*
-     * Globals
-     */
     public static PrismUser prismUser;
     public static UserPreference preference;
 

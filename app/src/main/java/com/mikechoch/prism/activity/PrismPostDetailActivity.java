@@ -55,16 +55,8 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
-
-/**
- * Created by mikechoch on 2/19/18.
- */
-
 public class PrismPostDetailActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private int scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED;
     private int noScrollFlags = 0;
 

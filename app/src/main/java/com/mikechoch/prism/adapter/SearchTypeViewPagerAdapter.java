@@ -10,9 +10,6 @@ import com.mikechoch.prism.fragment.TagSearchFragment;
 
 public class SearchTypeViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    /*
-     * Global variables
-     */
     private int NUM_ITEMS = Default.SEARCH_TYPE_VIEW_PAGER_SIZE;
 
 

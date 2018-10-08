@@ -58,15 +58,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by mikechoch on 2/16/18.
- */
-
 public class PrismUserProfileActivity extends AppCompatActivity {
 
-    /*
-     * Globals
-     */
     private StorageReference storageReference;
     private DatabaseReference currentUserReference;
     private DatabaseReference usersReference;

@@ -32,15 +32,8 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 2/6/18.
- */
-
 public class SearchActivity  extends AppCompatActivity {
 
-    /*
-     * Global variables
-     */
     private Toolbar toolbar;
     private EditText searchBarEditText;
     private ImageView searchBarClearButton;

@@ -1,5 +1,7 @@
 package com.mikechoch.prism.constant;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Typeface;
 
 import com.google.firebase.database.DatabaseReference;
@@ -22,6 +24,7 @@ public class Default {
     public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
     public static final DatabaseReference ACCOUNTS_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
     public static final DatabaseReference CONTENT_REVIEW_REFERENCE = databaseReference.child(Key.DB_REF_CONTENT_REVIEW);
+    public static final DatabaseReference APP_STATUS_REFERENCE = databaseReference.child(Key.DB_REF_APP_STATUS);
 
     public static final StorageReference STORAGE_REFERENCE = FirebaseStorage.getInstance().getReference();
 
@@ -141,11 +144,23 @@ public class Default {
 
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
-    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should 10seconds or 30 seconds
+    public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should be 10 seconds or 30 seconds
 
     public static final String HIDDEN_PASSWORD = "********";
 
     public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
 
-    public static final UserPreference USER_PREFERENCE = new UserPreference(true, true, true);
+    public static final UserPreference USER_PREFERENCE = new UserPreference(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
+
+
+    public static void initailzeScreenSizeElements(Activity context) {
+        Default.scale = context.getResources().getDisplayMetrics().density;
+        Default.screenWidth = context.getWindowManager().getDefaultDisplay().getWidth();
+        Default.screenHeight = context.getWindowManager().getDefaultDisplay().getHeight();
+    }
+
+    public static void initializeTypeface(Activity context) {
+        Default.sourceSansProLight = Typeface.createFromAsset(context.getAssets(), Default.sourceSansProLightPath);
+        Default.sourceSansProBold = Typeface.createFromAsset(context.getAssets(), Default.sourceSansProBoldPath);
+    }
 }

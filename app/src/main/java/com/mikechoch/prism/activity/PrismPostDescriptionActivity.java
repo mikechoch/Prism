@@ -26,9 +26,6 @@ import java.io.IOException;
 
 public class PrismPostDescriptionActivity extends AppCompatActivity {
 
-    /*
-     * Global variables
-     */
     private Toolbar toolbar;
     private TextView nextButton;
     private ImageView previewImageView;

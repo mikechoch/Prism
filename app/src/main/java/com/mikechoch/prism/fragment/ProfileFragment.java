@@ -26,15 +26,8 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Setting;
 
-/**
- * Created by mikechoch on 1/22/18.
- */
-
 public class ProfileFragment extends Fragment {
 
-    /*
-     * Globals
-     */
     private FirebaseAuth auth;
     private DatabaseReference userReference;
     

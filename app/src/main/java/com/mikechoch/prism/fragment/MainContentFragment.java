@@ -35,9 +35,6 @@ import java.util.ArrayList;
 
 public class MainContentFragment extends Fragment {
 
-    /*
-     * Globals
-     */
     private DatabaseReference databaseReferenceAllPosts;
     private DatabaseReference usersReference;
 

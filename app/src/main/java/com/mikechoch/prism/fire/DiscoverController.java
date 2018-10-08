@@ -5,13 +5,12 @@ import android.content.Context;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.fire.callback.OnFetchCallback;
 import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.helper.Helper;
 

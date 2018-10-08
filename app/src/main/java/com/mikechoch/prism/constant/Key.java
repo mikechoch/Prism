@@ -1,9 +1,5 @@
 package com.mikechoch.prism.constant;
 
-/**
- * Created by parth on 1/22/18.
- */
-
 public class Key {
 
     // DO NOT CHANGE ANY OF THESE //
@@ -56,6 +52,11 @@ public class Key {
     public static final String DB_REF_CONTENT_REVIEW = "CONTENT_REVIEW";
     public static final String REPORTED_BY = "reportedBy";
 
+
+    /** APP STATUS **/
+    public static final String DB_REF_APP_STATUS = "APP_STATUS";
+    public static final String STATUS_IS_ACTIVE = "isActive";
+    public static final String STATUS_MESSAGE = "message";
 
     /** ACCOUNTS **/
     public static final String DB_REF_ACCOUNTS = "ACCOUNTS";

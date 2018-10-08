@@ -24,15 +24,8 @@ import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
 import com.mikechoch.prism.type.MoreOption;
 
-/**
- * Created by mikechoch on 2/26/18.
- */
-
 public class InterfaceAction {
 
-    /*
-     * Globals
-     */
     public static String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
     public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 

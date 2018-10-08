@@ -4,10 +4,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by parth on 2/6/18.
- */
-
 public class ProfilePicture implements Parcelable {
 
 

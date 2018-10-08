@@ -27,15 +27,8 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
-/**
- * Created by mikechoch on 1/21/18.
- */
-
 public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<DisplayUsersRecyclerViewAdapter.ViewHolder> {
 
-    /*
-     * Global variables
-     */
     private Context context;
     private ArrayList<PrismUser> prismUserArrayList;
 

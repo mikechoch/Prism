@@ -23,15 +23,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 
-/**
- * Created by mikechoch on 2/1/18.
- */
-
 public class ProfilePictureUploadActivity extends AppCompatActivity {
-
-    /*
-     * Global variables
-     */
 
     private Toolbar toolbar;
     private TextView nextButton;

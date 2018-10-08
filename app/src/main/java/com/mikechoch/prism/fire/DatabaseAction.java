@@ -24,6 +24,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.callback.OnFetchUserProfileCallback;
+import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
@@ -33,12 +34,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-
-
-/**
- * Created by parth on 2/25/18.
- */
 
 public class DatabaseAction {
 
@@ -450,6 +445,31 @@ public class DatabaseAction {
         });
     }
 
+    public static void performMaintenanceCheck(OnMaintenanceCheckCallback callback) {
+        DatabaseReference appStatusReference = Default.APP_STATUS_REFERENCE;
+        appStatusReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot appStatusSnapshot) {
+                if (appStatusSnapshot.exists()) {
+                    Boolean isActive = (Boolean) appStatusSnapshot.child(Key.STATUS_IS_ACTIVE).getValue();
+                    if (isActive) {
+                        callback.onStatusActive();
+                    } else {
+                        String message = (String) appStatusSnapshot.child(Key.STATUS_MESSAGE).getValue();
+                        callback.onStatusUnderMaintenance(message);
+                    }
+                } else {
+                    callback.onStatusCheckFailed(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onStatusCheckFailed(databaseError.toException());
+            }
+        });
+    }
+
 }
 
 
@@ -640,6 +660,8 @@ class DeleteHelper {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.child(prismPost.getPostId()).removeValue();
     }
+
+
 
 }
 

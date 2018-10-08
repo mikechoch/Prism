@@ -1,9 +1,5 @@
 package com.mikechoch.prism.helper;
 
-/**
- * Created by mikechoch on 1/21/18.
- */
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;

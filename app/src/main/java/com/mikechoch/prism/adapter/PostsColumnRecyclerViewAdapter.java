@@ -20,22 +20,13 @@ import com.bumptech.glide.request.target.Target;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * Created by mikechoch on 2/7/18.
- */
-
 public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsColumnRecyclerViewAdapter.ViewHolder> {
 
-    /*
-     * Global variables
-     */
     private Context context;
     private List<PrismPost> prismPostsArrayList;
 
