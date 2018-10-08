@@ -18,7 +18,7 @@
         android:layout_marginTop="6dp"
         app:cardBackgroundColor="@color/colorPrimaryDark"
         app:cardUseCompatPadding="true">
-    
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,9 +66,44 @@
             <com.google.android.gms.ads.AdView
                 android:id="@+id/discover_prism_post_google_ad_view"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                app:adSize="BANNER"
+                android:layout_height="wrap_content"
+                app:adSize="LARGE_BANNER"
                 app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
+            <ProgressBar
+                android:id="@+id/video_google_ad_item_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/circle_progress_foreground"
+                android:visibility="visible"/>
+
+            <LinearLayout
+                android:id="@+id/video_google_ad_item_failed_ad_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/video_google_ad_item_failed_ad_layout_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ad Failed to Load"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"/>
+
+                <ImageView
+                    android:id="@+id/video_google_ad_item_failed_ad_layout_icon"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="4dp"
+                    android:src="@drawable/ic_"
+                    android:tint="@color/colorAccent"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -159,10 +159,6 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         if (uploadIntent.getBooleanExtra(Default.UPLOAD_IMAGE_INTENT_KEY, false)) {
             uploadPrismPostToFirebase(uploadIntent);
         }
-
-        if (uploadIntent.getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA) != null) {
-
-        }
     }
 
     @Override
@@ -449,7 +445,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         setupUploadImageFab();
 
         TabLayout.Tab currentTab = prismTabLayout.getTabAt(prismViewPager.getCurrentItem());
-        currentTab.select();
+        if (currentTab != null) {
+            currentTab.select();
+        }
 
     }
 
