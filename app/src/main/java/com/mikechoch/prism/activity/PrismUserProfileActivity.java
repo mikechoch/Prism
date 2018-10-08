@@ -267,7 +267,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                             Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
                                 @Override
                                 public int compare(PrismPost p1, PrismPost p2) {
-                                    return (int) (p1.getTimestamp() - p2.getTimestamp());
+                                    return Long.compare(p1.getTimestamp(), p2.getTimestamp());
                                 }
                             });
                             setupUserPostsUIElements();
