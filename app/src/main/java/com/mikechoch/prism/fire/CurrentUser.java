@@ -78,14 +78,7 @@ public class CurrentUser {
 
 
     public static void prepareAppForUser(Context context, Intent intent) {
-        if (Helper.isNetworkAvailable(context)) {
-            refreshUserProfile(context, intent);
-        } else {
-            Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
-            context.startActivity(noInternetIntent);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            ((Activity) context).finish();
-        }
+        refreshUserProfile(context, intent);
     }
 
     /**
@@ -308,7 +301,7 @@ public class CurrentUser {
         Collections.sort(uploaded_and_reposted_posts, new Comparator<PrismPost>() {
             @Override
             public int compare(PrismPost p1, PrismPost p2) {
-                return (int) (p1.getTimestamp() - p2.getTimestamp());
+                return Long.compare(p1.getTimestamp(), p2.getTimestamp());
             }
         });
     }
