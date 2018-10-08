@@ -1,11 +1,12 @@
 package com.mikechoch.prism.activity;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -13,8 +14,12 @@ import android.widget.ImageView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.helper.IntentHelper;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -61,37 +66,37 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... v) {
-            Default.scale = getResources().getDisplayMetrics().density;
-            Default.screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-            Default.screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-            Default.sourceSansProLight = Typeface.createFromAsset(getAssets(), Default.sourceSansProLightPath);
-            Default.sourceSansProBold = Typeface.createFromAsset(getAssets(), Default.sourceSansProBoldPath);
+            Default.initailzeScreenSizeElements(SplashActivity.this);
+            Default.initializeTypeface(SplashActivity.this);
 
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-
-            Bundle extras = getIntent().getExtras();
-            if (extras != null) {
-                String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
-                String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
-                if (prismPostId != null) {
-                    intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
-                    intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
-                } else if (prismUserId != null) {
-                    intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
-                    intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
+            DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
+                @Override
+                public void onStatusActive() {
+                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                    if (!CurrentUser.isUserSignedIn()) {
+                        IntentHelper.intentToLoginActivity(SplashActivity.this);
+                    } else {
+                        if (isNotificationIntent()) {
+                            intent = getNotificationIntent(intent);
+                        }
+                        CurrentUser.prepareAppForUser(SplashActivity.this, intent);
+                    }
                 }
-            }
 
-            // TODO Sexify this and also use IntentHelper
-            if (!CurrentUser.isUserSignedIn()) {
-                intent = new Intent(SplashActivity.this, LoginActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                finish();
+                @Override
+                public void onStatusUnderMaintenance(String message) {
+                    Intent intent = new Intent(SplashActivity.this, UnderMaintenanceActivity.class);
+                    intent.putExtra(Key.STATUS_MESSAGE, message);
+                    startActivity(intent);
+                }
 
-            } else {
-                CurrentUser.prepareAppForUser(SplashActivity.this, intent);
-            }
+                @Override
+                public void onStatusCheckFailed(Exception e) {
+                    Log.e(Default.TAG_DB, "Failed to perform maintenance check", e);
+                }
+            });
+
+
             return null;
         }
 
@@ -101,4 +106,28 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
+
+    private boolean isNotificationIntent() {
+        return getIntent().getExtras() != null;
+    }
+
+    private Intent getNotificationIntent(Intent intent) {
+        Bundle extras = getIntent().getExtras();
+        assert extras != null;
+        String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
+        String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
+        if (prismPostId != null) {
+            intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
+            intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
+        } else if (prismUserId != null) {
+            intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
+            intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
+        }
+
+        return intent;
+    }
+
+
 }
+
+

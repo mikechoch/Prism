@@ -53,6 +53,11 @@ public class Key {
     public static final String REPORTED_BY = "reportedBy";
 
 
+    /** APP STATUS **/
+    public static final String DB_REF_APP_STATUS = "APP_STATUS";
+    public static final String STATUS_IS_ACTIVE = "isActive";
+    public static final String STATUS_MESSAGE = "message";
+
     /** ACCOUNTS **/
     public static final String DB_REF_ACCOUNTS = "ACCOUNTS";
 

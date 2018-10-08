@@ -138,11 +138,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * TODO Refactor this
-     * @param email
-     * @param dialog
-     */
+
     private void sendResetPasswordEmail(String email, DialogInterface dialog) {
         FirebaseProfileAction.sendResetPasswordEmail(email, new OnSendResetPasswordEmailCallback() {
             @Override
