@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -31,15 +30,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
@@ -57,7 +52,6 @@ import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -193,71 +187,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     * Called when an activity is intent with startActivityForResult and the result is intent back
-     * This allows you to check the requestCode that came back and do something
-     */
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            // If requestCode is for ProfilePictureUploadActivity
-            case Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    profilePictureUri = Uri.parse(data.getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
-
-                    Glide.with(this)
-                            .asBitmap()
-                            .thumbnail(0.05f)
-                            .load(profilePictureUri)
-                            .apply(new RequestOptions().fitCenter())
-                            .into(new BitmapImageViewTarget(userProfilePicImageView) {
-                                @Override
-                                protected void setResource(Bitmap resource) {
-                                    RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                                    drawable.setCircular(true);
-                                    userProfilePicImageView.setImageDrawable(drawable);
-
-                                    int whiteOutlinePadding = (int) (2 * Default.scale);
-                                    userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                                }
-                            });
-
-                    uploadProfilePictureToCloud();
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Takes the profilePicUri and stores the image to cloud. Once the image file is
-     * successfully uploaded to cloud successfully, it adds the profilePicUri to
-     * the firebaseUser's profile details section
-     */
-    private void uploadProfilePictureToCloud() {
-        StorageReference profilePicRef = storageReference.child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePictureUri.getLastPathSegment());
-        profilePicRef.putFile(profilePictureUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUrl = task.getResult().getDownloadUrl();
-                    DatabaseReference userRef = currentUserReference.child(Key.USER_PROFILE_PIC);
-                    userRef.setValue(downloadUrl.toString()).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.wtf(Default.TAG_DB, Message.PROFILE_PIC_UPDATE_FAIL, task.getException());
-                            Helper.toast(PrismUserProfileActivity.this, "Unable to update profile picture");
-                        }
-                    });
-                } else {
-                    Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    Helper.toast(PrismUserProfileActivity.this, "Unable to update profile picture");
-                }
-            }
-        });
     }
 
     /**
@@ -480,41 +409,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
-        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(this, ProfilePictureOption.values(), prismUser, userProfilePicImageView);
+        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(this, ProfilePictureOption.values(), prismUser, userProfilePicImageView, moreOptionAlertDialog);
         recyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
 
         return moreOptionAlertDialog;
-
-
-
-//        AlertDialog.Builder profilePictureAlertDialog = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
-//        profilePictureAlertDialog.setTitle("Set profile picture");
-//        profilePictureAlertDialog.setItems(InterfaceAction.setProfilePicStrings, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                switch (which) {
-//                    case Default.PROFILE_PICTURE_GALLERY:
-//                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_GALLERY);
-//                        break;
-//                    case Default.PROFILE_PICTURE_SELFIE:
-//                        Helper.intentToProfilePictureUploadActivity(PrismUserProfileActivity.this, Default.PROFILE_PICTURE_SELFIE);
-//                        break;
-//                    case Default.PROFILE_PICTURE_VIEW:
-//                        intentToShowUserProfilePictureActivity();
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        });
-
-//        return profilePictureAlertDialog.create();
-    }
-
-    public File getFile() {
-        File f = new File("Prism");
-        if (!f.exists()) f.mkdir();
-        return new File(f, String.valueOf(System.currentTimeMillis() + ".jpg"));
     }
 
     /**

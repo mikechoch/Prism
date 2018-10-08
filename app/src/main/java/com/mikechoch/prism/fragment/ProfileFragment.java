@@ -1,6 +1,5 @@
 package com.mikechoch.prism.fragment;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,10 +20,10 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Setting;
 
 public class ProfileFragment extends Fragment {
@@ -72,10 +71,7 @@ public class ProfileFragment extends Fragment {
         viewProfileCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent prismUserProfileIntent = new Intent(getActivity(), PrismUserProfileActivity.class);
-                prismUserProfileIntent.putExtra(Default.PRISM_USER_EXTRA, CurrentUser.prismUser);
-                getActivity().startActivity(prismUserProfileIntent);
-                getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                IntentHelper.intentToUserProfileActivity(getActivity(), CurrentUser.prismUser);
             }
         });
 

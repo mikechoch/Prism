@@ -50,11 +50,12 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
     }
 
     // MoreOption constructor
-    public OptionRecyclerViewAdapter(Context context, Object[] dataSet, PrismUser prismUser, ImageView userProfilePicImageView) {
+    public OptionRecyclerViewAdapter(Context context, Object[] dataSet, PrismUser prismUser, ImageView userProfilePicImageView, AlertDialog moreOptionAlertDialog) {
         this.context = context;
         this.dataSet = dataSet;
         this.prismUser = prismUser;
         this.userProfilePicImageView = userProfilePicImageView;
+        this.moreOptionAlertDialog = moreOptionAlertDialog;
     }
 
     // MoreOption constructor
@@ -257,7 +258,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    moreOptionAlertDialog.dismiss();
+                    if (moreOptionAlertDialog != null) {
+                        moreOptionAlertDialog.dismiss();
+                    }
                     switch (moreOption.getId()) {
                         case Default.MORE_OPTION_REPORT:
                             // Report post
@@ -346,6 +349,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
                 @Override
                 public void onClick(View v) {
                     int profilePictureOptionId = profilePictureOption.getId();
+                    if (moreOptionAlertDialog != null) {
+                        moreOptionAlertDialog.dismiss();
+                    }
                     switch(profilePictureOptionId) {
                         case Default.PROFILE_PICTURE_GALLERY:
                             IntentHelper.intentToProfilePictureUploadActivity(context, Default.PROFILE_PICTURE_GALLERY);

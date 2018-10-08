@@ -102,8 +102,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     private Runnable clearNotificationsRunnable;
     private boolean shouldClearNotifications = false;
 
-
     public static String FCM_API_KEY;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +155,10 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         Intent uploadIntent = getIntent();
         if (uploadIntent.getBooleanExtra(Default.UPLOAD_IMAGE_INTENT_KEY, false)) {
             uploadPrismPostToFirebase(uploadIntent);
+        }
+
+        if (uploadIntent.getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA) != null) {
+
         }
     }
 

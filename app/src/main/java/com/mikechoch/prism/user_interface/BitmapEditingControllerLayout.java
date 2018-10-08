@@ -60,6 +60,8 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     public static float contrast;
     public static float saturation;
 
+    boolean isCircularBitmap = false;
+
 
     public BitmapEditingControllerLayout(Context context) {
         super(context);
@@ -153,7 +155,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
      *
      */
     private void applyEffectsToBitmap() {
-        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.RGB_565, true);
+        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(alteredBitmap);
         Paint paint = new Paint();
         ColorMatrix cm = new ColorMatrix();
@@ -165,7 +167,14 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
         cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
+
+        if (isCircularBitmap) {
+//            canvas.drawCircle(alteredBitmap.getWidth() / 2f, alteredBitmap.getHeight() / 2f, alteredBitmap.getWidth() / 2f, paint);
+        }
+
         canvas.drawBitmap(alteredBitmap, matrix, paint);
+
+        photoEditorView.getSource().setImageBitmap(alteredBitmap);
     }
 
     /**
@@ -345,8 +354,9 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         });
     }
 
-    public void attachPhotoEditorView(PhotoEditorView photoEditorView) {
+    public void attachPhotoEditorView(PhotoEditorView photoEditorView, boolean isCircularBitmap) {
         this.photoEditorView = photoEditorView;
+        this.isCircularBitmap = isCircularBitmap;
     }
 
 

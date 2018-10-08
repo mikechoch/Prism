@@ -27,6 +27,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.PictureUpload;
 
 import java.io.File;
 import java.util.Date;
@@ -77,9 +78,10 @@ public class IntentHelper {
     /**
      * Intent to Upload Image Activity from Main Activity
      */
-    public static void intentToUploadImageEditActivity(Context context, Uri resultUri) {
+    public static void intentToUploadImageEditActivity(Context context, String resultUri, PictureUpload pictureUpload) {
         Intent uploadImageEditIntent = new Intent(context, PrismPostImageEditActivity.class);
         uploadImageEditIntent.putExtra(Default.UPLOAD_IMAGE_SELECTION_URI_EXTRA, resultUri);
+        uploadImageEditIntent.putExtra(Default.UPLOAD_IMAGE_SELECTION_TYPE_EXTRA, pictureUpload);
         context.startActivity(uploadImageEditIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

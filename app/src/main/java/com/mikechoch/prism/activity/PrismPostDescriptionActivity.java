@@ -11,9 +11,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -27,10 +27,10 @@ import java.io.IOException;
 public class PrismPostDescriptionActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
+    private TextView nextButton;
     private ImageView previewImageView;
     private TextInputLayout descriptionTextInputLayout;
     private EditText descriptionEditText;
-    private Button uploadButton;
 
     private Uri imageUri;
 
@@ -62,16 +62,15 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
-
+        nextButton = findViewById(R.id.prism_post_description_next_button);
         previewImageView = findViewById(R.id.prism_post_preview_image_view);
         descriptionTextInputLayout = findViewById(R.id.prism_post_description_text_input_layout);
         descriptionEditText = findViewById(R.id.prism_post_description_edit_text);
-        uploadButton = findViewById(R.id.description_upload_post_button);
 
         String filename = getIntent().getStringExtra("EditedPrismPostFilePath");
 
-        Bitmap bitmap = null;
-        FileInputStream fileInputStream = null;
+        Bitmap bitmap;
+        FileInputStream fileInputStream;
         try {
             fileInputStream = openFileInput(filename);
             bitmap = BitmapFactory.decodeStream(fileInputStream);
@@ -91,13 +90,6 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         }
 
         setupUIElements();
-
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intentBackToMainActivitySuccess();
-            }
-        });
     }
 
     @Override
@@ -128,12 +120,25 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
      * Setup all UI elements
      */
     private void setupUIElements() {
-        setupToolbar();
-
         // Setup Typefaces for all text based UI elements
         descriptionEditText.setTypeface(Default.sourceSansProLight);
-        uploadButton.setTypeface(Default.sourceSansProLight);
+        nextButton.setTypeface(Default.sourceSansProBold);
 
+        setupToolbar();
+        setupNextButton();
     }
+
+    /**
+     *
+     */
+    private void setupNextButton() {
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intentBackToMainActivitySuccess();
+            }
+        });
+    }
+
 
 }
