@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -14,11 +13,10 @@ import android.widget.ImageView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
@@ -67,7 +65,7 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... v) {
-            Default.initailzeScreenSizeElements(SplashActivity.this);
+            Default.initializeScreenSizeElements(SplashActivity.this);
             Default.initializeTypeface(SplashActivity.this);
 
             if (!Helper.isNetworkAvailable(SplashActivity.this)) {

@@ -26,7 +26,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.fire.callback.OnPrismUserProfileExistCallback;
+import com.mikechoch.prism.callback.check.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.List;

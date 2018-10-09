@@ -179,6 +179,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         CoordinatorLayout coordinatorLayout = findViewById(R.id.main_coordinate_layout);
         networkSnackbar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
                 Snackbar.LENGTH_INDEFINITE);
+        ((TextView) (networkSnackbar.getView())
+                .findViewById(android.support.design.R.id.snackbar_text))
+                .setTypeface(Default.sourceSansProBold);
         networkSnackbar.show();
         Helper.disableSnackbarSwipeDismiss(networkSnackbar.getView());
     }

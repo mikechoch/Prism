@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fire.callback;
+package com.mikechoch.prism.callback.action;
 
 import com.google.firebase.auth.FirebaseUser;
 

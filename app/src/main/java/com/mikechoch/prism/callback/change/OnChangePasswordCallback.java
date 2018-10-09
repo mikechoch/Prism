@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fire.callback;
+package com.mikechoch.prism.callback.change;
 
 public interface OnChangePasswordCallback {
     void onSuccess();

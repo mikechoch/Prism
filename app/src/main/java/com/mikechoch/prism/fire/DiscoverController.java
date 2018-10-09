@@ -10,8 +10,8 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.fire.callback.OnFetchCallback;
-import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchCallback;
+import com.mikechoch.prism.callback.action.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;

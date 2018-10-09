@@ -20,11 +20,14 @@ import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
+import com.mikechoch.prism.callback.fetch.OnFetchLikedUsers;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fire.callback.OnFetchUserProfileCallback;
-import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
+import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
@@ -441,6 +444,85 @@ public class DatabaseAction {
                     Helper.toast(context, "Unable to report post, please try again later");
                     Log.e(Default.TAG_DB, Message.POST_REPORTED_FAIL, task.getException());
                 }
+            }
+        });
+    }
+
+    public static void fetchLikedUsers(String postId, OnFetchLikedUsers callback) {
+        DatabaseReference likedUsersReference = Default.ALL_POSTS_REFERENCE
+                .child(postId)
+                .child(Key.DB_REF_POST_LIKED_USERS);
+
+        likedUsersReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot likedUsersSnapshot) {
+                if (likedUsersSnapshot.exists()) {
+                    Map<String, Long> likedUsers =  (HashMap<String, Long>)  likedUsersSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), new OnFetchPrismUsersCallback() {
+                        @Override
+                        public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                            callback.onSuccess(prismUsers);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    callback.onLikedUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+
+    }
+
+    public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                ArrayList<PrismUser> prismUsers = new ArrayList<>();
+                if (usersSnapshot.exists()) {
+                    for (String userId : prismUserIds) {
+                        DataSnapshot userSnapshot = usersSnapshot.child(userId);
+                        if (userSnapshot.exists()) {
+                            PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                            prismUsers.add(prismUser);
+                        }
+                    }
+                }
+                callback.onSuccess(prismUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismUser(String prismUserId, OnFetchPrismUserCallback callback) {
+        DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUserId);
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userSnapshot) {
+                if (userSnapshot.exists()) {
+                    PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                    callback.onSuccess(prismUser);
+                } else {
+                    callback.onUserNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
             }
         });
     }

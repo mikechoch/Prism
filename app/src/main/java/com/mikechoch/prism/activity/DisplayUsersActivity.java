@@ -22,9 +22,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchLikedUsers;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -177,26 +179,25 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getLikedUsers(String postId) {
-        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-        allPostsReference.child(postId).child(Key.DB_REF_POST_LIKED_USERS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            HashMap<String, Long> likedUsersMap = new HashMap<>();
-                            likedUsersMap.putAll((Map) dataSnapshot.getValue());
-                            fetchUserDetails(likedUsersMap);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.NO_DATA);
-                            finishUIActivities();
-                        }
-                    }
+        DatabaseAction.fetchLikedUsers(postId, new OnFetchLikedUsers() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> users) {
+                prismUserArrayList.addAll(users);
+                finishUIActivities();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, databaseError.toException());
-                    }
-                });
+            @Override
+            public void onLikedUsersNotFound() {
+                Log.e(Default.TAG_DB, Message.NO_DATA);
+                finishUIActivities();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+            }
+        });
+
     }
 
     /**

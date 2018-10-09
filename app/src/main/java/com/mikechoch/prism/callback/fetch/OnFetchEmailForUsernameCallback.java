@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fire.callback;
+package com.mikechoch.prism.callback.fetch;
 
 public interface OnFetchEmailForUsernameCallback {
 

@@ -153,7 +153,7 @@ public class Default {
     public static final UserPreference USER_PREFERENCE = new UserPreference(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
 
 
-    public static void initailzeScreenSizeElements(Activity context) {
+    public static void initializeScreenSizeElements(Activity context) {
         Default.scale = context.getResources().getDisplayMetrics().density;
         Default.screenWidth = context.getWindowManager().getDefaultDisplay().getWidth();
         Default.screenHeight = context.getWindowManager().getDefaultDisplay().getHeight();
