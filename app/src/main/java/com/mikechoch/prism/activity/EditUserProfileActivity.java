@@ -494,7 +494,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
      * @param usernameTextInputLayout
      */
     private void attemptUpdateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
-
         FirebaseProfileAction.changeUsername(oldUsername, newUsername, new OnChangeUsernameCallback() {
             @Override
             public void onSuccess() {
@@ -547,7 +546,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void attemptUpdateEmail(String password, String newEmail, DialogInterface dialog) {
-
         FirebaseProfileAction.changeEmail(password, newEmail, new OnChangeEmailCallback() {
             @Override
             public void onSuccess() {

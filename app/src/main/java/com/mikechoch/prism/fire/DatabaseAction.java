@@ -9,7 +9,10 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +23,7 @@ import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
+import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
@@ -583,6 +587,22 @@ public class DatabaseAction {
                 callback.onFailure(databaseError.toException());
             }
         });
+    }
+
+    public static void sendVerificationEmail(FirebaseUser user, OnSendVerificationEmailCallback callback) {
+        user.sendEmailVerification()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
     }
 
     public static void performMaintenanceCheck(OnMaintenanceCheckCallback callback) {

@@ -15,8 +15,10 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
@@ -45,22 +47,24 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
         resendEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CurrentUser.getFirebaseUser().sendEmailVerification()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                resendEmailButton.setVisibility(View.GONE);
-                                RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
-                                Snackbar.make(view, "Email sent again", Snackbar.LENGTH_LONG).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                e.printStackTrace();
-                                // TODO Log this (display toast or something)
-                            }
-                        });
+                attemptSendVerificationEmail();
+            }
+        });
+    }
+
+    private void attemptSendVerificationEmail() {
+        DatabaseAction.sendVerificationEmail(CurrentUser.getFirebaseUser(), new OnSendVerificationEmailCallback() {
+            @Override
+            public void onSuccess() {
+                resendEmailButton.setVisibility(View.GONE);
+                RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
+                Snackbar.make(view, "Email sent again", Snackbar.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+                // TODO Log this (display toast or something)
             }
         });
     }

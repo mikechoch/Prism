@@ -22,7 +22,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.callback.action.OnFirebaseUserRegistrationCallback;
 import com.mikechoch.prism.callback.action.OnPrismUserRegistrationCallback;
@@ -246,20 +248,18 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseProfileAction.createPrismUserInFirebase(firebaseUser, fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        firebaseUser.sendEmailVerification()
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Helper.toast(RegisterActivity.this, "An email has been sent to " + email + ". Please click on the verfication link");
-                                                        IntentHelper.intentToEmailVerificationActivity(RegisterActivity.this, true);
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Helper.toast(RegisterActivity.this, "Unable to send verification email");
-                                                    }
-                                                });
+                                        DatabaseAction.sendVerificationEmail(firebaseUser, new OnSendVerificationEmailCallback() {
+                                            @Override
+                                            public void onSuccess() {
+                                                Helper.toast(RegisterActivity.this, "An email has been sent to " + email + ". Please click on the verfication link");
+                                                IntentHelper.intentToEmailVerificationActivity(RegisterActivity.this, true);
+                                            }
+
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Helper.toast(RegisterActivity.this, "Unable to send verification email");
+                                            }
+                                        });
                                     }
                                 });
                             }
