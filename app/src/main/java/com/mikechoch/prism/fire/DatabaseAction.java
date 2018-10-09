@@ -456,7 +456,7 @@ public class DatabaseAction {
             @Override
             public void onDataChange(DataSnapshot likedUsersSnapshot) {
                 if (likedUsersSnapshot.exists()) {
-                    Map<String, Long> likedUsers =  (HashMap<String, Long>)  likedUsersSnapshot.getValue();
+                    Map<String, Long> likedUsers =  (HashMap<String, Long>) likedUsersSnapshot.getValue();
                     fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), callback);
                 } else {
                     callback.onPrismUsersNotFound();
@@ -480,8 +480,31 @@ public class DatabaseAction {
             @Override
             public void onDataChange(DataSnapshot repostedUsersSnapshot) {
                 if (repostedUsersSnapshot.exists()) {
-                    Map<String, Long> repostedUsers =  (HashMap<String, Long>)  repostedUsersSnapshot.getValue();
+                    Map<String, Long> repostedUsers =  (HashMap<String, Long>) repostedUsersSnapshot.getValue();
                     fetchPrismUsers(new ArrayList<>(repostedUsers.keySet()), callback);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismUserFollowings(String userId, OnFetchPrismUsersCallback callback) {
+        DatabaseReference userFollowingsReference = Default.USERS_REFERENCE
+                .child(userId)
+                .child(Key.DB_REF_USER_FOLLOWINGS);
+
+        userFollowingsReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userFollowingsSnapshot) {
+                if (userFollowingsSnapshot.exists()) {
+                    Map<String, Long> userFollowings = (HashMap<String, Long>) userFollowingsSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(userFollowings.keySet()), callback);
                 } else {
                     callback.onPrismUsersNotFound();
                 }

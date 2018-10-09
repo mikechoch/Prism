@@ -230,26 +230,24 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getFollowings(String userId) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.child(userId).child(Key.DB_REF_USER_FOLLOWINGS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            HashMap<String, Long> userFollowings = new HashMap<>();
-                            userFollowings.putAll((Map) dataSnapshot.getValue());
-                            fetchUserDetails(userFollowings);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.NO_DATA);
-                            finishUIActivities();
-                        }
-                    }
+        DatabaseAction.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+                finishUIActivities();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, databaseError.toException());
-                    }
-                });
+            @Override
+            public void onPrismUsersNotFound() {
+                Log.e(Default.TAG_DB, "No followings found for this user");
+                finishUIActivities();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+            }
+        });
     }
 
     /**
