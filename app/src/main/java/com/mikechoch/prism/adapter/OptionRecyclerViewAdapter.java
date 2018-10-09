@@ -29,6 +29,7 @@ import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.type.Setting;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
+
 public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private final int SETTING_ITEM_TYPE = 0;
@@ -40,8 +41,8 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
     private PrismPost prismPost;
     private PrismUser prismUser;
     private ImageView userProfilePicImageView;
-    private boolean isCurrentUser;
     private AlertDialog moreOptionAlertDialog;
+
 
     // Setting constructor
     public OptionRecyclerViewAdapter(Context context, Object[] dataSet) {
@@ -63,9 +64,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         this.context = context;
         this.dataSet = dataSet;
         this.prismPost = prismPost;
-        this.isCurrentUser = isCurrentUser;
         this.moreOptionAlertDialog = moreOptionAlertDialog;
 
+        // If not CurrentUser, re-create the more option without a delete option
         if (!isCurrentUser) {
             this.dataSet = new Object[]{dataSet[0], dataSet[1]};
         }
@@ -126,6 +127,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         return dataSet.length;
     }
 
+
     public class SettingViewHolder extends RecyclerView.ViewHolder {
 
         private RelativeLayout settingsOptionRelativeLayout;
@@ -135,26 +137,24 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         private Setting setting;
 
 
-        public SettingViewHolder(View itemView) {
+        SettingViewHolder(View itemView) {
             super(itemView);
 
-            // SettingOptions UI initializations
             settingsOptionRelativeLayout = itemView.findViewById(R.id.settings_recycler_view_item_relative_layout);
             settingsOptionTextView = itemView.findViewById(R.id.settings_recycler_view_item_text_view);
             settingsOptionImageView = itemView.findViewById(R.id.settings_recycler_view_item_icon);
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the SettingViewHolder interface elements
          */
         public void setData(Setting setting) {
             this.setting = setting;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * profilePictureOptionRelativeLayout
-         * Set the onClickListener switch statement for each Setting
+         * Setup the settingsOptionRelativeLayout onClickListener switch statement for each Setting
          */
         private void setupSettingsOptionRelativeLayout() {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -194,16 +194,14 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * moreOptionsOptionTextView
-         * Get the Setting enum title and populate the TextView
+         * Get the Setting enum title and populate the settingsOptionTextView
          */
         private void setupSettingsOptionTextView() {
             settingsOptionTextView.setText(setting.getTitle());
         }
 
         /**
-         * profilePictureOptionImageView
-         * Get the Setting enum icon and populate the ImageView
+         * Get the Setting enum icon and populate the profilePictureOptionImageView
          */
         private void setupSettingsOptionImageView() {
             Drawable settingsIcon = context.getResources().getDrawable(setting.getIcon());
@@ -212,10 +210,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements with data
          */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
+        private void populateInterfaceElements() {
             settingsOptionTextView.setTypeface(Default.sourceSansProLight);
 
             setupSettingsOptionRelativeLayout();
@@ -223,6 +220,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             setupSettingsOptionImageView();
         }
     }
+
 
     public class MoreOptionViewHolder extends RecyclerView.ViewHolder {
 
@@ -233,26 +231,24 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         private MoreOption moreOption;
 
 
-        public MoreOptionViewHolder(View itemView) {
+        MoreOptionViewHolder(View itemView) {
             super(itemView);
 
-            // SettingOptions UI initializations
             settingsOptionRelativeLayout = itemView.findViewById(R.id.settings_recycler_view_item_relative_layout);
             moreOptionsOptionTextView = itemView.findViewById(R.id.settings_recycler_view_item_text_view);
             settingsOptionImageView = itemView.findViewById(R.id.settings_recycler_view_item_icon);
         }
 
         /**
-         * Set data for the ViewHolder UI elements
+         * Set data for the NotificationViewHolder interface elements
          */
         public void setData(MoreOption moreOption) {
             this.moreOption = moreOption;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * profilePictureOptionRelativeLayout
-         * Set the onClickListener switch statement for each option
+         * Setup the profilePictureOptionRelativeLayout onClickListener switch statement for each option
          */
         private void setupSettingsOptionRelativeLayout() {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -284,16 +280,14 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * moreOptionsOptionTextView
-         * Get the Setting enum title and populate the TextView
+         * Get the Setting enum title and populate the moreOptionsOptionTextView
          */
         private void setupSettingsOptionTextView() {
             moreOptionsOptionTextView.setText(moreOption.getTitle());
         }
 
         /**
-         * profilePictureOptionImageView
-         * Get the Setting enum icon and populate the ImageView
+         * Get the Setting enum icon and populate the profilePictureOptionImageView
          */
         private void setupSettingsOptionImageView() {
             Drawable settingsIcon = context.getResources().getDrawable(moreOption.getIcon());
@@ -302,9 +296,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements with data
          */
-        private void populateUIElements() {
+        private void populateInterfaceElements() {
             // Setup Typefaces for all text based UI elements
             moreOptionsOptionTextView.setTypeface(Default.sourceSansProLight);
 
@@ -313,6 +307,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             setupSettingsOptionImageView();
         }
     }
+
 
     public class ProfilePictureOptionViewHolder extends RecyclerView.ViewHolder {
 
@@ -323,26 +318,24 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         private ProfilePictureOption profilePictureOption;
 
 
-        public ProfilePictureOptionViewHolder(View itemView) {
+        ProfilePictureOptionViewHolder(View itemView) {
             super(itemView);
 
-            // SettingOptions UI initializations
             profilePictureOptionRelativeLayout = itemView.findViewById(R.id.settings_recycler_view_item_relative_layout);
             profilePictureOptionTextView = itemView.findViewById(R.id.settings_recycler_view_item_text_view);
             profilePictureOptionImageView = itemView.findViewById(R.id.settings_recycler_view_item_icon);
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(ProfilePictureOption profilePictureOption) {
             this.profilePictureOption = profilePictureOption;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * profilePictureOptionRelativeLayout
-         * Set the onClickListener switch statement for each Setting
+         * Setup the profilePictureOptionRelativeLayout onClickListener switch statement for each Setting
          */
         private void setupProfilePictureOptionRelativeLayout() {
             profilePictureOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -370,16 +363,14 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * moreOptionsOptionTextView
-         * Get the Setting enum title and populate the TextView
+         * Get the Setting enum title and populate the moreOptionsOptionTextView
          */
         private void setupProfilePictureOptionTextView() {
             profilePictureOptionTextView.setText(profilePictureOption.getTitle());
         }
 
         /**
-         * profilePictureOptionImageView
-         * Get the Setting enum icon and populate the ImageView
+         * Get the Setting enum icon and populate the profilePictureOptionImageView
          */
         private void setupProfilePictureOptionImageView() {
             Drawable profilePictureOptionIcon = context.getResources().getDrawable(profilePictureOption.getIcon());
@@ -388,10 +379,9 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements with data
          */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
+        private void populateInterfaceElements() {
             profilePictureOptionTextView.setTypeface(Default.sourceSansProLight);
 
             setupProfilePictureOptionRelativeLayout();

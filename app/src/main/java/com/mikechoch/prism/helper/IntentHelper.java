@@ -227,7 +227,7 @@ public class IntentHelper {
         context.startActivity(showProfilePictureIntent, options.toBundle());
     }
 
-    public static void intentToUnderMaintenancewActivity(Context context, String message) {
+    public static void intentToUnderMaintenanceActivity(Context context, String message) {
         Intent intent = new Intent(context, UnderMaintenanceActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(Key.STATUS_MESSAGE, message);

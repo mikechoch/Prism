@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
@@ -18,25 +19,21 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 
-public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<NotificationRecyclerViewAdapter.ViewHolder> {
+
+public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<NotificationRecyclerViewAdapter.NotificationViewHolder> {
 
     private Context context;
-    public static ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList;
+    private ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList;
 
 
     public NotificationRecyclerViewAdapter(Context context, ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList) {
@@ -49,14 +46,15 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         return 0;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+    public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new NotificationViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.notification_item_layout, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         holder.setData(notificationArrayList.get(position));
     }
 
@@ -65,12 +63,8 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         return notificationArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private FirebaseAuth auth;
-        private DatabaseReference postAuthorUserReference;
-        private StorageReference storageReference;
-        private DatabaseReference allPostsReference;
+    public class NotificationViewHolder extends RecyclerView.ViewHolder {
 
         private RelativeLayout notificationRelativeLayout;
         private ImageView userProfilePicImageView;
@@ -82,14 +76,8 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private com.mikechoch.prism.attribute.Notification notification;
 
 
-        public ViewHolder(View itemView) {
+        NotificationViewHolder(View itemView) {
             super(itemView);
-
-            // Cloud database initializations
-            auth = FirebaseAuth.getInstance();
-            postAuthorUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-            storageReference = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF);
-            allPostsReference = Default.ALL_POSTS_REFERENCE;
 
             notificationRelativeLayout = itemView.findViewById(R.id.notification_relative_layout);
             userProfilePicImageView = itemView.findViewById(R.id.notification_item_prism_profile_image_view);
@@ -100,18 +88,17 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(com.mikechoch.prism.attribute.Notification notificationObject) {
             this.notification = notificationObject;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements with data
          */
-        private void populateUIElements() {
-            // Setup Typefaces for all text based UI elements
+        private void populateInterfaceElements() {
             notificationTypeTextView.setTypeface(Default.sourceSansProLight);
             notificationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -154,7 +141,10 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         *
+         * Construct TextView for number of users and others
+         * ex. mikechoch and 10 others
+         * ex. mikechoch and 1 other
+         * ex. mikechoch
          */
         private void constructNotificationTextViews() {
             notificationDescriptionLinearLayout.removeAllViews();
@@ -198,7 +188,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         *
+         * Populate the PrismPost image view preview for a notification
          */
         private void populatePrismPostThumbnail() {
             PrismPost notificationPost = notification.getPrismPost();
@@ -220,7 +210,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         }
 
         /**
-         *
+         * Populate the prism user image view preview for a notification
          */
         private void populateProfilePic() {
             PrismUser mostRecentPrismUser = notification.getMostRecentUser();
@@ -256,6 +246,4 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             });
         }
     }
-
-
 }

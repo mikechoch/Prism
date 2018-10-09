@@ -10,9 +10,8 @@ import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.fragment.ProfileFragment;
 import com.mikechoch.prism.fragment.SearchFragment;
 
-public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    private int NUM_ITEMS = Default.MAIN_VIEW_PAGER_SIZE;
+public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
 
 
     public MainViewPagerAdapter(FragmentManager fragmentManager) {
@@ -21,7 +20,7 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return NUM_ITEMS;
+        return Default.MAIN_VIEW_PAGER_SIZE;
     }
 
     @Override

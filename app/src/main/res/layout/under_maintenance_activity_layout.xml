@@ -61,8 +61,7 @@
                     android:text="REFRESH"
                     android:textSize="14sp"
                     android:textColor="@android:color/white"
-                    android:textAlignment="center"
-                    android:background="@drawable/button_selector"/>
+                    android:textAlignment="center"/>
 
             </LinearLayout>
 

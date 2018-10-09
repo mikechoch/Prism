@@ -2,6 +2,7 @@ package com.mikechoch.prism.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
@@ -15,8 +16,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -27,6 +26,7 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
+
 public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<DisplayUsersRecyclerViewAdapter.ViewHolder> {
 
     private Context context;
@@ -36,17 +36,17 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
     public DisplayUsersRecyclerViewAdapter(Context context, ArrayList<PrismUser> prismUserArrayList) {
         this.context = context;
         this.prismUserArrayList = prismUserArrayList;
-        
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.users_recycler_view_item_layout, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.setData(prismUserArrayList.get(position));
     }
 
@@ -55,10 +55,8 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         return prismUserArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private FirebaseAuth auth;
-        private DatabaseReference userReference;
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         private PrismUser prismUser;
         private RelativeLayout userRelativeLayout;
@@ -68,14 +66,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         private Button userFollowButton;
 
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
 
-            // Cloud database initializations
-            auth = FirebaseAuth.getInstance();
-            userReference = Default.USERS_REFERENCE;
-
-            // Initialize all UI elements
             userRelativeLayout = itemView.findViewById(R.id.display_user_relative_layout);
             userProfilePicture = itemView.findViewById(R.id.user_profile_picture_image_view);
             usernameTextView = itemView.findViewById(R.id.username_text_view);
@@ -84,11 +77,11 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(PrismUser prismUser) {
             this.prismUser = prismUser;
-            setupUIElements();
+            setupInterfaceElements();
         }
 
         /**
@@ -104,8 +97,8 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         *  Setup follow button initial state and onClickListener
-         *  Handle toggling the follow button
+         * Setup follow button initial state and onClickListener
+         * Handle toggling the follow button
          */
         private void setupUserFollowButton() {
             if (!Helper.isPrismUserCurrentUser(prismUser)) {
@@ -161,10 +154,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Setup all UI elements
+         * Setup all interface elements
          */
-        private void setupUIElements() {
-            // Setup Typefaces for all text based UI elements
+        private void setupInterfaceElements() {
             usernameTextView.setTypeface(Default.sourceSansProBold);
             userFullNameText.setTypeface(Default.sourceSansProLight);
             userFollowButton.setTypeface(Default.sourceSansProLight);

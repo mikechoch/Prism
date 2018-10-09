@@ -31,10 +31,6 @@ public class InterfaceAction {
 
     private Context context;
 
-    // Use bounce interpolator with amplitude 0.2 and frequency 20, gives bounce affect on buttons
-    private AnimationBounceInterpolator buttonAnimationBounceInterpolator = new AnimationBounceInterpolator(0.2, 20);
-
-    // Action Button Animations
     private static Animation likeHeartBounceAnimation;
     private static Animation repostIrisBounceAnimation;
     private static Animation unrepostIrisBounceAnimation;
@@ -54,7 +50,8 @@ public class InterfaceAction {
         shareButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
         moreButtonBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.button_bounce_animation);
 
-        //
+        // Use bounce interpolator with amplitude 0.2 and frequency 20, gives bounce affect on buttons
+        AnimationBounceInterpolator buttonAnimationBounceInterpolator = new AnimationBounceInterpolator(0.2, 20);
         likeButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
         shareButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
         moreButtonBounceAnimation.setInterpolator(buttonAnimationBounceInterpolator);
@@ -62,9 +59,10 @@ public class InterfaceAction {
     }
 
     /**
-     *
-     * @param context
-     * @param view
+     * Toggle keyboard method, true shows keyboard
+     * @param context - context of current method
+     * @param view - main view of current activity to hide or show keyboard in
+     * @param showKeyboard - boolean for showing or hiding keyboard
      */
     public static void toggleKeyboard(Context context, View view, boolean showKeyboard) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -79,6 +77,9 @@ public class InterfaceAction {
 
     /**
      * Pass in a boolean that toggles the icon and color of the like button
+     * @param context - context of current method
+     * @param performLike -
+     * @return -
      */
     private static Drawable createLikeDrawable(Context context, boolean performLike) {
         int heart = performLike ? R.drawable.ic_heart_white_36dp : R.drawable.ic_heart_outline_black_36dp;
@@ -91,6 +92,9 @@ public class InterfaceAction {
 
     /**
      *
+     * @param context - context of current method
+     * @param likeActionButton -
+     * @param performLike -
      */
     public static void startLikeActionButtonAnimation(Context context, ImageView likeActionButton, boolean performLike) {
         Drawable buttonDrawable = createLikeDrawable(context, performLike);
@@ -100,6 +104,9 @@ public class InterfaceAction {
 
     /**
      *
+     * @param context - context of current method
+     * @param likeActionImageView -
+     * @param performLike -
      */
     public static void startLikeActionAnimation(Context context, ImageView likeActionImageView, boolean performLike) {
         Drawable drawable = context.getResources().getDrawable(
@@ -125,7 +132,11 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * Pass in a boolean that toggles the color of the like button
+     * @param context - context of current method
+     * @param likeActionImageView -
+     * @param likeActionButton -
+     * @param isPostLiked -
      */
     public static void setupLikeActionButton(Context context, ImageView likeActionImageView, ImageView likeActionButton, boolean isPostLiked) {
         Drawable heartButtonDrawable = createLikeDrawable(context, isPostLiked);
@@ -140,6 +151,9 @@ public class InterfaceAction {
 
     /**
      * Pass in a boolean that toggles the color of the repost button
+     * @param context - context of current method
+     * @param performRepost -
+     * @return -
      */
     private static Drawable createRepostDrawable(Context context, boolean performRepost) {
         int repost = R.drawable.ic_camera_iris_black_36dp;
@@ -152,6 +166,9 @@ public class InterfaceAction {
 
     /**
      *
+     * @param context - context of current method
+     * @param repostActionButton -
+     * @param performRepost -
      */
     public static void startRepostActionButtonAnimation(Context context, ImageView repostActionButton, boolean performRepost) {
         Drawable drawable = createRepostDrawable(context, performRepost);
@@ -161,6 +178,8 @@ public class InterfaceAction {
 
     /**
      *
+     * @param repostActionImageView -
+     * @param performRepost -
      */
     public static void startRepostActionAnimation(ImageView repostActionImageView, boolean performRepost) {
         repostIrisBounceAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -184,6 +203,9 @@ public class InterfaceAction {
 
     /**
      *
+     * @param context - context of current method
+     * @param repostActionButton -
+     * @param isPostReposted -
      */
     public static void setupRepostActionButton(Context context, ImageView repostActionButton, boolean isPostReposted) {
         Drawable repostDrawable = createRepostDrawable(context, isPostReposted);
@@ -192,6 +214,7 @@ public class InterfaceAction {
 
     /**
      *
+     * @param moreActionButton -
      */
     public static void startMoreActionButtonAnimation(ImageView moreActionButton) {
         moreActionButton.startAnimation(moreButtonBounceAnimation);
@@ -199,6 +222,11 @@ public class InterfaceAction {
 
     /**
      * AlertDialog to confirm the repost of a post
+     * @param context - context of current method
+     * @param prismPost -
+     * @param repostActionButton -
+     * @param repostCountTextView -
+     * @return -
      */
     public static AlertDialog createRepostConfirmationAlertDialog(Context context, PrismPost prismPost, ImageView repostActionButton, TextView repostCountTextView) {
         AlertDialog.Builder repostConfirmationAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
@@ -234,10 +262,10 @@ public class InterfaceAction {
      * AlertDialog that shows several options to the user when the moreActionButton is clicked
      * Report and SHare will show for all users
      * Delete will only show for user who posted the post
-     * @param context
-     * @param prismPost
-     * @param isCurrentUser
-     * @return finalized AlertDialog for more button click
+     * @param context - context of current method
+     * @param prismPost - PrismPost to show more alert dialog for
+     * @param isCurrentUser - boolean representing if current user or not
+     * @return - finalized AlertDialog for more button click
      */
     public static AlertDialog createMorePrismPostAlertDialog(Context context, PrismPost prismPost, boolean isCurrentUser) {
         RecyclerView recyclerView = new RecyclerView(context);
@@ -254,6 +282,12 @@ public class InterfaceAction {
         return moreOptionAlertDialog;
     }
 
+    /**
+     *
+     * @param context - context of current method
+     * @param prismPost -
+     * @return - finalized AlertDialog for reposting a post
+     */
     public static AlertDialog createReportPostConfirmationAlertDialog(Context context, PrismPost prismPost) {
         AlertDialog.Builder reportAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
         reportAlertDialogBuilder.setTitle("Are you sure you want to report this post as inappropriate?");
@@ -275,9 +309,9 @@ public class InterfaceAction {
 
     /**
      * AlertDialog to confirm the deletion of a post
-     * @param context
-     * @param prismPost
-     * @return finalized AlertDialog for deleting a post
+     * @param context - context of current method
+     * @param prismPost -
+     * @return - finalized AlertDialog for deleting a post
      */
     public static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
         AlertDialog.Builder deleteAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
@@ -299,9 +333,11 @@ public class InterfaceAction {
 
     /**
      * AlertDialog to confirm the unfollowing a PrismUser
-     * @param context
-     * @param prismUser
-     * @return finalized AlertDialog for unfollowing a PrismUser
+     * @param context - context of current method
+     * @param prismUser -
+     * @param toolbarFollowButton -
+     * @param followUserButton -
+     * @return - finalized AlertDialog for unfollowing a PrismUser
      */
     public static AlertDialog createUnfollowConfirmationAlertDialog(Context context, PrismUser prismUser, Button toolbarFollowButton, Button followUserButton) {
         AlertDialog.Builder unfollowAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
@@ -328,7 +364,10 @@ public class InterfaceAction {
     }
 
     /**
-     * Toggle method for UI of small follow button
+     * Toggle method for interface of small follow button
+     * @param context - context of current method
+     * @param showFollowing - boolean to determine what following text to show
+     * @param smallFollowButton - passed in small follow button
      */
     public static void toggleSmallFollowButton(Context context, boolean showFollowing, Button smallFollowButton) {
         int buttonWidth = (int) (Default.scale * (showFollowing ? 80 : 60));
@@ -343,7 +382,10 @@ public class InterfaceAction {
     }
 
     /**
-     * Toggle method for UI of large follow button
+     * Toggle method for interface of large follow button
+     * @param context - context of current method
+     * @param showFollowing - boolean to determine what following text to show
+     * @param largeFollowButton - passed in large follow button
      */
     public static void toggleLargeFollowButton(Context context, boolean showFollowing, Button largeFollowButton) {
         String followButtonString = showFollowing ? "Following" : "Follow";
@@ -356,7 +398,10 @@ public class InterfaceAction {
 
     /**
      * Handle the follow button when clicked to update firebase
-     * @param performFollow
+     * @param context - context of current method
+     * @param performFollow - boolean to determine what follow action to take
+     * @param userFollowButton - passed in follow button
+     * @param prismUser - the PrismUser to perform follow on
      */
     public static void handleFollowButtonClick(Context context, boolean performFollow, Button userFollowButton, PrismUser prismUser) {
         if (performFollow) {
