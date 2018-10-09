@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public interface OnFetchPrismUsersCallback {
 
     void onSuccess(ArrayList<PrismUser> prismUsers);
+    void onPrismUsersNotFound();
     void onFailure(Exception e);
 
 }

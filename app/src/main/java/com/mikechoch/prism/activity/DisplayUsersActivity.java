@@ -22,7 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.callback.fetch.OnFetchLikedUsers;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -179,16 +179,16 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getLikedUsers(String postId) {
-        DatabaseAction.fetchLikedUsers(postId, new OnFetchLikedUsers() {
+        DatabaseAction.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> users) {
-                prismUserArrayList.addAll(users);
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
                 finishUIActivities();
             }
 
             @Override
-            public void onLikedUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.NO_DATA);
+            public void onPrismUsersNotFound() {
+                Log.e(Default.TAG_DB, "No liked users found for post");
                 finishUIActivities();
             }
 
@@ -205,26 +205,24 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getRepostedUsers(String postId) {
-        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-        allPostsReference.child(postId).child(Key.DB_REF_POST_REPOSTED_USERS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            HashMap<String, Long> repostedUsersMap = new HashMap<>();
-                            repostedUsersMap.putAll((Map) dataSnapshot.getValue());
-                            fetchUserDetails(repostedUsersMap);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.NO_DATA);
-                            finishUIActivities();
-                        }
-                    }
+        DatabaseAction.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+                finishUIActivities();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, databaseError.toException());
-                    }
-                });
+            @Override
+            public void onPrismUsersNotFound() {
+                Log.e(Default.TAG_DB, "No reposted users found for post");
+                finishUIActivities();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+            }
+        });
     }
 
     /**

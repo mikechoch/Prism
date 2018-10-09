@@ -20,14 +20,13 @@ import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
-import com.mikechoch.prism.callback.fetch.OnFetchLikedUsers;
+import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
-import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
@@ -448,7 +447,7 @@ public class DatabaseAction {
         });
     }
 
-    public static void fetchLikedUsers(String postId, OnFetchLikedUsers callback) {
+    public static void fetchLikedUsers(String postId, OnFetchPrismUsersCallback callback) {
         DatabaseReference likedUsersReference = Default.ALL_POSTS_REFERENCE
                 .child(postId)
                 .child(Key.DB_REF_POST_LIKED_USERS);
@@ -458,19 +457,9 @@ public class DatabaseAction {
             public void onDataChange(DataSnapshot likedUsersSnapshot) {
                 if (likedUsersSnapshot.exists()) {
                     Map<String, Long> likedUsers =  (HashMap<String, Long>)  likedUsersSnapshot.getValue();
-                    fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), new OnFetchPrismUsersCallback() {
-                        @Override
-                        public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                            callback.onSuccess(prismUsers);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            callback.onFailure(e);
-                        }
-                    });
+                    fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), callback);
                 } else {
-                    callback.onLikedUsersNotFound();
+                    callback.onPrismUsersNotFound();
                 }
             }
 
@@ -480,6 +469,29 @@ public class DatabaseAction {
             }
         });
 
+    }
+
+    public static void fetchRepostedUsers(String postId, OnFetchPrismUsersCallback callback) {
+        DatabaseReference repostedUsersReference = Default.ALL_POSTS_REFERENCE
+                .child(postId)
+                .child(Key.DB_REF_POST_REPOSTED_USERS);
+
+        repostedUsersReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot repostedUsersSnapshot) {
+                if (repostedUsersSnapshot.exists()) {
+                    Map<String, Long> repostedUsers =  (HashMap<String, Long>)  repostedUsersSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(repostedUsers.keySet()), callback);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
     }
 
     public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
