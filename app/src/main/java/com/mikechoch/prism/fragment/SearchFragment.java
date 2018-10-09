@@ -1,9 +1,7 @@
 package com.mikechoch.prism.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -27,8 +25,8 @@ import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DiscoverController;
-import com.mikechoch.prism.fire.callback.OnFetchCallback;
-import com.mikechoch.prism.fire.callback.OnInitializeDiscoveryCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchCallback;
+import com.mikechoch.prism.callback.action.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;

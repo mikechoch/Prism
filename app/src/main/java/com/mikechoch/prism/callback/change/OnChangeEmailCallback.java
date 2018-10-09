@@ -1,4 +1,4 @@
-package com.mikechoch.prism.fire.callback;
+package com.mikechoch.prism.callback.change;
 
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;

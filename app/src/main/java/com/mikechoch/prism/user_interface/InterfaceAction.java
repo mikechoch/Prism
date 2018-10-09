@@ -24,12 +24,10 @@ import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
 import com.mikechoch.prism.type.MoreOption;
 
+
 public class InterfaceAction {
 
-    public static String[] setProfilePicStrings = {"Choose from gallery", "Take a selfie", "View profile picture"};
     public static int[] swipeRefreshLayoutColors = {R.color.colorAccent};
-
-    private Context context;
 
     private static Animation likeHeartBounceAnimation;
     private static Animation repostIrisBounceAnimation;
@@ -40,7 +38,6 @@ public class InterfaceAction {
 
 
     public InterfaceAction(Context context) {
-        this.context = context;
 
         // Load all animations from anim folder for action buttons
         likeHeartBounceAnimation = AnimationUtils.loadAnimation(context, R.anim.like_animation);
@@ -78,8 +75,8 @@ public class InterfaceAction {
     /**
      * Pass in a boolean that toggles the icon and color of the like button
      * @param context - context of current method
-     * @param performLike -
-     * @return -
+     * @param performLike - boolean if like was performed to create correct Drawable
+     * @return - solid blue heart if performLike is true
      */
     private static Drawable createLikeDrawable(Context context, boolean performLike) {
         int heart = performLike ? R.drawable.ic_heart_white_36dp : R.drawable.ic_heart_outline_black_36dp;
@@ -91,10 +88,10 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * Create the like Drawable and start the animation for the heart like button
      * @param context - context of current method
-     * @param likeActionButton -
-     * @param performLike -
+     * @param likeActionButton - heart ImageView button to be animated
+     * @param performLike - boolean performLike handles Drawable creation
      */
     public static void startLikeActionButtonAnimation(Context context, ImageView likeActionButton, boolean performLike) {
         Drawable buttonDrawable = createLikeDrawable(context, performLike);
@@ -103,10 +100,10 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * Using the correct Drawable animate a full heart for liking an image over the ImageView
      * @param context - context of current method
-     * @param likeActionImageView -
-     * @param performLike -
+     * @param likeActionImageView - the heart ImageView
+     * @param performLike - boolean performLike for showing correct Drawable
      */
     public static void startLikeActionAnimation(Context context, ImageView likeActionImageView, boolean performLike) {
         Drawable drawable = context.getResources().getDrawable(
@@ -134,9 +131,9 @@ public class InterfaceAction {
     /**
      * Pass in a boolean that toggles the color of the like button
      * @param context - context of current method
-     * @param likeActionImageView -
-     * @param likeActionButton -
-     * @param isPostLiked -
+     * @param likeActionImageView - heart ImageView to set correct Drawable in
+     * @param likeActionButton - heart ImageView button to animate and change Drawable for
+     * @param isPostLiked - isPostLiked determines correct Drawables to populate ImageViews
      */
     public static void setupLikeActionButton(Context context, ImageView likeActionImageView, ImageView likeActionButton, boolean isPostLiked) {
         Drawable heartButtonDrawable = createLikeDrawable(context, isPostLiked);
@@ -152,8 +149,8 @@ public class InterfaceAction {
     /**
      * Pass in a boolean that toggles the color of the repost button
      * @param context - context of current method
-     * @param performRepost -
-     * @return -
+     * @param performRepost - performRepost boolean for creating correct Drawable
+     * @return - Drawable for repost ImageView
      */
     private static Drawable createRepostDrawable(Context context, boolean performRepost) {
         int repost = R.drawable.ic_camera_iris_black_36dp;
@@ -165,10 +162,10 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * Handle Drawable and animation of repost Button and ImageView
      * @param context - context of current method
-     * @param repostActionButton -
-     * @param performRepost -
+     * @param repostActionButton - repost Button to toggle Drawable and animate
+     * @param performRepost - performRepost boolean for creating Drawable
      */
     public static void startRepostActionButtonAnimation(Context context, ImageView repostActionButton, boolean performRepost) {
         Drawable drawable = createRepostDrawable(context, performRepost);
@@ -177,9 +174,9 @@ public class InterfaceAction {
     }
 
     /**
-     *
-     * @param repostActionImageView -
-     * @param performRepost -
+     * Create the repost Drawable and start the animation for the iris repost button
+     * @param repostActionImageView - repost ImageView to animate
+     * @param performRepost - performRepost boolean for correct animation
      */
     public static void startRepostActionAnimation(ImageView repostActionImageView, boolean performRepost) {
         repostIrisBounceAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -202,10 +199,10 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * Setup the repost ImageView button Drawable
      * @param context - context of current method
-     * @param repostActionButton -
-     * @param isPostReposted -
+     * @param repostActionButton - repost ImageView button to change Drawable of
+     * @param isPostReposted - isPostReposted boolean to get correct repost Drawable
      */
     public static void setupRepostActionButton(Context context, ImageView repostActionButton, boolean isPostReposted) {
         Drawable repostDrawable = createRepostDrawable(context, isPostReposted);
@@ -213,8 +210,8 @@ public class InterfaceAction {
     }
 
     /**
-     *
-     * @param moreActionButton -
+     * Animate the repost ImageView button
+     * @param moreActionButton - repost ImageView button to animate
      */
     public static void startMoreActionButtonAnimation(ImageView moreActionButton) {
         moreActionButton.startAnimation(moreButtonBounceAnimation);
@@ -223,10 +220,10 @@ public class InterfaceAction {
     /**
      * AlertDialog to confirm the repost of a post
      * @param context - context of current method
-     * @param prismPost -
-     * @param repostActionButton -
-     * @param repostCountTextView -
-     * @return -
+     * @param prismPost - PrismPost to show repost confirmation alert dialog for
+     * @param repostActionButton - repost ImageView button
+     * @param repostCountTextView - repost count TextView to change text of
+     * @return - AlertDialog for confirming the reposting of a PrismPost
      */
     public static AlertDialog createRepostConfirmationAlertDialog(Context context, PrismPost prismPost, ImageView repostActionButton, TextView repostCountTextView) {
         AlertDialog.Builder repostConfirmationAlertDialogBuilder = new AlertDialog.Builder(context, R.style.DarkThemAlertDialog);
@@ -283,9 +280,9 @@ public class InterfaceAction {
     }
 
     /**
-     *
+     * AlertDialog to confirm the reporting of a post
      * @param context - context of current method
-     * @param prismPost -
+     * @param prismPost - PrismPost to create AlertDialog for
      * @return - finalized AlertDialog for reposting a post
      */
     public static AlertDialog createReportPostConfirmationAlertDialog(Context context, PrismPost prismPost) {
@@ -310,7 +307,7 @@ public class InterfaceAction {
     /**
      * AlertDialog to confirm the deletion of a post
      * @param context - context of current method
-     * @param prismPost -
+     * @param prismPost - PrismPost to create AlertDialog for
      * @return - finalized AlertDialog for deleting a post
      */
     public static AlertDialog createDeleteConfirmationAlertDialog(Context context, PrismPost prismPost) {
@@ -334,9 +331,9 @@ public class InterfaceAction {
     /**
      * AlertDialog to confirm the unfollowing a PrismUser
      * @param context - context of current method
-     * @param prismUser -
-     * @param toolbarFollowButton -
-     * @param followUserButton -
+     * @param prismUser - PrismUser to create AlertDialog for
+     * @param toolbarFollowButton - toolbar follow Button to modify
+     * @param followUserButton - follow user Button to modify
      * @return - finalized AlertDialog for unfollowing a PrismUser
      */
     public static AlertDialog createUnfollowConfirmationAlertDialog(Context context, PrismUser prismUser, Button toolbarFollowButton, Button followUserButton) {

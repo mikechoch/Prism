@@ -24,9 +24,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
-import com.mikechoch.prism.fire.callback.OnFirebaseUserRegistrationCallback;
-import com.mikechoch.prism.fire.callback.OnPrismUserRegistrationCallback;
-import com.mikechoch.prism.fire.callback.OnUsernameTakenCallback;
+import com.mikechoch.prism.callback.action.OnFirebaseUserRegistrationCallback;
+import com.mikechoch.prism.callback.action.OnPrismUserRegistrationCallback;
+import com.mikechoch.prism.callback.check.OnUsernameTakenCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.helper.ProfileHelper;
@@ -87,6 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
      * FullName EditTextLayout Typefaces are set and TextWatcher is setup for error handling
      */
     private void setupFullNameEditText() {
+        final Handler handler = new Handler();
         fullNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -94,6 +95,8 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                fullNameTextInputLayout.setErrorEnabled(false);
+                handler.removeCallbacksAndMessages(null);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

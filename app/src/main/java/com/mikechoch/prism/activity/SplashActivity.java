@@ -18,7 +18,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.fire.callback.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
