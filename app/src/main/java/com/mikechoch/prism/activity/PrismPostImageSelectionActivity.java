@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,6 +25,8 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.net.URISyntaxException;
 
 
 public class PrismPostImageSelectionActivity extends AppCompatActivity {
@@ -148,8 +151,22 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri croppedUri = BitmapHelper.getImageUri(PrismPostImageSelectionActivity.this, cropImageView.getCroppedImage());
-                IntentHelper.intentToUploadImageEditActivity(PrismPostImageSelectionActivity.this, croppedUri.toString(), PictureUpload.PRISM_POST);
+                double height = cropImageView.getCropRect().height();
+                double width = cropImageView.getCropRect().width();
+                int byteCount = BitmapCompat.getAllocationByteCount(cropImageView.getCroppedImage());
+                int cropValidation = BitmapHelper.isValidCrop(height, width, byteCount);
+                switch (cropValidation) {
+                    case Default.CROP_VALID:
+                        Uri croppedUri = BitmapHelper.getImageUri(PrismPostImageSelectionActivity.this, cropImageView.getCroppedImage());
+                        IntentHelper.intentToUploadImageEditActivity(PrismPostImageSelectionActivity.this, croppedUri.toString(), PictureUpload.PRISM_POST);
+                        break;
+                    case Default.CROP_ASPECT_RATIO_INVALID:
+                        Helper.toast(PrismPostImageSelectionActivity.this, "Invalid crop aspect ratio");
+                        break;
+                    case Default.CROP_RES_INVALID:
+                        Helper.toast(PrismPostImageSelectionActivity.this, "Resolution of the image too low");
+                        break;
+                }
             }
         });
     }

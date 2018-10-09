@@ -2,6 +2,7 @@ package com.mikechoch.prism.fragment;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,6 +21,7 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
 
+
 public class LikedPostsFragment extends Fragment {
 
     private SwipeRefreshLayout likedPostsSwipeRefreshLayout;
@@ -28,9 +30,9 @@ public class LikedPostsFragment extends Fragment {
 
     private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 
-    public static final LikedPostsFragment newInstance() {
-        LikedPostsFragment likedPostsFragment = new LikedPostsFragment();
-        return likedPostsFragment;
+
+    public static LikedPostsFragment newInstance() {
+        return new LikedPostsFragment();
     }
 
     @Override
@@ -39,14 +41,14 @@ public class LikedPostsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
         
         likedPostsSwipeRefreshLayout = view.findViewById(R.id.liked_posts_swipe_refresh_layout);
         likedPostsNestedScrollView = view.findViewById(R.id.liked_posts_nested_scroll_view);
         userLikedPostsLinearLayout = view.findViewById(R.id.current_user_liked_posts_linear_layout);
 
-        setupUIElements();
+        setupInterfaceElements();
 
         return view;
     }
@@ -59,6 +61,7 @@ public class LikedPostsFragment extends Fragment {
         likedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //TODO: @Parth we need to refresh here
                 likedPostsSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -87,9 +90,9 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     * Setup all UI elements
+     * Setup all interface elements
      */
-    private void setupUIElements() {
+    private void setupInterfaceElements() {
         setupUploadedRepostedSwipeRefreshLayout();
         setupLikedRecyclerViewColumns();
     }

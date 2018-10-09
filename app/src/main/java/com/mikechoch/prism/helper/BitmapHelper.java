@@ -16,6 +16,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.mikechoch.prism.constant.Default;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,8 +28,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class BitmapHelper {
 
@@ -406,7 +410,19 @@ public class BitmapHelper {
             e.printStackTrace();
         }
 
-        String imagePath = FileChooser.getPath(context, imageUriExtra);
+
+        // create path from uri
+        File file = new File(Objects.requireNonNull(imageUriExtra.getPath()));
+        // split the path.
+        final String[] split = file.getPath().split(":");
+
+        String imagePath;
+        if (split.length > 1) {
+            imagePath = split[1];
+        } else {
+            imagePath = FileChooser.getPath(context, imageUriExtra);
+        }
+
         bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
         imageUriExtra = getImageUri(context, bitmap);
 
@@ -462,6 +478,26 @@ public class BitmapHelper {
         String mImageName="MI_"+ timeStamp +".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         return mediaFile;
+    }
+
+    /**
+     * Validate a crop rectangles specs satisfy a valid cropped image
+     * @param height - height of cropped image
+     * @param width - width of cropped image
+     * @param byteCount - size in bytes of image
+     * @return - int representing crop valid, crop aspect ratio invalid, and crop res invalid
+     */
+    public static int isValidCrop(double height, double width, int byteCount) {
+        System.out.println(byteCount);
+        boolean isResValid = byteCount > 500000;
+        if (isResValid) {
+            if ((height >= width && (height/width) <= 3) ||
+                    (width >= height && (width/height) <= 3)) {
+                return Default.CROP_VALID;
+            }
+            return Default.CROP_ASPECT_RATIO_INVALID;
+        }
+        return Default.CROP_RES_INVALID;
     }
 
 }

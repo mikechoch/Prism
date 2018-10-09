@@ -181,8 +181,8 @@ public class DatabaseAction {
                                 CurrentUser.deletePost(prismPost);
 
                                 // Update UI after the post is deleted
-                                PrismPostRecyclerViewAdapter.prismPostArrayList.remove(prismPost);
-                                refreshMainRecyclerViewAdapter();
+                                MainContentFragment.prismPostArrayList.remove(prismPost);
+                                MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
 
                             } else {
                                 Log.wtf(Default.TAG_DB, Message.NO_DATA);
@@ -253,6 +253,11 @@ public class DatabaseAction {
 
     }
 
+    /**
+     * 
+     * @param type
+     * @param allowPushNotification
+     */
     public static void updatePreferenceForPushNotification(NotificationType type, boolean allowPushNotification) {
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
 
@@ -263,6 +268,9 @@ public class DatabaseAction {
         CurrentUser.preference.setPushNotificationPreference(type, allowPushNotification);
     }
 
+    /**
+     * 
+     */
     public static void updateViewedTimestampForAllNotifications() {
         long timestamp = System.currentTimeMillis();
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
@@ -284,7 +292,6 @@ public class DatabaseAction {
                     public void onCancelled(DatabaseError databaseError) { }
                 });
     }
-
 
     /**
      * Creates prismUser for CurrentUser
@@ -319,6 +326,11 @@ public class DatabaseAction {
         });
     }
 
+    /**
+     *
+     * @param usersSnapshot
+     * @param callback
+     */
     private static void populateUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -349,7 +361,11 @@ public class DatabaseAction {
         });
     }
 
-
+    /**
+     *
+     * @param context
+     * @param intent
+     */
     private static void constructNewsFeed(Context context, Intent intent) {
         ArrayList<String> followings = CurrentUser.getFollowings();
         ArrayList<Pair<String, PrismUser>> listOfPrismPosts = new ArrayList<>();
@@ -397,15 +413,10 @@ public class DatabaseAction {
         });
     }
 
-
-
     /**
-     * Refresh mainContentFragment's recyclerViewAdapter
+     *
+     * @param context
      */
-    static void refreshMainRecyclerViewAdapter() {
-        MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-    }
-
     public static void handleFirebaseTokenRefreshActivities(Context context) {
         String firebaseToken = FirebaseInstanceId.getInstance().getToken();
         boolean isUserLoggedIn = CurrentUser.getFirebaseUser() != null;
@@ -447,6 +458,11 @@ public class DatabaseAction {
         });
     }
 
+    /**
+     *
+     * @param postId
+     * @param callback
+     */
     public static void fetchLikedUsers(String postId, OnFetchPrismUsersCallback callback) {
         DatabaseReference likedUsersReference = Default.ALL_POSTS_REFERENCE
                 .child(postId)
@@ -471,6 +487,11 @@ public class DatabaseAction {
 
     }
 
+    /**
+     *
+     * @param postId
+     * @param callback
+     */
     public static void fetchRepostedUsers(String postId, OnFetchPrismUsersCallback callback) {
         DatabaseReference repostedUsersReference = Default.ALL_POSTS_REFERENCE
                 .child(postId)
@@ -494,7 +515,12 @@ public class DatabaseAction {
         });
     }
 
-    public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
+    /**
+     *
+     * @param prismUserIds
+     * @param callback
+     */
+    private static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -519,6 +545,11 @@ public class DatabaseAction {
         });
     }
 
+    /**
+     *
+     * @param prismUserId
+     * @param callback
+     */
     public static void fetchPrismUser(String prismUserId, OnFetchPrismUserCallback callback) {
         DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUserId);
         userReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -539,6 +570,10 @@ public class DatabaseAction {
         });
     }
 
+    /**
+     *
+     * @param callback
+     */
     public static void performMaintenanceCheck(OnMaintenanceCheckCallback callback) {
         DatabaseReference appStatusReference = Default.APP_STATUS_REFERENCE;
         appStatusReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -674,7 +709,6 @@ class ProfileFetcher {
 }
 
 
-
 class DeleteHelper {
 
     /**
@@ -713,6 +747,10 @@ class DeleteHelper {
         }
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostFromUserUploads(PrismPost prismPost) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
@@ -720,6 +758,10 @@ class DeleteHelper {
                 .child(prismPost.getPostId()).removeValue();
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostUnderItsHashTags(PrismPost prismPost) {
         ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
         DatabaseReference tagsReference = Default.TAGS_REFERENCE;
@@ -729,6 +771,10 @@ class DeleteHelper {
         }
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostRelatedNotifications(PrismPost prismPost) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
@@ -750,12 +796,14 @@ class DeleteHelper {
         });
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostFromAllPosts(PrismPost prismPost) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.child(prismPost.getPostId()).removeValue();
     }
-
-
 
 }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/under_maintenance_activity_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -60,53 +61,63 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/prism_post_image_relative_layout"
+        <android.support.v7.widget.CardView
+            android:id="@+id/prism_post_image_card_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/recycler_view_post_info_relative_layout"
-            android:foregroundGravity="center"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+            android:alpha="0"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true">
 
-            <ImageView
-                android:id="@+id/recycler_view_image_image_view"
-                android:transitionName="prism_post_image"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:id="@+id/prism_post_image_relative_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:adjustViewBounds="true"
-                android:alpha="0"/>
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:background="@color/colorPrimaryDark">
 
-            <ImageView
-                android:id="@+id/recycler_view_like_heart"
-                android:layout_width="144dp"
-                android:layout_height="144dp"
-                android:layout_centerInParent="true"
-                android:tint="@android:color/white"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"
-                android:visibility="invisible"/>
+                <ImageView
+                    android:id="@+id/recycler_view_image_image_view"
+                    android:transitionName="prism_post_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:alpha="0" />
 
-            <ImageView
-                android:id="@+id/recycler_view_repost_iris"
-                android:layout_width="144dp"
-                android:layout_height="144dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/repost_iris"
-                android:tint="@android:color/white"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"
-                android:visibility="invisible"/>
+                <ImageView
+                    android:id="@+id/recycler_view_like_heart"
+                    android:layout_width="144dp"
+                    android:layout_height="144dp"
+                    android:layout_centerInParent="true"
+                    android:tint="@android:color/white"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:visibility="invisible"/>
 
-        </RelativeLayout>
+                <ImageView
+                    android:id="@+id/recycler_view_repost_iris"
+                    android:layout_width="144dp"
+                    android:layout_height="144dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/repost_iris"
+                    android:tint="@android:color/white"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:visibility="invisible"/>
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_below="@id/prism_post_image_relative_layout"
+            android:layout_below="@id/prism_post_image_card_view"
             android:layout_marginTop="6dp">
 
             <TableRow

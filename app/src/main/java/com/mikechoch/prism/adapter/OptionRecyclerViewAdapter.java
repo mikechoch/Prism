@@ -299,7 +299,6 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
          * Populate all interface elements with data
          */
         private void populateInterfaceElements() {
-            // Setup Typefaces for all text based UI elements
             moreOptionsOptionTextView.setTypeface(Default.sourceSansProLight);
 
             setupSettingsOptionRelativeLayout();

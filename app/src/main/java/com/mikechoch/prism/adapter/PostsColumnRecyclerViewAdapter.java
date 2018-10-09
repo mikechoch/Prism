@@ -2,8 +2,8 @@ package com.mikechoch.prism.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +25,8 @@ import com.mikechoch.prism.helper.IntentHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsColumnRecyclerViewAdapter.ViewHolder> {
+
+public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsColumnRecyclerViewAdapter.PrismPostViewHolder> {
 
     private Context context;
     private List<PrismPost> prismPostsArrayList;
@@ -36,13 +37,14 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         this.prismPostsArrayList = prismPostsArrayList;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.post_column_recycler_view_item_layout, null));
+    public PrismPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new PrismPostViewHolder(LayoutInflater.from(context).inflate(R.layout.post_column_recycler_view_item_layout, null));
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PrismPostViewHolder holder, int position) {
         holder.setData(prismPostsArrayList.get(position));
     }
 
@@ -51,7 +53,8 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         return this.prismPostsArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+
+    public class PrismPostViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView userPostImageView;
         private ImageView userPostRepostedIcon;
@@ -60,7 +63,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         private PrismPost prismPost;
 
 
-        public ViewHolder(View itemView) {
+        PrismPostViewHolder(View itemView) {
             super(itemView);
             userPostImageView = itemView.findViewById(R.id.user_post_image_view);
             userPostRepostedIcon = itemView.findViewById(R.id.user_post_reposted_indicator);
@@ -68,20 +71,17 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(PrismPost prismPost) {
             this.prismPost = prismPost;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
-         * Setup userPostImageView
          * Populate userPostImageView using Glide with the specific post image
          */
         private void setupPostImageView() {
-            ViewCompat.setTransitionName(userPostImageView, prismPost.getImage());
-
             userPostImageView.setMaxHeight((int) (Default.scale * 150));
 
             Glide.with(context)
@@ -116,9 +116,9 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate all interface elements with data
          */
-        private void populateUIElements() {
+        private void populateInterfaceElements() {
             setupPostImageView();
         }
     }

@@ -14,7 +14,9 @@ import com.mikechoch.prism.constant.Default;
 
 import java.util.ArrayList;
 
+
 public class PrismPostStaggeredGridRecyclerView {
+
 
     public PrismPostStaggeredGridRecyclerView(Context context, LinearLayout recyclerViewContainer, ArrayList<PrismPost> prismPostArrayList) {
         recyclerViewContainer.removeAllViews();
@@ -32,10 +34,11 @@ public class PrismPostStaggeredGridRecyclerView {
 
         for (int i = 0; i < Default.POSTS_COLUMNS; i++) {
             LinearLayout recyclerViewLinearLayout = new LinearLayout(context);
-            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1f);
+            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1f);
             recyclerViewLinearLayout.setLayoutParams(one_params);
 
             RecyclerView tagPostsRecyclerView = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.posts_recycler_view, null);
+            tagPostsRecyclerView.setNestedScrollingEnabled(false);
             LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(context);
             tagPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
             PostsColumnRecyclerViewAdapter tagPostsColumnRecyclerViewAdapter = new PostsColumnRecyclerViewAdapter(context, prismTagPostsArrayLists.get(i));
@@ -46,7 +49,5 @@ public class PrismPostStaggeredGridRecyclerView {
         }
 
     }
-
-
 
 }

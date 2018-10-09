@@ -1,7 +1,6 @@
 package com.mikechoch.prism.constant;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Typeface;
 
 import com.google.firebase.database.DatabaseReference;
@@ -116,6 +115,10 @@ public class Default {
     public static final int MORE_OPTION_DELETE = 2;
 
     public static final int POSTS_COLUMNS = 3;
+
+    public static final int CROP_VALID = 0;
+    public static final int CROP_RES_INVALID = 1;
+    public static final int CROP_ASPECT_RATIO_INVALID = 2;
 
     // Regex String
     public static final String USERNAME_PERIOD = ".";

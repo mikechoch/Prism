@@ -132,8 +132,9 @@ public class IntentHelper {
      * Create an Intent to ask user to select a image they would like to upload
      */
     public static void selectImageFromGallery(Context context) {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
         ((Activity) context).startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

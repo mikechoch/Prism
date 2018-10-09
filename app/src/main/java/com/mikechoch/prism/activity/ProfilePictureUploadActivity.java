@@ -22,6 +22,7 @@ import com.mikechoch.prism.type.PictureUpload;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.net.URISyntaxException;
 
 public class ProfilePictureUploadActivity extends AppCompatActivity {
 
