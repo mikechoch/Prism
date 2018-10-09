@@ -517,6 +517,29 @@ public class DatabaseAction {
         });
     }
 
+    public static void fetchPrismUserFollowers(String userId, OnFetchPrismUsersCallback callback) {
+        DatabaseReference userFollowersReference = Default.USERS_REFERENCE
+                .child(userId)
+                .child(Key.DB_REF_USER_FOLLOWERS);
+
+        userFollowersReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userFollowersSnapshot) {
+                if (userFollowersSnapshot.exists()) {
+                    Map<String, Long> userFollowers = (HashMap<String, Long>) userFollowersSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(userFollowers.keySet()), callback);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
     public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
