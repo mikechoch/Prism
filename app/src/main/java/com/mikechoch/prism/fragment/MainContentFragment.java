@@ -42,7 +42,7 @@ public class MainContentFragment extends Fragment {
     private RelativeLayout noMainPostsRelativeLayout;
     private TextView noMainPostsTextView;
     private RecyclerView mainContentRecyclerView;
-    public static PrismPostRecyclerViewAdapter mainContentRecyclerViewAdapter;
+    private PrismPostRecyclerViewAdapter mainContentRecyclerViewAdapter;
     private ProgressBar mainContentProgressBar;
 
     private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
@@ -52,9 +52,8 @@ public class MainContentFragment extends Fragment {
     private boolean isLoading = false;
 
 
-    public static final MainContentFragment newInstance() {
-        MainContentFragment mainContentFragment = new MainContentFragment();
-        return mainContentFragment;
+    public static MainContentFragment newInstance() {
+        return new MainContentFragment();
     }
 
     @Override
@@ -87,7 +86,7 @@ public class MainContentFragment extends Fragment {
         DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(),
                 linearLayoutManager.getOrientation());
-        dividerItemDecoration.setDrawable(getContext().getResources().getDrawable(R.drawable.recycler_view_divider));
+        dividerItemDecoration.setDrawable(getActivity().getResources().getDrawable(R.drawable.recycler_view_divider));
         mainContentRecyclerView.setLayoutManager(linearLayoutManager);
         mainContentRecyclerView.setItemAnimator(defaultItemAnimator);
         mainContentRecyclerView.addItemDecoration(dividerItemDecoration);
@@ -114,6 +113,7 @@ public class MainContentFragment extends Fragment {
                 }
             }
         });
+
         mainContentRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
             public void onChildViewAttachedToWindow(View view) { }

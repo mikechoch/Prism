@@ -17,6 +17,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
@@ -27,8 +28,6 @@ public class LikedPostsFragment extends Fragment {
     private SwipeRefreshLayout likedPostsSwipeRefreshLayout;
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;
-
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 
 
     public static LikedPostsFragment newInstance() {
@@ -57,7 +56,7 @@ public class LikedPostsFragment extends Fragment {
      *
      */
     private void setupUploadedRepostedSwipeRefreshLayout() {
-        likedPostsSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
+        likedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         likedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -90,7 +89,7 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     * Setup all interface elements
+     * Setup all interface elements for current fragment
      */
     private void setupInterfaceElements() {
         setupUploadedRepostedSwipeRefreshLayout();

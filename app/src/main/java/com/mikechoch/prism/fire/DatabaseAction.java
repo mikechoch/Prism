@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class DatabaseAction {
 
     /**
@@ -254,7 +255,7 @@ public class DatabaseAction {
     }
 
     /**
-     * 
+     *
      * @param type
      * @param allowPushNotification
      */
@@ -269,7 +270,7 @@ public class DatabaseAction {
     }
 
     /**
-     * 
+     *
      */
     public static void updateViewedTimestampForAllNotifications() {
         long timestamp = System.currentTimeMillis();

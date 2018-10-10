@@ -92,7 +92,7 @@ public class BitmapHelper {
      * @param bitmap
      * @return
      */
-    private static Bitmap rotateBitmap(String src, Bitmap bitmap) {
+    public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
         int orientation = getExifOrientation(src);
 
         if (orientation == 1) {
@@ -398,35 +398,18 @@ public class BitmapHelper {
 
     /**
      *
-     * @param imageUriExtra
+     * @param uri
      * @return
      */
-    public static Bitmap createBitmapFromImageUri(Context context, Uri imageUriExtra) {
-        Bitmap bitmap = null;
+    public static Bitmap updateOutputBitmap(Context context, Uri uri) {
+        Bitmap selectedBitmap = null;
         try {
-            InputStream inputStream = context.getContentResolver().openInputStream(imageUriExtra);
-            bitmap = BitmapFactory.decodeStream(inputStream);
-        } catch (FileNotFoundException e) {
+            selectedBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+            selectedBitmap = BitmapHelper.rotateBitmap(uri.getPath(), selectedBitmap);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-        // create path from uri
-        File file = new File(Objects.requireNonNull(imageUriExtra.getPath()));
-        // split the path.
-        final String[] split = file.getPath().split(":");
-
-        String imagePath;
-        if (split.length > 1) {
-            imagePath = split[1];
-        } else {
-            imagePath = FileChooser.getPath(context, imageUriExtra);
-        }
-
-        bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
-        imageUriExtra = getImageUri(context, bitmap);
-
-        return bitmap;
+        return selectedBitmap;
     }
 
     /**
