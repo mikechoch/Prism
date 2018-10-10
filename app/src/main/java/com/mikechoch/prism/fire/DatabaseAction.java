@@ -25,6 +25,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
@@ -560,6 +561,42 @@ public class DatabaseAction {
                     }
                 }
                 callback.onSuccess(prismUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismPost(String prismPostId, OnFetchPrismPostCallback callback) {
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPostId);
+        postReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot postSnapshot) {
+                if (postSnapshot.exists()) {
+                    PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                    fetchPrismUser(prismPost.getUid(), new OnFetchPrismUserCallback() {
+                        @Override
+                        public void onSuccess(PrismUser prismUser) {
+                            prismPost.setPrismUser(prismUser);
+                            callback.onSuccess(prismPost);
+                        }
+
+                        @Override
+                        public void onUserNotFound() {
+                            callback.onPostAuthorNotFound();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    callback.onPostNotFound();
+                }
             }
 
             @Override

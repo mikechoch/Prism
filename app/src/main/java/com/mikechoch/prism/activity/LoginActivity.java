@@ -39,8 +39,6 @@ import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private FirebaseAuth auth;
-    
     private ImageView iconImageView;
 
     private TextInputLayout emailOrUsernameTextInputLayout;
@@ -67,9 +65,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity_layout);
-
-        // User authentication instance
-        auth = FirebaseAuth.getInstance();
 
         // Initialize all UI elements
         iconImageView = findViewById(R.id.icon_image_view);
@@ -190,7 +185,7 @@ public class LoginActivity extends AppCompatActivity {
                     sendResetPasswordEmail(email, dialog);
                 }
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null).setOnDismissListener(null).setOnCancelListener(null);
+        }).setNegativeButton(Default.BUTTON_CANCEL, null);
 
         return resetPasswordAlertDialog;
     }
@@ -309,7 +304,7 @@ public class LoginActivity extends AppCompatActivity {
      * Also display a loading spinner until onComplete
      */
     private void attemptLogin(String email, String password) {
-        auth.signInWithEmailAndPassword(email, password)
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {

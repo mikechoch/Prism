@@ -68,12 +68,6 @@ import java.util.Calendar;
 
 public class MainActivity extends FragmentActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
-    private FirebaseAuth auth;
-    private DatabaseReference allPostsReference;
-    private StorageReference storageReference;
-    private DatabaseReference currentUserReference;
-    private DatabaseReference tagsReference;
-
     private Animation hideFabAnimation;
     private Animation showFabAnimation;
 
@@ -112,17 +106,10 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         AndroidNetworking.initialize(getApplicationContext());
         initializeNetworkListener();
 
-        auth = FirebaseAuth.getInstance();
-        storageReference = Default.STORAGE_REFERENCE;
-        allPostsReference = Default.ALL_POSTS_REFERENCE;
-        currentUserReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
-        tagsReference = Default.TAGS_REFERENCE;
         FCM_API_KEY = getFirebaseKey();
 
-        // Check if firebaseUser is logged in
-        // Otherwise intent to LoginActivity
-        auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
+        /* This is just a safety check */
+        if (CurrentUser.getFirebaseUser() == null) {
             IntentHelper.intentToLoginActivity(MainActivity.this);
             return;
         }
@@ -483,16 +470,18 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      *  ALL_POSTS section and the post details are pushed. Then the postId is added to the
      *  USER_UPLOADS section for the current firebaseUser
      *  TODO: Handle case when post upload fails -- this is very important
+     *  TODO Refactor all of this
      */
     @SuppressLint("SimpleDateFormat")
     private void uploadPostToCloud() {
-        StorageReference postImageRef = storageReference.child(Key.STORAGE_POST_IMAGES_REF).child(uploadedImageUri.getLastPathSegment());
+
+        StorageReference postImageRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF).child(uploadedImageUri.getLastPathSegment());
         postImageRef.putFile(uploadedImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUrl = task.getResult().getDownloadUrl();
-                    DatabaseReference postReference = allPostsReference.push();
+                    DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.push();
                     String postId = postReference.getKey();
                     PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
 
@@ -503,20 +492,23 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 /* [1] Add postId to USER_UPLOADS table */
+                                DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getFirebaseUser().getUid());
                                 DatabaseReference userPostRef = currentUserReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
                                 userPostRef.setValue(prismPost.getTimestamp());
 
                                 /* [2] Parse the hashTags from post caption and add the postId in TAGS table */
                                 ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
                                 for (String hashTag : hashTags) {
-                                    tagsReference.child(hashTag).child(postId).setValue(prismPost.getTimestamp());
+                                    DatabaseReference tagsReference = Default.TAGS_REFERENCE.child(hashTag).child(postId);
+                                    tagsReference.setValue(prismPost.getTimestamp());
                                 }
 
                                 /* [3] Update each follower's news feed */
                                 DatabaseReference usersReference = Default.USERS_REFERENCE;
                                 ArrayList<String> followers = CurrentUser.getFollowers();
                                 for (String userId : followers) {
-                                    usersReference.child(userId)
+                                    usersReference
+                                            .child(userId)
                                             .child(Key.DB_REF_USER_NEWS_FEED)
                                             .child(postId)
                                             .setValue(prismPost.getTimestamp());
@@ -607,16 +599,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     private PrismPost createPrismPostObjectForUpload(Uri downloadUrl) {
         String imageUri = downloadUrl.toString();
         String description = uploadedImageDescription;
-        String userId = auth.getCurrentUser().getUid();
+        String userId = CurrentUser.getFirebaseUser().getUid();
         Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
         return new PrismPost(imageUri, description, userId, timestamp);
-    }
-
-    /**
-     * Shortcut for displaying a Snackbar message
-     */
-    private void snackTime(String message) {
-        Snackbar.make(mainCoordinateLayout, message, Toast.LENGTH_SHORT).show();
     }
 
     private String getFirebaseKey() {

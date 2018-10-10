@@ -2,7 +2,6 @@ package com.mikechoch.prism.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.constant.Default;

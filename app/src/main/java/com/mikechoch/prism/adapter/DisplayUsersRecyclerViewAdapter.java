@@ -57,9 +57,6 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private FirebaseAuth auth;
-        private DatabaseReference userReference;
-
         private PrismUser prismUser;
         private RelativeLayout userRelativeLayout;
         private ImageView userProfilePicture;
@@ -70,10 +67,6 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
 
         public ViewHolder(View itemView) {
             super(itemView);
-
-            // Cloud database initializations
-            auth = FirebaseAuth.getInstance();
-            userReference = Default.USERS_REFERENCE;
 
             // Initialize all UI elements
             userRelativeLayout = itemView.findViewById(R.id.display_user_relative_layout);

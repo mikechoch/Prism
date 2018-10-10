@@ -44,6 +44,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
@@ -173,7 +174,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         if (extras != null) {
             prismPost = extras.getParcelable(Default.PRISM_POST_DETAIL_EXTRA);
             if (prismPost != null) {
-                parseAllPrismPostData(extras);
+                parseAllPrismPostData();
                 setupUIElements();
             } else {
                 String postId = extras.getString(NotificationKey.PRISM_POST_ID);
@@ -186,20 +187,29 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     private void fetchPrismPostData(String postId) {
-        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-        allPostsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseAction.fetchPrismPost(postId, new OnFetchPrismPostCallback() {
             @Override
-            public void onDataChange(DataSnapshot postSnapshot) {
-                if (postSnapshot.exists()) {
-                    prismPost = Helper.constructPrismPostObject(postSnapshot);
-                    prismPost.setPrismUser(CurrentUser.prismUser);
-                    parseAllPrismPostData(getIntent().getExtras());
-                    setupUIElements();
-                }
+            public void onSuccess(PrismPost post) {
+                prismPost = post;
+                parseAllPrismPostData();
+                setupUIElements();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) { }
+            public void onPostNotFound() {
+                // TODO take user to main activity and display a toast?
+            }
+
+            @Override
+            public void onPostAuthorNotFound() {
+                // TODO this would be messed up, idk what to do here?
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO log this
+                e.printStackTrace();
+            }
         });
     }
 
@@ -213,12 +223,14 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * Get the Intent and then get the PrismPost parcelable
      * Set all of the global variables associated with the PrismPost
      */
-    private void parseAllPrismPostData(Bundle extras) {
+    private void parseAllPrismPostData() {
+        Bundle extras = getIntent().getExtras();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String imageTransitionName = extras.getString(Default.PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA);
             detailImageView.setTransitionName(imageTransitionName);
         }
 
+        // TODO @Mike are these necessary? Why assign them to global variables?
         postId = this.prismPost.getPostId();
         postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
         likeCount = this.prismPost.getLikes();
