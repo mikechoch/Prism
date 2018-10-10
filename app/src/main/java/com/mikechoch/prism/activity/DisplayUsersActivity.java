@@ -15,23 +15,15 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class DisplayUsersActivity extends AppCompatActivity {
@@ -183,13 +175,13 @@ public class DisplayUsersActivity extends AppCompatActivity {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                finishUIActivities();
+                performUIActivities();
             }
 
             @Override
             public void onPrismUsersNotFound() {
                 Log.e(Default.TAG_DB, "No liked users found for post");
-                finishUIActivities();
+                performUIActivities();
             }
 
             @Override
@@ -209,13 +201,13 @@ public class DisplayUsersActivity extends AppCompatActivity {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                finishUIActivities();
+                performUIActivities();
             }
 
             @Override
             public void onPrismUsersNotFound() {
                 Log.e(Default.TAG_DB, "No reposted users found for post");
-                finishUIActivities();
+                performUIActivities();
             }
 
             @Override
@@ -230,89 +222,56 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getFollowings(String userId) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.child(userId).child(Key.DB_REF_USER_FOLLOWINGS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            HashMap<String, Long> userFollowings = new HashMap<>();
-                            userFollowings.putAll((Map) dataSnapshot.getValue());
-                            fetchUserDetails(userFollowings);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.NO_DATA);
-                            finishUIActivities();
-                        }
-                    }
+        DatabaseAction.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+                performUIActivities();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, databaseError.toException());
-                    }
-                });
+            @Override
+            public void onPrismUsersNotFound() {
+                Log.e(Default.TAG_DB, "No followings found for this user");
+                performUIActivities();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+            }
+        });
     }
 
     /**
      * Gets give user's followers and then fetches user details for each userId
      */
     private void getFollowers(String userId) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.child(userId).child(Key.DB_REF_USER_FOLLOWERS)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            HashMap<String, Long> userFollowers = new HashMap<>();
-                            userFollowers.putAll((Map) dataSnapshot.getValue());
-                            fetchUserDetails(userFollowers);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.NO_DATA);
-                            finishUIActivities();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, databaseError.toException());
-                    }
-                });
-    }
-
-
-    /**
-     * Goes over the map of users provided and pulls details for each
-     * firebaseUser in the hashMap and creates a PrismUser object for each user
-     */
-    private void fetchUserDetails(HashMap<String, Long> usersMap) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseAction.fetchPrismUserFollowers(userId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (String userId : usersMap.keySet()) {
-                        if (dataSnapshot.hasChild(userId)) {
-                            PrismUser prismUser = Helper.constructPrismUserObject(dataSnapshot.child(userId));
-                            prismUserArrayList.add(prismUser);
-                        }
-                    }
-                }
-                finishUIActivities();
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+                performUIActivities();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL, databaseError.toException());
+            public void onPrismUsersNotFound() {
+                Log.e(Default.TAG_DB, "No followers found for this user");
+                performUIActivities();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
             }
         });
     }
-
 
     /**
      * Hide the likeRepostProgressBar
      * Show the usersRecyclerView and notifyDataSetChanged on the adapter
      * Update the toolbarTitle and toolbarTextView (handle singular/ plural title)
      */
-    private void finishUIActivities() {
+    private void performUIActivities() {
         usersRecyclerView.setVisibility(View.VISIBLE);
         likeRepostProgressBar.setVisibility(View.GONE);
 

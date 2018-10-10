@@ -9,25 +9,29 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
-import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
+import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
 
@@ -182,8 +186,9 @@ public class DatabaseAction {
                                 CurrentUser.deletePost(prismPost);
 
                                 // Update UI after the post is deleted
-                                MainContentFragment.prismPostArrayList.remove(prismPost);
-                                MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
+                                MainFeedFragment.mainFeedPrismPostArrayList.remove(prismPost);
+                                //TODO: We need to call notify data set changed here
+//                                MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
 
                             } else {
                                 Log.wtf(Default.TAG_DB, Message.NO_DATA);
@@ -473,7 +478,7 @@ public class DatabaseAction {
             @Override
             public void onDataChange(DataSnapshot likedUsersSnapshot) {
                 if (likedUsersSnapshot.exists()) {
-                    Map<String, Long> likedUsers =  (HashMap<String, Long>)  likedUsersSnapshot.getValue();
+                    Map<String, Long> likedUsers =  (HashMap<String, Long>) likedUsersSnapshot.getValue();
                     fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), callback);
                 } else {
                     callback.onPrismUsersNotFound();
@@ -502,7 +507,7 @@ public class DatabaseAction {
             @Override
             public void onDataChange(DataSnapshot repostedUsersSnapshot) {
                 if (repostedUsersSnapshot.exists()) {
-                    Map<String, Long> repostedUsers =  (HashMap<String, Long>)  repostedUsersSnapshot.getValue();
+                    Map<String, Long> repostedUsers =  (HashMap<String, Long>) repostedUsersSnapshot.getValue();
                     fetchPrismUsers(new ArrayList<>(repostedUsers.keySet()), callback);
                 } else {
                     callback.onPrismUsersNotFound();
@@ -516,12 +521,53 @@ public class DatabaseAction {
         });
     }
 
-    /**
-     *
-     * @param prismUserIds
-     * @param callback
-     */
-    private static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
+    public static void fetchPrismUserFollowings(String userId, OnFetchPrismUsersCallback callback) {
+        DatabaseReference userFollowingsReference = Default.USERS_REFERENCE
+                .child(userId)
+                .child(Key.DB_REF_USER_FOLLOWINGS);
+
+        userFollowingsReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userFollowingsSnapshot) {
+                if (userFollowingsSnapshot.exists()) {
+                    Map<String, Long> userFollowings = (HashMap<String, Long>) userFollowingsSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(userFollowings.keySet()), callback);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismUserFollowers(String userId, OnFetchPrismUsersCallback callback) {
+        DatabaseReference userFollowersReference = Default.USERS_REFERENCE
+                .child(userId)
+                .child(Key.DB_REF_USER_FOLLOWERS);
+
+        userFollowersReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userFollowersSnapshot) {
+                if (userFollowersSnapshot.exists()) {
+                    Map<String, Long> userFollowers = (HashMap<String, Long>) userFollowersSnapshot.getValue();
+                    fetchPrismUsers(new ArrayList<>(userFollowers.keySet()), callback);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -537,6 +583,42 @@ public class DatabaseAction {
                     }
                 }
                 callback.onSuccess(prismUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismPost(String prismPostId, OnFetchPrismPostCallback callback) {
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPostId);
+        postReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot postSnapshot) {
+                if (postSnapshot.exists()) {
+                    PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                    fetchPrismUser(prismPost.getUid(), new OnFetchPrismUserCallback() {
+                        @Override
+                        public void onSuccess(PrismUser prismUser) {
+                            prismPost.setPrismUser(prismUser);
+                            callback.onSuccess(prismPost);
+                        }
+
+                        @Override
+                        public void onUserNotFound() {
+                            callback.onPostAuthorNotFound();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    callback.onPostNotFound();
+                }
             }
 
             @Override
@@ -571,10 +653,22 @@ public class DatabaseAction {
         });
     }
 
-    /**
-     *
-     * @param callback
-     */
+    public static void sendVerificationEmail(FirebaseUser user, OnSendVerificationEmailCallback callback) {
+        user.sendEmailVerification()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
+
     public static void performMaintenanceCheck(OnMaintenanceCheckCallback callback) {
         DatabaseReference appStatusReference = Default.APP_STATUS_REFERENCE;
         appStatusReference.addListenerForSingleValueEvent(new ValueEventListener() {

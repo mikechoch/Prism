@@ -79,7 +79,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:padding="8dp"
-                android:foreground="@drawable/setting_option_selector">
+                android:foreground="@drawable/setting_option_selector"
+                android:visibility="gone">
 
                 <RelativeLayout
                     android:id="@+id/profile_fragment_analytics_relative_layout"

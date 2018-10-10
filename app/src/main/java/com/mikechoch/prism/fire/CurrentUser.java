@@ -25,7 +25,6 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
-import com.mikechoch.prism.fragment.MainContentFragment;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -366,7 +365,8 @@ public class CurrentUser {
         IncomingNotificationController.initializeNotifications();
 
         if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
-            MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
+            //TODO: We need to call notify data set changed here
+//            MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
             updateUserProfileFragmentUI(context);
 
         } else {

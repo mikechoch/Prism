@@ -1,6 +1,7 @@
 package com.mikechoch.prism.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,74 +21,42 @@ import com.mikechoch.prism.adapter.NotificationRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
+
 public class NotificationFragment extends Fragment {
 
-    private DatabaseReference databaseReferenceAllPosts;
-    private DatabaseReference usersReference;
-
-    private RelativeLayout noNotificationRelativeLayout;
-    private TextView noNotificationTextView;
-    private RecyclerView notificationRecyclerView;
-    public static NotificationRecyclerViewAdapter notificationRecyclerViewAdapter;
     private ProgressBar notificationProgressBar;
-
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
     private SwipeRefreshLayout notificationSwipeRefreshLayout;
+    private RecyclerView notificationRecyclerView;
+    private RelativeLayout noNotificationsRelativeLayout;
+    private TextView noNotificationsTextView;
+
+    public static NotificationRecyclerViewAdapter notificationRecyclerViewAdapter;
 
     public static ArrayList<Notification> notificationArrayList;
 
-    public static final NotificationFragment newInstance() {
-        NotificationFragment notificationFragment = new NotificationFragment();
-        return notificationFragment;
+
+    public static NotificationFragment newInstance() {
+        return new NotificationFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.notifications_fragment_layout, container, false);
 
         notificationProgressBar = view.findViewById(R.id.notification_progress_bar);
-        noNotificationRelativeLayout = view.findViewById(R.id.no_notification_relative_layout);
-        noNotificationTextView = view.findViewById(R.id.no_notification_text_view);
-        noNotificationTextView.setTypeface(Default.sourceSansProLight);
-
-         /*
-         * The main purpose of this NotificationFragment is to hold all notifications for the user
-         * The RecyclerView being created below will show all of the most recent notifications
-         * The notifications shown will be for likes, reposts, and following related actions
-         */
+        notificationSwipeRefreshLayout = view.findViewById(R.id.notification_swipe_refresh_layout);
         notificationRecyclerView = view.findViewById(R.id.notification_recycler_view);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(),
-                linearLayoutManager.getOrientation());
-        dividerItemDecoration.setDrawable(getContext().getResources().getDrawable(R.drawable.recycler_view_divider));
-        notificationRecyclerView.setLayoutManager(linearLayoutManager);
-        notificationRecyclerView.setItemAnimator(defaultItemAnimator);
-        notificationRecyclerView.addItemDecoration(dividerItemDecoration);
-        notificationRecyclerView.setItemViewCacheSize(20);
+        noNotificationsRelativeLayout = view.findViewById(R.id.no_notification_relative_layout);
+        noNotificationsTextView = view.findViewById(R.id.no_notification_text_view);
 
+        notificationArrayList = new ArrayList<>();
         notificationArrayList = CurrentUser.getNotifications();
 
-        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), notificationArrayList);
-        notificationRecyclerView.setAdapter(notificationRecyclerViewAdapter);
-
-        notificationSwipeRefreshLayout = view.findViewById(R.id.notification_swipe_refresh_layout);
-        notificationSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
-        notificationSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                notificationRecyclerViewAdapter.notifyDataSetChanged();
-                notificationSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        setupInterfaceElements();
 
         return view;
     }
@@ -100,4 +69,49 @@ public class NotificationFragment extends Fragment {
             notification.setViewed(true);
         }
     }
+
+    /**
+     *
+     */
+    private void setupNotificationSwipeRefreshLayout() {
+        notificationSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
+        notificationSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                notificationRecyclerViewAdapter.notifyDataSetChanged();
+                notificationSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    /**
+     * The main purpose of this NotificationFragment is to hold all notifications for the user
+     * The RecyclerView being created below will show all of the most recent notifications
+     * The notifications shown will be for likes, reposts, and following related actions
+     */
+    private void setupNotificationRecyclerView() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(),
+                linearLayoutManager.getOrientation());
+        dividerItemDecoration.setDrawable(getActivity().getResources().getDrawable(R.drawable.recycler_view_divider));
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
+        notificationRecyclerView.setItemAnimator(defaultItemAnimator);
+        notificationRecyclerView.addItemDecoration(dividerItemDecoration);
+        notificationRecyclerView.setItemViewCacheSize(20);
+
+        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), notificationArrayList);
+        notificationRecyclerView.setAdapter(notificationRecyclerViewAdapter);
+    }
+
+    /**
+     * Setup elements in current fragment
+     */
+    private void setupInterfaceElements() {
+        noNotificationsTextView.setTypeface(Default.sourceSansProLight);
+
+        setupNotificationRecyclerView();
+        setupNotificationSwipeRefreshLayout();
+    }
+
 }

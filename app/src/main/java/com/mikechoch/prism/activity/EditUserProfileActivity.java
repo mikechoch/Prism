@@ -195,16 +195,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
                     attemptUpdateFullName(newFullName, dialog);
                 }
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null
-        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) { }
-        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) { }
-        });
+        }).setNegativeButton(Default.BUTTON_CANCEL, null);
         return changeFullNameAlertDialog;
-        // TODO Can we cancel the onDismiss and onCancel listeners, they don't do anything?
     }
 
     /**
@@ -245,15 +237,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
             }
         });
         changeUsernameAlertDialog.setNegativeButton(Default.BUTTON_CANCEL, null);
-        changeUsernameAlertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) { }
-        });
-        changeUsernameAlertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) { }
-        });
-
         return changeUsernameAlertDialog;
     }
 
@@ -413,18 +396,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
 
             }
-        }).setNegativeButton(Default.BUTTON_CANCEL, null
-        ).setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-
-            }
-        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-
-            }
-        });
+        }).setNegativeButton(Default.BUTTON_CANCEL, null);
 
         return changeEmailAlertDialog;
     }
@@ -494,7 +466,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
      * @param usernameTextInputLayout
      */
     private void attemptUpdateUsername(String oldUsername, String newUsername, DialogInterface dialog, TextInputLayout usernameTextInputLayout) {
-
         FirebaseProfileAction.changeUsername(oldUsername, newUsername, new OnChangeUsernameCallback() {
             @Override
             public void onSuccess() {
@@ -547,7 +518,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
     }
 
     private void attemptUpdateEmail(String password, String newEmail, DialogInterface dialog) {
-
         FirebaseProfileAction.changeEmail(password, newEmail, new OnChangeEmailCallback() {
             @Override
             public void onSuccess() {

@@ -30,67 +30,88 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
 
-public class MainContentFragment extends Fragment {
+public class MainFeedFragment extends Fragment {
 
     private DatabaseReference databaseReferenceAllPosts;
     private DatabaseReference usersReference;
 
-    private RelativeLayout noMainPostsRelativeLayout;
-    private TextView noMainPostsTextView;
-    private RecyclerView mainContentRecyclerView;
-    private PrismPostRecyclerViewAdapter mainContentRecyclerViewAdapter;
-    private ProgressBar mainContentProgressBar;
+    private ProgressBar mainFeedProgressBar;
+    private RelativeLayout noMainFeedRelativeLayout;
+    private TextView noMainFeedTextView;
+    private SwipeRefreshLayout mainFeedSwipeRefreshLayout;
+    private PrismPostRecyclerViewAdapter mainFeedRecyclerViewAdapter;
+    private RecyclerView mainFeedRecyclerView;
 
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
-    private SwipeRefreshLayout mainContentSwipeRefreshLayout;
-
-    public static ArrayList<PrismPost> prismPostArrayList;
+    public static ArrayList<PrismPost> mainFeedPrismPostArrayList;
     private boolean isLoading = false;
 
 
-    public static MainContentFragment newInstance() {
-        return new MainContentFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        prismPostArrayList = new ArrayList<>();
-
-        databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
-        refreshData();
+    public static MainFeedFragment newInstance() {
+        return new MainFeedFragment();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.main_content_fragment_layout, container, false);
+        View view = inflater.inflate(R.layout.main_feed_fragment_layout, container, false);
 
-        mainContentProgressBar = view.findViewById(R.id.main_content_progress_bar);
-        noMainPostsRelativeLayout = view.findViewById(R.id.no_main_posts_relative_layout);
-        noMainPostsTextView = view.findViewById(R.id.no_main_posts_text_view);
-        noMainPostsTextView.setTypeface(Default.sourceSansProLight);
+        mainFeedProgressBar = view.findViewById(R.id.main_feed_fragment_progress_bar);
+        mainFeedSwipeRefreshLayout = view.findViewById(R.id.main_content_swipe_refresh_layout);
+        mainFeedRecyclerView = view.findViewById(R.id.main_content_recycler_view);
+        noMainFeedRelativeLayout = view.findViewById(R.id.no_main_posts_relative_layout);
+        noMainFeedTextView = view.findViewById(R.id.no_main_posts_text_view);
+        noMainFeedTextView.setTypeface(Default.sourceSansProLight);
 
-        /*
-         * The main purpose of this MainContentFragment is to be a Home page of the application
-         * The RecyclerView being created below will show all of the most recent posts
-         * The posts shown will be of people the firebaseUser follows
-         */
-        mainContentRecyclerView = view.findViewById(R.id.main_content_recycler_view);
+        databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
+        usersReference = Default.USERS_REFERENCE;
+
+        mainFeedPrismPostArrayList = new ArrayList<>();
+
+        setupInterfaceElements();
+
+        return view;
+    }
+
+    /**
+     * SwipeRefreshLayout OnRefreshListener handles fetching new data from the cloud database
+     * Checks that isLoading is false and the totalItemCount is > then the image threshold
+     * Then will call refreshData
+     * Otherwise stop refreshing
+     */
+    private void setupMainFeedRefreshSwipeLayout() {
+        mainFeedSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
+        mainFeedSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (!isLoading || !(mainFeedRecyclerViewAdapter.getItemCount() < Default.IMAGE_LOAD_THRESHOLD)) {
+                    CurrentUser.refreshUserProfile(getContext());
+                    refreshData();
+                } else {
+                    mainFeedSwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
+    }
+
+    /**
+     * The main purpose of this MainFeedFragment is to be a Home page of the application
+     * The RecyclerView being created below will show all of the most recent posts
+     * The posts shown will be of people the firebaseUser follows
+     */
+    private void setupMainFeedRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(),
                 linearLayoutManager.getOrientation());
         dividerItemDecoration.setDrawable(getActivity().getResources().getDrawable(R.drawable.recycler_view_divider));
-        mainContentRecyclerView.setLayoutManager(linearLayoutManager);
-        mainContentRecyclerView.setItemAnimator(defaultItemAnimator);
-        mainContentRecyclerView.addItemDecoration(dividerItemDecoration);
-        mainContentRecyclerView.setItemViewCacheSize(20);
+        mainFeedRecyclerView.setLayoutManager(linearLayoutManager);
+        mainFeedRecyclerView.setItemAnimator(defaultItemAnimator);
+        mainFeedRecyclerView.addItemDecoration(dividerItemDecoration);
+        mainFeedRecyclerView.setItemViewCacheSize(20);
 
         /*
          * The OnScrollListener is handling the toggling of the isLoading boolean
@@ -99,7 +120,7 @@ public class MainContentFragment extends Fragment {
          * As new data is pulled this threshold is met
          * This avoids conflicts with swipe refreshing while pulling old data
          */
-        mainContentRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mainFeedRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -114,45 +135,19 @@ public class MainContentFragment extends Fragment {
             }
         });
 
-        mainContentRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
-            @Override
-            public void onChildViewAttachedToWindow(View view) { }
+        mainFeedRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), mainFeedPrismPostArrayList);
+        mainFeedRecyclerView.setAdapter(mainFeedRecyclerViewAdapter);
 
-            @Override
-            public void onChildViewDetachedFromWindow(View view) {
-//                ImageView heartAnimationImageView = view.findViewById(R.id.recycler_view_like_heart);
-//                ImageView repostAnimationImageView = view.findViewById(R.id.recycler_view_repost_iris);
-//                heartAnimationImageView.setVisibility(View.INVISIBLE);
-//                repostAnimationImageView.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        mainContentRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), prismPostArrayList);
-        mainContentRecyclerView.setAdapter(mainContentRecyclerViewAdapter);
-
-        /*
-         * SwipeRefreshLayout OnRefreshListener handles fetching new data from the cloud database
-         * Checks that isLoading is false and the totalItemCount is > then the image threshold
-         * Then will call refreshData
-         * Otherwise stop refreshing
-         */
-        mainContentSwipeRefreshLayout = view.findViewById(R.id.main_content_swipe_refresh_layout);
-        mainContentSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
-        mainContentSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (!isLoading || !(mainContentRecyclerViewAdapter.getItemCount() < Default.IMAGE_LOAD_THRESHOLD)) {
-                    CurrentUser.refreshUserProfile(getContext());
-                    refreshData();
-                } else {
-                    mainContentSwipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        });
-
-        return view;
+        refreshData();
     }
 
+    /**
+     * Setup elements of current fragment
+     */
+    private void setupInterfaceElements() {
+        setupMainFeedRecyclerView();
+        setupMainFeedRefreshSwipeLayout();
+    }
 
     /**
      *  Clears the data structure and pulls ALL_POSTS info again from cloud
@@ -162,8 +157,8 @@ public class MainContentFragment extends Fragment {
      */
     private void refreshData() {
         // TODO uncomment this and put this in News Feed section
-        // prismPostArrayList.clear();
-        // prismPostArrayList.addAll(CurrentUser.news_feed);
+        // mainFeedPrismPostArrayList.clear();
+        // mainFeedPrismPostArrayList.addAll(CurrentUser.news_feed);
         Query query = databaseReferenceAllPosts.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -173,27 +168,21 @@ public class MainContentFragment extends Fragment {
                  * Iterate through the DataSnapshot and add all new data to the data structures
                  * Notify RecyclerView after items are added to data structures
                  */
-
-                prismPostArrayList.clear();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mainContentRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                });
+                mainFeedPrismPostArrayList.clear();
+                mainFeedRecyclerViewAdapter.notifyDataSetChanged();
 
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                        prismPostArrayList.add(prismPost);
+                        mainFeedPrismPostArrayList.add(prismPost);
                     }
-                    noMainPostsRelativeLayout.setVisibility(View.GONE);
+                    noMainFeedRelativeLayout.setVisibility(View.GONE);
                     populateUserDetailsForAllPosts(true);
                 } else {
                     Log.i(Default.TAG_DB, Message.NO_DATA);
-                    noMainPostsRelativeLayout.setVisibility(View.VISIBLE);
-                    mainContentSwipeRefreshLayout.setRefreshing(false);
-                    mainContentProgressBar.setVisibility(View.GONE);
+                    noMainFeedRelativeLayout.setVisibility(View.VISIBLE);
+                    mainFeedSwipeRefreshLayout.setRefreshing(false);
+                    mainFeedProgressBar.setVisibility(View.GONE);
                 }
             }
 
@@ -204,7 +193,6 @@ public class MainContentFragment extends Fragment {
         });
     }
 
-
     /**
      *  Pulls more data (for ALL_POSTS) from cloud, typically when firebaseUser is about to
      *  reach the end of the list. It first gets the timestamp of the last post in
@@ -212,7 +200,7 @@ public class MainContentFragment extends Fragment {
      *  appends them back to the end of the arrayList and the HashMap
      */
     private void fetchMorePosts() {
-        long lastPostTimestamp = prismPostArrayList.get(prismPostArrayList.size() - 1).getTimestamp();
+        long lastPostTimestamp = mainFeedPrismPostArrayList.get(mainFeedPrismPostArrayList.size() - 1).getTimestamp();
         //toast("Fetching more pics");
         databaseReferenceAllPosts
                 .orderByChild(Key.POST_TIMESTAMP)
@@ -224,13 +212,13 @@ public class MainContentFragment extends Fragment {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                 PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                                prismPostArrayList.add(prismPost);
+                                mainFeedPrismPostArrayList.add(prismPost);
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (prismPostArrayList.size() > 0) {
-                                            mainContentRecyclerViewAdapter
-                                                    .notifyItemInserted(prismPostArrayList.size());
+                                        if (mainFeedPrismPostArrayList.size() > 0) {
+                                            mainFeedRecyclerViewAdapter
+                                                    .notifyItemInserted(mainFeedPrismPostArrayList.size());
                                         }
                                     }
                                 });
@@ -261,17 +249,17 @@ public class MainContentFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    for (PrismPost post : prismPostArrayList) {
+                    for (PrismPost post : mainFeedPrismPostArrayList) {
                         DataSnapshot userSnapshot = dataSnapshot.child(post.getUid());
                         PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
                         post.setPrismUser(prismUser);
                     }
-                    mainContentSwipeRefreshLayout.setRefreshing(false);
+                    mainFeedSwipeRefreshLayout.setRefreshing(false);
 
                     // gets called inside refreshData()
                     if (updateRecyclerViewAdapter) {
-                        mainContentProgressBar.setVisibility(View.GONE);
-                        mainContentRecyclerViewAdapter.notifyDataSetChanged();
+                        mainFeedProgressBar.setVisibility(View.GONE);
+                        mainFeedRecyclerViewAdapter.notifyDataSetChanged();
                     }
                 } else {
                     Log.i(Default.TAG_DB, Message.NO_DATA);

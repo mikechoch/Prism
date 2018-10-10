@@ -35,11 +35,6 @@ public class LikedPostsFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
         
@@ -74,7 +69,7 @@ public class LikedPostsFragment extends Fragment {
         if (userLikedPosts != null && userLikedPosts.size() > 0) {
             new PrismPostStaggeredGridRecyclerView(getActivity(), userLikedPostsLinearLayout, userLikedPosts);
         } else {
-            View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null, false);
+            View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null);
 
             Drawable noPostsDrawable = getResources().getDrawable(R.drawable.no_liked_posts_icon);
             ImageView noPostsImageView = noPostsView.findViewById(R.id.no_posts_image_view);
@@ -89,7 +84,7 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     * Setup all interface elements for current fragment
+     * Setup elements in current fragment
      */
     private void setupInterfaceElements() {
         setupUploadedRepostedSwipeRefreshLayout();

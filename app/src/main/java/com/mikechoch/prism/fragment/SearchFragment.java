@@ -49,9 +49,8 @@ public class SearchFragment extends Fragment {
     private static ArrayList<Object> prismTags;
 
 
-    public static final SearchFragment newInstance() {
-        SearchFragment searchFragment = new SearchFragment();
-        return searchFragment;
+    public static SearchFragment newInstance() {
+        return new SearchFragment();
     }
 
     @Override
