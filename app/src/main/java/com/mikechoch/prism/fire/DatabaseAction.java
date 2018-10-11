@@ -26,6 +26,7 @@ import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
@@ -452,6 +453,26 @@ public class DatabaseAction {
         });
     }
 
+    public static void fetchPrismPostsForTag(String tag, OnFetchPrismPostsCallback callback) {
+        DatabaseReference tagReference = Default.TAGS_REFERENCE.child(tag);
+        tagReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot postsSnapshot) {
+                if (postsSnapshot.exists()) {
+                    Map<String, Long> taggedPosts =  (HashMap<String, Long>) postsSnapshot.getValue();
+                    fetchPrismPosts(new ArrayList<>(taggedPosts.keySet()), callback);
+                } else {
+                    callback.onPrismPostsNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public static void fetchLikedUsers(String postId, OnFetchPrismUsersCallback callback) {
         DatabaseReference likedUsersReference = Default.ALL_POSTS_REFERENCE
                 .child(postId)
@@ -550,8 +571,8 @@ public class DatabaseAction {
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
-                ArrayList<PrismUser> prismUsers = new ArrayList<>();
                 if (usersSnapshot.exists()) {
+                    ArrayList<PrismUser> prismUsers = new ArrayList<>();
                     for (String userId : prismUserIds) {
                         DataSnapshot userSnapshot = usersSnapshot.child(userId);
                         if (userSnapshot.exists()) {
@@ -559,8 +580,66 @@ public class DatabaseAction {
                             prismUsers.add(prismUser);
                         }
                     }
+                    callback.onSuccess(prismUsers);
+                } else {
+                    callback.onPrismUsersNotFound();
                 }
-                callback.onSuccess(prismUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismUsers(ArrayList<PrismPost> prismPosts, OnFetchPrismPostsCallback callback) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                if (usersSnapshot.exists()) {
+                    for (PrismPost prismPost : prismPosts) {
+                        DataSnapshot userSnapshot = usersSnapshot.child(prismPost.getUid());
+                        if (userSnapshot.exists()) {
+                            PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                            prismPost.setPrismUser(prismUser);
+                        } else {
+                            prismPosts.remove(prismPost);
+                            // TODO Log this - this shouldn't happen
+                        }
+                    }
+                    callback.onSuccess(prismPosts);
+                } else {
+                    callback.onPrismPostsNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchPrismPosts(ArrayList<String> prismPostIds, OnFetchPrismPostsCallback callback) {
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference.orderByChild(Key.POST_TIMESTAMP).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot allPostsSnapshot) {
+                if (allPostsSnapshot.exists()) {
+                    ArrayList<PrismPost> prismPosts = new ArrayList<>();
+                    for (String postId : prismPostIds) {
+                        DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+                        if (postSnapshot.exists()) {
+                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                            prismPosts.add(prismPost);
+                        }
+                    }
+                    fetchPrismUsers(prismPosts, callback);
+                } else {
+                    callback.onPrismPostsNotFound();
+                }
             }
 
             @Override
