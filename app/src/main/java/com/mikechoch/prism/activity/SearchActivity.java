@@ -24,7 +24,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.SearchTypeViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.fragment.PeopleSearchFragment;
 import com.mikechoch.prism.fragment.TagSearchFragment;
 import com.mikechoch.prism.helper.Helper;
@@ -39,10 +41,6 @@ public class SearchActivity  extends AppCompatActivity {
     private ImageView searchBarClearButton;
     private TabLayout searchTypeTabLayout;
     private ViewPager searchTypeViewPager;
-
-    private DatabaseReference allPostReference;
-    private DatabaseReference usersReference;
-    private DatabaseReference tagsReference;
 
     public static ArrayList<PrismUser> prismUserArrayList;
 
@@ -80,10 +78,6 @@ public class SearchActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_activity_layout);
-
-        allPostReference = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
-        tagsReference = Default.TAGS_REFERENCE;
 
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
@@ -148,20 +142,22 @@ public class SearchActivity  extends AppCompatActivity {
      * WE HAVE A LOT OF USERS
      */
     private void populateUsersCollection() {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                                prismUserArrayList.add(prismUser);
-                            }
-                        }
-                    }
+        DatabaseRead.fetchAllUsers(new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
+            @Override
+            public void onPrismUsersNotFound() {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 
     @Override
@@ -196,6 +192,7 @@ public class SearchActivity  extends AppCompatActivity {
 
             Handler handler = new Handler(Looper.getMainLooper());
             Runnable runnable;
+            DatabaseReference tagsReference = Default.TAGS_REFERENCE;
             Query tagsReferenceQuery = tagsReference.orderByKey();
             ValueEventListener listener = new ValueEventListener() {
                 @Override

@@ -359,6 +359,32 @@ public class DatabaseRead {
         });
     }
 
+    /* THIS IS VERY INEFFICIENT AND WILL NEED
+     * TO BE REDONE AFTER 1000 USERS  */
+    public static void fetchAllUsers(OnFetchPrismUsersCallback callback) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                if (usersSnapshot.exists()) {
+                    ArrayList<PrismUser> users = new ArrayList<>();
+                    for (DataSnapshot userSnapshot : usersSnapshot.getChildren()) {
+                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                        users.add(prismUser);
+                    }
+                    callback.onSuccess(users);
+                } else {
+                    callback.onPrismUsersNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
     private static void populateCurrentUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
