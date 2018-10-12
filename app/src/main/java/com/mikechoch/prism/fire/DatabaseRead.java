@@ -139,6 +139,54 @@ public class DatabaseRead {
         });
     }
 
+    public static void fetchPrismUserUploadedPosts(PrismUser prismUser, OnFetchPrismPostsCallback callback) {
+        DatabaseReference userUploadedPostsReference = Default.USERS_REFERENCE
+                .child(prismUser.getUid())
+                .child(Key.DB_REF_USER_UPLOADS);
+
+        userUploadedPostsReference.orderByChild(Key.POST_TIMESTAMP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot uploadedPostsSnapshot) {
+                        if (uploadedPostsSnapshot.exists()) {
+                            Map<String, Long> userUploads = (HashMap<String, Long>) uploadedPostsSnapshot.getValue();
+                            fetchPrismPosts(new ArrayList<>(userUploads.keySet()), callback);
+                        } else {
+                            callback.onPrismPostsNotFound();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        callback.onFailure(databaseError.toException());
+                    }
+                });
+    }
+
+    public static void fetchPrismUserRepostedPosts(PrismUser prismUser, OnFetchPrismPostsCallback callback) {
+        DatabaseReference userRepostedPostsReference = Default.USERS_REFERENCE
+                .child(prismUser.getUid())
+                .child(Key.DB_REF_USER_REPOSTS);
+
+        userRepostedPostsReference.orderByChild(Key.POST_TIMESTAMP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot repostedPostsSnapshot) {
+                        if (repostedPostsSnapshot.exists()) {
+                            Map<String, Long> userReposts = (HashMap<String, Long>) repostedPostsSnapshot.getValue();
+                            fetchPrismPosts(new ArrayList<>(userReposts.keySet()), callback);
+                        } else {
+                            callback.onPrismPostsNotFound();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        callback.onFailure(databaseError.toException());
+                    }
+                });
+    }
+
     public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -300,7 +348,7 @@ public class DatabaseRead {
                     CurrentUser.followers = ProfileBuilder.fetchUserFollowers(currentUserSnapshot);
                     CurrentUser.followings = ProfileBuilder.fetchUserFollowings(currentUserSnapshot);
 
-                    populateUserProfilePosts(usersSnapshot, callback);
+                    populateCurrentUserProfilePosts(usersSnapshot, callback);
                 }
             }
             @Override
@@ -311,7 +359,7 @@ public class DatabaseRead {
         });
     }
 
-    private static void populateUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
+    private static void populateCurrentUserProfilePosts(DataSnapshot usersSnapshot, OnFetchUserProfileCallback callback) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
