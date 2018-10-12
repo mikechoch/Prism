@@ -244,7 +244,7 @@ public class CurrentUser {
         notifications = new ArrayList<>();
 
         if (Helper.isNetworkAvailable(context)) {
-            DatabaseAction.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
+            DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
                     CurrentUser.refreshInterface(context, intent);

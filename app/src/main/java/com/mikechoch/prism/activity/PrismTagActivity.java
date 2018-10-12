@@ -7,7 +7,6 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,28 +14,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fire.CurrentUser;
-import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PrismTagActivity extends AppCompatActivity {
 
@@ -99,7 +86,7 @@ public class PrismTagActivity extends AppCompatActivity {
         Intent intent = getIntent();
         tag = intent.getStringExtra(Default.CLICKED_TAG_EXTRA);
 
-        DatabaseAction.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
+        DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
             @Override
             public void onSuccess(ArrayList<PrismPost> prismPosts) {
                 prismTagPostsArrayList.addAll(prismPosts);
