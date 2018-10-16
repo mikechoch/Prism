@@ -24,6 +24,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -156,47 +157,30 @@ public class MainContentFragment extends Fragment {
      *  a HashMap of PrismObjects
      */
     private void refreshData() {
-        // TODO uncomment this and put this in News Feed section
-        // prismPostArrayList.clear();
-        // prismPostArrayList.addAll(CurrentUser.news_feed);
-
-
-        Query allPostsReference = Default.ALL_POSTS_REFERENCE.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
-        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                /*
-                 * Notify that all RecyclerView data will be cleared and then clear all data structures
-                 * Iterate through the DataSnapshot and add all new data to the data structures
-                 * Notify RecyclerView after items are added to data structures
-                 */
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                noMainPostsRelativeLayout.setVisibility(View.GONE);
+                mainContentProgressBar.setVisibility(View.GONE);
+                mainContentSwipeRefreshLayout.setRefreshing(false);
 
                 prismPostArrayList.clear();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mainContentRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                });
-
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                        prismPostArrayList.add(prismPost);
-                    }
-                    noMainPostsRelativeLayout.setVisibility(View.GONE);
-                    populateUserDetailsForAllPosts(true);
-                } else {
-                    Log.i(Default.TAG_DB, Message.NO_DATA);
-                    noMainPostsRelativeLayout.setVisibility(View.VISIBLE);
-                    mainContentSwipeRefreshLayout.setRefreshing(false);
-                    mainContentProgressBar.setVisibility(View.GONE);
-                }
+                prismPostArrayList.addAll(prismPosts);
+                mainContentRecyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
+            public void onPrismPostsNotFound() {
+                Log.i(Default.TAG_DB, Message.NO_DATA);
+                noMainPostsRelativeLayout.setVisibility(View.VISIBLE);
+                mainContentSwipeRefreshLayout.setRefreshing(false);
+                mainContentProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
             }
         });
     }
@@ -210,78 +194,29 @@ public class MainContentFragment extends Fragment {
      */
     private void fetchMorePosts() {
         long lastPostTimestamp = prismPostArrayList.get(prismPostArrayList.size() - 1).getTimestamp();
-        //toast("Fetching more pics");
-        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
-        allPostsReference
-                .orderByChild(Key.POST_TIMESTAMP)
-                .startAt(lastPostTimestamp + 1)
-                .limitToFirst(Default.IMAGE_LOAD_COUNT)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                                prismPostArrayList.add(prismPost);
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (prismPostArrayList.size() > 0) {
-                                            mainContentRecyclerViewAdapter
-                                                    .notifyItemInserted(prismPostArrayList.size());
-                                        }
-                                    }
-                                });
 
-                            }
-                            populateUserDetailsForAllPosts(false);
-                        } else {
-                            Log.i(Default.TAG_DB, Message.NO_DATA);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
-    }
-
-    /**
-     * Once all posts are loaded into the prismPostHashMap,
-     * this method iterates over each post, grabs firebaseUser's details
-     * for the post like "profilePicUri" and "username" and
-     * updates the prismPost objects in that hashMap and then
-     * updates the RecyclerViewAdapter so the UI gets updated
-     */
-    private void populateUserDetailsForAllPosts(boolean updateRecyclerViewAdapter) {
-        DatabaseReference usersReference = Default.USERS_REFERENCE;
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchMorePrismPosts(lastPostTimestamp, new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (PrismPost post : prismPostArrayList) {
-                        DataSnapshot userSnapshot = dataSnapshot.child(post.getUid());
-                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                        post.setPrismUser(prismUser);
-                    }
-                    mainContentSwipeRefreshLayout.setRefreshing(false);
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                mainContentProgressBar.setVisibility(View.GONE);
+                mainContentSwipeRefreshLayout.setRefreshing(false);
 
-                    // gets called inside refreshData()
-                    if (updateRecyclerViewAdapter) {
-                        mainContentProgressBar.setVisibility(View.GONE);
-                        mainContentRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                } else {
-                    Log.i(Default.TAG_DB, Message.NO_DATA);
-                }
+                prismPostArrayList.addAll(prismPosts);
+                mainContentRecyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL, databaseError.toException());
+            public void onPrismPostsNotFound() {
+                Log.i(Default.TAG_DB, Message.NO_DATA);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
             }
         });
+
     }
 
 }

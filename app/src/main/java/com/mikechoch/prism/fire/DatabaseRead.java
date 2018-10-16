@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -231,6 +232,54 @@ public class DatabaseRead {
                         }
                     }
                     callback.onSuccess(prismPosts);
+                } else {
+                    callback.onPrismPostsNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchLatestPrismPosts(OnFetchPrismPostsCallback callback) {
+        Query allPostsReference = Default.ALL_POSTS_REFERENCE.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
+        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot allPostsSnapshot) {
+                if (allPostsSnapshot.exists()) {
+                    ArrayList<PrismPost> prismPosts = new ArrayList<>();
+                    for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
+                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                        prismPosts.add(prismPost);
+                    }
+                    fetchPrismUsers(prismPosts, callback);
+                } else {
+                    callback.onPrismPostsNotFound();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure(databaseError.toException());
+            }
+        });
+    }
+
+    public static void fetchMorePrismPosts(long lastPostTimestamp, OnFetchPrismPostsCallback callback) {
+        Query morePostsReference = Default.ALL_POSTS_REFERENCE.orderByChild(Key.POST_TIMESTAMP).startAt(lastPostTimestamp + 1).limitToFirst(Default.IMAGE_LOAD_COUNT);
+        morePostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot allPostsSnapshot) {
+                if (allPostsSnapshot.exists()) {
+                    ArrayList<PrismPost> prismPosts = new ArrayList<>();
+                    for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
+                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                        prismPosts.add(prismPost);
+                    }
+                    fetchPrismUsers(prismPosts, callback);
                 } else {
                     callback.onPrismPostsNotFound();
                 }
