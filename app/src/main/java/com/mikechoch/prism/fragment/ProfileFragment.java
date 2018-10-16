@@ -28,9 +28,6 @@ import com.mikechoch.prism.type.Setting;
 
 public class ProfileFragment extends Fragment {
 
-    private FirebaseAuth auth;
-    private DatabaseReference userReference;
-    
     private CardView viewProfileCardView;
     private RecyclerView settingsRecyclerView;
     private TextView userFullNameTextView;
@@ -48,10 +45,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        auth = FirebaseAuth.getInstance();
-        userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
-
     }
 
     @Override

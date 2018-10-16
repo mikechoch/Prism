@@ -28,15 +28,13 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 
 
 public class MainContentFragment extends Fragment {
-
-    private DatabaseReference databaseReferenceAllPosts;
-    private DatabaseReference usersReference;
 
     private RelativeLayout noMainPostsRelativeLayout;
     private TextView noMainPostsTextView;
@@ -62,8 +60,6 @@ public class MainContentFragment extends Fragment {
 
         prismPostArrayList = new ArrayList<>();
 
-        databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
         refreshData();
     }
 
@@ -163,8 +159,10 @@ public class MainContentFragment extends Fragment {
         // TODO uncomment this and put this in News Feed section
         // prismPostArrayList.clear();
         // prismPostArrayList.addAll(CurrentUser.news_feed);
-        Query query = databaseReferenceAllPosts.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        Query allPostsReference = Default.ALL_POSTS_REFERENCE.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
+        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 /*
@@ -213,7 +211,8 @@ public class MainContentFragment extends Fragment {
     private void fetchMorePosts() {
         long lastPostTimestamp = prismPostArrayList.get(prismPostArrayList.size() - 1).getTimestamp();
         //toast("Fetching more pics");
-        databaseReferenceAllPosts
+        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+        allPostsReference
                 .orderByChild(Key.POST_TIMESTAMP)
                 .startAt(lastPostTimestamp + 1)
                 .limitToFirst(Default.IMAGE_LOAD_COUNT)
@@ -256,6 +255,7 @@ public class MainContentFragment extends Fragment {
      * updates the RecyclerViewAdapter so the UI gets updated
      */
     private void populateUserDetailsForAllPosts(boolean updateRecyclerViewAdapter) {
+        DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

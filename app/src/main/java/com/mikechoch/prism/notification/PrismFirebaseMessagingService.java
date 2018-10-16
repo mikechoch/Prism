@@ -35,6 +35,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * TODO everything in this class needs to be commented
+     * Create a NotificationParser
      */
 
     NotificationManager notificationManager;

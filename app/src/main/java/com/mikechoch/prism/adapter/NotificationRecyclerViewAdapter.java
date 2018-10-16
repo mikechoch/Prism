@@ -67,11 +67,6 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private FirebaseAuth auth;
-        private DatabaseReference postAuthorUserReference;
-        private StorageReference storageReference;
-        private DatabaseReference allPostsReference;
-
         private RelativeLayout notificationRelativeLayout;
         private ImageView userProfilePicImageView;
         private ImageView notificationTypeImageView;
@@ -84,12 +79,6 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
         public ViewHolder(View itemView) {
             super(itemView);
-
-            // Cloud database initializations
-            auth = FirebaseAuth.getInstance();
-            postAuthorUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-            storageReference = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF);
-            allPostsReference = Default.ALL_POSTS_REFERENCE;
 
             notificationRelativeLayout = itemView.findViewById(R.id.notification_relative_layout);
             userProfilePicImageView = itemView.findViewById(R.id.notification_item_prism_profile_image_view);
@@ -149,7 +138,6 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private void populateNotificationInfoFields() {
             String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());
             notificationTypeTextView.setText(notificationTypeAndTime.toLowerCase());
-
             notificationTypeImageView.setImageDrawable(context.getResources().getDrawable(notification.getType().getNotifIcon()));
         }
 

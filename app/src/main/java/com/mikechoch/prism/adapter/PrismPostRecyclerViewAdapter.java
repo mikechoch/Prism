@@ -122,11 +122,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
      */
     public class PrismPostViewHolder extends RecyclerView.ViewHolder {
 
-        private FirebaseAuth auth;
-        private DatabaseReference postAuthorUserReference;
-        private StorageReference storageReference;
-        private DatabaseReference allPostsReference;
-
         private RelativeLayout prismPostRelativeLayout;
         private ImageView userProfilePicImageView;
         private RelativeLayout postInformationRelativeLayout;
@@ -153,12 +148,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
         public PrismPostViewHolder(View itemView) {
             super(itemView);
-
-            // Cloud database initializations
-            auth = FirebaseAuth.getInstance();
-            postAuthorUserReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
-            storageReference = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF);
-            allPostsReference = Default.ALL_POSTS_REFERENCE;
 
             // Image initializations
             progressBar = itemView.findViewById(R.id.prism_post_progress_bar);

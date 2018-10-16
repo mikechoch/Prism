@@ -25,9 +25,6 @@ import java.util.ArrayList;
 
 public class NotificationFragment extends Fragment {
 
-    private DatabaseReference databaseReferenceAllPosts;
-    private DatabaseReference usersReference;
-
     private RelativeLayout noNotificationRelativeLayout;
     private TextView noNotificationTextView;
     private RecyclerView notificationRecyclerView;
