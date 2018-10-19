@@ -171,45 +171,47 @@ public class DiscoverController {
         rootReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                DataSnapshot allPostsSnapshot = dataSnapshot.child(Key.DB_REF_ALL_POSTS);
-                DataSnapshot usersSnapshot = dataSnapshot.child(Key.DB_REF_USER_PROFILES);
-                DataSnapshot tagsSnapshot = dataSnapshot.child(Key.DB_REF_TAGS);
+                if (dataSnapshot.exists()) {
+                    DataSnapshot allPostsSnapshot = dataSnapshot.child(Key.DB_REF_ALL_POSTS);
+                    DataSnapshot usersSnapshot = dataSnapshot.child(Key.DB_REF_USER_PROFILES);
+                    DataSnapshot tagsSnapshot = dataSnapshot.child(Key.DB_REF_TAGS);
 
-                // USERS
-                for (DataSnapshot userSnapshot : usersSnapshot.getChildren()) {
-                    PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                    mapOfPrismUsers.put(prismUser.getUid(), prismUser);
-                }
-
-                // POSTS
-                for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
-                    PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                    String uid = prismPost.getUid();
-                    if (mapOfPrismUsers.containsKey(uid)) {
-                        prismPost.setPrismUser(mapOfPrismUsers.get(uid));
-                        mapOfPrismPosts.put(prismPost.getPostId(), prismPost);
+                    // USERS
+                    for (DataSnapshot userSnapshot : usersSnapshot.getChildren()) {
+                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
+                        mapOfPrismUsers.put(prismUser.getUid(), prismUser);
                     }
-                }
 
-                // TAGS
-                int tagCount = (int) tagsSnapshot.getChildrenCount();
-                int rand = new Random().nextInt(tagCount);
-                Iterator itr = tagsSnapshot.getChildren().iterator();
-                for (int i = 0; i < rand; i++) { itr.next(); }
-                DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
-                if (tagSnapshot.exists()) {
-                    randomTag = tagSnapshot.getKey();
-                    for (DataSnapshot postIdSnapshot : tagSnapshot.getChildren()) {
-                        String postId = postIdSnapshot.getKey();
-                        if (mapOfPrismPosts.containsKey(postId)) {
-                            listOfPostsForRandomHashTag.add(mapOfPrismPosts.get(postId));
+                    // POSTS
+                    for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
+                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+                        String uid = prismPost.getUid();
+                        if (mapOfPrismUsers.containsKey(uid)) {
+                            prismPost.setPrismUser(mapOfPrismUsers.get(uid));
+                            mapOfPrismPosts.put(prismPost.getPostId(), prismPost);
                         }
                     }
+
+                    // TAGS
+                    int tagCount = (int) tagsSnapshot.getChildrenCount();
+                    int rand = new Random().nextInt(tagCount);
+                    Iterator itr = tagsSnapshot.getChildren().iterator();
+                    for (int i = 0; i < rand; i++) { itr.next(); }
+                    DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
+                    if (tagSnapshot.exists()) {
+                        randomTag = tagSnapshot.getKey();
+                        for (DataSnapshot postIdSnapshot : tagSnapshot.getChildren()) {
+                            String postId = postIdSnapshot.getKey();
+                            if (mapOfPrismPosts.containsKey(postId)) {
+                                listOfPostsForRandomHashTag.add(mapOfPrismPosts.get(postId));
+                            }
+                        }
+                    }
+
+                    // RETURN
+                    callback.onSuccess();
+
                 }
-
-                // RETURN
-                callback.onSuccess();
-
             }
 
             @Override
