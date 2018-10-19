@@ -25,10 +25,12 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
@@ -36,9 +38,6 @@ import java.util.ArrayList;
 
 
 public class MainFeedFragment extends Fragment {
-
-    private DatabaseReference databaseReferenceAllPosts;
-    private DatabaseReference usersReference;
 
     private ProgressBar mainFeedProgressBar;
     private RelativeLayout noMainFeedRelativeLayout;
@@ -64,12 +63,6 @@ public class MainFeedFragment extends Fragment {
         mainFeedRecyclerView = view.findViewById(R.id.main_content_recycler_view);
         noMainFeedRelativeLayout = view.findViewById(R.id.no_main_posts_relative_layout);
         noMainFeedTextView = view.findViewById(R.id.no_main_posts_text_view);
-        noMainFeedTextView.setTypeface(Default.sourceSansProLight);
-
-        databaseReferenceAllPosts = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
-
-        mainFeedPrismPostArrayList = new ArrayList<>();
 
         setupInterfaceElements();
 
@@ -135,6 +128,7 @@ public class MainFeedFragment extends Fragment {
             }
         });
 
+        mainFeedPrismPostArrayList = new ArrayList<>();
         mainFeedRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), mainFeedPrismPostArrayList);
         mainFeedRecyclerView.setAdapter(mainFeedRecyclerViewAdapter);
 
@@ -145,8 +139,10 @@ public class MainFeedFragment extends Fragment {
      * Setup elements of current fragment
      */
     private void setupInterfaceElements() {
-        setupMainFeedRecyclerView();
+        noMainFeedTextView.setTypeface(Default.sourceSansProLight);
+
         setupMainFeedRefreshSwipeLayout();
+        setupMainFeedRecyclerView();
     }
 
     /**
@@ -156,39 +152,30 @@ public class MainFeedFragment extends Fragment {
      *  a HashMap of PrismObjects
      */
     private void refreshData() {
-        // TODO uncomment this and put this in News Feed section
-        // mainFeedPrismPostArrayList.clear();
-        // mainFeedPrismPostArrayList.addAll(CurrentUser.news_feed);
-        Query query = databaseReferenceAllPosts.orderByChild(Key.POST_TIMESTAMP).limitToFirst(Default.IMAGE_LOAD_COUNT);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                /*
-                 * Notify that all RecyclerView data will be cleared and then clear all data structures
-                 * Iterate through the DataSnapshot and add all new data to the data structures
-                 * Notify RecyclerView after items are added to data structures
-                 */
-                mainFeedPrismPostArrayList.clear();
-                mainFeedRecyclerViewAdapter.notifyDataSetChanged();
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                noMainFeedRelativeLayout.setVisibility(View.GONE);
+                mainFeedProgressBar.setVisibility(View.GONE);
+                mainFeedSwipeRefreshLayout.setRefreshing(false);
 
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                        mainFeedPrismPostArrayList.add(prismPost);
-                    }
-                    noMainFeedRelativeLayout.setVisibility(View.GONE);
-                    populateUserDetailsForAllPosts(true);
-                } else {
-                    Log.i(Default.TAG_DB, Message.NO_DATA);
-                    noMainFeedRelativeLayout.setVisibility(View.VISIBLE);
-                    mainFeedSwipeRefreshLayout.setRefreshing(false);
-                    mainFeedProgressBar.setVisibility(View.GONE);
-                }
+                mainFeedPrismPostArrayList.clear();
+                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
+            public void onPrismPostsNotFound() {
+                Log.i(Default.TAG_DB, Message.NO_DATA);
+                noMainFeedRelativeLayout.setVisibility(View.VISIBLE);
+                mainFeedSwipeRefreshLayout.setRefreshing(false);
+                mainFeedProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
             }
         });
     }
@@ -201,76 +188,29 @@ public class MainFeedFragment extends Fragment {
      */
     private void fetchMorePosts() {
         long lastPostTimestamp = mainFeedPrismPostArrayList.get(mainFeedPrismPostArrayList.size() - 1).getTimestamp();
-        //toast("Fetching more pics");
-        databaseReferenceAllPosts
-                .orderByChild(Key.POST_TIMESTAMP)
-                .startAt(lastPostTimestamp + 1)
-                .limitToFirst(Default.IMAGE_LOAD_COUNT)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                                mainFeedPrismPostArrayList.add(prismPost);
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mainFeedPrismPostArrayList.size() > 0) {
-                                            mainFeedRecyclerViewAdapter
-                                                    .notifyItemInserted(mainFeedPrismPostArrayList.size());
-                                        }
-                                    }
-                                });
 
-                            }
-                            populateUserDetailsForAllPosts(false);
-                        } else {
-                            Log.i(Default.TAG_DB, Message.NO_DATA);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
-    }
-
-    /**
-     * Once all posts are loaded into the prismPostHashMap,
-     * this method iterates over each post, grabs firebaseUser's details
-     * for the post like "profilePicUri" and "username" and
-     * updates the prismPost objects in that hashMap and then
-     * updates the RecyclerViewAdapter so the UI gets updated
-     */
-    private void populateUserDetailsForAllPosts(boolean updateRecyclerViewAdapter) {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchMorePrismPosts(lastPostTimestamp, new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (PrismPost post : mainFeedPrismPostArrayList) {
-                        DataSnapshot userSnapshot = dataSnapshot.child(post.getUid());
-                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                        post.setPrismUser(prismUser);
-                    }
-                    mainFeedSwipeRefreshLayout.setRefreshing(false);
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                mainFeedProgressBar.setVisibility(View.GONE);
+                mainFeedSwipeRefreshLayout.setRefreshing(false);
 
-                    // gets called inside refreshData()
-                    if (updateRecyclerViewAdapter) {
-                        mainFeedProgressBar.setVisibility(View.GONE);
-                        mainFeedRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                } else {
-                    Log.i(Default.TAG_DB, Message.NO_DATA);
-                }
+                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL, databaseError.toException());
+            public void onPrismPostsNotFound() {
+                Log.i(Default.TAG_DB, Message.NO_DATA);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
             }
         });
+
     }
 
 }

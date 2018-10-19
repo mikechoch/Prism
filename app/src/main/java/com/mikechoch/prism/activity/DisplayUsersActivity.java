@@ -21,7 +21,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fire.DatabaseRead;
 
 import java.util.ArrayList;
 
@@ -171,7 +171,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getLikedUsers(String postId) {
-        DatabaseAction.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
+        DatabaseRead.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
@@ -197,7 +197,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getRepostedUsers(String postId) {
-        DatabaseAction.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
+        DatabaseRead.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
@@ -222,7 +222,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * and then fetches user details for each userId
      */
     private void getFollowings(String userId) {
-        DatabaseAction.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
+        DatabaseRead.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
@@ -246,7 +246,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Gets give user's followers and then fetches user details for each userId
      */
     private void getFollowers(String userId) {
-        DatabaseAction.fetchPrismUserFollowers(userId, new OnFetchPrismUsersCallback() {
+        DatabaseRead.fetchPrismUserFollowers(userId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);

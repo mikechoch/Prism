@@ -40,12 +40,15 @@ import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.ProfilePictureOption;
@@ -58,13 +61,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class PrismUserProfileActivity extends AppCompatActivity {
 
-    private StorageReference storageReference;
-    private DatabaseReference currentUserReference;
-    private DatabaseReference usersReference;
-    private DatabaseReference allPostsReference;
-    
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
 
@@ -94,6 +93,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private boolean isCurrentUser;
     private ArrayList<PrismPost> prismUserUploadedAndRepostedPostsArrayList;
 
+    private boolean[] areUploadedAndRepostedPostsFetched = {false, false};
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,12 +120,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_user_profile_activity_layout);
 
-        // Initialize all Firebase references
-        storageReference = Default.STORAGE_REFERENCE;
-        currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-        usersReference = Default.USERS_REFERENCE;
-        allPostsReference = Default.ALL_POSTS_REFERENCE;
-        
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.app_bar_layout);
@@ -168,18 +162,23 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     }
 
     private void pullPrismUserDetails(String prismUserId) {
-        usersReference.child(prismUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchPrismUser(prismUserId, new OnFetchPrismUserCallback() {
             @Override
-            public void onDataChange(DataSnapshot userSnapshot) {
-                if (userSnapshot.exists()) {
-                    prismUser = Helper.constructPrismUserObject(userSnapshot);
-                    setupUIElements();
-                    fetchUserContent();
-                }
+            public void onSuccess(PrismUser user) {
+                prismUser = user;
+                setupUIElements();
+                fetchUserContent();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) { }
+            public void onUserNotFound() {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
         });
     }
 
@@ -198,97 +197,58 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             setupUserPostsUIElements();
             return;
         }
-        usersReference.child(prismUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                HashMap<String, Long> prismUserUploadedAndRepostedPostIds = new HashMap<>();
-                if (dataSnapshot.hasChild(Key.DB_REF_USER_UPLOADS)) {
-                    Object userUploadedPosts = dataSnapshot.child(Key.DB_REF_USER_UPLOADS).getValue();
-                    prismUserUploadedAndRepostedPostIds.putAll((Map) userUploadedPosts);
-                }
-                if (dataSnapshot.hasChild(Key.DB_REF_USER_REPOSTS)) {
-                    Object userRepostedPosts = dataSnapshot.child(Key.DB_REF_USER_REPOSTS).getValue();
-                    prismUserUploadedAndRepostedPostIds.putAll((Map) userRepostedPosts);
-                }
-                if (!prismUserUploadedAndRepostedPostIds.isEmpty()) {
-                    fetchUserUploadedAndRepostedPrismPosts(prismUserUploadedAndRepostedPostIds);
-                }
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                prismUserUploadedAndRepostedPostsArrayList.addAll(prismPosts);
+                areUploadedAndRepostedPostsFetched[0] = true;
 
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_USER_DETAILS_FAIL, databaseError.toException());
-            }
-        });
-    }
-
-    /**
-     * Fetches user uploaded prismPosts with given map of prismPostIds
-     * TODO: @Parth Update comments
-     */
-    private void fetchUserUploadedAndRepostedPrismPosts(HashMap<String, Long> prismUserUploadedAndRepostedPostIds) {
-        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (String postId : prismUserUploadedAndRepostedPostIds.keySet()) {
-                        DataSnapshot postSnapshot = dataSnapshot.child(postId);
-                        if (postSnapshot.exists()) {
-                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                            prismUserUploadedAndRepostedPostsArrayList.add(prismPost);
-                        }
-                    }
-
-                    /*
-                     * Go through all the posts in the uploadedAndReposted arrayList
-                     * and check to see if the post is reposted or not. If not then set
-                     * the prismUser as the prismPost.prismUser but if the post is reposted
-                     * by another user then pull the information of that prismUser and set
-                     * that as the post's prismUser
-                     */
-                    usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                for (PrismPost prismPost : prismUserUploadedAndRepostedPostsArrayList) {
-                                    if (Helper.isPostReposted(prismPost, prismUser)) {
-                                        prismPost.setIsReposted(true);
-                                        DataSnapshot userSnapshot = dataSnapshot.child(prismPost.getUid());
-                                        if (userSnapshot.exists()) {
-                                            PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                                            prismPost.setPrismUser(prismUser);
-                                        }
-                                    } else {
-                                        prismPost.setPrismUser(prismUser);
-                                    }
-                                }
-                            }
-                            Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
-                                @Override
-                                public int compare(PrismPost p1, PrismPost p2) {
-                                    return Long.compare(p1.getTimestamp(), p2.getTimestamp());
-                                }
-                            });
-                            setupUserPostsUIElements();
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-
+                if (areUserRepostedPostsFetched()) {
+                    sortPostsOnUserPage();
+                    setupUserPostsUIElements();
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_POST_INFO_FAIL, databaseError.toException());
+            public void onPrismPostsNotFound() {
+                // User has not uploaded any posts
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
             }
         });
 
+        DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                for (PrismPost post : prismPosts) {
+                    post.setIsReposted(true);
+                    prismUserUploadedAndRepostedPostsArrayList.add(post);
+                }
+
+                areUploadedAndRepostedPostsFetched[1] = true;
+                if (areUserUploadedPostsFetched()) {
+                    sortPostsOnUserPage();
+                    setupUserPostsUIElements();
+                }
+            }
+
+            @Override
+            public void onPrismPostsNotFound() {
+                // User has not reposted any posts
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO Log this
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -618,6 +578,23 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         setupAppBarLayout();
         setupUserProfileUIElements();
+    }
+
+    private void sortPostsOnUserPage() {
+        Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
+            @Override
+            public int compare(PrismPost p1, PrismPost p2) {
+                return Long.compare(p1.getTimestamp(), p2.getTimestamp());
+            }
+        });
+    }
+
+    private boolean areUserUploadedPostsFetched() {
+        return areUploadedAndRepostedPostsFetched[0];
+    }
+
+    private boolean areUserRepostedPostsFetched() {
+        return areUploadedAndRepostedPostsFetched[0];
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.mikechoch.prism.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -14,14 +15,15 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchRecyclerViewAdapter;
 
+
 public class TagSearchFragment extends Fragment {
 
-    public static RecyclerView tagRecyclerView;
-    public static SearchRecyclerViewAdapter tagSearchRecyclerViewAdapter;
+    private RecyclerView tagRecyclerView;
+    private SearchRecyclerViewAdapter tagSearchRecyclerViewAdapter;
 
-    public static final TagSearchFragment newInstance() {
-        TagSearchFragment tagSearchFragment = new TagSearchFragment();
-        return tagSearchFragment;
+
+    public static TagSearchFragment newInstance() {
+        return new TagSearchFragment();
     }
 
     @Override
@@ -30,23 +32,40 @@ public class TagSearchFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.search_type_fragment_layout, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.tag_search_type_fragment_layout, container, false);
 
-        tagRecyclerView = view.findViewById(R.id.search_type_recycler_view);
+        tagRecyclerView = view.findViewById(R.id.tag_search_type_recycler_view);
+
+        setupInterfaceElements();
+
+        return view;
+    }
+
+    /**
+     * Setup the tag search fragment recycler view
+     * Based on a query in the search bar, the tag showing will dynamically change
+     */
+    private void setupTagSearchRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(),
                 linearLayoutManager.getOrientation());
-        dividerItemDecoration.setDrawable(getContext().getResources().getDrawable(R.drawable.recycler_view_divider));
+        dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.recycler_view_divider));
         tagRecyclerView.setLayoutManager(linearLayoutManager);
         tagRecyclerView.setItemAnimator(defaultItemAnimator);
         tagRecyclerView.addItemDecoration(dividerItemDecoration);
 
         tagSearchRecyclerViewAdapter = new SearchRecyclerViewAdapter(getActivity(), SearchActivity.hashTagsCollection);
         tagRecyclerView.setAdapter(tagSearchRecyclerViewAdapter);
+    }
 
-        return view;
+    /**
+     * Setup elements of current fragment
+     */
+    private void setupInterfaceElements() {
+
+        setupTagSearchRecyclerView();
     }
 
 }

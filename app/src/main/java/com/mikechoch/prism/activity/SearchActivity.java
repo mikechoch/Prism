@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,13 +25,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.SearchTypeViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.fragment.PeopleSearchFragment;
 import com.mikechoch.prism.fragment.TagSearchFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
+
 
 public class SearchActivity  extends AppCompatActivity {
 
@@ -39,10 +43,6 @@ public class SearchActivity  extends AppCompatActivity {
     private ImageView searchBarClearButton;
     private TabLayout searchTypeTabLayout;
     private ViewPager searchTypeViewPager;
-
-    private DatabaseReference allPostReference;
-    private DatabaseReference usersReference;
-    private DatabaseReference tagsReference;
 
     public static ArrayList<PrismUser> prismUserArrayList;
 
@@ -59,7 +59,6 @@ public class SearchActivity  extends AppCompatActivity {
      * search cannot happen inside of Firebase because the search query
      * needs to look for 'username' and 'full name'.
      */
-
 
 
     @Override
@@ -80,10 +79,6 @@ public class SearchActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_activity_layout);
-
-        allPostReference = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
-        tagsReference = Default.TAGS_REFERENCE;
 
         // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
@@ -139,29 +134,7 @@ public class SearchActivity  extends AppCompatActivity {
         });
 
         populateUsersCollection();
-        setupUIElements();
-    }
-
-    /**
-     * TODO
-     * THIS IS EXTREMELY INEFFICIENT BUT IT'S OK TO DO IT UNTIL
-     * WE HAVE A LOT OF USERS
-     */
-    private void populateUsersCollection() {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                                prismUserArrayList.add(prismUser);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
+        setupInterfaceElements();
     }
 
     @Override
@@ -171,12 +144,38 @@ public class SearchActivity  extends AppCompatActivity {
     }
 
     /**
-     * Setup the toolbar and back button to return to MainActivity
+     * TODO
+     * THIS IS EXTREMELY INEFFICIENT BUT IT'S OK TO DO IT UNTIL
+     * WE HAVE A LOT OF USERS
+     */
+    private void populateUsersCollection() {
+        DatabaseRead.fetchAllUsers(new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismUser> prismUsers) {
+                prismUserArrayList.addAll(prismUsers);
+            }
+
+            @Override
+            public void onPrismUsersNotFound() {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    /**
+     * Setup the toolbar and back button
      */
     private void setupToolbar() {
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -196,6 +195,7 @@ public class SearchActivity  extends AppCompatActivity {
 
             Handler handler = new Handler(Looper.getMainLooper());
             Runnable runnable;
+            DatabaseReference tagsReference = Default.TAGS_REFERENCE;
             Query tagsReferenceQuery = tagsReference.orderByKey();
             ValueEventListener listener = new ValueEventListener() {
                 @Override
@@ -227,8 +227,9 @@ public class SearchActivity  extends AppCompatActivity {
                         for (DataSnapshot tagSnapshot : dataSnapshot.getChildren()) {
                             hashTagsCollection.add(tagSnapshot.getKey());
                         }
-                        if (TagSearchFragment.tagSearchRecyclerViewAdapter != null) {
-                            TagSearchFragment.tagSearchRecyclerViewAdapter.notifyDataSetChanged();
+                        RecyclerView tagRecyclerView = findViewById(R.id.tag_search_type_recycler_view);
+                        if (tagRecyclerView != null) {
+                            tagRecyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
                     @Override
@@ -255,6 +256,10 @@ public class SearchActivity  extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     * @param query
+     */
     private void performSearchForUser(String query) {
         ArrayList<PrismUser> highRelevance = new ArrayList<>();
         ArrayList<PrismUser> mediumRelevance = new ArrayList<>();
@@ -279,20 +284,19 @@ public class SearchActivity  extends AppCompatActivity {
         prismUserCollection.addAll(mediumRelevance);
         prismUserCollection.addAll(lowRelevance);
 
-        if (PeopleSearchFragment.peopleSearchRecyclerViewAdapter != null) {
-            PeopleSearchFragment.peopleSearchRecyclerViewAdapter.notifyDataSetChanged();
+        RecyclerView peopleRecyclerView = findViewById(R.id.people_search_type_recycler_view);
+        if (peopleRecyclerView != null) {
+            peopleRecyclerView.getAdapter().notifyDataSetChanged();
         }
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements of current activity
      */
-    private void setupUIElements() {
-        setupToolbar();
-
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
         searchBarEditText.setTypeface(Default.sourceSansProLight);
 
+        setupToolbar();
         setupSearchBarEditText();
     }
 }

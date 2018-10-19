@@ -48,9 +48,9 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     *
+     * Setup the swipe refresh layout, which will refresh all liked posts by a user
      */
-    private void setupUploadedRepostedSwipeRefreshLayout() {
+    private void setupLikedSwipeRefreshLayout() {
         likedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         likedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -62,7 +62,8 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     *
+     * Setup the users liked posts recycler view
+     * If no posts have been liked, show the no liked posts text and icon
      */
     private void setupLikedRecyclerViewColumns() {
         ArrayList<PrismPost> userLikedPosts = CurrentUser.getUserLikes();
@@ -77,7 +78,8 @@ public class LikedPostsFragment extends Fragment {
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
             noPostsTextView.setTypeface(Default.sourceSansProLight);
-            noPostsTextView.setText("No liked posts");
+            String noLikedPostsString = getResources().getString(R.string.no_liked_posts);
+            noPostsTextView.setText(noLikedPostsString);
 
             userLikedPostsLinearLayout.addView(noPostsView);
         }
@@ -87,7 +89,8 @@ public class LikedPostsFragment extends Fragment {
      * Setup elements in current fragment
      */
     private void setupInterfaceElements() {
-        setupUploadedRepostedSwipeRefreshLayout();
+
+        setupLikedSwipeRefreshLayout();
         setupLikedRecyclerViewColumns();
     }
 

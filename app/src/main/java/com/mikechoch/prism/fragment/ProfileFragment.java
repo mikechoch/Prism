@@ -30,9 +30,6 @@ import com.mikechoch.prism.type.Setting;
 
 public class ProfileFragment extends Fragment {
 
-    private FirebaseAuth auth;
-    private DatabaseReference userReference;
-    
     private CardView viewProfileCardView;
     private RecyclerView settingsRecyclerView;
     private TextView userFullNameTextView;
@@ -58,11 +55,7 @@ public class ProfileFragment extends Fragment {
         viewProfileAnalyticsTrendsTextView = view.findViewById(R.id.profile_fragment_analytics_description_text_view);
         userProfileImageView = view.findViewById(R.id.profile_fragment_user_profile_image_view);
 
-        auth = FirebaseAuth.getInstance();
-        userReference = Default.USERS_REFERENCE.child(auth.getCurrentUser().getUid());
-
         setupInterfaceElements();
-        populateCurrentUserCardView();
 
         return view;
     }

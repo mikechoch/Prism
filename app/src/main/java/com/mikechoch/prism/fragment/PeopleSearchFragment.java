@@ -18,8 +18,8 @@ import com.mikechoch.prism.adapter.SearchRecyclerViewAdapter;
 
 public class PeopleSearchFragment extends Fragment {
 
-    public static RecyclerView peopleRecyclerView;
-    public static SearchRecyclerViewAdapter peopleSearchRecyclerViewAdapter;
+    private RecyclerView peopleRecyclerView;
+    private SearchRecyclerViewAdapter peopleSearchRecyclerViewAdapter;
 
 
     public static PeopleSearchFragment newInstance() {
@@ -33,9 +33,9 @@ public class PeopleSearchFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.search_type_fragment_layout, container, false);
+        View view = inflater.inflate(R.layout.people_search_type_fragment_layout, container, false);
 
-        peopleRecyclerView = view.findViewById(R.id.search_type_recycler_view);
+        peopleRecyclerView = view.findViewById(R.id.people_search_type_recycler_view);
 
         setupInterfaceElements();
 

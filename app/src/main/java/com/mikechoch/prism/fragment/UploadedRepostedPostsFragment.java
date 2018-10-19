@@ -16,6 +16,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ public class UploadedRepostedPostsFragment extends Fragment {
 
     private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;
-
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 
 
     public static UploadedRepostedPostsFragment newInstance() {
@@ -51,10 +50,10 @@ public class UploadedRepostedPostsFragment extends Fragment {
     }
 
     /**
-     *
+     * Setup the swipe refresh layout, which will refresh all uploaded/reposted posts by a user
      */
     private void setupUploadedRepostedSwipeRefreshLayout() {
-        uploadedRepostedPostsSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
+        uploadedRepostedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         uploadedRepostedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -65,7 +64,8 @@ public class UploadedRepostedPostsFragment extends Fragment {
     }
 
     /**
-     *
+     * Setup the users uploaded and reposted posts recycler view
+     * If no posts have been uploaded/reposted, show the no uploaded/reposted posts text and icon
      */
     private void setupUploadedRepostedRecyclerViewColumns() {
         userUploadedPostsLinearLayout.removeAllViews();
@@ -83,16 +83,18 @@ public class UploadedRepostedPostsFragment extends Fragment {
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
             noPostsTextView.setTypeface(Default.sourceSansProLight);
-            noPostsTextView.setText("No uploaded or reposted posts");
+            String noUploadedRepostedPostsString = getResources().getString(R.string.no_uploaded_reposted_posts);
+            noPostsTextView.setText(noUploadedRepostedPostsString);
 
             userUploadedPostsLinearLayout.addView(noPostsView);
         }
     }
 
     /**
-     * Setup all interface elements
+     * Setup elements for current fragment
      */
     private void setupInterfaceElements() {
+
         setupUploadedRepostedSwipeRefreshLayout();
         setupUploadedRepostedRecyclerViewColumns();
     }

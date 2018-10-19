@@ -33,8 +33,6 @@ import com.mikechoch.prism.user_interface.CustomAlertDialogBuilder;
 
 public class EditUserProfileActivity extends AppCompatActivity {
 
-    private DatabaseReference currentUserReference;
-
     private Toolbar toolbar;
     private TextView toolbarTextView;
 
@@ -97,8 +95,6 @@ public class EditUserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_user_profile_activity_layout);
-
-        currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
 
         // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);

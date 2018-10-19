@@ -243,7 +243,7 @@ public class CurrentUser {
         notifications = new ArrayList<>();
 
         if (Helper.isNetworkAvailable(context)) {
-            DatabaseAction.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
+            DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
                     CurrentUser.refreshInterface(context, intent);
@@ -362,7 +362,7 @@ public class CurrentUser {
     static void refreshInterface(Context context, Intent intent) {
         // Handle notification firebase token related activities
         DatabaseAction.handleFirebaseTokenRefreshActivities(context);
-        IncomingNotificationController.initializeNotifications();
+        IncomingNotificationController.initializeNotifications(context);
 
         if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
             //TODO: We need to call notify data set changed here

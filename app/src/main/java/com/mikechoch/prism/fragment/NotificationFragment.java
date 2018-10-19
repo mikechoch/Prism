@@ -28,13 +28,15 @@ import java.util.ArrayList;
 
 public class NotificationFragment extends Fragment {
 
+    private RelativeLayout noNotificationRelativeLayout;
+    private TextView noNotificationTextView;
     private ProgressBar notificationProgressBar;
-    private SwipeRefreshLayout notificationSwipeRefreshLayout;
-    private RecyclerView notificationRecyclerView;
     private RelativeLayout noNotificationsRelativeLayout;
     private TextView noNotificationsTextView;
 
-    public static NotificationRecyclerViewAdapter notificationRecyclerViewAdapter;
+    private SwipeRefreshLayout notificationSwipeRefreshLayout;
+    private RecyclerView notificationRecyclerView;
+    private NotificationRecyclerViewAdapter notificationRecyclerViewAdapter;
 
     public static ArrayList<Notification> notificationArrayList;
 
@@ -62,7 +64,7 @@ public class NotificationFragment extends Fragment {
     }
 
     /**
-     *
+     * Iterate over all notifications and set all of them to viewed as True
      */
     public static void clearAllNotifications() {
         for (Notification notification : NotificationFragment.notificationArrayList) {
@@ -71,7 +73,8 @@ public class NotificationFragment extends Fragment {
     }
 
     /**
-     *
+     * Setup the notification swipe refresh layout,
+     * which will call notifyDataSetChanged on the notification adapter
      */
     private void setupNotificationSwipeRefreshLayout() {
         notificationSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);

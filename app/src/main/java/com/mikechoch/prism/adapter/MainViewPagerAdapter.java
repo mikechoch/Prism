@@ -26,16 +26,14 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0:
-                return new MainFeedFragment().newInstance();
-//            case 1:
-//                return new TrendingContentFragment().newInstance();
-            case 2 - 1:
-                return new SearchFragment().newInstance();
-            case 3 - 1:
-                return new NotificationFragment().newInstance();
-            case 4 - 1:
-                return new ProfileFragment().newInstance();
+            case Default.MAIN_VIEW_PAGER_MAIN_FEED:
+                return MainFeedFragment.newInstance();
+            case Default.MAIN_VIEW_PAGER_SEARCH:
+                return SearchFragment.newInstance();
+            case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
+                return NotificationFragment.newInstance();
+            case Default.MAIN_VIEW_PAGER_PROFILE:
+                return ProfileFragment.newInstance();
             default:
                 return null;
         }

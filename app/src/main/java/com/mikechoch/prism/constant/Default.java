@@ -86,12 +86,11 @@ public class Default {
     public static final int PROFILE_PICTURE_VIEW = 2;
 
     // ViewPager
-    public static final int MAIN_VIEW_PAGER_SIZE = 5 - 1;
-    public static final int MAIN_VIEW_PAGER_HOME = 0;
-    public static final int MAIN_VIEW_PAGER_TRENDING = 1;
-    public static final int MAIN_VIEW_PAGER_SEARCH = 2;
-    public static final int MAIN_VIEW_PAGER_NOTIFICATIONS = 3;
-    public static final int MAIN_VIEW_PAGER_PROFILE = 4;
+    public static final int MAIN_VIEW_PAGER_SIZE = 4;
+    public static final int MAIN_VIEW_PAGER_MAIN_FEED = 0;
+    public static final int MAIN_VIEW_PAGER_SEARCH = 1;
+    public static final int MAIN_VIEW_PAGER_NOTIFICATIONS = 2;
+    public static final int MAIN_VIEW_PAGER_PROFILE = 3;
 
     public static final int USER_POSTS_VIEW_PAGER_SIZE = 2;
     public static final int USER_POSTS_VIEW_PAGER_POSTS = 0;

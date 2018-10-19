@@ -7,7 +7,6 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,34 +14,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class PrismTagActivity extends AppCompatActivity {
-
-    private StorageReference storageReference;
-    private DatabaseReference currentUserReference;
-    private DatabaseReference usersReference;
-    private DatabaseReference allPostsReference;
-    private DatabaseReference tagsReference;
 
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
@@ -70,8 +54,7 @@ public class PrismTagActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;
@@ -84,18 +67,8 @@ public class PrismTagActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_tag_activity_layout);
 
-        // Initialize all Firebase references
-        storageReference = Default.STORAGE_REFERENCE;
-        currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
-        usersReference = Default.USERS_REFERENCE;
-        allPostsReference = Default.ALL_POSTS_REFERENCE;
-        tagsReference = Default.TAGS_REFERENCE;
-
-        // Initialize all toolbar elements
         toolbar = findViewById(R.id.prism_tag_toolbar);
         appBarLayout = findViewById(R.id.prism_tag_app_bar_layout);
-
-        // Initialize all UI elements
         tagSwipeRefreshLayout = findViewById(R.id.prism_tag_swipe_refresh_layout);
         tagNestedScrollView = findViewById(R.id.prism_tag_nested_scroll_view);
         toolbarTagNameTextView = findViewById(R.id.toolbar_tag_name_text_view);
@@ -110,84 +83,26 @@ public class PrismTagActivity extends AppCompatActivity {
         Intent intent = getIntent();
         tag = intent.getStringExtra(Default.CLICKED_TAG_EXTRA);
 
-
-        tagsReference.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    HashMap<String, Long> listOfPrismPosts = new HashMap<>();
-                    listOfPrismPosts.putAll((Map) dataSnapshot.getValue());
-                    fetchPrismPostDetails(listOfPrismPosts);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        setupUIElements();
-    }
-
-    private void fetchPrismPostDetails(HashMap<String, Long> listOfPrismPostIds) {
-        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (String postId : listOfPrismPostIds.keySet()) {
-                        if (dataSnapshot.hasChild(postId)) {
-                            DataSnapshot postSnapshot = dataSnapshot.child(postId);
-                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                            prismTagPostsArrayList.add(prismPost);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.POST_NOT_EXIST);
-                            Log.e(Default.TAG_DB, postId);
-                        }
-                    }
-                    String tagPostCount = String.valueOf(prismTagPostsArrayList.size());
-                    postsCountTextView.setText(tagPostCount);
-                    String tagCountLabel = Helper.getSingularOrPluralText("post", prismTagPostsArrayList.size());
-                    postsLabelTextView.setText(tagCountLabel);
-                    fetchPrismUserDetailsForPrismPosts();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
-    }
-
-    private void fetchPrismUserDetailsForPrismPosts() {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (PrismPost prismPost : prismTagPostsArrayList) {
-                        String userId = prismPost.getUid();
-                        if (dataSnapshot.hasChild(userId)) {
-                            DataSnapshot userSnapshot = dataSnapshot.child(userId);
-                            PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                            prismPost.setPrismUser(prismUser);
-                        } else {
-                            Log.e(Default.TAG_DB, Message.USER_NOT_EXIST);
-                            Log.e(Default.TAG_DB, userId);
-                        }
-                    }
-
-                    Collections.sort(prismTagPostsArrayList, new Comparator<PrismPost>() {
-                        @Override
-                        public int compare(PrismPost p1, PrismPost p2) {
-                            return (int) (p1.getTimestamp() - p2.getTimestamp());
-                        }
-                    });
-                }
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                prismTagPostsArrayList.addAll(prismPosts);
                 setupTagPage();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) { }
+            public void onPrismPostsNotFound() {
+                // TODO Log this
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO log this
+                e.printStackTrace();
+            }
         });
+
+        setupInterfaceElements();
     }
 
     @Override
@@ -201,7 +116,10 @@ public class PrismTagActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -237,10 +155,16 @@ public class PrismTagActivity extends AppCompatActivity {
      *
      */
     private void setupTagPage() {
+        String tagPostCount = String.valueOf(prismTagPostsArrayList.size());
+        postsCountTextView.setText(tagPostCount);
+        String tagCountLabel = Helper.getSingularOrPluralText("post", prismTagPostsArrayList.size());
+        postsLabelTextView.setText(tagCountLabel);
+
         tagSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         tagSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //TODO: We need to refresh the prism posts of for a specific tag
                 tagSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -251,17 +175,15 @@ public class PrismTagActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup all UI elements
+     * Setup all interface elements
      */
-    private void setupUIElements() {
-        setupToolbar();
-
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
         toolbarTagNameTextView.setTypeface(Default.sourceSansProBold);
         tagNameTextView.setTypeface(Default.sourceSansProBold);
         postsCountTextView.setTypeface(Default.sourceSansProBold);
         postsLabelTextView.setTypeface(Default.sourceSansProLight);
 
+        setupToolbar();
         setupAppBarLayout();
 
         String tagString = "#" + tag;
