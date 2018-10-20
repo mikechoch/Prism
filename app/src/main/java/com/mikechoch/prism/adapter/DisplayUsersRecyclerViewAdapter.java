@@ -27,7 +27,7 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 import java.util.ArrayList;
 
 
-public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<DisplayUsersRecyclerViewAdapter.ViewHolder> {
+public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<DisplayUsersRecyclerViewAdapter.DisplayUsersViewHolder> {
 
     private Context context;
     private ArrayList<PrismUser> prismUserArrayList;
@@ -40,13 +40,13 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+    public DisplayUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new DisplayUsersViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.users_recycler_view_item_layout, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull DisplayUsersViewHolder holder, int position) {
         holder.setData(prismUserArrayList.get(position));
     }
 
@@ -56,7 +56,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class DisplayUsersViewHolder extends RecyclerView.ViewHolder {
 
         private PrismUser prismUser;
         private RelativeLayout userRelativeLayout;
@@ -66,7 +66,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         private Button userFollowButton;
 
 
-        ViewHolder(View itemView) {
+        DisplayUsersViewHolder(View itemView) {
             super(itemView);
 
             userRelativeLayout = itemView.findViewById(R.id.display_user_relative_layout);
@@ -77,11 +77,11 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Set data for the PrismPostViewHolder interface elements
+         * Set data for the DisplayUsersViewHolder interface elements
          */
         public void setData(PrismUser prismUser) {
             this.prismUser = prismUser;
-            setupInterfaceElements();
+            populateInterfaceElements();
         }
 
         /**
@@ -154,9 +154,9 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
         }
 
         /**
-         * Setup all interface elements
+         * Setup elements for current adapter DisplayUsersViewHolder
          */
-        private void setupInterfaceElements() {
+        private void populateInterfaceElements() {
             usernameTextView.setTypeface(Default.sourceSansProBold);
             userFullNameText.setTypeface(Default.sourceSansProLight);
             userFollowButton.setTypeface(Default.sourceSansProLight);

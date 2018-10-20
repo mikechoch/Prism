@@ -79,7 +79,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                super.onBackPressed();
+                onBackPressed();
                 break;
             default:
                 break;
@@ -230,7 +230,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
             switch (pictureUpload) {
                 case PRISM_POST:
                     uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
-                    uploadIntents[0].putExtra("EditedPrismPostFilePath", filename);
+                    uploadIntents[0].putExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA, filename);
                     startActivity(uploadIntents[0]);
                     break;
                 case PROFILE_PICTURE:

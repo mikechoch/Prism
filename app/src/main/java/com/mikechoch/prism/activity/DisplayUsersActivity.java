@@ -28,11 +28,6 @@ import java.util.ArrayList;
 
 public class DisplayUsersActivity extends AppCompatActivity {
 
-    private final static int LIKE_USERS = 0;
-    private final static int REPOST_USERS = 1;
-    private final static int FOLLOWER_USERS = 2;
-    private final static int FOLLOWING_USERS = 3;
-
     private Toolbar toolbar;
     private TextView toolbarTextView;
     private ProgressBar likeRepostProgressBar;
@@ -56,8 +51,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;
@@ -70,7 +64,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.users_activity_layout);
 
-        // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.toolbar_text_view);
         likeRepostProgressBar = findViewById(R.id.like_repost_progress_bar);
@@ -85,7 +78,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
         intent = getIntent();
         activityCode = intent.getIntExtra(Default.USERS_INT_EXTRA, -1);
 
-        setupUIElements();
+        setupInterfaceElements();
     }
 
     @Override
@@ -99,25 +92,25 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Decide if it was a likes or reposts click and set number of
      * Setup the toolbar and back button to return to MainActivity
      */
-    private void setupPage() {
+    private void setupDisplayUsersPageType() {
         String id = intent.getStringExtra(Default.USERS_DATA_ID_EXTRA);
         switch (activityCode) {
-            case LIKE_USERS: {
+            case Default.LIKE_USERS: {
                 toolbarTitle = "Like";
                 getLikedUsers(id);
                 break;
             }
-            case REPOST_USERS: {
+            case Default.REPOST_USERS: {
                 toolbarTitle = "Repost";
                 getRepostedUsers(id);
                 break;
             }
-            case FOLLOWER_USERS: {
+            case Default.FOLLOWER_USERS: {
                 toolbarTitle = "Follower";
                 getFollowers(id);
                 break;
             }
-            case FOLLOWING_USERS: {
+            case Default.FOLLOWING_USERS: {
                 toolbarTitle = "Following";
                 getFollowings(id);
                 break;
@@ -128,27 +121,23 @@ public class DisplayUsersActivity extends AppCompatActivity {
         }
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
-     * Setup usersRecyclerView with a LinearLayoutManager, DefaultItemAnimator, and Adapter
+     * Setup the display users RecyclerView for like, repost, following, or followers
      */
-    private void setupLikeRepostRecyclerView() {
-        // Setup the LinearLayoutManager and set it to the usersRecyclerView
+    private void setupDisplayUsersRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        usersRecyclerView.setLayoutManager(linearLayoutManager);
-
-        // Setup the DefaultItemAnimator and set it to the usersRecyclerView
         DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
-        usersRecyclerView.setItemAnimator(defaultItemAnimator);
-
-        // Setup the DividerItemDecoration and set it to the usersRecyclerView
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, linearLayoutManager.getOrientation());
         dividerItemDecoration.setDrawable(this.getResources().getDrawable(R.drawable.recycler_view_divider));
+        usersRecyclerView.setLayoutManager(linearLayoutManager);
+        usersRecyclerView.setItemAnimator(defaultItemAnimator);
         usersRecyclerView.addItemDecoration(dividerItemDecoration);
 
-        // Setup the displayUsersRecyclerViewAdapter and set it to the usersRecyclerView
         displayUsersRecyclerViewAdapter = new DisplayUsersRecyclerViewAdapter(this, prismUserArrayList);
         usersRecyclerView.setAdapter(displayUsersRecyclerViewAdapter);
     }
@@ -156,32 +145,28 @@ public class DisplayUsersActivity extends AppCompatActivity {
     /**
      * Setup the toolbar and back button to return to MainActivity
      */
-    private void setupUIElements() {
-        setupPage();
-
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
         toolbarTextView.setTypeface(Default.sourceSansProLight);
 
-        setupLikeRepostRecyclerView();
+        setupDisplayUsersPageType();
+        setupDisplayUsersRecyclerView();
     }
 
-
     /**
-     * Gets liked users for given postId
-     * and then fetches user details for each userId
+     * Gets liked users for given postId and then fetches user details for each userId
      */
     private void getLikedUsers(String postId) {
         DatabaseRead.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                performUIActivities();
+                updateInterfaceElements();
             }
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, "No liked users found for post");
-                performUIActivities();
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                updateInterfaceElements();
             }
 
             @Override
@@ -193,21 +178,20 @@ public class DisplayUsersActivity extends AppCompatActivity {
     }
 
     /**
-     * Gets reposted users for given postId
-     * and then fetches user details for each userId
+     * Gets reposted users for given postId and then fetches user details for each userId
      */
     private void getRepostedUsers(String postId) {
         DatabaseRead.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                performUIActivities();
+                updateInterfaceElements();
             }
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, "No reposted users found for post");
-                performUIActivities();
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                updateInterfaceElements();
             }
 
             @Override
@@ -218,21 +202,20 @@ public class DisplayUsersActivity extends AppCompatActivity {
     }
 
     /**
-     * Gets given user's followings
-     * and then fetches user details for each userId
+     * Gets given user's followings and then fetches user details for each userId
      */
     private void getFollowings(String userId) {
         DatabaseRead.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                performUIActivities();
+                updateInterfaceElements();
             }
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, "No followings found for this user");
-                performUIActivities();
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                updateInterfaceElements();
             }
 
             @Override
@@ -250,13 +233,13 @@ public class DisplayUsersActivity extends AppCompatActivity {
             @Override
             public void onSuccess(ArrayList<PrismUser> prismUsers) {
                 prismUserArrayList.addAll(prismUsers);
-                performUIActivities();
+                updateInterfaceElements();
             }
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, "No followers found for this user");
-                performUIActivities();
+                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                updateInterfaceElements();
             }
 
             @Override
@@ -271,7 +254,7 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Show the usersRecyclerView and notifyDataSetChanged on the adapter
      * Update the toolbarTitle and toolbarTextView (handle singular/ plural title)
      */
-    private void performUIActivities() {
+    private void updateInterfaceElements() {
         usersRecyclerView.setVisibility(View.VISIBLE);
         likeRepostProgressBar.setVisibility(View.GONE);
 

@@ -146,7 +146,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Set data for the SettingViewHolder interface elements
+         * Set data for the current SettingViewHolder elements
          */
         public void setData(Setting setting) {
             this.setting = setting;
@@ -154,7 +154,13 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Setup the settingsOptionRelativeLayout onClickListener switch statement for each Setting
+         * Handle SettingViewHolder click so that the appropriate action is taken
+         * SETTINGS_OPTION_APP -
+         * SETTINGS_OPTION_NOTIFICATION - Intent to NotificationSettingsActivity so user can change push notifications they receive
+         * SETTINGS_OPTION_ACCOUNT - Intent to EditUserProfileActivity so user can change their user information
+         * SETTINGS_OPTION_HELP -
+         * SETTINGS_OPTION_ABOUT -
+         * SETTINGS_OPTION_LOGOUT - Perform CurrentUser sign out and then Intent to LoginActivity
          */
         private void setupSettingsOptionRelativeLayout() {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -165,12 +171,10 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
                         case Default.SETTINGS_OPTION_APP:
                             break;
                         case Default.SETTINGS_OPTION_NOTIFICATION:
-                            Intent notificationIntent = new Intent(context, NotificationSettingsActivity.class);
-                            context.startActivity(notificationIntent);
+                            IntentHelper.intentToNotificationSettingsActivity(context);
                             break;
                         case Default.SETTINGS_OPTION_ACCOUNT:
-                            Intent editProfileIntent = new Intent(context, EditUserProfileActivity.class);
-                            context.startActivity(editProfileIntent);
+                            IntentHelper.intentToEditUserProfileActivity(context);
                             break;
                         case Default.SETTINGS_OPTION_HELP:
                             break;
@@ -181,10 +185,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
                             // Because they will be recreated after new user signs in. The app crashes after signOut is done
                             // So either when context.startActivity() or context.finish()
                             CurrentUser.performSignOut();
-                            Intent loginIntent = new Intent(context, LoginActivity.class);
-                            context.startActivity(loginIntent);
-                            ((Activity) context).finish();
-                            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            IntentHelper.intentToLoginActivity(context);
                             break;
                         default:
                             break;

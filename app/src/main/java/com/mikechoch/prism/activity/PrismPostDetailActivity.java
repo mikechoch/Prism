@@ -122,7 +122,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                super.onBackPressed();
+                onBackPressed();
                 break;
             case R.id.prism_post_detail_action_more:
                 boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
@@ -140,13 +140,11 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_post_detail_activity_layout);
 
-        // Initialize all toolbar elements
         appBarLayout = findViewById(R.id.prism_post_detail_app_bar_layout);
         toolbar = findViewById(R.id.toolbar);
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         toolbarPullDownLayout = findViewById(R.id.pull_down_relative_layout);
 
-        // Initialize all UI elements
         prismPostDetailCoordinateLayout = findViewById(R.id.prism_post_detail_coordinate_layout);
         prismPostDetailNestedScrollView = findViewById(R.id.prism_post_detail_nested_scroll_view);
         prismPostDetailScrollView = findViewById(R.id.prism_post_detail_scroll_view);
@@ -166,7 +164,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         collapsingToolbarCollapseUpButton = findViewById(R.id.collapsing_toolbar_collapse_up_button);
         collapsingToolbarDragArrow = findViewById(R.id.collapsing_toolbar_drag_arrow);
 
-
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             prismPost = extras.getParcelable(Default.PRISM_POST_DETAIL_EXTRA);
@@ -178,9 +175,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                 fetchPrismPostData(postId);
             }
         }
-
-
-
     }
 
     private void fetchPrismPostData(String postId) {
@@ -212,7 +206,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 

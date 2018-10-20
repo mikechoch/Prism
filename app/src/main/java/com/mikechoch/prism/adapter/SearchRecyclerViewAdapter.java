@@ -191,9 +191,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             tagLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent tagIntent = new Intent(context, PrismTagActivity.class);
-                    tagIntent.putExtra(Default.CLICKED_TAG_EXTRA, tag);
-                    context.startActivity(tagIntent);
+                    IntentHelper.intentToTagActivity(context, tag);
                 }
             });
         }

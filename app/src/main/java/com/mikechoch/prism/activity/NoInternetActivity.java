@@ -32,7 +32,9 @@ public class NoInternetActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup the refresh button for the no internet activity
+     * When clicked, the resetApplication intent will be called to attempt opening Prism
+     * with internet
      */
     private void setupRefreshButton() {
         refreshButton.setOnClickListener(new View.OnClickListener() {

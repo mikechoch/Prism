@@ -34,6 +34,7 @@ public class PrismTagActivity extends AppCompatActivity {
     private TextView toolbarTagNameTextView;
     private SwipeRefreshLayout tagSwipeRefreshLayout;
     private NestedScrollView tagNestedScrollView;
+    private LinearLayout tagPostsLinearLayout;
     private TextView tagNameTextView;
     private ImageView tagPicImageView;
     private TextView postsCountTextView;
@@ -71,6 +72,7 @@ public class PrismTagActivity extends AppCompatActivity {
         appBarLayout = findViewById(R.id.prism_tag_app_bar_layout);
         tagSwipeRefreshLayout = findViewById(R.id.prism_tag_swipe_refresh_layout);
         tagNestedScrollView = findViewById(R.id.prism_tag_nested_scroll_view);
+        tagPostsLinearLayout = findViewById(R.id.tag_posts_linear_layout);
         toolbarTagNameTextView = findViewById(R.id.toolbar_tag_name_text_view);
         tagNameTextView = findViewById(R.id.prism_tag_name_text_view);
         tagPicImageView = findViewById(R.id.prism_tag_picture_image_view);
@@ -78,29 +80,6 @@ public class PrismTagActivity extends AppCompatActivity {
         postsLabelTextView = findViewById(R.id.prism_tag_posts_label_text_view);
 
         prismTagPostsArrayList = new ArrayList<>();
-
-        // Get prismUser associated with this profile page from Intent
-        Intent intent = getIntent();
-        tag = intent.getStringExtra(Default.CLICKED_TAG_EXTRA);
-
-        DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
-            @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                prismTagPostsArrayList.addAll(prismPosts);
-                setupTagPage();
-            }
-
-            @Override
-            public void onPrismPostsNotFound() {
-                // TODO Log this
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                // TODO log this
-                e.printStackTrace();
-            }
-        });
 
         setupInterfaceElements();
     }
@@ -116,7 +95,6 @@ public class PrismTagActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -152,30 +130,78 @@ public class PrismTagActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Count the size of the tag PrismPost ArrayList and set the posts count TextView
+     * Handle the singular or plural "post" String
      */
-    private void setupTagPage() {
+    private void setupTagPageLayout() {
         String tagPostCount = String.valueOf(prismTagPostsArrayList.size());
         postsCountTextView.setText(tagPostCount);
         String tagCountLabel = Helper.getSingularOrPluralText("post", prismTagPostsArrayList.size());
         postsLabelTextView.setText(tagCountLabel);
 
-        tagSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
-        tagSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //TODO: We need to refresh the prism posts of for a specific tag
-                tagSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
-
-        LinearLayout tagPostsLinearLayout = this.findViewById(R.id.tag_posts_linear_layout);
         new PrismPostStaggeredGridRecyclerView(this, tagPostsLinearLayout, prismTagPostsArrayList);
         tagPostsLinearLayout.setVisibility(View.VISIBLE);
+
+        tagSwipeRefreshLayout.setRefreshing(false);
     }
 
     /**
-     * Setup all interface elements
+     * Add the tag to the title TextView and also
+     */
+    private void setupTagTitleTextViews() {
+        // Get prismUser associated with this profile page from Intent
+        Intent intent = getIntent();
+        tag = intent.getStringExtra(Default.CLICKED_TAG_EXTRA);
+
+        String tagString = "#" + tag;
+        toolbarTagNameTextView.setText(tagString);
+        tagNameTextView.setText(tagString);
+    }
+
+    /**
+     * Setup the swipe refresh layout so that it updates all PrismPosts for the specific
+     * tag of the page
+     */
+    private void setupSwipeRefreshLayout() {
+        tagSwipeRefreshLayout.setColorSchemeColors(InterfaceAction.swipeRefreshLayoutColors);
+        tagSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                pullTagPrismPosts();
+            }
+        });
+    }
+
+    /**
+     * Pull all PrismPosts from Firebase for the corresponding tag
+     */
+    private void pullTagPrismPosts() {
+        tagPostsLinearLayout.setVisibility(View.GONE);
+        tagSwipeRefreshLayout.setRefreshing(true);
+        DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
+            @Override
+            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                prismTagPostsArrayList.clear();
+                prismTagPostsArrayList.addAll(prismPosts);
+                setupTagPageLayout();
+            }
+
+            @Override
+            public void onPrismPostsNotFound() {
+                // TODO Log this
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // TODO log this
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    /**
+     * Setup elements of current activity
      */
     private void setupInterfaceElements() {
         toolbarTagNameTextView.setTypeface(Default.sourceSansProBold);
@@ -185,10 +211,8 @@ public class PrismTagActivity extends AppCompatActivity {
 
         setupToolbar();
         setupAppBarLayout();
-
-        String tagString = "#" + tag;
-        toolbarTagNameTextView.setText(tagString);
-        tagNameTextView.setText(tagString);
+        setupTagTitleTextViews();
+        setupSwipeRefreshLayout();
+        pullTagPrismPosts();
     }
-
 }

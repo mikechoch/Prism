@@ -53,7 +53,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                super.onBackPressed();
+                onBackPressed();
                 break;
             default:
                 break;

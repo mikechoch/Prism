@@ -1,6 +1,5 @@
 package com.mikechoch.prism.activity;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -20,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
+import com.mikechoch.prism.helper.IntentHelper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,8 +46,7 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;
@@ -60,20 +59,29 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_post_description_activity_layout);
 
-        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         nextButton = findViewById(R.id.prism_post_description_next_button);
         previewImageView = findViewById(R.id.prism_post_preview_image_view);
         descriptionTextInputLayout = findViewById(R.id.prism_post_description_text_input_layout);
         descriptionEditText = findViewById(R.id.prism_post_description_edit_text);
 
-        String filename = getIntent().getStringExtra("EditedPrismPostFilePath");
+        setupInterfaceElements();
+    }
 
-        Bitmap bitmap;
-        FileInputStream fileInputStream;
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     * @param filename
+     */
+    private void setupPrismPostImagePreview(String filename) {
         try {
-            fileInputStream = openFileInput(filename);
-            bitmap = BitmapFactory.decodeStream(fileInputStream);
+            FileInputStream fileInputStream = openFileInput(filename);
+            Bitmap bitmap = BitmapFactory.decodeStream(fileInputStream);
 
             imageUri = BitmapHelper.getImageUri(this, bitmap);
             fileInputStream.close();
@@ -88,24 +96,6 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        setupUIElements();
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    private void intentBackToMainActivitySuccess() {
-        Intent mainActivityIntent = new Intent(this, MainActivity.class);
-        mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        mainActivityIntent.putExtra(Default.UPLOAD_IMAGE_INTENT_KEY, true);
-        mainActivityIntent.putExtra(Default.IMAGE_URI_EXTRA, imageUri.toString());
-        mainActivityIntent.putExtra(Default.IMAGE_DESCRIPTION_EXTRA, descriptionEditText.getText().toString().trim());
-        startActivity(mainActivityIntent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -113,32 +103,41 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
-     * Setup all UI elements
-     */
-    private void setupUIElements() {
-        // Setup Typefaces for all text based UI elements
-        descriptionEditText.setTypeface(Default.sourceSansProLight);
-        nextButton.setTypeface(Default.sourceSansProBold);
-
-        setupToolbar();
-        setupNextButton();
-    }
-
-    /**
-     *
+     * Setup the next button, which will intent back to main activity with the PrismPost details
+     * to begin PrismPost Firebase upload
      */
     private void setupNextButton() {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intentBackToMainActivitySuccess();
+                IntentHelper.intentToMainActivityWithPrismUploadSuccess(
+                        PrismPostDescriptionActivity.this,
+                        imageUri.toString(),
+                        descriptionEditText.getText().toString().trim());
             }
         });
     }
 
+    /**
+     * Setup elements of current activity
+     */
+    private void setupInterfaceElements() {
+        descriptionEditText.setTypeface(Default.sourceSansProLight);
+        nextButton.setTypeface(Default.sourceSansProBold);
 
+        String filename = getFilenameIntentData();
+        setupPrismPostImagePreview(filename);
+        setupToolbar();
+        setupNextButton();
+    }
+
+    private String getFilenameIntentData() {
+        return getIntent().getStringExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA);
+    }
 }

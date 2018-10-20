@@ -22,9 +22,11 @@ import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
+
 public class SplashActivity extends AppCompatActivity {
 
     private ImageView iconImageView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,6 @@ public class SplashActivity extends AppCompatActivity {
 
         new IntentLoaderTask().execute(this);
     }
-
 
     /**
      * AsyncTask for handling 1000ms delay on animation and then deciding if user is logged in
@@ -110,11 +111,22 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     *
+     * @param context
+     * @return
+     */
     private static boolean isNotificationIntent(Activity context) {
         return context.getIntent().getExtras() != null;
     }
 
+    /**
+     *
+     * @param context
+     * @param activity
+     * @param intent
+     * @return
+     */
     private static Intent getNotificationIntent(Context context, Activity activity, Intent intent) {
         Bundle extras = activity.getIntent().getExtras();
         assert extras != null;

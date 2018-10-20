@@ -2,6 +2,7 @@ package com.mikechoch.prism.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
@@ -38,7 +39,6 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
 
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int PRISM_USER_VIEW_TYPE = 1;
-    private final int DISCOVERY_POST_VIEW_TYPE = 2;
 
     private Context context;
     private ArrayList<?> prismDataArrayList;
@@ -57,14 +57,13 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         Object data = prismDataArrayList.get(position);
         if (data instanceof PrismUser) {
             viewType = PRISM_USER_VIEW_TYPE;
-        } else if (data instanceof DiscoveryPost) {
-            return DISCOVERY_POST_VIEW_TYPE;
         }
         return viewType;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder = new PrismPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.discover_prism_post_recycler_view_item_layout, parent, false));
         switch (viewType) {
@@ -72,17 +71,12 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 viewHolder = new PrismUserViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.discover_prism_user_recycler_view_item_layout, parent, false));
                 break;
-            case DISCOVERY_POST_VIEW_TYPE:
-                // TODO @MIKE create a new view for DiscoveryPost
-                //  viewHolder = new DiscoveryPostViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                //          R.layout.discover_discovery_post_recycler_view_item_layout, parent, false));
-                break;
         }
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Object data = prismDataArrayList.get(position);
         if (data instanceof PrismPost){
             ((PrismPostViewHolder) holder).setData((PrismPost) data);
@@ -139,12 +133,6 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                     case TAG:
                         prismPostCount.setText(fancyDate);
                         break;
-                    /* case LIKE_BY_FOLLOWINGS:
-                        // TODO @MIKE
-                        break;
-                    case REPOST_BY_FOLLOWINGS:
-                        // TODO @MIKE
-                        break; */
                 }
                 prismPostCount.setSelected(true);
 
@@ -196,7 +184,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate elements in the current PrismPostViewHolder
          */
         private void populateInterfaceElements() {
             // Setup Typefaces for all text based UI elements
@@ -230,7 +218,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         }
 
         /**
-         * Set data for the PrismPostViewHolder interface elements
+         * Set data for the current PrismUserViewHolder elements
          */
         public void setData(PrismUser prismUser) {
             this.prismUser = prismUser;
@@ -238,7 +226,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         }
 
         /**
-         * Populate all interface elements for PrismUserViewHolder
+         * Populate elements in the current PrismUserViewHolder
          */
         private void populateInterfaceElements() {
             discoverPrismUserUsername.setTypeface(Default.sourceSansProBold);
@@ -248,7 +236,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         }
 
         /**
-         * Setup PrismUser view for PrismUserViewHolder
+         * Setup PrismUser view for current PrismUserViewHolder
          */
         private void setupPrismUserView() {
             if (prismUser != null) {

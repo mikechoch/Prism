@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewCompat;
 import android.widget.ImageView;
 
@@ -17,12 +18,15 @@ import com.mikechoch.prism.activity.EmailVerificationMessageActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.NoInternetActivity;
+import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.activity.PrismPostDescriptionActivity;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismPostImageEditActivity;
 import com.mikechoch.prism.activity.PrismPostImageSelectionActivity;
+import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.ProfilePictureUploadActivity;
+import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.activity.ShowUserProfilePictureActivity;
 import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.activity.UnderMaintenanceActivity;
@@ -41,7 +45,7 @@ public class IntentHelper {
 
     /**
      * Reset entire application from cold start
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      */
     public static void resetApplication(Context context) {
         Intent resetApplicationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
@@ -54,7 +58,7 @@ public class IntentHelper {
 
     /**
      * When user is verifying their email, the app must wait at this activity until confirmed
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param shouldClearBackStack - boolean to handle clearing the back stack after intent
      */
     public static void intentToEmailVerificationActivity(Context context, boolean shouldClearBackStack) {
@@ -68,7 +72,7 @@ public class IntentHelper {
 
     /**
      * Travel to the login activity of the application
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      */
     public static void intentToLoginActivity(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
@@ -79,7 +83,7 @@ public class IntentHelper {
 
     /**
      * Travel to the main activity of the application
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param shouldClearBackStack - boolean to handle clearing the back stack after intent
      */
     public static void intentToMainActivity(Context context, boolean shouldClearBackStack) {
@@ -91,8 +95,47 @@ public class IntentHelper {
     }
 
     /**
+     * WARNING: ONLY USE WHEN COMING UPLOADING PRISMPOST
+     * Only used to intent to MainActivity from PrismPost upload process
+     * @param context - Context of current activity app will intent from
+     * @param imageUri - imageUri of PrismPost image to upload to Firebase
+     * @param description - description of PrismPost to upload to Firebase
+     */
+    public static void intentToMainActivityWithPrismUploadSuccess(Context context, String imageUri, String description) {
+        Intent mainActivityIntent = new Intent(context, MainActivity.class);
+        mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mainActivityIntent.putExtra(Default.UPLOAD_IMAGE_INTENT_KEY, true);
+        mainActivityIntent.putExtra(Default.IMAGE_URI_EXTRA, imageUri);
+        mainActivityIntent.putExtra(Default.IMAGE_DESCRIPTION_EXTRA, description);
+        context.startActivity(mainActivityIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Intent to SearchActivity for searching for PrismUsers and Tags
+     * @param context - Context of current activity app will intent from
+     */
+    public static void intentToSearchActivity(Context context) {
+        Intent searchIntent = new Intent(context, SearchActivity.class);
+        context.startActivity(searchIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * Intent to PrismTagActivity for showing all PrismPosts linked to the tag
+     * @param context - Context of current activity app will intent from
+     * @param tag - PrismTag to show information about
+     */
+    public static void intentToTagActivity(Context context, String tag) {
+        Intent tagIntent = new Intent(context, PrismTagActivity.class);
+        tagIntent.putExtra(Default.CLICKED_TAG_EXTRA, tag);
+        context.startActivity(tagIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
      * Image selection intent, where user will take a picture or select from gallery
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      */
     public static void intentToUploadImageSelectionActivity(Context context) {
         Intent uploadImageSelectionIntent = new Intent(context, PrismPostImageSelectionActivity.class);
@@ -102,7 +145,7 @@ public class IntentHelper {
 
     /**
      * Go to image edit activity, which will take a cropped image from an activity and allow it to be modified
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param resultUri - uri of cropped image
      * @param pictureUpload - Enum representing the type of image uploading
      *                      ex. PrismPost or ProfilePicture
@@ -117,7 +160,7 @@ public class IntentHelper {
 
     /**
      * Intent to gallery activity and using on ActivityResult obtain the URI
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      */
     public static void selectImageFromGallery(Context context) {
         Intent galleryIntent = new Intent();
@@ -129,7 +172,7 @@ public class IntentHelper {
 
     /**
      * Intent to camera activity to capture an image and return the URI to a specific activity
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @return - URI of image taken from camera activity
      */
     public static Uri takePictureFromCamera(Context context) {
@@ -143,8 +186,8 @@ public class IntentHelper {
     }
 
     /**
-     * Users information is shown here and can be editted at their leisure
-     * @param context - Context of activity intent is coming from
+     * Users information is shown here and can be edited at their leisure
+     * @param context - Context of current activity app will intent from
      */
     public static void intentToEditUserProfileActivity(Context context) {
         Intent editUserProfileIntent = new Intent(context, EditUserProfileActivity.class);
@@ -154,7 +197,7 @@ public class IntentHelper {
 
     /**
      * Handle the intent to a DisplayUsersActivity for likes, reposts, followers, or following
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param id - String title to be shown in toolbar TextView
      * @param displayUsersCode - int handling which type of users are going to be shown in a list
      *                         ex. Users who Liked, Reposted, Followed, or are Following
@@ -168,8 +211,9 @@ public class IntentHelper {
     }
 
     /**
-     *
-     * @param context - Context of activity intent is coming from
+     * Intent to PrismPostDetailActivity to show all information pertaining
+     * to the specific PrismPost
+     * @param context - Context of current activity app will intent from
      * @param prismPost - PrismPost that's detail page will be shown
      */
     public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost) {
@@ -180,8 +224,8 @@ public class IntentHelper {
     }
 
     /**
-     *
-     * @param context - Context of activity intent is coming from
+     * Intent to UserProfileActivity to show all information pertaining to the PrismUser passed
+     * @param context - Context of current activity app will intent from
      * @param prismUser - PrismUser that's profile will be shown
      */
     public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
@@ -192,8 +236,9 @@ public class IntentHelper {
     }
 
     /**
-     *
-     * @param context - Context of activity intent is coming from
+     * Intent to ProfilePictureUpload, where the image selection is circular and image edit
+     * is same as PrismPost uploading
+     * @param context - Context of current activity app will intent from
      * @param profilePictureType - int directing the user to take a selfie or choose form gallery
      */
     public static void intentToProfilePictureUploadActivity(Context context, int profilePictureType) {
@@ -205,7 +250,7 @@ public class IntentHelper {
 
     /**
      * Show a large scale profile picture image
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param prismUser - PrismUser to show profile picture for
      * @param userProfilePicImageView - ImageView to have Transition from
      */
@@ -221,11 +266,22 @@ public class IntentHelper {
                 ViewCompat.getTransitionName(userProfilePicImageView));
 
         context.startActivity(showProfilePictureIntent, options.toBundle());
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     * @param context
+     */
+    public static void intentToNotificationSettingsActivity(Context context) {
+        Intent notificationIntent = new Intent(context, NotificationSettingsActivity.class);
+        context.startActivity(notificationIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
      * This is strictly handled by a the internet status of the app
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      */
     public static void intentToNoInternetActivity(Context context) {
         Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
@@ -236,7 +292,7 @@ public class IntentHelper {
 
     /**
      * This is strictly handled by a boolean in Firebase, and will show when that boolean is True
-     * @param context - Context of activity intent is coming from
+     * @param context - Context of current activity app will intent from
      * @param message - under maintenance message String
      */
     public static void intentToUnderMaintenanceActivity(Context context, String message) {
