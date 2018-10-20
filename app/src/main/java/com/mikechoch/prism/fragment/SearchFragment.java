@@ -126,7 +126,7 @@ public class SearchFragment extends Fragment {
                 OnFetchCallback prismUsersOnFetchCallback = updateDiscoveryItem(context, discovery, prismUsers);
                 discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchCallback);
                 prismUsersOnFetchCallback.onSuccess(new ArrayList<>());
-//                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchCallback);
+                DiscoverController.generateRandomListOfUsers(prismUsersOnFetchCallback);
 
                 searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;

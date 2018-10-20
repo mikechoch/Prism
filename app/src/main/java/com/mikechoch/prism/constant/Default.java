@@ -15,7 +15,11 @@ import java.util.List;
 
 public class Default {
 
-    private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    private static final DatabaseReference TEST_DEFAULT_DATABASE = FirebaseDatabase.getInstance("https://prism-cd0f8.firebaseio.com/").getReference();
+    private static final DatabaseReference PRODUCTION_DATABASE = FirebaseDatabase.getInstance("https://prism-cd0f8-36af2.firebaseio.com/").getReference();
+
+    /* CHANGE THIS BEFORE PUBLISHING */
+    private static final DatabaseReference databaseReference = TEST_DEFAULT_DATABASE;
 
     public static final DatabaseReference ROOT_REFERENCE = databaseReference;
     public static final DatabaseReference ALL_POSTS_REFERENCE = databaseReference.child(Key.DB_REF_ALL_POSTS);

@@ -27,6 +27,14 @@ import java.util.Map;
 public class DatabaseRead {
 
 
+    /**
+     * Takes a string hashTag and pulls list of PrismPost ids for posts
+     * that are associated with the given hashTag. Then it calls
+     * fetchPrismPosts which parses prismPost details for those posts
+     * and returns them using the callback
+     * @param tag - string HashTag for which posts need to be pulled
+     * @param callback - used to return list of PrismPosts for the hashtag
+     */
     public static void fetchPrismPostsForTag(String tag, OnFetchPrismPostsCallback callback) {
         DatabaseReference tagReference = Default.TAGS_REFERENCE.child(tag);
         tagReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -42,11 +50,16 @@ public class DatabaseRead {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                callback.onFailure(databaseError.toException());
             }
         });
     }
 
+    /**
+     * 
+     * @param postId
+     * @param callback
+     */
     public static void fetchLikedUsers(String postId, OnFetchPrismUsersCallback callback) {
         DatabaseReference likedUsersReference = Default.ALL_POSTS_REFERENCE
                 .child(postId)
