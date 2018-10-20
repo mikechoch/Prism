@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -37,13 +38,9 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -57,6 +54,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+
 public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private int RECYCLER_VIEW_AD_THRESHOLD = 5;
@@ -64,7 +62,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     private final int GOOGLE_AD_VIEW_TYPE = 1;
 
     private Context context;
-    public static ArrayList<PrismPost> prismPostArrayList;
+    public ArrayList<PrismPost> prismPostArrayList;
 
 
     public PrismPostRecyclerViewAdapter(Context context, ArrayList<PrismPost> prismPostArrayList) {
@@ -80,8 +78,9 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         return GOOGLE_AD_VIEW_TYPE;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
         switch (viewType) {
             case PRISM_POST_VIEW_TYPE:
@@ -97,7 +96,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (position == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != 0) {
             int realPosition  = getRealPosition(position);
             ((PrismPostViewHolder) holder).setData(prismPostArrayList.get(realPosition));
@@ -117,9 +116,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         }
     }
 
-    /**
-     *
-     */
+
     public class PrismPostViewHolder extends RecyclerView.ViewHolder {
 
         private RelativeLayout prismPostRelativeLayout;
@@ -127,6 +124,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         private RelativeLayout postInformationRelativeLayout;
         private TextView prismUserTextView;
         private TextView prismPostDateTextView;
+        private CardView prismPostImageCardView;
+        private RelativeLayout prismPostImageRelativeLayout;
         private ImageView prismPostImageView;
         private ImageView likeHeartAnimationImageView;
         private TextView likesCountTextView;
@@ -146,7 +145,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         private boolean isPostReposted;
 
 
-        public PrismPostViewHolder(View itemView) {
+        PrismPostViewHolder(View itemView) {
             super(itemView);
 
             // Image initializations
@@ -156,6 +155,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             postInformationRelativeLayout = itemView.findViewById(R.id.recycler_view_post_info_relative_layout);
             prismUserTextView = itemView.findViewById(R.id.recycler_view_user_text_view);
             prismPostDateTextView = itemView.findViewById(R.id.recycler_view_date_text_view);
+            prismPostImageCardView = itemView.findViewById(R.id.prism_post_image_card_view);
+            prismPostImageRelativeLayout = itemView.findViewById(R.id.prism_post_image_relative_layout);
             prismPostImageView = itemView.findViewById(R.id.recycler_view_image_image_view);
             likeHeartAnimationImageView = itemView.findViewById(R.id.recycler_view_like_heart);
             repostIrisAnimationImageView = itemView.findViewById(R.id.recycler_view_repost_iris);
@@ -171,7 +172,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         }
 
         /**
-         * Set data for the PrismPostViewHolder UI elements
+         * Set data for the PrismPostViewHolder interface elements
          */
         public void setData(PrismPost prismPostObject) {
             this.prismPost = prismPostObject;
@@ -184,7 +185,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
             if (likeCount == null) likeCount = 0;
             if (repostCount == null) repostCount = 0;
-            populateUIElements();
+            populateInterfaceElements();
         }
 
         /**
@@ -241,8 +242,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
              * prismPostImageView will have a max height of 60% of the screen
              * This causes any images that are stronger in height to not span the entire screen
              */
-            prismPostImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.9);
-            prismPostImageView.setMaxHeight((int) (Default.screenHeight * 0.6));
+//            prismPostImageView.getLayoutParams().width = (int) (Default.screenWidth * 0.9);
+            prismPostImageView.setMaxHeight((int) (Default.screenHeight * 0.675));
 
             /*
              * Using the Glide library to populate the prismPostImageView
@@ -255,7 +256,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             Glide.with(context)
                     .asBitmap()
                     .load(prismPost.getImage())
-                    .apply(new RequestOptions().fitCenter().override((int) (Default.screenWidth * 0.9), (int) (Default.screenHeight * 0.6)))
+                    .apply(new RequestOptions().fitCenter().override((int) (Default.screenWidth * 0.9), (int) (Default.screenHeight * 0.675)))
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
@@ -275,6 +276,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                                         public void run() {
                                             prismPostRelativeLayout.setBackground(new BitmapDrawable(
                                                     context.getResources(), BitmapHelper.blur(resource, 0.2f, 100)));
+                                            prismPostImageCardView.animate()
+                                                    .alpha(1f)
+                                                    .setDuration(250)
+                                                    .start();
                                             prismPostImageView.animate()
                                                     .alpha(1f)
                                                     .setDuration(250)
@@ -304,23 +309,12 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     IntentHelper.intentToPrismPostDetailActivity(context, prismPost);
-                    return true;
+                    return false;
                 }
 
                 @Override
                 public void onLongPress(MotionEvent e) {
                     super.onLongPress(e);
-                    // Download image
-                    Glide.with(context)
-                            .asBitmap()
-                            .load(prismPost.getImage())
-                            .into(new SimpleTarget<Bitmap>(){
-                                @Override
-                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                    downloadImage(resource);
-                                }
-                            });
-
                 }
 
                 @Override
@@ -343,6 +337,10 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             });
         }
 
+        /**
+         * Given a Bitmap download an image to gallery of phone
+         * @param image - image Bitmap to save to gallery
+         */
         private void downloadImage(Bitmap image) {
             String savedImagePath;
             boolean createdPrismFolder = true;
@@ -388,7 +386,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         }
 
         /**
-         *
+         * Setup more action Button
+         * When pressed show a more AlertDialog with options being decided by PrismPost PrismUser
          */
         private void setupMoreActionButton() {
             moreButton.setOnClickListener(new View.OnClickListener() {
@@ -465,7 +464,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         /**
          * Populate all UI elements with data
          */
-        private void populateUIElements() {
+        private void populateInterfaceElements() {
             // Setup Typefaces for all text based UI elements
             prismUserTextView.setTypeface(Default.sourceSansProBold);
             prismPostDateTextView.setTypeface(Default.sourceSansProLight);

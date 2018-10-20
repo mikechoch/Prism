@@ -32,9 +32,10 @@ import com.mikechoch.prism.type.Discovery;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 public class SearchFragment extends Fragment {
 
-    public static LinearLayout searchLinearLayout;
+    private LinearLayout searchLinearLayout;
     private CardView searchCardView;
     private TextView searchBarHintTextView;
 
@@ -49,9 +50,8 @@ public class SearchFragment extends Fragment {
     private static ArrayList<Object> prismTags;
 
 
-    public static final SearchFragment newInstance() {
-        SearchFragment searchFragment = new SearchFragment();
-        return searchFragment;
+    public static SearchFragment newInstance() {
+        return new SearchFragment();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class SearchFragment extends Fragment {
      * @param context
      * @param discovery
      */
-    public static void addDiscoveryRecyclerView(Context context, Discovery discovery) {
+    private void addDiscoveryRecyclerView(Context context, Discovery discovery) {
         switch (discovery) {
             case LIKE:
                 OnFetchCallback likedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, likedPrismPosts);
@@ -193,7 +193,7 @@ public class SearchFragment extends Fragment {
      * @param arrayList
      * @return
      */
-    private static OnFetchCallback updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
+    private OnFetchCallback updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
         if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery)) {
             LinearLayout propertyRecyclerViewLinearLayout = createDiscoveryRecyclerView(context, discovery, arrayList);
             searchLinearLayout.addView(propertyRecyclerViewLinearLayout);

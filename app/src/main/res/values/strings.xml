@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Prism</string>
+    
+    <string name="uploading_image">"Uploading image..."</string>
+
+    <string name="no_liked_posts">No liked posts</string>
+    <string name="no_uploaded_reposted_posts">No uploaded or reposted posts</string>
 </resources>

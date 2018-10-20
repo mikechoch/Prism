@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
@@ -91,7 +93,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         setContentView(R.layout.prism_post_image_edit_activity_layout);
 
         imageUriExtra = Uri.parse(getIntent().getStringExtra(Default.UPLOAD_IMAGE_SELECTION_URI_EXTRA));
-        outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
+        outputBitmap = BitmapHelper.updateOutputBitmap(PrismPostImageEditActivity.this, imageUriExtra);
         pictureUpload = (PictureUpload) getIntent().getSerializableExtra(Default.UPLOAD_IMAGE_SELECTION_TYPE_EXTRA);
 
         toolbar = findViewById(R.id.prism_post_image_edit_toolbar);

@@ -2,6 +2,7 @@ package com.mikechoch.prism.fragment;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -26,79 +27,44 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Setting;
 
+
 public class ProfileFragment extends Fragment {
 
     private CardView viewProfileCardView;
     private RecyclerView settingsRecyclerView;
     private TextView userFullNameTextView;
     private TextView viewProfileTextView;
-    private CardView viewProfileAnalyticsCardView;
     private TextView viewProfileAnalyticsTextView;
     private TextView viewProfileAnalyticsTrendsTextView;
     private ImageView userProfileImageView;
 
-    public static final ProfileFragment newInstance() {
-        ProfileFragment profileFragment = new ProfileFragment();
-        return profileFragment;
+
+    public static ProfileFragment newInstance() {
+        return new ProfileFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_fragment_layout, container, false);
 
-        // Initialize all UI elements
         viewProfileCardView = view.findViewById(R.id.profile_fragment_view_profile_card_view);
         settingsRecyclerView = view.findViewById(R.id.profile_fragment_settings_recycler_view);
         userFullNameTextView = view.findViewById(R.id.profile_fragment_user_full_name_text_view);
         viewProfileTextView = view.findViewById(R.id.profile_fragment_view_profile_text_view);
-        viewProfileAnalyticsCardView = view.findViewById(R.id.profile_fragment_analytics_card_view);
         viewProfileAnalyticsTextView = view.findViewById(R.id.profile_fragment_analytics_text_view);
         viewProfileAnalyticsTrendsTextView = view.findViewById(R.id.profile_fragment_analytics_description_text_view);
         userProfileImageView = view.findViewById(R.id.profile_fragment_user_profile_image_view);
 
-        viewProfileCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentHelper.intentToUserProfileActivity(getActivity(), CurrentUser.prismUser);
-            }
-        });
-
-        viewProfileAnalyticsCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        settingsRecyclerView.setLayoutManager(linearLayoutManager);
-        OptionRecyclerViewAdapter settingsRecyclerViewAdapter = new OptionRecyclerViewAdapter(getActivity(), Setting.values());
-        settingsRecyclerView.setAdapter(settingsRecyclerViewAdapter);
-
-        setupUIElements();
-        populateUserDetails();
+        setupInterfaceElements();
 
         return view;
     }
 
     /**
-     * Setup all UI elements
+     * Populate the current user card view, which will display user's full name and profile picture
+     * When clicked it will take the user to the PrismUser profile activity
      */
-    private void setupUIElements() {
-        // Setup Typefaces for all text based UI elements
-        userFullNameTextView.setTypeface(Default.sourceSansProLight);
-        viewProfileTextView.setTypeface(Default.sourceSansProLight);
-        viewProfileAnalyticsTextView.setTypeface(Default.sourceSansProLight);
-        viewProfileAnalyticsTrendsTextView.setTypeface(Default.sourceSansProLight);
-
-    }
-
-    private void populateUserDetails() {
+    private void populateCurrentUserCardView() {
         userFullNameTextView.setText(CurrentUser.prismUser.getFullName());
         Glide.with(this)
                 .asBitmap()
@@ -124,6 +90,37 @@ public class ProfileFragment extends Fragment {
                         userProfileImageView.setImageDrawable(drawable);
                     }
                 });
+
+        viewProfileCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentHelper.intentToUserProfileActivity(getActivity(), CurrentUser.prismUser);
+            }
+        });
+    }
+
+    /**
+     * Setup the profile fragment settings recycler view
+     * Uses the Setting enum values as a data set
+     */
+    private void setupProfileSettingsRecyclerView() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        settingsRecyclerView.setLayoutManager(linearLayoutManager);
+        OptionRecyclerViewAdapter settingsRecyclerViewAdapter = new OptionRecyclerViewAdapter(getActivity(), Setting.values());
+        settingsRecyclerView.setAdapter(settingsRecyclerViewAdapter);
+    }
+
+    /**
+     * Setup elements of current fragment
+     */
+    private void setupInterfaceElements() {
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTextView.setTypeface(Default.sourceSansProLight);
+        viewProfileAnalyticsTrendsTextView.setTypeface(Default.sourceSansProLight);
+
+        populateCurrentUserCardView();
+        setupProfileSettingsRecyclerView();
     }
 
 }

@@ -138,6 +138,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private void populateNotificationInfoFields() {
             String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());
             notificationTypeTextView.setText(notificationTypeAndTime.toLowerCase());
+
             notificationTypeImageView.setImageDrawable(context.getResources().getDrawable(notification.getType().getNotifIcon()));
         }
 

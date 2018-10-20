@@ -25,6 +25,7 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
 
+
 public class PrismTagActivity extends AppCompatActivity {
 
     private AppBarLayout appBarLayout;
@@ -53,8 +54,7 @@ public class PrismTagActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;
@@ -67,11 +67,8 @@ public class PrismTagActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_tag_activity_layout);
 
-        // Initialize all toolbar elements
         toolbar = findViewById(R.id.prism_tag_toolbar);
         appBarLayout = findViewById(R.id.prism_tag_app_bar_layout);
-
-        // Initialize all UI elements
         tagSwipeRefreshLayout = findViewById(R.id.prism_tag_swipe_refresh_layout);
         tagNestedScrollView = findViewById(R.id.prism_tag_nested_scroll_view);
         toolbarTagNameTextView = findViewById(R.id.toolbar_tag_name_text_view);
@@ -105,7 +102,7 @@ public class PrismTagActivity extends AppCompatActivity {
             }
         });
 
-        setupUIElements();
+        setupInterfaceElements();
     }
 
     @Override
@@ -119,7 +116,10 @@ public class PrismTagActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -164,6 +164,7 @@ public class PrismTagActivity extends AppCompatActivity {
         tagSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //TODO: We need to refresh the prism posts of for a specific tag
                 tagSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -174,17 +175,15 @@ public class PrismTagActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup all UI elements
+     * Setup all interface elements
      */
-    private void setupUIElements() {
-        setupToolbar();
-
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
         toolbarTagNameTextView.setTypeface(Default.sourceSansProBold);
         tagNameTextView.setTypeface(Default.sourceSansProBold);
         postsCountTextView.setTypeface(Default.sourceSansProBold);
         postsLabelTextView.setTypeface(Default.sourceSansProLight);
 
+        setupToolbar();
         setupAppBarLayout();
 
         String tagString = "#" + tag;

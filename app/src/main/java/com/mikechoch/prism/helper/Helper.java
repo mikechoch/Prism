@@ -297,14 +297,12 @@ public class Helper {
      */
     public static void toast(Context context, String message) {
         Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.BOTTOM, 0, 0);
         toast.show();
     }
 
     public static void toast(Context context, String message, boolean longLength) {
         if (longLength) {
             Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM, 0, 0);
             toast.show();
         } else {
             toast(context, message);

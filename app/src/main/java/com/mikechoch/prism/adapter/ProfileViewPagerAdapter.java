@@ -26,9 +26,9 @@ public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new UploadedRepostedPostsFragment().newInstance();
+                return UploadedRepostedPostsFragment.newInstance();
             case 1:
-                return new LikedPostsFragment().newInstance();
+                return LikedPostsFragment.newInstance();
             default:
                 return null;
         }

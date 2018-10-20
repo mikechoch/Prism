@@ -2,6 +2,7 @@ package com.mikechoch.prism.fragment;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,9 +17,11 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
+
 
 public class LikedPostsFragment extends Fragment {
 
@@ -26,53 +29,48 @@ public class LikedPostsFragment extends Fragment {
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;
 
-    private int[] swipeRefreshLayoutColors = {R.color.colorAccent};
 
-    public static final LikedPostsFragment newInstance() {
-        LikedPostsFragment likedPostsFragment = new LikedPostsFragment();
-        return likedPostsFragment;
+    public static LikedPostsFragment newInstance() {
+        return new LikedPostsFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
         
         likedPostsSwipeRefreshLayout = view.findViewById(R.id.liked_posts_swipe_refresh_layout);
         likedPostsNestedScrollView = view.findViewById(R.id.liked_posts_nested_scroll_view);
         userLikedPostsLinearLayout = view.findViewById(R.id.current_user_liked_posts_linear_layout);
 
-        setupUIElements();
+        setupInterfaceElements();
 
         return view;
     }
 
     /**
-     *
+     * Setup the swipe refresh layout, which will refresh all liked posts by a user
      */
-    private void setupUploadedRepostedSwipeRefreshLayout() {
-        likedPostsSwipeRefreshLayout.setColorSchemeResources(swipeRefreshLayoutColors);
+    private void setupLikedSwipeRefreshLayout() {
+        likedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
         likedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //TODO: @Parth we need to refresh here
                 likedPostsSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     /**
-     *
+     * Setup the users liked posts recycler view
+     * If no posts have been liked, show the no liked posts text and icon
      */
     private void setupLikedRecyclerViewColumns() {
         ArrayList<PrismPost> userLikedPosts = CurrentUser.getUserLikes();
         if (userLikedPosts != null && userLikedPosts.size() > 0) {
             new PrismPostStaggeredGridRecyclerView(getActivity(), userLikedPostsLinearLayout, userLikedPosts);
         } else {
-            View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null, false);
+            View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null);
 
             Drawable noPostsDrawable = getResources().getDrawable(R.drawable.no_liked_posts_icon);
             ImageView noPostsImageView = noPostsView.findViewById(R.id.no_posts_image_view);
@@ -80,17 +78,19 @@ public class LikedPostsFragment extends Fragment {
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
             noPostsTextView.setTypeface(Default.sourceSansProLight);
-            noPostsTextView.setText("No liked posts");
+            String noLikedPostsString = getResources().getString(R.string.no_liked_posts);
+            noPostsTextView.setText(noLikedPostsString);
 
             userLikedPostsLinearLayout.addView(noPostsView);
         }
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements in current fragment
      */
-    private void setupUIElements() {
-        setupUploadedRepostedSwipeRefreshLayout();
+    private void setupInterfaceElements() {
+
+        setupLikedSwipeRefreshLayout();
         setupLikedRecyclerViewColumns();
     }
 

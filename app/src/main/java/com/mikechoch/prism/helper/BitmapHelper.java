@@ -16,6 +16,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.mikechoch.prism.constant.Default;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,8 +28,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class BitmapHelper {
 
@@ -88,7 +92,7 @@ public class BitmapHelper {
      * @param bitmap
      * @return
      */
-    private static Bitmap rotateBitmap(String src, Bitmap bitmap) {
+    public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
         int orientation = getExifOrientation(src);
 
         if (orientation == 1) {
@@ -394,23 +398,18 @@ public class BitmapHelper {
 
     /**
      *
-     * @param imageUriExtra
+     * @param uri
      * @return
      */
-    public static Bitmap createBitmapFromImageUri(Context context, Uri imageUriExtra) {
-        Bitmap bitmap = null;
+    public static Bitmap updateOutputBitmap(Context context, Uri uri) {
+        Bitmap selectedBitmap = null;
         try {
-            InputStream inputStream = context.getContentResolver().openInputStream(imageUriExtra);
-            bitmap = BitmapFactory.decodeStream(inputStream);
-        } catch (FileNotFoundException e) {
+            selectedBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+            selectedBitmap = BitmapHelper.rotateBitmap(uri.getPath(), selectedBitmap);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-        String imagePath = FileChooser.getPath(context, imageUriExtra);
-        bitmap = BitmapHelper.rotateBitmap(imagePath, bitmap);
-        imageUriExtra = getImageUri(context, bitmap);
-
-        return bitmap;
+        return selectedBitmap;
     }
 
     /**
@@ -462,6 +461,26 @@ public class BitmapHelper {
         String mImageName="MI_"+ timeStamp +".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         return mediaFile;
+    }
+
+    /**
+     * Validate a crop rectangles specs satisfy a valid cropped image
+     * @param height - height of cropped image
+     * @param width - width of cropped image
+     * @param byteCount - size in bytes of image
+     * @return - int representing crop valid, crop aspect ratio invalid, and crop res invalid
+     */
+    public static int isValidCrop(double height, double width, int byteCount) {
+        System.out.println(byteCount);
+        boolean isResValid = byteCount > 500000;
+        if (isResValid) {
+            if ((height >= width && (height/width) <= 3) ||
+                    (width >= height && (width/height) <= 3)) {
+                return Default.CROP_VALID;
+            }
+            return Default.CROP_ASPECT_RATIO_INVALID;
+        }
+        return Default.CROP_RES_INVALID;
     }
 
 }

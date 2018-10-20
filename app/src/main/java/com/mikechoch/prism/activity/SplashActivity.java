@@ -1,5 +1,7 @@
 package com.mikechoch.prism.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,7 +48,7 @@ public class SplashActivity extends AppCompatActivity {
         rotateAnimation.setRepeatCount(Animation.INFINITE);
         iconImageView.startAnimation(rotateAnimation);
 
-        new IntentLoaderTask().execute();
+        new IntentLoaderTask().execute(this);
     }
 
 
@@ -55,7 +57,7 @@ public class SplashActivity extends AppCompatActivity {
      * If logged in already go to MainActivity
      * Otherwise, go to LoginActivity
      */
-    private class IntentLoaderTask extends AsyncTask<Void, Void, Void> {
+    private static class IntentLoaderTask extends AsyncTask<Object, Object[], Object[]> {
 
         @Override
         protected void onPreExecute() {
@@ -64,31 +66,32 @@ public class SplashActivity extends AppCompatActivity {
 
 
         @Override
-        protected Void doInBackground(Void... v) {
-            Default.initializeScreenSizeElements(SplashActivity.this);
-            Default.initializeTypeface(SplashActivity.this);
+        protected Object[] doInBackground(Object... params) {
+            Context context = (Context) params[0];
+            Default.initializeScreenSizeElements((Activity) context);
+            Default.initializeTypeface((Activity) context);
 
-            if (!Helper.isNetworkAvailable(SplashActivity.this)) {
-                IntentHelper.intentToNoInternetActivity(SplashActivity.this);;
+            if (!Helper.isNetworkAvailable(context)) {
+                IntentHelper.intentToNoInternetActivity(context);
             } else {
 
                 DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
                     @Override
                     public void onStatusActive() {
-                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                        Intent intent = new Intent(context, MainActivity.class);
                         if (!CurrentUser.isUserSignedIn()) {
-                            IntentHelper.intentToLoginActivity(SplashActivity.this);
+                            IntentHelper.intentToLoginActivity(context);
                         } else {
-                            if (isNotificationIntent()) {
-                                intent = getNotificationIntent(intent);
+                            if (isNotificationIntent((Activity) context)) {
+                                intent = getNotificationIntent(context, (Activity) context, intent);
                             }
-                            CurrentUser.prepareAppForUser(SplashActivity.this, intent);
+                            CurrentUser.prepareAppForUser(context, intent);
                         }
                     }
 
                     @Override
                     public void onStatusUnderMaintenance(String message) {
-                        IntentHelper.intentToUnderMaintenancewActivity(SplashActivity.this, message);
+                        IntentHelper.intentToUnderMaintenanceActivity(context, message);
                     }
 
                     @Override
@@ -98,30 +101,30 @@ public class SplashActivity extends AppCompatActivity {
                 });
             }
 
-            return null;
+            return params;
         }
 
         @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
+        protected void onPostExecute(Object[] params) {
+            super.onPostExecute(params);
         }
     }
 
 
-    private boolean isNotificationIntent() {
-        return getIntent().getExtras() != null;
+    private static boolean isNotificationIntent(Activity context) {
+        return context.getIntent().getExtras() != null;
     }
 
-    private Intent getNotificationIntent(Intent intent) {
-        Bundle extras = getIntent().getExtras();
+    private static Intent getNotificationIntent(Context context, Activity activity, Intent intent) {
+        Bundle extras = activity.getIntent().getExtras();
         assert extras != null;
         String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
         String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
         if (prismPostId != null) {
-            intent = new Intent(SplashActivity.this, PrismPostDetailActivity.class);
+            intent = new Intent(context, PrismPostDetailActivity.class);
             intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
         } else if (prismUserId != null) {
-            intent = new Intent(SplashActivity.this, PrismUserProfileActivity.class);
+            intent = new Intent(context, PrismUserProfileActivity.class);
             intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
         }
 

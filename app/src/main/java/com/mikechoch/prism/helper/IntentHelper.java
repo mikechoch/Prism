@@ -36,11 +36,12 @@ import com.mikechoch.prism.type.PictureUpload;
 import java.io.File;
 import java.util.Date;
 
+
 public class IntentHelper {
 
     /**
-     *
-     * @param context
+     * Reset entire application from cold start
+     * @param context - Context of activity intent is coming from
      */
     public static void resetApplication(Context context) {
         Intent resetApplicationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
@@ -52,9 +53,9 @@ public class IntentHelper {
     }
 
     /**
-     *
-     * @param context
-     * @param shouldClearBackStack
+     * When user is verifying their email, the app must wait at this activity until confirmed
+     * @param context - Context of activity intent is coming from
+     * @param shouldClearBackStack - boolean to handle clearing the back stack after intent
      */
     public static void intentToEmailVerificationActivity(Context context, boolean shouldClearBackStack) {
         Intent intent = new Intent(context, EmailVerificationMessageActivity.class);
@@ -66,19 +67,20 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to Login Activity from Main Activity
+     * Travel to the login activity of the application
+     * @param context - Context of activity intent is coming from
      */
     public static void intentToLoginActivity(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        // ((Activity) context).finish(); TODO is this necessary?
     }
 
     /**
-     * Intent to Main Activity from Register Activity
-     * TODO Rename this method
+     * Travel to the main activity of the application
+     * @param context - Context of activity intent is coming from
+     * @param shouldClearBackStack - boolean to handle clearing the back stack after intent
      */
     public static void intentToMainActivity(Context context, boolean shouldClearBackStack) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -89,7 +91,8 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to Upload Image Activity from Main Activity
+     * Image selection intent, where user will take a picture or select from gallery
+     * @param context - Context of activity intent is coming from
      */
     public static void intentToUploadImageSelectionActivity(Context context) {
         Intent uploadImageSelectionIntent = new Intent(context, PrismPostImageSelectionActivity.class);
@@ -98,7 +101,11 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to Upload Image Activity from Main Activity
+     * Go to image edit activity, which will take a cropped image from an activity and allow it to be modified
+     * @param context - Context of activity intent is coming from
+     * @param resultUri - uri of cropped image
+     * @param pictureUpload - Enum representing the type of image uploading
+     *                      ex. PrismPost or ProfilePicture
      */
     public static void intentToUploadImageEditActivity(Context context, String resultUri, PictureUpload pictureUpload) {
         Intent uploadImageEditIntent = new Intent(context, PrismPostImageEditActivity.class);
@@ -109,38 +116,21 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to Upload Image Activity from Main Activity
-     */
-    public static void intentToUploadDescriptionActivity(Context context) {
-        Intent uploadDescriptionIntent = new Intent(context, PrismPostDescriptionActivity.class);
-        context.startActivity(uploadDescriptionIntent);
-        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     *
-     * @param context
-     */
-    public static void intentToNoInternetActivity(Context context) {
-        Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
-        noInternetIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        context.startActivity(noInternetIntent);
-        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    /**
-     * Create an Intent to ask user to select a image they would like to upload
+     * Intent to gallery activity and using on ActivityResult obtain the URI
+     * @param context - Context of activity intent is coming from
      */
     public static void selectImageFromGallery(Context context) {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
         ((Activity) context).startActivityForResult(Intent.createChooser(galleryIntent, "Select a picture"), Default.GALLERY_INTENT_REQUEST_CODE);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
-     * Create an Intent to ask user to take a picture with the phone's camera
-     * Also prepares a file to save the image
+     * Intent to camera activity to capture an image and return the URI to a specific activity
+     * @param context - Context of activity intent is coming from
+     * @return - URI of image taken from camera activity
      */
     public static Uri takePictureFromCamera(Context context) {
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -153,7 +143,8 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to EditUserProfileActivity where the user can modify their account information
+     * Users information is shown here and can be editted at their leisure
+     * @param context - Context of activity intent is coming from
      */
     public static void intentToEditUserProfileActivity(Context context) {
         Intent editUserProfileIntent = new Intent(context, EditUserProfileActivity.class);
@@ -162,8 +153,11 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to DisplayUserActivity with the correct intentType code
-     * @param displayUsersCode
+     * Handle the intent to a DisplayUsersActivity for likes, reposts, followers, or following
+     * @param context - Context of activity intent is coming from
+     * @param id - String title to be shown in toolbar TextView
+     * @param displayUsersCode - int handling which type of users are going to be shown in a list
+     *                         ex. Users who Liked, Reposted, Followed, or are Following
      */
     public static void intentToDisplayUsersActivity(Context context, String id, int displayUsersCode) {
         Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
@@ -174,9 +168,9 @@ public class IntentHelper {
     }
 
     /**
-     * Intent from the current clicked PrismPost to the PrismPostDetail
-     * @param context
-     * @param prismPost
+     *
+     * @param context - Context of activity intent is coming from
+     * @param prismPost - PrismPost that's detail page will be shown
      */
     public static void intentToPrismPostDetailActivity(Context context, PrismPost prismPost) {
         Intent prismPostDetailIntent = new Intent(context, PrismPostDetailActivity.class);
@@ -186,9 +180,9 @@ public class IntentHelper {
     }
 
     /**
-     * Intent from the current clicked PrismPost user to their PrismUserProfileActivity
-     * @param context
-     * @param prismUser
+     *
+     * @param context - Context of activity intent is coming from
+     * @param prismUser - PrismUser that's profile will be shown
      */
     public static void intentToUserProfileActivity(Context context, PrismUser prismUser) {
         Intent prismUserProfileIntent = new Intent(context, PrismUserProfileActivity.class);
@@ -199,8 +193,8 @@ public class IntentHelper {
 
     /**
      *
-     * @param context
-     * @param profilePictureType
+     * @param context - Context of activity intent is coming from
+     * @param profilePictureType - int directing the user to take a selfie or choose form gallery
      */
     public static void intentToProfilePictureUploadActivity(Context context, int profilePictureType) {
         Intent galleryImageUploadIntent = new Intent(context, ProfilePictureUploadActivity.class);
@@ -210,8 +204,10 @@ public class IntentHelper {
     }
 
     /**
-     * Intent to ShowUserProfilePictureActivity
-     * Where the hi-res PrismUser profile picture will be shown
+     * Show a large scale profile picture image
+     * @param context - Context of activity intent is coming from
+     * @param prismUser - PrismUser to show profile picture for
+     * @param userProfilePicImageView - ImageView to have Transition from
      */
     public static void intentToShowUserProfilePictureActivity(Context context, PrismUser prismUser, ImageView userProfilePicImageView) {
         Intent showProfilePictureIntent = new Intent(context, ShowUserProfilePictureActivity.class);
@@ -227,7 +223,23 @@ public class IntentHelper {
         context.startActivity(showProfilePictureIntent, options.toBundle());
     }
 
-    public static void intentToUnderMaintenancewActivity(Context context, String message) {
+    /**
+     * This is strictly handled by a the internet status of the app
+     * @param context - Context of activity intent is coming from
+     */
+    public static void intentToNoInternetActivity(Context context) {
+        Intent noInternetIntent = new Intent(context, NoInternetActivity.class);
+        noInternetIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(noInternetIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * This is strictly handled by a boolean in Firebase, and will show when that boolean is True
+     * @param context - Context of activity intent is coming from
+     * @param message - under maintenance message String
+     */
+    public static void intentToUnderMaintenanceActivity(Context context, String message) {
         Intent intent = new Intent(context, UnderMaintenanceActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(Key.STATUS_MESSAGE, message);

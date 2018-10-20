@@ -34,7 +34,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.bumptech.glide.Glide;
@@ -42,7 +41,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -56,7 +54,7 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
-import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
@@ -84,7 +82,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     private RelativeLayout uploadingImageRelativeLayout;
     private FloatingActionButton uploadImageFab;
     private ProgressBar imageUploadProgressBar;
-    private Snackbar networkSnackbar;
+    private Snackbar networkSnackBar;
     private NetworkStateReceiver networkStateReceiver;
 
     private Uri profilePictureUri;
@@ -155,22 +153,22 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     @Override
     public void onNetworkConnected() {
 //        CurrentUser.refreshUserProfile(this);
-        if (networkSnackbar != null && networkSnackbar.isShownOrQueued()) {
-            networkSnackbar.dismiss();
-            networkSnackbar = null;
+        if (networkSnackBar != null && networkSnackBar.isShownOrQueued()) {
+            networkSnackBar.dismiss();
+            networkSnackBar = null;
         }
     }
 
     @Override
     public void onNetworkDisconnected() {
         CoordinatorLayout coordinatorLayout = findViewById(R.id.main_coordinate_layout);
-        networkSnackbar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
+        networkSnackBar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
                 Snackbar.LENGTH_INDEFINITE);
-        ((TextView) (networkSnackbar.getView())
+        ((TextView) (networkSnackBar.getView())
                 .findViewById(android.support.design.R.id.snackbar_text))
                 .setTypeface(Default.sourceSansProBold);
-        networkSnackbar.show();
-        Helper.disableSnackbarSwipeDismiss(networkSnackbar.getView());
+        networkSnackBar.show();
+        Helper.disableSnackbarSwipeDismiss(networkSnackBar.getView());
     }
 
 
@@ -201,7 +199,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * @param uploadIntent
      */
     private void uploadPrismPostToFirebase(Intent uploadIntent) {
-        uploadingImageTextView.setText("Uploading image...");
+        String uploadingImageString = getResources().getString(R.string.uploading_image);
+        uploadingImageTextView.setText(uploadingImageString);
         imageUploadProgressBar.setProgress(0);
         imageUploadProgressBar.setIndeterminate(false);
         uploadingImageRelativeLayout.setVisibility(View.VISIBLE);
@@ -258,24 +257,23 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      */
     private void setupPrismTabLayout() {
         // Setup all TabLayout tab icons
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_HOME).setIcon(R.drawable.ic_image_filter_hdr_white_36dp);
-//        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_TRENDING).setIcon(R.drawable.ic_flash_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH - 1).setIcon(R.drawable.ic_magnify_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS - 1).setIcon(R.drawable.ic_bell_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE - 1).setIcon(R.drawable.ic_menu_white_36dp);
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_MAIN_FEED).setIcon(R.drawable.ic_image_filter_hdr_white_36dp);
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH).setIcon(R.drawable.ic_magnify_white_36dp);
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS ).setIcon(R.drawable.ic_bell_white_36dp);
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE).setIcon(R.drawable.ic_menu_white_36dp);
 
         // Create the selected and unselected tab icon colors
         int tabUnselectedColor = Color.WHITE;
         int tabSelectedColor = getResources().getColor(R.color.colorAccent);
 
         // Make first tab selected color and all others unselected
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_HOME).getIcon().setColorFilter(
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_MAIN_FEED).getIcon().setColorFilter(
                 tabSelectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH - 1).getIcon().setColorFilter(
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH).getIcon().setColorFilter(
                 tabUnselectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS - 1).getIcon().setColorFilter(
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS).getIcon().setColorFilter(
                 tabUnselectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE - 1).getIcon().setColorFilter(
+        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE).getIcon().setColorFilter(
                 tabUnselectedColor, PorterDuff.Mode.SRC_IN);
 
         // Setup the tab selected, unselected, and reselected listener
@@ -291,10 +289,10 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 // Otherwise, the uploadImageFab will be hidden
                 tab.getIcon().setColorFilter(tabSelectedColor, PorterDuff.Mode.SRC_IN);
                 prismViewPager.setCurrentItem(tab.getPosition(), true);
-                if (tab.getPosition() <= Default.MAIN_VIEW_PAGER_TRENDING - 1 && !uploadImageFab.isShown()) {
+                if (tab.getPosition() <= Default.MAIN_VIEW_PAGER_MAIN_FEED && !uploadImageFab.isShown()) {
 //                    toolbar.setLayoutParams(params);
                     uploadImageFab.startAnimation(showFabAnimation);
-                } else if (tab.getPosition() > Default.MAIN_VIEW_PAGER_TRENDING - 1 && uploadImageFab.isShown()) {
+                } else if (tab.getPosition() > Default.MAIN_VIEW_PAGER_MAIN_FEED && uploadImageFab.isShown()) {
 //                    params.setScrollFlags(0);
 //                    toolbar.setLayoutParams(params);
                     uploadImageFab.startAnimation(hideFabAnimation);
@@ -304,15 +302,15 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
                     // HOME tab will...
-                    case 0:
+                    case Default.MAIN_VIEW_PAGER_MAIN_FEED:
                         break;
 
                     // SEARCH tab will...
-                    case 1:
+                    case Default.MAIN_VIEW_PAGER_SEARCH:
                         break;
 
                     // NOTIFICATIONS tab will...
-                    case 2:
+                    case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
                         clearNotificationsHandler = new Handler();
                         clearNotificationsRunnable = new Runnable() {
                             @Override
@@ -324,7 +322,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                         break;
 
                     // PROFILE tab will...
-                    case 3:
+                    case Default.MAIN_VIEW_PAGER_PROFILE:
                         break;
                     default:
                         break;
@@ -340,15 +338,15 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
                     // HOME tab will...
-                    case 0:
+                    case Default.MAIN_VIEW_PAGER_MAIN_FEED:
                         break;
 
                     // SEARCH tab will...
-                    case 1:
+                    case Default.MAIN_VIEW_PAGER_SEARCH:
                         break;
 
                     // NOTIFICATIONS tab will set all notifications isViewed to true
-                    case 2:
+                    case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
                         NotificationFragment.clearAllNotifications();
                         clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
                         if (shouldClearNotifications) {
@@ -359,7 +357,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                         break;
 
                     // PROFILE tab will...
-                    case 3:
+                    case Default.MAIN_VIEW_PAGER_PROFILE:
                         break;
                     default:
                         break;
@@ -372,7 +370,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
                     // HOME tab will bring the user back to the top of the mainContentRecyclerView
-                    case 0:
+                    case Default.MAIN_VIEW_PAGER_MAIN_FEED:
                         RecyclerView mainContentRecyclerView = MainActivity.this
                                 .findViewById(R.id.main_content_recycler_view);
                         if (mainContentRecyclerView != null) {
@@ -387,18 +385,15 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                         break;
 
                     // SEARCH tab will...
-                    case 1:
+                    case Default.MAIN_VIEW_PAGER_SEARCH:
                         break;
 
                     // NOTIFICATIONS tab will...
-                    case 2:
+                    case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
                         break;
 
                     // PROFILE tab will...
-                    case 3:
-                        break;
-
-                    case 4:
+                    case Default.MAIN_VIEW_PAGER_PROFILE:
                         break;
 
                     default:
@@ -562,7 +557,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         RecyclerView mainContentRecyclerView = MainActivity.this.findViewById(R.id.main_content_recycler_view);
         LinearLayoutManager layoutManager  = (LinearLayoutManager) mainContentRecyclerView.getLayoutManager();
         RelativeLayout noMainPostsRelativeLayout = MainActivity.this.findViewById(R.id.no_main_posts_relative_layout);
-        MainContentFragment.prismPostArrayList.add(0, prismPost);
+        MainFeedFragment.mainFeedPrismPostArrayList.add(0, prismPost);
         mainContentRecyclerView.getAdapter().notifyItemInserted(0);
         noMainPostsRelativeLayout.setVisibility(View.GONE);
 

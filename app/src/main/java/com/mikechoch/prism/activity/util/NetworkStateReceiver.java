@@ -9,10 +9,12 @@ import android.net.NetworkInfo;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class NetworkStateReceiver extends BroadcastReceiver {
 
     protected Set<NetworkStateReceiverListener> listeners;
     protected Boolean connected;
+
 
     public NetworkStateReceiver() {
         listeners = new HashSet<>();
@@ -24,8 +26,11 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             return;
         }
 
-        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = null;
+        if (connectivityManager != null) {
+            networkInfo = connectivityManager.getActiveNetworkInfo();
+        }
 
         if (networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED) {
             connected = true;
@@ -64,8 +69,8 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     }
 
     public interface NetworkStateReceiverListener {
-        public void onNetworkConnected();
-        public void onNetworkDisconnected();
+        void onNetworkConnected();
+        void onNetworkDisconnected();
     }
 
 }

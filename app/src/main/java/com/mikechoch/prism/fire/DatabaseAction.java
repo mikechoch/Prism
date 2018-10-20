@@ -19,7 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
-import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
@@ -27,7 +26,7 @@ import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fragment.MainContentFragment;
+import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.NotificationType;
 
@@ -36,6 +35,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class DatabaseAction {
 
@@ -176,8 +176,9 @@ public class DatabaseAction {
                                 CurrentUser.deletePost(prismPost);
 
                                 // Update UI after the post is deleted
-                                PrismPostRecyclerViewAdapter.prismPostArrayList.remove(prismPost);
-                                refreshMainRecyclerViewAdapter();
+                                MainFeedFragment.mainFeedPrismPostArrayList.remove(prismPost);
+                                //TODO: We need to call notify data set changed here
+//                                MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
 
                             } else {
                                 Log.wtf(Default.TAG_DB, Message.NO_DATA);
@@ -248,6 +249,11 @@ public class DatabaseAction {
 
     }
 
+    /**
+     *
+     * @param type
+     * @param allowPushNotification
+     */
     public static void updatePreferenceForPushNotification(NotificationType type, boolean allowPushNotification) {
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
 
@@ -258,6 +264,9 @@ public class DatabaseAction {
         CurrentUser.preference.setPushNotificationPreference(type, allowPushNotification);
     }
 
+    /**
+     *
+     */
     public static void updateViewedTimestampForAllNotifications() {
         long timestamp = System.currentTimeMillis();
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
@@ -328,15 +337,10 @@ public class DatabaseAction {
         });
     }
 
-
-
     /**
-     * Refresh mainContentFragment's recyclerViewAdapter
+     *
+     * @param context
      */
-    static void refreshMainRecyclerViewAdapter() {
-        MainContentFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-    }
-
     public static void handleFirebaseTokenRefreshActivities(Context context) {
         String firebaseToken = FirebaseInstanceId.getInstance().getToken();
         boolean isUserLoggedIn = CurrentUser.getFirebaseUser() != null;
@@ -460,6 +464,10 @@ class DeleteHelper {
         }
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostFromUserUploads(PrismPost prismPost) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
@@ -467,6 +475,10 @@ class DeleteHelper {
                 .child(prismPost.getPostId()).removeValue();
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostUnderItsHashTags(PrismPost prismPost) {
         ArrayList<String> listOfHashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
         DatabaseReference tagsReference = Default.TAGS_REFERENCE;
@@ -476,6 +488,10 @@ class DeleteHelper {
         }
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostRelatedNotifications(PrismPost prismPost) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.child(prismPost.getPrismUser().getUid())
@@ -497,12 +513,14 @@ class DeleteHelper {
         });
     }
 
+    /**
+     *
+     * @param prismPost
+     */
     static void deletePostFromAllPosts(PrismPost prismPost) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.child(prismPost.getPostId()).removeValue();
     }
-
-
 
 }
 

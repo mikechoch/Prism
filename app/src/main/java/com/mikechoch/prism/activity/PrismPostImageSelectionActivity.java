@@ -7,7 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,6 +26,8 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.io.IOException;
 
 
 public class PrismPostImageSelectionActivity extends AppCompatActivity {
@@ -76,9 +80,12 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         cropImageViewLinearLayout = findViewById(R.id.prism_post_upload_image_selection_crop_image_view_limiter);
         cropImageView = findViewById(R.id.prism_post_upload_image_selection_crop_image_view);
 
-        setupUIElements();
+        setupInterfaceElements();
 
-        IntentHelper.selectImageFromGallery(PrismPostImageSelectionActivity.this);
+        boolean isAllowed = Helper.permissionRequest(PrismPostImageSelectionActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (isAllowed) {
+            IntentHelper.selectImageFromGallery(PrismPostImageSelectionActivity.this);
+        }
     }
 
     @Override
@@ -118,7 +125,12 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
 
+    /**
+     *
+     */
+    private void setupGalleryButton() {
         gallerySelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,7 +140,12 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    /**
+     *
+     */
+    private void setupCameraButton() {
         cameraSelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,20 +165,36 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri croppedUri = BitmapHelper.getImageUri(PrismPostImageSelectionActivity.this, cropImageView.getCroppedImage());
-                IntentHelper.intentToUploadImageEditActivity(PrismPostImageSelectionActivity.this, croppedUri.toString(), PictureUpload.PRISM_POST);
+                double height = cropImageView.getCropRect().height();
+                double width = cropImageView.getCropRect().width();
+                int byteCount = BitmapCompat.getAllocationByteCount(cropImageView.getCroppedImage());
+                int cropValidation = BitmapHelper.isValidCrop(height, width, byteCount);
+                switch (cropValidation) {
+                    case Default.CROP_VALID:
+                        Uri croppedUri = BitmapHelper.getImageUri(PrismPostImageSelectionActivity.this, cropImageView.getCroppedImage());
+                        IntentHelper.intentToUploadImageEditActivity(PrismPostImageSelectionActivity.this, croppedUri.toString(), PictureUpload.PRISM_POST);
+                        break;
+                    case Default.CROP_ASPECT_RATIO_INVALID:
+                        Helper.toast(PrismPostImageSelectionActivity.this, "Invalid crop aspect ratio");
+                        break;
+                    case Default.CROP_RES_INVALID:
+                        Helper.toast(PrismPostImageSelectionActivity.this, "Resolution of the image too low");
+                        break;
+                }
             }
         });
     }
 
     /**
-     * Setup all UI elements
+     * Setup all interface elements
      */
-    private void setupUIElements() {
+    private void setupInterfaceElements() {
         nextButton.setTypeface(Default.sourceSansProBold);
 
         setupToolbar();
         setupNextButton();
+        setupGalleryButton();
+        setupCameraButton();
     }
 
     /**
@@ -173,7 +206,7 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
             case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
-                    outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
+                    outputBitmap = BitmapHelper.updateOutputBitmap(PrismPostImageSelectionActivity.this, imageUriExtra);
                     setupCropImageView(outputBitmap);
 
                 } else {
@@ -184,7 +217,7 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
                 break;
             case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
+                    outputBitmap = BitmapHelper.updateOutputBitmap(PrismPostImageSelectionActivity.this, imageUriExtra);
                     setupCropImageView(outputBitmap);
 
                 } else {

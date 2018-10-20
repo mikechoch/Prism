@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,6 +35,7 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
 
+
 public class SearchActivity  extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -57,7 +59,6 @@ public class SearchActivity  extends AppCompatActivity {
      * search cannot happen inside of Firebase because the search query
      * needs to look for 'username' and 'full name'.
      */
-
 
 
     @Override
@@ -133,7 +134,13 @@ public class SearchActivity  extends AppCompatActivity {
         });
 
         populateUsersCollection();
-        setupUIElements();
+        setupInterfaceElements();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**
@@ -160,19 +167,15 @@ public class SearchActivity  extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
     /**
-     * Setup the toolbar and back button to return to MainActivity
+     * Setup the toolbar and back button
      */
     private void setupToolbar() {
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -224,8 +227,9 @@ public class SearchActivity  extends AppCompatActivity {
                         for (DataSnapshot tagSnapshot : dataSnapshot.getChildren()) {
                             hashTagsCollection.add(tagSnapshot.getKey());
                         }
-                        if (TagSearchFragment.tagSearchRecyclerViewAdapter != null) {
-                            TagSearchFragment.tagSearchRecyclerViewAdapter.notifyDataSetChanged();
+                        RecyclerView tagRecyclerView = findViewById(R.id.tag_search_type_recycler_view);
+                        if (tagRecyclerView != null) {
+                            tagRecyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
                     @Override
@@ -252,6 +256,10 @@ public class SearchActivity  extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     * @param query
+     */
     private void performSearchForUser(String query) {
         ArrayList<PrismUser> highRelevance = new ArrayList<>();
         ArrayList<PrismUser> mediumRelevance = new ArrayList<>();
@@ -276,20 +284,19 @@ public class SearchActivity  extends AppCompatActivity {
         prismUserCollection.addAll(mediumRelevance);
         prismUserCollection.addAll(lowRelevance);
 
-        if (PeopleSearchFragment.peopleSearchRecyclerViewAdapter != null) {
-            PeopleSearchFragment.peopleSearchRecyclerViewAdapter.notifyDataSetChanged();
+        RecyclerView peopleRecyclerView = findViewById(R.id.people_search_type_recycler_view);
+        if (peopleRecyclerView != null) {
+            peopleRecyclerView.getAdapter().notifyDataSetChanged();
         }
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements of current activity
      */
-    private void setupUIElements() {
-        setupToolbar();
-
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
         searchBarEditText.setTypeface(Default.sourceSansProLight);
 
+        setupToolbar();
         setupSearchBarEditText();
     }
 }

@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ProgressBar
-        android:id="@+id/main_content_progress_bar"
+        android:id="@+id/main_feed_fragment_progress_bar"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"

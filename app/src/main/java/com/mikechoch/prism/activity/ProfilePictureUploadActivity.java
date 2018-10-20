@@ -1,31 +1,38 @@
 package com.mikechoch.prism.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.IOException;
 
 public class ProfilePictureUploadActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
+    private ImageView gallerySelectionButton;
+    private ImageView cameraSelectionButton;
     private TextView nextButton;
     private LinearLayout cropImageViewLinearLayout;
     private CropImageView cropImageView;
@@ -59,15 +66,30 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_picture_upload_activity_layout);
 
-        // Initialize all UI elements
         toolbar = findViewById(R.id.toolbar);
+        gallerySelectionButton = findViewById(R.id.profile_picture_upload_image_selection_toolbar_gallery_button);
+        cameraSelectionButton = findViewById(R.id.profile_picture_upload_image_selection_toolbar_camera_button);
         nextButton = findViewById(R.id.profile_picture_upload_image_selection_toolbar_next_button);
         cropImageViewLinearLayout = findViewById(R.id.profile_picture_upload_image_selection_crop_image_view_limiter);
         cropImageView = findViewById(R.id.profile_picture_upload_image_selection_crop_image_view);
 
-        setupUIElements();
+        setupInterfaceElements();
 
-        IntentHelper.selectImageFromGallery(this);
+        int intentCode = getIntent().getIntExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, -1);
+        switch (intentCode) {
+            case Default.PROFILE_PICTURE_GALLERY:
+                boolean isGalleryAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (isGalleryAllowed) {
+                    IntentHelper.selectImageFromGallery(ProfilePictureUploadActivity.this);
+                }
+                break;
+            case Default.PROFILE_PICTURE_SELFIE:
+                boolean isCameraAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
+                if (isCameraAllowed) {
+                    imageUriExtra = IntentHelper.takePictureFromCamera(ProfilePictureUploadActivity.this);
+                }
+                break;
+        }
     }
 
     @Override
@@ -106,15 +128,45 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup all UI elements
+     *
      */
-    private void setupUIElements() {
-        setupToolbar();
+    private void setupGalleryButton() {
+        gallerySelectionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (isAllowed) {
+                    IntentHelper.selectImageFromGallery(ProfilePictureUploadActivity.this);
+                }
+            }
+        });
+    }
 
-        // Setup Typefaces for all text based UI elements
+    /**
+     *
+     */
+    private void setupCameraButton() {
+        cameraSelectionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
+                if (isAllowed) {
+                    imageUriExtra = IntentHelper.takePictureFromCamera(ProfilePictureUploadActivity.this);
+                }
+            }
+        });
+    }
+
+    /**
+     * Setup all interface elements
+     */
+    private void setupInterfaceElements() {
         nextButton.setTypeface(Default.sourceSansProBold);
 
+        setupToolbar();
         setupNextButton();
+        setupGalleryButton();
+        setupCameraButton();
     }
 
     /**
@@ -140,7 +192,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
             case Default.GALLERY_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     imageUriExtra = data.getData();
-                    outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
+                    outputBitmap = BitmapHelper.updateOutputBitmap(ProfilePictureUploadActivity.this, imageUriExtra);
                     setupCropImageView(outputBitmap);
 
                 } else {
@@ -151,7 +203,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
                 break;
             case Default.CAMERA_INTENT_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    outputBitmap = BitmapHelper.createBitmapFromImageUri(this, imageUriExtra);
+                    outputBitmap = BitmapHelper.updateOutputBitmap(ProfilePictureUploadActivity.this, imageUriExtra);
                     setupCropImageView(outputBitmap);
 
                 } else {
