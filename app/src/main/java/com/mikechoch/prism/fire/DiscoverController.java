@@ -251,12 +251,14 @@ public class DiscoverController {
         onFetchCallback.onSuccess(new ArrayList<>(listOfPostsForRandomHashTag));
     }
 
-//    public static ArrayList<PrismPost> getListOfPrismPostsForRandomTag(OnFetchCallback onFetchListener) {
-//        return listOfPrismPostsForRandomTag;
-//    }
-//
-//    public static ArrayList<PrismUser> getListOfRandomPrismUsers(OnFetchCallback onFetchListener) {
-//        return listOfRandomPrismUsers;
-//    }
+    public static void generateRandomListOfUsers(OnFetchCallback onFetchCallback) {
+        ArrayList<Object> randomUsers = new ArrayList<>();
+        for (PrismUser prismUser : mapOfPrismUsers.values()) {
+            if (!CurrentUser.isFollowingPrismUser(prismUser) && !Helper.isPrismUserCurrentUser(prismUser)) {
+                randomUsers.add(prismUser);
+            }
+        }
+        onFetchCallback.onSuccess(randomUsers);
+    }
 
 }

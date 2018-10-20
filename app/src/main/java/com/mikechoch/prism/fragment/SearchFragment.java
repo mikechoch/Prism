@@ -114,7 +114,7 @@ public class SearchFragment extends Fragment {
                 OnFetchCallback prismUsersOnFetchCallback = updateDiscoveryItem(context, discovery, prismUsers);
                 discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchCallback);
                 prismUsersOnFetchCallback.onSuccess(new ArrayList<>());
-//                DiscoverController.getListOfRandomPrismUsers(prismUsersOnFetchCallback);
+                DiscoverController.generateRandomListOfUsers(prismUsersOnFetchCallback);
 
                 View googleAdView = LayoutInflater.from(context).inflate(
                         R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
