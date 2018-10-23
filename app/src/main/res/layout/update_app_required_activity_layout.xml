@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="24dp"
             android:tint="@color/colorAccent"
-            android:src="@drawable/ic_wifi_off_white_96dp"/>
+            android:src="@drawable/ic_update_app_white_96dp"/>
 
         <TextView
             android:id="@+id/updated_app_required_activity_text_view"
@@ -30,7 +30,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Looks like Prism isn't up to date on your phone, click the update button below to update the app."
+            android:text="Prism isn't up to date, click the update button below to update the app."
             android:textSize="16sp"
             android:textColor="@android:color/white"
             android:textStyle="bold"
