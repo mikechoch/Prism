@@ -36,7 +36,7 @@ public class UnderMaintenanceActivity extends AppCompatActivity {
      * @return alert - alert message String
      */
     private String getAlertMessageString() {
-        String alert = "Prism is currently under maintenance, please come back after 6pm EST. We apologize for the inconvenience.";
+        String alert = "Prism is currently under maintenance, please come back later. We apologize for the inconvenience.";
         Bundle incomingBundle = getIntent().getExtras();
         if (incomingBundle != null) {
             alert = getIntent().getExtras().getString(Key.STATUS_MESSAGE);

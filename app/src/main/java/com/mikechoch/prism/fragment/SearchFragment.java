@@ -3,6 +3,7 @@ package com.mikechoch.prism.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,6 +28,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DiscoverController;
 import com.mikechoch.prism.callback.fetch.OnFetchCallback;
 import com.mikechoch.prism.callback.action.OnInitializeDiscoveryCallback;
+import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Discovery;
 
 import java.util.ArrayList;
@@ -55,23 +57,12 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.search_fragment_layout, container, false);
 
         searchLinearLayout = view.findViewById(R.id.search_fragment_linear_Layout);
         searchCardView = view.findViewById(R.id.search_bar_card_view);
         searchBarHintTextView = view.findViewById(R.id.search_bar_hint_text_view);
-
-        searchBarHintTextView.setTypeface(Default.sourceSansProLight);
-
-        searchCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent searchIntent = new Intent(getActivity(), SearchActivity.class);
-                startActivity(searchIntent);
-                getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
-        });
 
         likedPrismPosts = new ArrayList<>();
         prismUsers = new ArrayList<>();
@@ -82,6 +73,27 @@ public class SearchFragment extends Fragment {
         discoveryLinearLayoutHashMap = new HashMap<>();
         discoveryOnFetchListenerHashMap = new HashMap<>();
 
+        setupInterfaceElements();
+
+        return view;
+    }
+
+    /**
+     * Setup the search card view so that when clicked it will intent to the SearchActivity
+     */
+    private void setupSearchBarCardView() {
+        searchCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentHelper.intentToSearchActivity(getActivity());
+            }
+        });
+    }
+
+    /**
+     * Iterate over all Discovery enums and create a discovery horizontal RecyclerView for each
+     */
+    private void setupDiscoveryRecyclerViews() {
         DiscoverController.setupDiscoverContent(new OnInitializeDiscoveryCallback() {
             @Override
             public void onSuccess() {
@@ -95,13 +107,13 @@ public class SearchFragment extends Fragment {
                 e.printStackTrace();
             }
         });
-
-        return view;
     }
 
     /**
-     * @param context
-     * @param discovery
+     * Based on the Discovery enum passed in, create the correct horizontal RecyclerView
+     * with the property data (PrismPosts, PrismUsers, Tags, etc.)
+     * @param context - fragment getActivity context
+     * @param discovery - Discovery enum RecyclerView is being created for
      */
     private void addDiscoveryRecyclerView(Context context, Discovery discovery) {
         switch (discovery) {
@@ -116,60 +128,7 @@ public class SearchFragment extends Fragment {
                 prismUsersOnFetchCallback.onSuccess(new ArrayList<>());
                 DiscoverController.generateRandomListOfUsers(prismUsersOnFetchCallback);
 
-                View googleAdView = LayoutInflater.from(context).inflate(
-                        R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
-
-                LinearLayout sponsoredLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_sponsored_linear_layout);
-                TextView sponsoredAdTextView = googleAdView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
-                AdView adView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_view);
-                ProgressBar adProgressBar = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_progress_bar);
-                LinearLayout adFailedLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout);
-                TextView adFailedTextView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout_title);
-
-                sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
-                adFailedTextView.setTypeface(Default.sourceSansProBold);
-
-                AdRequest adRequest = new AdRequest.Builder().build();
-                adView.loadAd(adRequest);
-                adView.setAdListener(new AdListener() {
-                    @Override
-                    public void onAdLoaded() {
-                        // Code to be executed when an ad finishes loading.
-                        sponsoredLinearLayout.setVisibility(View.VISIBLE);
-                        adView.setVisibility(View.VISIBLE);
-                        adProgressBar.setVisibility(View.GONE);
-                        adFailedLinearLayout.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(int errorCode) {
-                        // Code to be executed when an ad request fails.
-                        sponsoredLinearLayout.setVisibility(View.GONE);
-                        adView.setVisibility(View.GONE);
-                        adProgressBar.setVisibility(View.GONE);
-                        adFailedLinearLayout.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAdOpened() {
-                        // Code to be executed when an ad opens an overlay that
-                        // covers the screen.
-                    }
-
-                    @Override
-                    public void onAdLeftApplication() {
-                        // Code to be executed when the user has left the app.
-                    }
-
-                    @Override
-                    public void onAdClosed() {
-                        // Code to be executed when when the user is about to return
-                        // to the app after tapping on an ad.
-                    }
-                });
-
-                searchLinearLayout.addView(googleAdView);
-
+                searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;
             case REPOST:
                 OnFetchCallback repostedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, repostedPrismPosts);
@@ -181,17 +140,82 @@ public class SearchFragment extends Fragment {
                 discovery.setTitle(DiscoverController.randomTag);
                 OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
                 discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
-//                tagsOnFetchCallback.onSuccess(new ArrayList<>());
                 DiscoverController.generateRandomPostsForHashTag(tagsOnFetchCallback);
+
+                searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;
         }
     }
 
     /**
-     * @param context
-     * @param discovery
-     * @param arrayList
-     * @return
+     * Inflate the discover google ad view layout and make an ad request
+     * @param context - fragment getActivity context
+     * @return - View with google ad view
+     */
+    private View addGoogleAdCardView(Context context) {
+        View googleAdView = LayoutInflater.from(context).inflate(
+                R.layout.discover_prism_post_google_ad_recycler_view_item_layout, null, false);
+
+        LinearLayout sponsoredLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_sponsored_linear_layout);
+        TextView sponsoredAdTextView = googleAdView.findViewById(R.id.discover_prism_post_user_sponsored_ad_text_view);
+        AdView adView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_view);
+        ProgressBar adProgressBar = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_progress_bar);
+        LinearLayout adFailedLinearLayout = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout);
+        TextView adFailedTextView = googleAdView.findViewById(R.id.discover_prism_post_google_ad_item_failed_ad_layout_title);
+
+        sponsoredAdTextView.setTypeface(Default.sourceSansProBold);
+        adFailedTextView.setTypeface(Default.sourceSansProBold);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                sponsoredLinearLayout.setVisibility(View.VISIBLE);
+                adView.setVisibility(View.VISIBLE);
+                adProgressBar.setVisibility(View.GONE);
+                adFailedLinearLayout.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+                sponsoredLinearLayout.setVisibility(View.GONE);
+                adView.setVisibility(View.GONE);
+                adProgressBar.setVisibility(View.GONE);
+                adFailedLinearLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+        return googleAdView;
+    }
+
+    /**
+     * If the HashMap does not contain the current Discovery enum param,
+     * an adapter must be created and added
+     * @param context - fragment getActivity context
+     * @param discovery - Discovery enum RecyclerView is being updated for
+     * @param arrayList - ArrayList of Objects that will be used by an adapter to populate the
+     *                  corresponding horizontal RecyclerView
+     * @return - OnFetchCallback to handle on success of Firebase/Async calls
      */
     private OnFetchCallback updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
         if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery)) {
@@ -220,6 +244,14 @@ public class SearchFragment extends Fragment {
         };
     }
 
+    /**
+     *
+     * @param context - fragment getActivity context
+     * @param discovery - Discovery enum RecyclerView is being created for
+     * @param arrayList - ArrayList of Objects that will be used by an adapter to populate the
+     *                  corresponding horizontal RecyclerView
+     * @return - LinearLayout of the horizontal RecyclerView
+     */
     private static LinearLayout createDiscoveryRecyclerView(Context context, Discovery discovery, ArrayList<Object> arrayList) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View discoveryRecyclerViewLayout = layoutInflater.inflate(R.layout.search_discovery_recycler_view_layout, null, false);
@@ -231,6 +263,19 @@ public class SearchFragment extends Fragment {
         recyclerViewTitleIcon.setImageDrawable(context.getResources().getDrawable(discovery.getIcon()));
         recyclerViewTitleTextView.setText(discovery.getTitle());
         recyclerViewTitleTextView.setTypeface(Default.sourceSansProBold);
+
+        switch (discovery) {
+            case TAG:
+                recyclerViewTitleTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        IntentHelper.intentToTagActivity(context, discovery.getTitle());
+                    }
+                });
+                break;
+            default:
+                break;
+        }
 
         RecyclerView prismPostDiscoveryRecyclerView = discoveryRecyclerViewLayout.findViewById(R.id.discovery_recycler_view);
         LinearLayout.LayoutParams recyclerViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -253,7 +298,8 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     *
+     * Iterate over all Discovery enums and get the corresponding RecyclerView adapter to call
+     * notifyDataSetChanged on
      */
     public static void refreshDiscoveryAdapters() {
         for (Discovery discovery : Discovery.values()) {
@@ -264,6 +310,16 @@ public class SearchFragment extends Fragment {
                 discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
             }
         }
+    }
+
+    /**
+     * Setup elements in current fragment
+     */
+    private void setupInterfaceElements() {
+        searchBarHintTextView.setTypeface(Default.sourceSansProLight);
+
+        setupSearchBarCardView();
+        setupDiscoveryRecyclerViews();
     }
 
 }

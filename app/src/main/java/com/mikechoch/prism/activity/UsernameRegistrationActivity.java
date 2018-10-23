@@ -51,7 +51,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
         usernameEditText.setTypeface(Default.sourceSansProLight);
 
         Intent intent = getIntent();
-        fullName = intent.getStringExtra("fullName");
+        fullName = intent.getStringExtra(Default.USERNAME_REGISTRATION_EXTRA);
 
         usernameEditText.requestFocus();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -98,18 +98,41 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    @Override
+    public void onPause() {
+        if (SHOULD_SIGN_OUT) {
+            Helper.toast(this, "Failed to sign in with Google");
+            FirebaseAuth.getInstance().signOut();
+            finish();
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
+        super.onPause();
+    }
+
+    /**
+     *
+     * @param username
+     */
     public void createPrismUser(String username) {
         String firebaseEncodedUsername = ProfileHelper.getFirebaseEncodedUsername(username);
         if (ProfileHelper.isUsernameValid(username, usernameTextInputLayout)) {
             FirebaseProfileAction.isUsernameTaken(firebaseEncodedUsername, new OnUsernameTakenCallback() {
                 @Override
                 public void onSuccess(boolean usernameTaken) {
+                    //TODO: @Parth Log success
                     if (usernameTaken) {
                         usernameTextInputLayout.setError("Username is taken");
                     } else {
                         FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                             @Override
                             public void onSuccess() {
+                                //TODO: @Parth Log success
                                 SHOULD_SIGN_OUT = Boolean.FALSE;
                                 IntentHelper.intentToMainActivity(UsernameRegistrationActivity.this, true);
                             }
@@ -119,25 +142,10 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure() {
-                    // TODO Log this
+                    //TODO: @Parth Log failure
                 }
             });
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
-    public void onPause() {
-        if (SHOULD_SIGN_OUT) {
-            Helper.toast(this, "Failed to sign in with Google");
-            FirebaseAuth.getInstance().signOut();
-            finish();
-        }
-        super.onPause();
     }
 
  }

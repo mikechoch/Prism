@@ -82,8 +82,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;

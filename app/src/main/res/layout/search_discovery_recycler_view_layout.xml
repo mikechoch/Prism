@@ -3,7 +3,9 @@
     android:id="@+id/discovery_recycler_view_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <View
         android:layout_width="match_parent"

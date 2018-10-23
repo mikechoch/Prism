@@ -96,8 +96,8 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
 

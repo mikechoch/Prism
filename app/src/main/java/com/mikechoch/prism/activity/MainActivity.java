@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -58,6 +59,7 @@ import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.fragment.NotificationFragment;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
+import com.mikechoch.prism.type.MainViewPagerTab;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     private AppBarLayout.LayoutParams params;
 
     private Toolbar toolbar;
+    private TextView toolbarTextView;
 
     private CoordinatorLayout mainCoordinateLayout;
     private TabLayout prismTabLayout;
@@ -85,10 +88,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     private Snackbar networkSnackBar;
     private NetworkStateReceiver networkStateReceiver;
 
-    private Uri profilePictureUri;
     private Uri uploadedImageUri;
     private String uploadedImageDescription;
-    private boolean isUploadingImage = false;
 
     private Handler clearNotificationsHandler;
     private Runnable clearNotificationsRunnable;
@@ -101,12 +102,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
-        AndroidNetworking.initialize(getApplicationContext());
-        initializeNetworkListener();
+        AndroidNetworking.initialize(this);
 
         FCM_API_KEY = getFirebaseKey();
 
-        /* This is just a safety check */
+        // This is a safety check to make sure no user is logged in without an account
         if (CurrentUser.getFirebaseUser() == null) {
             IntentHelper.intentToLoginActivity(MainActivity.this);
             return;
@@ -115,14 +115,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         // Create uploadImageFab showing and hiding animations
         showFabAnimation = createFabShowAnimation(false);
         hideFabAnimation = createFabShowAnimation(true);
-        
-        // Initialize all toolbar elements
+
         toolbar = findViewById(R.id.toolbar);
-        TextView toolbarTextView = findViewById(R.id.prism_toolbar_title);
-        toolbarTextView.setTypeface(Default.sourceSansProBold);
+        toolbarTextView = findViewById(R.id.prism_toolbar_title);
         params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
-        // Initialize all UI elements
         mainCoordinateLayout = findViewById(R.id.main_coordinate_layout);
         prismTabLayout = findViewById(R.id.prism_tab_layout);
         prismViewPager = findViewById(R.id.prism_view_pager);
@@ -133,51 +130,33 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         uploadImageFab = findViewById(R.id.upload_image_fab);
         imageUploadProgressBar = findViewById(R.id.image_upload_progress_bar);
 
-        setupUIElements();
-
-        new InterfaceAction(this);
-
-        Intent uploadIntent = getIntent();
-        if (uploadIntent.getBooleanExtra(Default.UPLOAD_IMAGE_INTENT_KEY, false)) {
-            uploadPrismPostToFirebase(uploadIntent);
-        }
+        initializeNetworkListener();
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-
+    /**
+     * onDestroy is a method that gets invoked when OS tries to kill the activity
+     * This is the last chance for app to finalize closing activities before app
+     * gets shut down
+     */
     @Override
-    public void onNetworkConnected() {
-//        CurrentUser.refreshUserProfile(this);
-        if (networkSnackBar != null && networkSnackBar.isShownOrQueued()) {
-            networkSnackBar.dismiss();
-            networkSnackBar = null;
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
     }
-
-    @Override
-    public void onNetworkDisconnected() {
-        CoordinatorLayout coordinatorLayout = findViewById(R.id.main_coordinate_layout);
-        networkSnackBar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
-                Snackbar.LENGTH_INDEFINITE);
-        ((TextView) (networkSnackBar.getView())
-                .findViewById(android.support.design.R.id.snackbar_text))
-                .setTypeface(Default.sourceSansProBold);
-        networkSnackBar.show();
-        Helper.disableSnackbarSwipeDismiss(networkSnackBar.getView());
-    }
-
 
     /**
      * When a permission is allowed, this function will run and you can
      * Check for this allow and do something
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case Default.MY_PERMISSIONS_WRITE_MEDIA_REQUEST_CODE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
@@ -195,10 +174,23 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     }
 
     /**
-     *
-     * @param uploadIntent
+     * Check the incoming Intent for an upload image intent key
+     * If the Boolean Extra is true then an upload will be initialized
      */
-    private void uploadPrismPostToFirebase(Intent uploadIntent) {
+    private void checkForImageUploadIntent() {
+        Intent uploadIntent = getIntent();
+        if (uploadIntent.getBooleanExtra(Default.UPLOAD_IMAGE_INTENT_KEY, false)) {
+            setupUploadPrismPostToFirebase(uploadIntent);
+        }
+    }
+
+    /**
+     * Method to begin uploading a PrismPost into Firebase
+     * Setup upload image ProgressBar and preview ImageView
+     * Than begin process of uploading to Firebase
+     * @param uploadIntent - Intent to obtain the PrismPost info to upload with
+     */
+    private void setupUploadPrismPostToFirebase(Intent uploadIntent) {
         String uploadingImageString = getResources().getString(R.string.uploading_image);
         uploadingImageTextView.setText(uploadingImageString);
         imageUploadProgressBar.setProgress(0);
@@ -225,17 +217,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                         imageUploadPreview.setImageDrawable(drawable);
                     }
                 });
-        uploadPostToCloud();
-    }
-
-    /**
-     * Initializes listeners for network (wifi or data) and location
-     * Gets called first thing when app opens up
-     */
-    private void initializeNetworkListener() {
-        networkStateReceiver = new NetworkStateReceiver();
-        networkStateReceiver.addListener(this);
-        this.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        beginUploadPrismPostToFirebase();
     }
 
     /**
@@ -256,25 +238,29 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * Selected tabs will be a ColorAccent and unselected tabs White
      */
     private void setupPrismTabLayout() {
-        // Setup all TabLayout tab icons
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_MAIN_FEED).setIcon(R.drawable.ic_image_filter_hdr_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH).setIcon(R.drawable.ic_magnify_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS ).setIcon(R.drawable.ic_bell_white_36dp);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE).setIcon(R.drawable.ic_menu_white_36dp);
-
         // Create the selected and unselected tab icon colors
         int tabUnselectedColor = Color.WHITE;
         int tabSelectedColor = getResources().getColor(R.color.colorAccent);
 
-        // Make first tab selected color and all others unselected
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_MAIN_FEED).getIcon().setColorFilter(
-                tabSelectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_SEARCH).getIcon().setColorFilter(
-                tabUnselectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_NOTIFICATIONS).getIcon().setColorFilter(
-                tabUnselectedColor, PorterDuff.Mode.SRC_IN);
-        prismTabLayout.getTabAt(Default.MAIN_VIEW_PAGER_PROFILE).getIcon().setColorFilter(
-                tabUnselectedColor, PorterDuff.Mode.SRC_IN);
+        // Setup all TabLayout tab icons
+        for (MainViewPagerTab tab : MainViewPagerTab.values()) {
+            int tabId = tab.getId();
+            TabLayout.Tab tabLayoutTab = prismTabLayout.getTabAt(tabId);
+
+            // Make first tab selected color and all others unselected
+            if (tabLayoutTab != null) {
+                Drawable tabIcon = getResources().getDrawable(tab.getIcon());
+                switch (tabId) {
+                    case Default.MAIN_VIEW_PAGER_MAIN_FEED:
+                        tabIcon.setColorFilter(tabSelectedColor, PorterDuff.Mode.SRC_IN);
+                        break;
+                    default:
+                        tabIcon.setColorFilter(tabUnselectedColor, PorterDuff.Mode.SRC_IN);
+                        break;
+                }
+                tabLayoutTab.setIcon(tabIcon.mutate());
+            }
+        }
 
         // Setup the tab selected, unselected, and reselected listener
         prismTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -347,11 +333,14 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
                     // NOTIFICATIONS tab will set all notifications isViewed to true
                     case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
-                        NotificationFragment.clearAllNotifications();
-                        clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
                         if (shouldClearNotifications) {
                             NotificationFragment.clearAllNotifications();
                             DatabaseAction.updateViewedTimestampForAllNotifications();
+                            RecyclerView notificationRecyclerView = MainActivity.this.findViewById(R.id.notification_recycler_view);
+                            if (notificationRecyclerView != null) {
+                                notificationRecyclerView.getAdapter().notifyDataSetChanged();
+                            }
+                            clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
                         }
                         shouldClearNotifications = false;
                         break;
@@ -416,10 +405,10 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements for current activity
      */
-    private void setupUIElements() {
-        // Setup Typefaces for all text based UI elements
+    private void setupInterfaceElements() {
+        toolbarTextView.setTypeface(Default.sourceSansProBold);
         uploadingImageTextView.setTypeface(Default.sourceSansProLight);
 
         setupPrismViewPager();
@@ -431,6 +420,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
             currentTab.select();
         }
 
+        new InterfaceAction(this);
+
+        checkForImageUploadIntent();
     }
 
     /**
@@ -468,8 +460,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      *  TODO Refactor all of this
      */
     @SuppressLint("SimpleDateFormat")
-    private void uploadPostToCloud() {
-
+    private void beginUploadPrismPostToFirebase() {
         StorageReference postImageRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF).child(uploadedImageUri.getLastPathSegment());
         postImageRef.putFile(uploadedImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -514,7 +505,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                                 prismPost.setPostId(postId);
                                 updateLocalRecyclerViewWithNewPost(prismPost);
                             } else {
-                                uploadingImageTextView.setText("Failed to make the post");
+                                uploadingImageTextView.setText("Failed to upload image");
                                 Log.wtf(Default.TAG_DB, Message.POST_UPLOAD_FAIL, task.getException());
                             }
                             boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
@@ -525,7 +516,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    Helper.toast(MainActivity.this, "Failed to upload the image to cloud");
+                    Helper.toast(MainActivity.this, "Failed to upload image");
                 }
 
 
@@ -552,7 +543,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * @param prismPost
      */
     private void updateLocalRecyclerViewWithNewPost(PrismPost prismPost) {
-        uploadingImageTextView.setText("Finishing up...");
+        String finishingUploadingImageString = getResources().getString(R.string.finishing_up_uploading_image);
+        uploadingImageTextView.setText(finishingUploadingImageString);
         prismPost.setPrismUser(CurrentUser.prismUser);
         RecyclerView mainContentRecyclerView = MainActivity.this.findViewById(R.id.main_content_recycler_view);
         LinearLayoutManager layoutManager  = (LinearLayoutManager) mainContentRecyclerView.getLayoutManager();
@@ -599,18 +591,44 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         return new PrismPost(imageUri, description, userId, timestamp);
     }
 
+    /**
+     * Obtain the firebase cloud messaging server key from strings.xml
+     * @return - String firebase cloud messaging server key for accessing Firebase
+     */
     private String getFirebaseKey() {
         return getString(R.string.firebase_cloud_messaging_server_key);
     }
 
     /**
-     * onDestroy is a method that gets invoked when OS tries to kill the activity
-     * This is the last chance for app to finalize closing activities before app
-     * gets shut down
+     * Initializes listeners for network (wifi or data) and location
+     * Gets called first thing when app opens up
      */
+    private void initializeNetworkListener() {
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        networkStateReceiver.removeListener(this);
-        this.unregisterReceiver(networkStateReceiver);
-    }}
+    public void onNetworkConnected() {
+//        CurrentUser.refreshUserProfile(this);
+        if (networkSnackBar != null && networkSnackBar.isShownOrQueued()) {
+            networkSnackBar.dismiss();
+            networkSnackBar = null;
+        } else {
+            setupInterfaceElements();
+        }
+    }
+
+    @Override
+    public void onNetworkDisconnected() {
+        CoordinatorLayout coordinatorLayout = findViewById(R.id.main_coordinate_layout);
+        networkSnackBar = Snackbar.make(coordinatorLayout, Message.NO_INTERNET,
+                Snackbar.LENGTH_INDEFINITE);
+        ((TextView) (networkSnackBar.getView())
+                .findViewById(android.support.design.R.id.snackbar_text))
+                .setTypeface(Default.sourceSansProBold);
+        networkSnackBar.show();
+        Helper.disableSnackbarSwipeDismiss(networkSnackBar.getView());
+    }
+}

@@ -45,8 +45,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                onBackPressed();
                 break;
             default:
                 break;
@@ -71,6 +70,12 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         prismUser = getIntent().getParcelableExtra(Default.PRISM_USER_EXTRA);
 
         setupUIElements();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**

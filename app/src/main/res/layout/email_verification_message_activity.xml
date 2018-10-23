@@ -12,7 +12,7 @@
         android:background="@android:color/transparent">
 
         <ImageView
-            android:id="@+id/mini_icon_image_view"
+            android:id="@+id/email_verification_message_mini_icon_image_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -22,37 +22,37 @@
             android:transitionName="icon" />
 
         <TextView
-            android:id="@+id/welcome_textView"
+            android:id="@+id/email_verification_message_welcome_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_below="@id/mini_icon_image_view"
+            android:layout_below="@id/email_verification_message_mini_icon_image_view"
             android:text="Welcome to Prism"
             android:gravity="center_horizontal"
             android:textSize="28sp"
             android:textColor="@android:color/white" />
 
         <TextView
-            android:id="@+id/message_textview"
+            android:id="@+id/email_verification_message_message_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_below="@id/welcome_textView"
+            android:layout_below="@id/email_verification_message_welcome_text_view"
             android:gravity="center_horizontal"
             android:text="Message"
             android:textSize="20sp"
             android:textColor="@android:color/white" />
 
         <Button
-            android:id="@+id/resend_verification_email_button"
+            android:id="@+id/email_verification_message_resend_verification_email_button"
             android:transitionName="submit_button"
             android:layout_width="match_parent"
             android:layout_height="38dp"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/message_textview"
+            android:layout_below="@id/email_verification_message_message_text_view"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"

@@ -63,6 +63,7 @@ public class Default {
     public static final int IMAGE_LOAD_COUNT = 10;
 
     // Extra Strings
+    public static final String USERNAME_REGISTRATION_EXTRA = "UsernameRegistration";
     public static final String CLICKED_TAG_EXTRA = "ClickedTag";
     public static final String ONLY_PERFORM_REFRESH_EXTRA = "OnlyPerformRefresh";
     public static final String PRISM_POST_DETAIL_EXTRA = "PrismPostDetail";
@@ -78,6 +79,7 @@ public class Default {
     public static final String UPLOAD_IMAGE_INTENT_KEY = "UploadImage";
     public static final String UPLOAD_IMAGE_SELECTION_URI_EXTRA = "UploadImageSelectionUri";
     public static final String UPLOAD_IMAGE_SELECTION_TYPE_EXTRA = "UploadImageSelectionType";
+    public static final String UPLOAD_IMAGE_FILE_PATH_EXTRA = "EditedPrismPostFilePath";
 
     // Bottom Navigation Bar Strings
     public static final String BOTTOM_NAVIGATION_BAR_NAME = "navigation_bar_height";
@@ -141,6 +143,12 @@ public class Default {
     public static final String BUTTON_REPOST = "REPOST";
     public static final String BUTTON_UNFOLLOW = "UNFOLLOW";
     public static final String BUTTON_REPORT = "REPORT";
+
+    // Display Users
+    public static final int LIKE_USERS = 0;
+    public static final int REPOST_USERS = 1;
+    public static final int FOLLOWER_USERS = 2;
+    public static final int FOLLOWING_USERS = 3;
 
     // Log Message Tags
     public static final String TAG_DB = "FirebaseDatabase";
