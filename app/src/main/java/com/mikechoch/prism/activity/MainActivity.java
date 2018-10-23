@@ -50,6 +50,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.util.NetworkStateReceiver;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
+import com.mikechoch.prism.callback.action.OnUploadPostCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -461,79 +462,34 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      */
     @SuppressLint("SimpleDateFormat")
     private void beginUploadPrismPostToFirebase() {
-        StorageReference postImageRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_POST_IMAGES_REF).child(uploadedImageUri.getLastPathSegment());
-        postImageRef.putFile(uploadedImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+
+        DatabaseAction.uploadPost(uploadedImageUri, uploadedImageDescription, new OnUploadPostCallback() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUrl = task.getResult().getDownloadUrl();
-                    DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.push();
-                    String postId = postReference.getKey();
-                    PrismPost prismPost = createPrismPostObjectForUpload(downloadUrl);
-
-                    /* Create the post in cloud and onSuccess, add the image to local recycler view adapter */
-                    postReference.setValue(prismPost).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @RequiresApi(api = Build.VERSION_CODES.N)
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                /* [1] Add postId to USER_UPLOADS table */
-                                DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getFirebaseUser().getUid());
-                                DatabaseReference userPostRef = currentUserReference.child(Key.DB_REF_USER_UPLOADS).child(postReference.getKey());
-                                userPostRef.setValue(prismPost.getTimestamp());
-
-                                /* [2] Parse the hashTags from post caption and add the postId in TAGS table */
-                                ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
-                                for (String hashTag : hashTags) {
-                                    DatabaseReference tagsReference = Default.TAGS_REFERENCE.child(hashTag).child(postId);
-                                    tagsReference.setValue(prismPost.getTimestamp());
-                                }
-
-                                /* [3] Update each follower's news feed */
-                                DatabaseReference usersReference = Default.USERS_REFERENCE;
-                                ArrayList<String> followers = CurrentUser.getFollowers();
-                                for (String userId : followers) {
-                                    usersReference
-                                            .child(userId)
-                                            .child(Key.DB_REF_USER_NEWS_FEED)
-                                            .child(postId)
-                                            .setValue(prismPost.getTimestamp());
-                                }
-
-                                /* [4] Update local adapter */
-                                prismPost.setPrismUser(CurrentUser.prismUser);
-                                prismPost.setPostId(postId);
-                                updateLocalRecyclerViewWithNewPost(prismPost);
-                            } else {
-                                uploadingImageTextView.setText("Failed to upload image");
-                                Log.wtf(Default.TAG_DB, Message.POST_UPLOAD_FAIL, task.getException());
-                            }
-                            boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-                            imageUploadProgressBar.setProgress(100, animate);
-                        }
-                    });
-
-
-                } else {
-                    Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    Helper.toast(MainActivity.this, "Failed to upload image");
-                }
-
-
+            public void onSuccess(PrismPost prismPost) {
+                updateLocalRecyclerViewWithNewPost(prismPost);
             }
-        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
             @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void run() {
-                        int progress = (int) ((taskSnapshot.getBytesTransferred() * 100) / taskSnapshot.getTotalByteCount());
-                        boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-                        imageUploadProgressBar.setProgress(progress, animate);
-                    }
-                });
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            public void onProgressUpdate(int progress) {
+                boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+                imageUploadProgressBar.setProgress(progress, animate);
             }
+
+            @Override
+            public void onImageUploadFail(Exception e) {
+                uploadingImageTextView.setText("Failed to upload post");
+                Helper.toast(MainActivity.this, "Failed to upload post");
+                Log.wtf(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, e);
+            }
+
+            @Override
+            public void onPostUploadFail(Exception e) {
+                uploadingImageTextView.setText("Failed to upload post");
+                Helper.toast(MainActivity.this, "Failed to upload post");
+                Log.wtf(Default.TAG_DB, Message.POST_UPLOAD_FAIL, e);
+            }
+
         });
     }
 
@@ -577,18 +533,6 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 toolbar.setLayoutParams(params);
             }
         }, 2000);
-    }
-
-    /**
-     * Takes in the downloadUri that was create in cloud and reference to the post that
-     * got created in cloud and prepares the PrismPost object that will be pushed
-     */
-    private PrismPost createPrismPostObjectForUpload(Uri downloadUrl) {
-        String imageUri = downloadUrl.toString();
-        String description = uploadedImageDescription;
-        String userId = CurrentUser.getFirebaseUser().getUid();
-        Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
-        return new PrismPost(imageUri, description, userId, timestamp);
     }
 
     /**

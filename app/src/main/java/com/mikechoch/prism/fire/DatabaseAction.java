@@ -3,6 +3,8 @@ package com.mikechoch.prism.fire;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -19,10 +21,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.BuildConfig;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
+import com.mikechoch.prism.callback.action.OnUploadPostCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
@@ -142,6 +148,57 @@ public class DatabaseAction {
         CurrentUser.unrepostPost(prismPost);
 
         OutgoingNotificationController.revokeRepostNotification(prismPost);
+    }
+
+    /**
+     *
+     */
+    public static void uploadPost(Uri uploadImageUri, String imageDescription, OnUploadPostCallback callback) {
+        StorageReference postImageReference = Default.STORAGE_REFERENCE
+                .child(Key.STORAGE_POST_IMAGES_REF)
+                .child(uploadImageUri.getLastPathSegment());
+        postImageReference.putFile(uploadImageUri).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        int progress = (int) ((taskSnapshot.getBytesTransferred() * 100) / taskSnapshot.getTotalByteCount());
+                        callback.onProgressUpdate(progress);
+                    }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot uploadedImageFileSnapshot) {
+                PrismPost prismPost = Helper.constructPrismPostObjectForUpload(uploadedImageFileSnapshot.getDownloadUrl(), imageDescription);
+
+                String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
+                Map<String, Object> uploadMap = new HashMap<>();
+
+                UploadHelper.addPathOfPrismPostToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfUserUploadsToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfHashTagsToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfFollowersFeedToUploadMap(uploadMap, prismPost, postId);
+
+                DatabaseReference rootReference = Default.ROOT_REFERENCE;
+                rootReference.updateChildren(uploadMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        prismPost.setPostId(postId);
+                        prismPost.setPrismUser(CurrentUser.prismUser);
+                        CurrentUser.uploadPost(prismPost);
+                        callback.onSuccess(prismPost);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onPostUploadFail(e);
+                    }
+                });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onImageUploadFail(e);
+            }
+        });
     }
 
     /**
@@ -429,6 +486,42 @@ public class DatabaseAction {
         });
     }
 
+}
+
+class UploadHelper {
+
+    /**
+     * postId is passed in because postId is not assigned to prismPost
+     * that is because we don't want postId to go into firebase as a child of prismPost
+     * @param prismPost
+     * @param postId
+     * @return
+     */
+    static void addPathOfPrismPostToUploadMap(Map<String, Object> uploadMap, PrismPost prismPost, String postId) {
+        String pathToPrismPost = Key.DB_REF_ALL_POSTS + "/" + postId;
+        uploadMap.put(pathToPrismPost, prismPost);
+    }
+
+    static void addPathOfUserUploadsToUploadMap(Map<String, Object> uploadMap, PrismPost prismPost, String postId) {
+        String pathToUserUploads = Key.DB_REF_USER_PROFILES + "/" + prismPost.getUid() + "/" + Key.DB_REF_USER_UPLOADS + "/" + postId;
+        uploadMap.put(pathToUserUploads, prismPost.getTimestamp());
+    }
+
+    static void addPathOfHashTagsToUploadMap(Map<String, Object> uploadMap, PrismPost prismPost, String postId) {
+        ArrayList<String> hashTags = Helper.parseDescriptionForTags(prismPost.getCaption());
+        for (String hashTag : hashTags) {
+            String pathToHashTag = Key.DB_REF_TAGS + "/" + hashTag + "/" + postId;
+            uploadMap.put(pathToHashTag, prismPost.getTimestamp());
+        }
+    }
+
+    static void addPathOfFollowersFeedToUploadMap(Map<String, Object> uploadMap, PrismPost prismPost, String postId) {
+        ArrayList<String> followersUid = CurrentUser.getFollowers();
+        for (String followerUid : followersUid) {
+            String pathToFollowerFeed = Key.DB_REF_USER_PROFILES + "/" + followerUid + "/" + Key.DB_REF_USER_NEWS_FEED + "/" + postId;
+            uploadMap.put(pathToFollowerFeed, prismPost.getTimestamp());
+        }
+    }
 }
 
 

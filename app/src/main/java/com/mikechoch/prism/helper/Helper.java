@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -66,6 +67,18 @@ public class Helper {
             }
         }
         return true;
+    }
+
+    /**
+     * Takes in the downloadUrl that was create in cloud and reference to the post that
+     * got created in cloud and prepares the PrismPost object that will be pushed
+     */
+    public static PrismPost constructPrismPostObjectForUpload(Uri downloadUrl, String imageDescription) {
+        String imageUri = downloadUrl.toString();
+        String description = imageDescription;
+        String userId = CurrentUser.getFirebaseUser().getUid();
+        Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
+        return new PrismPost(imageUri, description, userId, timestamp);
     }
 
     /**
