@@ -30,6 +30,8 @@ import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.activity.ShowUserProfilePictureActivity;
 import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.activity.UnderMaintenanceActivity;
+import com.mikechoch.prism.activity.UpdateAppRequiredActivity;
+import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -66,6 +68,18 @@ public class IntentHelper {
         if (shouldClearBackStack) {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         }
+        context.startActivity(intent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * When user signs in with Google or Facebook, they need to give a username for their account
+     * @param context - Context of current activity app will intent from
+     * @param displayName - username that the user wants to set for their Google/FB account sign-in
+     */
+    public static void intentToUsernameRegistrationActivity(Context context, String displayName) {
+        Intent intent = new Intent(context, UsernameRegistrationActivity.class);
+        intent.putExtra(Default.USERNAME_REGISTRATION_EXTRA, displayName);
         context.startActivity(intent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
@@ -299,6 +313,17 @@ public class IntentHelper {
         Intent intent = new Intent(context, UnderMaintenanceActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(Key.STATUS_MESSAGE, message);
+        context.startActivity(intent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     * This is strictly handled by current Prism version code and the Firebase min required
+     * @param context - Context of current activity app will intent from
+     */
+    public static void intentToUpdatedAppRequiredActivity(Context context) {
+        Intent intent = new Intent(context, UpdateAppRequiredActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

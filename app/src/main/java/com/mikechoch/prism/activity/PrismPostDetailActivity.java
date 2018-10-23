@@ -169,7 +169,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             prismPost = extras.getParcelable(Default.PRISM_POST_DETAIL_EXTRA);
             if (prismPost != null) {
                 parseAllPrismPostData();
-                setupUIElements();
+                setupInterfaceElements();
             } else {
                 String postId = extras.getString(NotificationKey.PRISM_POST_ID);
                 fetchPrismPostData(postId);
@@ -183,7 +183,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             public void onSuccess(PrismPost post) {
                 prismPost = post;
                 parseAllPrismPostData();
-                setupUIElements();
+                setupInterfaceElements();
             }
 
             @Override
@@ -306,7 +306,9 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         toolbar.bringToFront();
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -458,6 +460,9 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     /**
      * Setup the like action button for the PrismPost
+     * When like action button is clicked run handleLikeButtonClick method for updating Firebase
+     * When like count TextView is clicked go to DisplayUsersActivity and shows all users that
+     * liked the PrismPost
      */
     private void setupLikeActionButton() {
         InterfaceAction.setupLikeActionButton(this, null, likeActionButton, isPostLiked);
@@ -502,7 +507,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     /**
      * Using InterfaceAction, start the animation for liking an image
      * Update the likes TextView locally
-     * @param performLike
+     * @param performLike - boolean if PrismPost has been liked by CurrentUser
      */
     private void performUIActivitiesForLike(boolean performLike) {
         InterfaceAction.startLikeActionButtonAnimation(this, likeActionButton, performLike);
@@ -554,7 +559,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * local reposted_posts_map HashMap so that recycler view can update
      * Operation UNREPOST (performRepost = false): undoes above 3 things
      * TODO: update comments
-     * @param performRepost
+     * @param performRepost - boolean if PrismPost has been reposted by CurrentUser
      */
     private void handleRepostButtonClick(boolean performRepost) {
         performUIActivitiesForRepost(performRepost);
@@ -569,7 +574,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     /**
      * Using InterfaceAction, start the animation for reposting an image
      * Update the reposts TextView locally
-     * @param performRepost
+     * @param performRepost - boolean if PrismPost has been reposted by CurrentUser
      */
     private void performUIActivitiesForRepost(boolean performRepost) {
         InterfaceAction.startRepostActionButtonAnimation(this, repostActionButton, performRepost);
@@ -621,7 +626,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     /**
      * Method to show the collapse up animation
-     * @param millis
+     * @param millis - time in millis to perform collapse up button animation
      */
     private void showCollapseUpButton(int millis) {
         collapseUpButtonHandler.removeCallbacks(showCollapseUpButtonRunnable);
@@ -644,7 +649,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     /**
      * Method to hide the collapse up animation
-     * @param millis
+     * @param millis - time in millis to perform collapse up button animation
      */
     private void hideCollapseUpButton(int millis) {
         collapseUpButtonHandler.removeCallbacks(hideCollapseUpButtonRunnable);
@@ -707,7 +712,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     /**
      * Method to show the drag arrow animation
-     * @param millis
+     * @param millis - time in millis to perform drag arrow animation
      */
     private void showDragArrow(int millis) {
         dragArrowHandler.removeCallbacks(showDragArrowRunnable);
@@ -730,7 +735,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
     /**
      * Method to hide the drag arrow animation
-     * @param millis
+     * @param millis - time in millis to perform drag arrow animation
      */
     private void hideDragArrow(int millis) {
         dragArrowHandler.removeCallbacks(hideDragArrowRunnable);
@@ -765,7 +770,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup more action button onClick so that AlertDialog shows
+     * for Sharing, Reporting, and Deleting a PrismPost
      */
     private void setupMoreActionButton() {
         moreActionButton.setOnClickListener(new View.OnClickListener() {
@@ -781,10 +787,16 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements of current Activity
      */
     @SuppressLint("ClickableViewAccessibility")
-    private void setupUIElements() {
+    private void setupInterfaceElements() {
+        likesCountTextView.setTypeface(Default.sourceSansProLight);
+        repostCountTextView.setTypeface(Default.sourceSansProLight);
+        detailUsernameTextView.setTypeface(Default.sourceSansProBold);
+        detailPrismPostDateTextView.setTypeface(Default.sourceSansProLight);
+        detailPrismPostDescriptionTextView.setTypeface(Default.sourceSansProLight);
+
         showCollapseUpButton(0);
         showDragArrow(0);
         hideCollapseUpButton(4000);
@@ -793,14 +805,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         setupAppBarLayout();
         setupToolbar();
         setupStatusBar();
-
-        // Setup Typefaces for all text based UI elements
-        likesCountTextView.setTypeface(Default.sourceSansProLight);
-        repostCountTextView.setTypeface(Default.sourceSansProLight);
-        detailUsernameTextView.setTypeface(Default.sourceSansProBold);
-        detailPrismPostDateTextView.setTypeface(Default.sourceSansProLight);
-        detailPrismPostDescriptionTextView.setTypeface(Default.sourceSansProLight);
-
         setupToolbarPullDownLayout();
         setupPrismPostUserInfo();
         setupPrismPostImageView();

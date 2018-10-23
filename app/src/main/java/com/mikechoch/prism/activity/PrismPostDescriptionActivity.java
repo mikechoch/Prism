@@ -24,6 +24,7 @@ import com.mikechoch.prism.helper.IntentHelper;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+
 public class PrismPostDescriptionActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -125,6 +126,14 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
     }
 
     /**
+     * Get intent data for PrismPostDescriptionActivity (apart of upload process)
+     * @return - String filename of PrismPost image
+     */
+    private String getFilenameIntentData() {
+        return getIntent().getStringExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA);
+    }
+
+    /**
      * Setup elements of current activity
      */
     private void setupInterfaceElements() {
@@ -135,9 +144,5 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
         setupPrismPostImagePreview(filename);
         setupToolbar();
         setupNextButton();
-    }
-
-    private String getFilenameIntentData() {
-        return getIntent().getStringExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA);
     }
 }

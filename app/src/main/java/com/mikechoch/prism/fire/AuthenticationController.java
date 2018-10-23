@@ -28,6 +28,7 @@ import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.callback.check.OnPrismUserProfileExistCallback;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.List;
 
@@ -125,9 +126,7 @@ public class AuthenticationController {
                                         if (prismUserExists) {
                                             signInUser(context);
                                         } else {
-                                            Intent intent = new Intent(context, UsernameRegistrationActivity.class);
-                                            intent.putExtra("fullName", account.getDisplayName());
-                                            context.startActivity(intent);
+                                            IntentHelper.intentToUsernameRegistrationActivity(context, account.getDisplayName());
                                         }
                                     }
 

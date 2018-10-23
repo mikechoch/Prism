@@ -1,7 +1,6 @@
 package com.mikechoch.prism.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -21,17 +20,22 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
 
+
 public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private final int PRISM_USER_VIEW_TYPE = 0;
+    private final int PRISM_TAG_VIEW_TYPE = 1;
 
     private Context context;
     private ArrayList<Object> items;
+
 
     public SearchRecyclerViewAdapter(Context context, ArrayList<Object> items) {
         this.context = context;
@@ -45,27 +49,28 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public int getItemViewType(int position) {
+        int viewType = PRISM_USER_VIEW_TYPE;
         Object item = items.get(position);
         if (item instanceof PrismUser) {
-            return 0;
+            viewType = PRISM_USER_VIEW_TYPE;
         } else if (item instanceof String) {
-            return 1;
-        } else {
-            return 0;
+            viewType = PRISM_TAG_VIEW_TYPE;
         }
+        return viewType;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
-            case 0:
-                return new PeopleViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+            case PRISM_USER_VIEW_TYPE:
+                return new PrismUserViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.people_search_type_recycler_view_item_layout, parent, false));
-            case 1:
+            case PRISM_TAG_VIEW_TYPE:
                 return new TagViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.tag_search_type_recycler_view_item_layout, parent, false));
             default:
-                return new PeopleViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                return new PrismUserViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.people_search_type_recycler_view_item_layout, parent, false));
         }
     }
@@ -74,38 +79,40 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         int viewType = getItemViewType(position);
         switch (viewType) {
-            case 0:
-                PeopleViewHolder peopleViewHolder = (PeopleViewHolder) holder;
-                peopleViewHolder.setData((PrismUser) items.get(position));
+            case PRISM_USER_VIEW_TYPE:
+                PrismUserViewHolder prismUserViewHolder = (PrismUserViewHolder) holder;
+                prismUserViewHolder.setData((PrismUser) items.get(position));
                 break;
-            case 1:
+            case PRISM_TAG_VIEW_TYPE:
                 TagViewHolder tagViewHolder = (TagViewHolder) holder;
                 tagViewHolder.setData((String) items.get(position));
                 break;
         }
     }
 
-    public class PeopleViewHolder extends RecyclerView.ViewHolder {
+
+    public class PrismUserViewHolder extends RecyclerView.ViewHolder {
 
         private LinearLayout peopleLinearLayout;
         private ImageView peopleProfilePictureImageView;
-        private TextView peopleusernameTextView;
+        private TextView peopleUsernameTextView;
         private TextView peopleNameTextView;
 
         private PrismUser prismUser;
 
-        PeopleViewHolder(View itemView) {
+
+        PrismUserViewHolder(View itemView) {
             super(itemView);
 
             peopleLinearLayout = itemView.findViewById(R.id.people_linear_layout);
             peopleProfilePictureImageView = itemView.findViewById(R.id.people_profile_picture_image_view);
-            peopleusernameTextView = itemView.findViewById(R.id.people_username_text_view);
+            peopleUsernameTextView = itemView.findViewById(R.id.people_username_text_view);
             peopleNameTextView = itemView.findViewById(R.id.people_name_text_view);
         }
 
         /**
-         *
-         * @param prismUser
+         * Set data for the PrismUserViewHolder interface elements
+         * @param prismUser - PrismUser to populate current PrismUserViewHolder elements
          */
         public void setData(PrismUser prismUser) {
             this.prismUser = prismUser;
@@ -113,14 +120,14 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         }
 
         /**
-         *
+         * Set the username TextView to PrismUser username
+         * Set the name TextView to PrismUser full name
+         * Populate the PrismUser profile picture ImageView with Glide
+         * Set the onClick of the container to Intent to PrismUserProfileActivity
          */
-        private void populateInterfaceElements() {
-            peopleusernameTextView.setText(prismUser.getUsername());
+        private void setupPrismUserItemLayout() {
+            peopleUsernameTextView.setText(prismUser.getUsername());
             peopleNameTextView.setText(prismUser.getFullName());
-
-            peopleusernameTextView.setTypeface(Default.sourceSansProBold);
-            peopleNameTextView.setTypeface(Default.sourceSansProLight);
 
             Glide.with(context)
                     .asBitmap()
@@ -151,7 +158,18 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
                 }
             });
         }
+
+        /**
+         * Setup elements of current PrismUserViewHolder item
+         */
+        private void populateInterfaceElements() {
+            peopleUsernameTextView.setTypeface(Default.sourceSansProBold);
+            peopleNameTextView.setTypeface(Default.sourceSansProLight);
+
+            setupPrismUserItemLayout();
+        }
     }
+
 
     public class TagViewHolder extends RecyclerView.ViewHolder  {
 
@@ -160,6 +178,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         private TextView tagPostCountTextView;
 
         private String tag;
+
 
         TagViewHolder(View itemView) {
             super(itemView);
@@ -170,8 +189,8 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         }
 
         /**
-         *
-         * @param tag
+         * Set data for the TagViewHolder interface elements
+         * @param tag - String tag to populate TagViewHolder elements
          */
         public void setData(String tag) {
             this.tag = tag;
@@ -179,14 +198,11 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         }
 
         /**
-         *
+         * Set the text of the tag name TextVie to the tag String
+         * Set the container onClick to Intent to TagActivity
          */
-        private void populateInterfaceElements() {
+        private void setupTagItemLayout() {
             tagNameTextView.setText(tag);
-            fetchPostsCountUnderTag(tagPostCountTextView);
-
-            tagNameTextView.setTypeface(Default.sourceSansProBold);
-            tagPostCountTextView.setTypeface(Default.sourceSansProLight);
 
             tagLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -197,19 +213,34 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         }
 
         /**
-         * @param tagPostCountTextView
+         * Setup the elements of the current TagViewHolder item
          */
-        private void fetchPostsCountUnderTag(TextView tagPostCountTextView) {
+        private void populateInterfaceElements() {
+            tagNameTextView.setTypeface(Default.sourceSansProBold);
+            tagPostCountTextView.setTypeface(Default.sourceSansProLight);
+
+            setupTagItemLayout();
+            fetchPostsCountUnderTag();
+        }
+
+        /**
+         * TODO: Should this go in Firebase class?
+         * Fetch the count of the current tag to show number posts under name TextView
+         */
+        private void fetchPostsCountUnderTag() {
             DatabaseReference tagsReference = Default.TAGS_REFERENCE;
             tagsReference.child(tag).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    tagPostCountTextView.setText(dataSnapshot.getChildrenCount() + " posts");
+                    //TODO: Log success?
+                    String tagPostCountString = (int) dataSnapshot.getChildrenCount() +
+                            Helper.getSingularOrPluralText("posts", (int) dataSnapshot.getChildrenCount());
+                    tagPostCountTextView.setText(tagPostCountString);
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    //TODO: Log Failure/Cancel?
                 }
             });
         }

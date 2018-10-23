@@ -8,9 +8,8 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.PeopleSearchFragment;
 import com.mikechoch.prism.fragment.TagSearchFragment;
 
-public class SearchTypeViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    private int NUM_ITEMS = Default.SEARCH_TYPE_VIEW_PAGER_SIZE;
+public class SearchTypeViewPagerAdapter extends FragmentStatePagerAdapter {
 
 
     public SearchTypeViewPagerAdapter(FragmentManager fragmentManager) {
@@ -19,16 +18,16 @@ public class SearchTypeViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return NUM_ITEMS;
+        return Default.SEARCH_TYPE_VIEW_PAGER_SIZE;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new PeopleSearchFragment().newInstance();
+                return PeopleSearchFragment.newInstance();
             case 1:
-                return new TagSearchFragment().newInstance();
+                return TagSearchFragment.newInstance();
             default:
                 return null;
         }

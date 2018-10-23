@@ -51,7 +51,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
         usernameEditText.setTypeface(Default.sourceSansProLight);
 
         Intent intent = getIntent();
-        fullName = intent.getStringExtra("fullName");
+        fullName = intent.getStringExtra(Default.USERNAME_REGISTRATION_EXTRA);
 
         usernameEditText.requestFocus();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);

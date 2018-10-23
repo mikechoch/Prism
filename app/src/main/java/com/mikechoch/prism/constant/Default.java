@@ -63,6 +63,7 @@ public class Default {
     public static final int IMAGE_LOAD_COUNT = 10;
 
     // Extra Strings
+    public static final String USERNAME_REGISTRATION_EXTRA = "UsernameRegistration";
     public static final String CLICKED_TAG_EXTRA = "ClickedTag";
     public static final String ONLY_PERFORM_REFRESH_EXTRA = "OnlyPerformRefresh";
     public static final String PRISM_POST_DETAIL_EXTRA = "PrismPostDetail";

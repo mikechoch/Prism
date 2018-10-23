@@ -333,11 +333,14 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
                     // NOTIFICATIONS tab will set all notifications isViewed to true
                     case Default.MAIN_VIEW_PAGER_NOTIFICATIONS:
-                        NotificationFragment.clearAllNotifications();
-                        clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
                         if (shouldClearNotifications) {
                             NotificationFragment.clearAllNotifications();
                             DatabaseAction.updateViewedTimestampForAllNotifications();
+                            RecyclerView notificationRecyclerView = MainActivity.this.findViewById(R.id.notification_recycler_view);
+                            if (notificationRecyclerView != null) {
+                                notificationRecyclerView.getAdapter().notifyDataSetChanged();
+                            }
+                            clearNotificationsHandler.removeCallbacks(clearNotificationsRunnable);
                         }
                         shouldClearNotifications = false;
                         break;

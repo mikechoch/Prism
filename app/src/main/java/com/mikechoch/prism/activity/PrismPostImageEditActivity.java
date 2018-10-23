@@ -108,7 +108,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         bitmapEditingControllerLayout.attachTabLayout(bitmapEditingControllerTabLayout);
         bitmapEditingControllerLayout.attachPhotoEditorView(photoEditorView, pictureUpload == PictureUpload.PROFILE_PICTURE);
 
-        setupUIElements();
+        setupInterfaceElements();
     }
 
     @Override
@@ -129,13 +129,15 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
-     * Setup all UI elements
+     * Setup elements of current activity
      */
-    private void setupUIElements() {
+    private void setupInterfaceElements() {
         nextButton.setTypeface(Default.sourceSansProBold);
 
         setupToolbar();
@@ -175,7 +177,9 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Setup next button in PrismPostImageEditActivity so that it executes an AsyncTask
+     * This will grab the current edits and save the current image
+     * Then pass the filename through to PrismPostDescriptionActivity
      */
     private void setupNextButton() {
         nextButton.setOnClickListener(new View.OnClickListener() {
