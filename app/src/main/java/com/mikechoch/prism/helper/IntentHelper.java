@@ -327,4 +327,15 @@ public class IntentHelper {
         context.startActivity(intent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
+
+    /**
+     * Intent to the app store url provided
+     * @param context - Context of current activity app will intent from
+     * @param prismAppStoreUrl -  String url to intent to in app store
+     */
+    public static void intentToAppStoreUrl(Context context, String prismAppStoreUrl) {
+        Intent appStoreIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(prismAppStoreUrl));
+        context.startActivity(appStoreIntent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
 }
