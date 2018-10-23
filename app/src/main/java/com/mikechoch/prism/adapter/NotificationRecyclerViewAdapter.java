@@ -23,6 +23,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.NotificationType;
@@ -227,18 +228,15 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                         .into(new BitmapImageViewTarget(userProfilePicImageView) {
                             @Override
                             protected void setResource(Bitmap resource) {
-                                if (!mostRecentPrismUser.getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1 * Default.scale);
-                                    userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                                } else {
-                                    userProfilePicImageView.setPadding(0, 0, 0, 0);
-                                    userProfilePicImageView.setBackground(null);
-                                }
-
-                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                                drawable.setCircular(true);
-                                userProfilePicImageView.setImageDrawable(drawable);
+                                int imageViewPadding = (int) (1 * Default.scale);
+                                RoundedBitmapDrawable profilePictureDrawable =
+                                        BitmapHelper.createCircularProfilePicture(
+                                                context,
+                                                userProfilePicImageView,
+                                                mostRecentPrismUser.getProfilePicture().isDefault,
+                                                resource,
+                                                imageViewPadding);
+                                userProfilePicImageView.setImageDrawable(profilePictureDrawable);
                             }
                         });
 

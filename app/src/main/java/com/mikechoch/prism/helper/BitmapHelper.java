@@ -15,7 +15,11 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.widget.ImageView;
 
+import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 
 import java.io.File;
@@ -483,4 +487,26 @@ public class BitmapHelper {
         return Default.CROP_RES_INVALID;
     }
 
+    /**
+     * Based on if the profile picture of the user is Default or not create the
+     * correct RoundedBitmapDrawable profile picture
+     * @param context - context of activity that the profile picture is being created in
+     * @param profilePictureImageView - ImageView of the profile picture
+     * @param isDefaultProfilePicture - boolean to determine if this is a Default profile picture
+     * @param profilePictureResource - Bitmap resource of the profile picture
+     * @return - circular RoundedBitmapDrawable created with correct padding and resource
+     */
+    public static RoundedBitmapDrawable createCircularProfilePicture(Context context, ImageView profilePictureImageView, boolean isDefaultProfilePicture, Bitmap profilePictureResource, int whiteOutlinePadding) {
+        if (!isDefaultProfilePicture) {
+            profilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
+            profilePictureImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
+        } else {
+            profilePictureImageView.setPadding(0, 0, 0, 0);
+            profilePictureImageView.setBackground(null);
+        }
+
+        RoundedBitmapDrawable roundedProfilePicture = RoundedBitmapDrawableFactory.create(context.getResources(), profilePictureResource);
+        roundedProfilePicture.setCircular(true);
+        return roundedProfilePicture;
+    }
 }

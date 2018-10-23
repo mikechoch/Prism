@@ -100,6 +100,8 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         if (position == 0 || position % RECYCLER_VIEW_AD_THRESHOLD != 0) {
             int realPosition  = getRealPosition(position);
             ((PrismPostViewHolder) holder).setData(prismPostArrayList.get(realPosition));
+        } else {
+            ((GoogleAdViewHolder) holder).setData();
         }
     }
 
@@ -148,7 +150,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         PrismPostViewHolder(View itemView) {
             super(itemView);
 
-            // Image initializations
             progressBar = itemView.findViewById(R.id.prism_post_progress_bar);
             prismPostRelativeLayout = itemView.findViewById(R.id.under_maintenance_activity_relative_layout);
             userProfilePicImageView = itemView.findViewById(R.id.recycler_view_profile_pic_image_view);
@@ -202,18 +203,15 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                         .into(new BitmapImageViewTarget(userProfilePicImageView) {
                             @Override
                             protected void setResource(Bitmap resource) {
-                                if (!prismPost.getPrismUser().getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1.5 * Default.scale);
-                                    userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                                } else {
-                                    userProfilePicImageView.setPadding(0, 0, 0, 0);
-                                    userProfilePicImageView.setBackground(null);
-                                }
-
-                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                                drawable.setCircular(true);
-                                userProfilePicImageView.setImageDrawable(drawable);
+                                int imageViewPadding = (int) (1.5 * Default.scale);
+                                RoundedBitmapDrawable profilePictureDrawable =
+                                        BitmapHelper.createCircularProfilePicture(
+                                                context,
+                                                userProfilePicImageView,
+                                                prismPost.getPrismUser().getProfilePicture().isDefault,
+                                                resource,
+                                                imageViewPadding);
+                                userProfilePicImageView.setImageDrawable(profilePictureDrawable);
                             }
                         });
                 prismUserTextView.setText(prismPost.getPrismUser().getUsername());
@@ -519,7 +517,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
          * local reposted_posts_map HashMap so that recycler view can update
          * Operation UNREPOST (performRepost = false): undoes above 3 things
          * TODO: update comments
-         * @param performRepost
+         * @param performRepost -
          */
         private void handleRepostButtonClick(boolean performRepost) {
             performUIActivitiesForRepost(performRepost);
@@ -563,8 +561,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             adProgressBar = itemView.findViewById(R.id.prism_post_google_ad_item_progress_bar);
             adFailedLinearLayout = itemView.findViewById(R.id.prism_post_google_ad_item_failed_ad_layout);
             adFailedTextView = itemView.findViewById(R.id.prism_post_google_ad_item_failed_ad_layout_title);
-
-            setData();
         }
 
         /**

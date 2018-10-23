@@ -49,6 +49,7 @@ import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fire.DatabaseRead;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.ProfilePictureOption;
@@ -302,18 +303,15 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 .into(new BitmapImageViewTarget(userProfilePicImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (2 * Default.scale);
-                            userProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            userProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        } else {
-                            userProfilePicImageView.setPadding(0, 0, 0, 0);
-                            userProfilePicImageView.setBackground(null);
-                        }
-
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        drawable.setCircular(true);
-                        userProfilePicImageView.setImageDrawable(drawable);
+                        int imageViewPadding = (int) (2 * Default.scale);
+                        RoundedBitmapDrawable profilePictureDrawable =
+                                BitmapHelper.createCircularProfilePicture(
+                                        PrismUserProfileActivity.this,
+                                        userProfilePicImageView,
+                                        prismUser.getProfilePicture().isDefault,
+                                        resource,
+                                        imageViewPadding);
+                        userProfilePicImageView.setImageDrawable(profilePictureDrawable);
                     }
                 });
 
@@ -337,18 +335,15 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 .into(new BitmapImageViewTarget(toolbarUserProfilePicImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * Default.scale);
-                            toolbarUserProfilePicImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            toolbarUserProfilePicImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        } else {
-                            toolbarUserProfilePicImageView.setPadding(0, 0, 0, 0);
-                            toolbarUserProfilePicImageView.setBackground(null);
-                        }
-
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        drawable.setCircular(true);
-                        toolbarUserProfilePicImageView.setImageDrawable(drawable);
+                        int imageViewPadding = (int) (1 * Default.scale);
+                        RoundedBitmapDrawable profilePictureDrawable =
+                                BitmapHelper.createCircularProfilePicture(
+                                        PrismUserProfileActivity.this,
+                                        toolbarUserProfilePicImageView,
+                                        prismUser.getProfilePicture().isDefault,
+                                        resource,
+                                        imageViewPadding);
+                        toolbarUserProfilePicImageView.setImageDrawable(profilePictureDrawable);
                     }
                 });
 

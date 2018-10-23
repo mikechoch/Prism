@@ -20,6 +20,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
 
 public class ShowUserProfilePictureActivity extends AppCompatActivity {
@@ -121,18 +122,15 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
                 .into(new BitmapImageViewTarget(largeUserProfilePictureImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (5 * Default.scale);
-                            largeUserProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            largeUserProfilePictureImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        } else {
-                            largeUserProfilePictureImageView.setPadding(0, 0, 0, 0);
-                            largeUserProfilePictureImageView.setBackground(null);
-                        }
-
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        drawable.setCircular(true);
-                        largeUserProfilePictureImageView.setImageDrawable(drawable);
+                        int imageViewPadding = (int) (5 * Default.scale);
+                        RoundedBitmapDrawable profilePictureDrawable =
+                                BitmapHelper.createCircularProfilePicture(
+                                        ShowUserProfilePictureActivity.this,
+                                        largeUserProfilePictureImageView,
+                                        prismUser.getProfilePicture().isDefault,
+                                        resource,
+                                        imageViewPadding);
+                        largeUserProfilePictureImageView.setImageDrawable(profilePictureDrawable);
 
                         startPostponedEnterTransition();
                     }

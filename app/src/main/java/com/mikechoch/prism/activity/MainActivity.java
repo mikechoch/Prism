@@ -213,9 +213,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 .into(new BitmapImageViewTarget(imageUploadPreview) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        drawable.setCircular(true);
-                        imageUploadPreview.setImageDrawable(drawable);
+                        RoundedBitmapDrawable roundedProfilePicture = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                        roundedProfilePicture.setCircular(true);
+                        imageUploadPreview.setImageDrawable(roundedProfilePicture);
                     }
                 });
         beginUploadPrismPostToFirebase();

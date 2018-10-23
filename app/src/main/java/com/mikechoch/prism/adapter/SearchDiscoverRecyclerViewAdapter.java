@@ -28,6 +28,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Discovery;
@@ -174,18 +175,15 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                     .into(new BitmapImageViewTarget(prismPostUserProfilePicture) {
                         @Override
                         protected void setResource(Bitmap resource) {
-                            if (!prismUser.getProfilePicture().isDefault) {
-                                int whiteOutlinePadding = (int) (1.5 * Default.scale);
-                                prismPostUserProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                prismPostUserProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                            } else {
-                                prismPostUserProfilePicture.setPadding(0, 0, 0, 0);
-                                prismPostUserProfilePicture.setBackground(null);
-                            }
-
-                            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            drawable.setCircular(true);
-                            prismPostUserProfilePicture.setImageDrawable(drawable);
+                            int imageViewPadding = (int) (1.5 * Default.scale);
+                            RoundedBitmapDrawable profilePictureDrawable =
+                                    BitmapHelper.createCircularProfilePicture(
+                                            context,
+                                            prismPostUserProfilePicture,
+                                            prismUser.getProfilePicture().isDefault,
+                                            resource,
+                                            imageViewPadding);
+                            prismPostUserProfilePicture.setImageDrawable(profilePictureDrawable);
                         }
                     });
 
@@ -259,18 +257,15 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                     .into(new BitmapImageViewTarget(discoverPrismUserImageView) {
                         @Override
                         protected void setResource(Bitmap resource) {
-                            if (!prismUser.getProfilePicture().isDefault) {
-                                int whiteOutlinePadding = (int) (1.5 * Default.scale);
-                                discoverPrismUserImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                discoverPrismUserImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                            } else {
-                                discoverPrismUserImageView.setPadding(0, 0, 0, 0);
-                                discoverPrismUserImageView.setBackground(null);
-                            }
-
-                            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            drawable.setCircular(true);
-                            discoverPrismUserImageView.setImageDrawable(drawable);
+                            int imageViewPadding = (int) (1.5 * Default.scale);
+                            RoundedBitmapDrawable profilePictureDrawable =
+                                    BitmapHelper.createCircularProfilePicture(
+                                            context,
+                                            discoverPrismUserImageView,
+                                            prismUser.getProfilePicture().isDefault,
+                                            resource,
+                                            imageViewPadding);
+                            discoverPrismUserImageView.setImageDrawable(profilePictureDrawable);
                         }
                     });
 

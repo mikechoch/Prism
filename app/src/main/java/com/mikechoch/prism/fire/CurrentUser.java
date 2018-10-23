@@ -25,6 +25,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -37,12 +38,12 @@ public class CurrentUser {
     public static PrismUser prismUser;
     public static UserPreference preference;
 
-    public static ArrayList<PrismPost> news_feed;
+    static ArrayList<PrismPost> news_feed;
 
-    public static DatabaseReference notificationsReference;
-    public static ChildEventListener notificationsListener;
-    public static Handler notificationsHandler;
-    public static Runnable notificationsRunnable;
+    static DatabaseReference notificationsReference;
+    static ChildEventListener notificationsListener;
+    static Handler notificationsHandler;
+    static Runnable notificationsRunnable;
 
     /**
      * Key: String postId
@@ -74,13 +75,19 @@ public class CurrentUser {
     static HashMap<String, Long> followers;
     static HashMap<String, Long> followings;
 
-
+    /**
+     *
+     * @param context
+     * @param intent
+     */
     public static void prepareAppForUser(Context context, Intent intent) {
         refreshUserProfile(context, intent);
     }
 
     /**
      * Returns True if CurrentUser is following given PrismUser
+     * @param prismUser
+     * @return
      */
     public static boolean isFollowingPrismUser(PrismUser prismUser) {
         return followings.containsKey(prismUser.getUid());
@@ -88,6 +95,8 @@ public class CurrentUser {
 
     /**
      * Adds given prismUser to CurrentUser's followings HashMap
+     * @param prismUser
+     * @param timestamp
      */
     static void followUser(PrismUser prismUser, Long timestamp) {
         followings.put(prismUser.getUid(), timestamp);
@@ -96,6 +105,7 @@ public class CurrentUser {
 
     /**
      * Removes given PrismUser from CurrentUser's followings HashMap
+     * @param prismUser
      */
     static void unfollowUser(PrismUser prismUser) {
         if (followings.containsKey(prismUser.getUid())) {
@@ -105,6 +115,8 @@ public class CurrentUser {
 
     /**
      * Returns True if given PrismUser is a follower of CurrentUser
+     * @param prismUser
+     * @return
      */
     public static boolean isPrismUserFollower(PrismUser prismUser) {
         return followers.containsKey(prismUser.getUid());
@@ -113,6 +125,8 @@ public class CurrentUser {
 
     /**
      * Returns True if CurrentUser has liked given prismPost
+     * @param prismPost
+     * @return
      */
     public static boolean hasLiked(PrismPost prismPost) {
         return liked_posts != null && liked_posts_map.containsKey(prismPost.getPostId());
@@ -120,6 +134,7 @@ public class CurrentUser {
 
     /**
      * Adds prismPost to CurrentUser's liked_posts list and hashMap
+     * @param prismPost
      */
     static void likePost(PrismPost prismPost) {
         liked_posts.add(prismPost);
@@ -128,6 +143,7 @@ public class CurrentUser {
 
     /**
      * Adds list of liked prismPosts to CurrentUser's liked_posts list
+     * @param likedPosts
      */
     static void likePosts(ArrayList<PrismPost> likedPosts) {
         liked_posts.addAll(likedPosts);
@@ -135,6 +151,7 @@ public class CurrentUser {
 
     /**
      * Removes prismPost from CurrentUser's liked_posts list and hashMap
+     * @param prismPost
      */
     static void unlikePost(PrismPost prismPost) {
         liked_posts.remove(prismPost);
@@ -143,6 +160,8 @@ public class CurrentUser {
 
     /**
      * Returns True if CurrentUser has reposted given prismPost
+     * @param prismPost
+     * @return
      */
     public static boolean hasReposted(PrismPost prismPost) {
         return reposted_posts_map != null && reposted_posts_map.containsKey(prismPost.getPostId());
@@ -150,6 +169,7 @@ public class CurrentUser {
 
     /**
      * Adds prismPost to CurrentUser's reposted_posts list and hashMap
+     * @param prismPost
      */
     static void repostPost(PrismPost prismPost) {
         reposted_posts.add(prismPost);
@@ -158,6 +178,7 @@ public class CurrentUser {
 
     /**
      * Adds the list of reposted prismPosts to CurrentUser's reposted_posts list
+     * @param repostedPosts
      */
     static void repostPosts(ArrayList<PrismPost> repostedPosts) {
         reposted_posts.addAll(repostedPosts);
@@ -168,6 +189,7 @@ public class CurrentUser {
 
     /**
      * Removes prismPost from CurrentUser's repost_posts list and hashMap
+     * @param prismPost
      */
     static void unrepostPost(PrismPost prismPost) {
         reposted_posts.remove(prismPost);
@@ -175,8 +197,8 @@ public class CurrentUser {
     }
 
     /**
-     *
      * Adds prismPost to CurrentUser's uploaded_posts list and hashMap
+     * @param prismPost
      */
     static void uploadPost(PrismPost prismPost) {
         uploaded_posts.add(prismPost);
@@ -185,6 +207,7 @@ public class CurrentUser {
 
     /**
      * Adds the list of uploaded prismPosts to CurrentUser's uploaded_posts list and hashMap
+     * @param uploadedPosts
      */
     static void uploadPosts(ArrayList<PrismPost> uploadedPosts) {
         uploaded_posts.addAll(uploadedPosts);
@@ -201,6 +224,8 @@ public class CurrentUser {
 
     /**
      *
+     * @param notification
+     * @param notificationId
      */
     static void addNotification(Notification notification, String notificationId) {
         if (!notifications_map.containsKey(notificationId)) {
@@ -211,6 +236,7 @@ public class CurrentUser {
 
     /**
      *
+     * @param oldNotificationId
      */
     static void removeNotification(String oldNotificationId) {
         Notification oldNotification = notifications_map.get(oldNotificationId);
@@ -255,13 +281,15 @@ public class CurrentUser {
         }
     }
 
+    /**
+     *
+     * @param context
+     */
     public static void refreshUserProfile(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, true);
         refreshUserProfile(context, intent);
     }
-
-
 
     /**
      * Returns list of CurrentUser.uploaded_posts
@@ -307,14 +335,14 @@ public class CurrentUser {
     /**
      * Returns list of uid of Current user's followers
      */
-    public static ArrayList<String> getFollowers() {
+    static ArrayList<String> getFollowers() {
         return new ArrayList<>(followers.keySet());
     }
 
     /**
      * Returns list of uid of Current user's followings
      */
-    public static ArrayList<String> getFollowings() {
+    static ArrayList<String> getFollowings() {
         return new ArrayList<>(followings.keySet());
     }
 
@@ -329,11 +357,11 @@ public class CurrentUser {
     /**
      * TODO @Mike: Can we we put this function inside InterfaceAction?
      */
-    static void updateUserProfileFragmentUI(Context context) {
+    private static void updateUserProfileFragmentUI(Context context) {
         ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
         TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
 
-        // TODO: Crash on fullname using tablet
+        // TODO: Crash on full name using tablet
         userProfileTextView.setText(prismUser.getFullName());
         Glide.with(context)
                 .asBitmap()
@@ -343,23 +371,25 @@ public class CurrentUser {
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (!prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * Default.scale);
-                            userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            userProfileImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        } else {
-                            userProfileImageView.setPadding(0, 0, 0, 0);
-                            userProfileImageView.setBackground(null);
-                        }
-
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                        drawable.setCircular(true);
-                        userProfileImageView.setImageDrawable(drawable);
+                        int imageViewPadding = (int) (1 * Default.scale);
+                        RoundedBitmapDrawable profilePictureDrawable =
+                                BitmapHelper.createCircularProfilePicture(
+                                        context,
+                                        userProfileImageView,
+                                        prismUser.getProfilePicture().isDefault,
+                                        resource,
+                                        imageViewPadding);
+                        userProfileImageView.setImageDrawable(profilePictureDrawable);
                     }
                 });
     }
 
-    static void refreshInterface(Context context, Intent intent) {
+    /**
+     *
+     * @param context
+     * @param intent
+     */
+    private static void refreshInterface(Context context, Intent intent) {
         // Handle notification firebase token related activities
         DatabaseAction.handleFirebaseTokenRefreshActivities(context);
         IncomingNotificationController.initializeNotifications(context);
@@ -384,10 +414,18 @@ public class CurrentUser {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public static FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    /**
+     *
+     * @return
+     */
     public static boolean isUserSignedIn() {
         FirebaseUser user = getFirebaseUser();
         if (user == null) {
@@ -400,6 +438,9 @@ public class CurrentUser {
         return true;
     }
 
+    /**
+     *
+     */
     public static void performSignOut() {
         if (CurrentUser.notificationsListener != null) {
             CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);

@@ -21,9 +21,12 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.activity.MainActivity;
+import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.Setting;
 
@@ -74,20 +77,17 @@ public class ProfileFragment extends Fragment {
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (CurrentUser.prismUser != null
-                                && CurrentUser.prismUser.getProfilePicture() != null
-                                && !CurrentUser.prismUser.getProfilePicture().isDefault) {
-                            int whiteOutlinePadding = (int) (1 * Default.scale);
-                            userProfileImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                            userProfileImageView.setBackground(getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                        } else {
-                            userProfileImageView.setPadding(0, 0, 0, 0);
-                            userProfileImageView.setBackground(null);
+                        if (getActivity() != null) {
+                            int imageViewPadding = (int) (1 * Default.scale);
+                            RoundedBitmapDrawable profilePictureDrawable =
+                                    BitmapHelper.createCircularProfilePicture(
+                                            getActivity(),
+                                            userProfileImageView,
+                                            CurrentUser.prismUser.getProfilePicture().isDefault,
+                                            resource,
+                                            imageViewPadding);
+                            userProfileImageView.setImageDrawable(profilePictureDrawable);
                         }
-
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        drawable.setCircular(true);
-                        userProfileImageView.setImageDrawable(drawable);
                     }
                 });
 

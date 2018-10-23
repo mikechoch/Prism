@@ -20,6 +20,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -129,18 +130,15 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                         .into(new BitmapImageViewTarget(userProfilePicture) {
                             @Override
                             protected void setResource(Bitmap resource) {
-                                if (!prismUser.getProfilePicture().isDefault) {
-                                    int whiteOutlinePadding = (int) (1 * Default.scale);
-                                    userProfilePicture.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                    userProfilePicture.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                                } else {
-                                    userProfilePicture.setPadding(0, 0, 0, 0);
-                                    userProfilePicture.setBackground(null);
-                                }
-
-                                RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                                drawable.setCircular(true);
-                                userProfilePicture.setImageDrawable(drawable);
+                                int imageViewPadding = (int) (1 * Default.scale);
+                                RoundedBitmapDrawable profilePictureDrawable =
+                                        BitmapHelper.createCircularProfilePicture(
+                                                context,
+                                                userProfilePicture,
+                                                prismUser.getProfilePicture().isDefault,
+                                                resource,
+                                                imageViewPadding);
+                                userProfilePicture.setImageDrawable(profilePictureDrawable);
                             }
                         });
             }

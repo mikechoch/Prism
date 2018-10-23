@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
@@ -136,18 +137,15 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
                     .into(new BitmapImageViewTarget(peopleProfilePictureImageView) {
                         @Override
                         protected void setResource(Bitmap resource) {
-                            if (!prismUser.getProfilePicture().isDefault) {
-                                int whiteOutlinePadding = (int) (1 * Default.scale);
-                                peopleProfilePictureImageView.setPadding(whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding, whiteOutlinePadding);
-                                peopleProfilePictureImageView.setBackground(context.getResources().getDrawable(R.drawable.circle_profile_picture_frame));
-                            } else {
-                                peopleProfilePictureImageView.setPadding(0, 0, 0, 0);
-                                peopleProfilePictureImageView.setBackground(null);
-                            }
-
-                            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            drawable.setCircular(true);
-                            peopleProfilePictureImageView.setImageDrawable(drawable);
+                            int imageViewPadding = (int) (1 * Default.scale);
+                            RoundedBitmapDrawable profilePictureDrawable =
+                                    BitmapHelper.createCircularProfilePicture(
+                                            context,
+                                            peopleProfilePictureImageView,
+                                            prismUser.getProfilePicture().isDefault,
+                                            resource,
+                                            imageViewPadding);
+                            peopleProfilePictureImageView.setImageDrawable(profilePictureDrawable);
                         }
                     });
 
