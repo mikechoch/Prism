@@ -336,42 +336,6 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         }
 
         /**
-         * Given a Bitmap download an image to gallery of phone
-         * @param image - image Bitmap to save to gallery
-         */
-        private void downloadImage(Bitmap image) {
-            String savedImagePath;
-            boolean createdPrismFolder = true;
-            String imageFileName = "IMG_" + System.currentTimeMillis() + ".jpg";
-
-            File prismFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Prism");
-            if (!prismFolder.exists()) {
-                createdPrismFolder = prismFolder.mkdirs();
-            }
-
-            if (createdPrismFolder) {
-                File imageFile = new File(prismFolder, imageFileName);
-                savedImagePath = imageFile.getAbsolutePath();
-                try {
-                    OutputStream fOut = new FileOutputStream(imageFile);
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-                    fOut.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                // Add the image to the system gallery
-                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                File f = new File(savedImagePath);
-                Uri contentUri = Uri.fromFile(f);
-                mediaScanIntent.setData(contentUri);
-                context.sendBroadcast(mediaScanIntent);
-
-                Helper.toast(context, "Image downloaded to Gallery");
-            }
-        }
-
-        /**
          * Three action buttons are shown for each PrismPost
          * Like button likes the PrismPost
          * Repost button reposts the PrismPost to the users profile
@@ -460,10 +424,9 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         }
 
         /**
-         * Populate all UI elements with data
+         * Populate elements for current PrismPostViewHolder item
          */
         private void populateInterfaceElements() {
-            // Setup Typefaces for all text based UI elements
             prismUserTextView.setTypeface(Default.sourceSansProBold);
             prismPostDateTextView.setTypeface(Default.sourceSansProLight);
             likesCountTextView.setTypeface(Default.sourceSansProLight);

@@ -65,6 +65,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
 
         PrismPostViewHolder(View itemView) {
             super(itemView);
+
             userPostImageView = itemView.findViewById(R.id.user_post_image_view);
             userPostRepostedIcon = itemView.findViewById(R.id.user_post_reposted_indicator);
             progressBar = itemView.findViewById(R.id.user_post_progress_bar);
@@ -116,7 +117,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
         }
 
         /**
-         * Populate all interface elements with data
+         * Populate elements of current PrismPostViewHolder item
          */
         private void populateInterfaceElements() {
             setupPostImageView();

@@ -3,6 +3,7 @@ package com.mikechoch.prism.helper;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -35,6 +36,7 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class BitmapHelper {
@@ -45,13 +47,13 @@ public class BitmapHelper {
 
     /**
      *
-     * @param cr
+     * @param contentResolver
      * @param source
      * @param title
      * @param description
      * @return
      */
-    private static String insertImage(ContentResolver cr, Bitmap source, String title, String description) {
+    private static String insertImage(ContentResolver contentResolver, Bitmap source, String title, String description) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, title);
         values.put(MediaStore.Images.Media.DESCRIPTION, description);
@@ -59,26 +61,27 @@ public class BitmapHelper {
         Uri externalContentUri = Uri.parse("content://media/external/images/media");
 
         Uri url = null;
-        String stringUrl = null;    /* value to be returned */
+        // value to be returned
+        String stringUrl = null;
 
         try {
-            url = cr.insert(externalContentUri, values);
+            url = contentResolver.insert(externalContentUri, values);
 
             if (source != null) {
                 if (url != null) {
-                    try (OutputStream imageOut = cr.openOutputStream(url)) {
+                    try (OutputStream imageOut = contentResolver.openOutputStream(url)) {
                         source.compress(Bitmap.CompressFormat.JPEG, 50, imageOut);
                     }
                 }
             } else {
                 System.out.println("Failed to create thumbnail, removing original");
-                cr.delete(url, null, null);
+                contentResolver.delete(url, null, null);
                 url = null;
             }
         } catch (Exception e) {
             System.out.println("Failed to insert image");
             if (url != null) {
-                cr.delete(url, null, null);
+                contentResolver.delete(url, null, null);
                 url = null;
             }
         }
@@ -96,7 +99,7 @@ public class BitmapHelper {
      * @param bitmap
      * @return
      */
-    public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
+    private static Bitmap rotateBitmap(String src, Bitmap bitmap) {
         int orientation = getExifOrientation(src);
 
         if (orientation == 1) {
@@ -147,7 +150,6 @@ public class BitmapHelper {
      *
      * @param src
      * @return
-     * @throws IOException
      */
     private static int getExifOrientation(String src) {
         int orientation = 1;
@@ -392,6 +394,13 @@ public class BitmapHelper {
         }
     }
 
+    /**
+     *
+     * @param brightness
+     * @param contrast
+     * @param saturation
+     * @return
+     */
     public static float[] createEditMatrix(float brightness, float contrast, float saturation) {
         return new float[] {lumR * (contrast - saturation) + saturation, lumG * (contrast - saturation), lumB * (contrast - saturation), 0, brightness,
                             lumR * (contrast - saturation), lumG * (contrast - saturation) + saturation, lumB * (contrast - saturation), 0, brightness,
@@ -402,6 +411,7 @@ public class BitmapHelper {
 
     /**
      *
+     * @param context
      * @param uri
      * @return
      */
@@ -418,6 +428,9 @@ public class BitmapHelper {
 
     /**
      *
+     * @param context
+     * @param inImage
+     * @return
      */
     public static Uri getImageUri(Context context, Bitmap inImage) {
 //        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -441,7 +454,11 @@ public class BitmapHelper {
         }
     }
 
-    /** Create a File for saving an image or video */
+    /**
+     * Create a File for saving an image or video
+     * @param context
+     * @return
+     */
     private static File getOutputMediaFile(Context context){
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
@@ -460,7 +477,7 @@ public class BitmapHelper {
             }
         }
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm", Locale.US).format(new Date());
         File mediaFile;
         String mImageName="MI_"+ timeStamp +".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
@@ -508,5 +525,42 @@ public class BitmapHelper {
         RoundedBitmapDrawable roundedProfilePicture = RoundedBitmapDrawableFactory.create(context.getResources(), profilePictureResource);
         roundedProfilePicture.setCircular(true);
         return roundedProfilePicture;
+    }
+
+    /**
+     * Given a Bitmap download an image to gallery of phone
+     * @param context
+     * @param image - image Bitmap to save to gallery
+     */
+    public static void downloadImage(Context context, Bitmap image) {
+        String savedImagePath;
+        boolean createdPrismFolder = true;
+        String imageFileName = "IMG_" + System.currentTimeMillis() + ".jpg";
+
+        File prismFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Prism");
+        if (!prismFolder.exists()) {
+            createdPrismFolder = prismFolder.mkdirs();
+        }
+
+        if (createdPrismFolder) {
+            File imageFile = new File(prismFolder, imageFileName);
+            savedImagePath = imageFile.getAbsolutePath();
+            try {
+                OutputStream fOut = new FileOutputStream(imageFile);
+                image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                fOut.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Add the image to the system gallery
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            File f = new File(savedImagePath);
+            Uri contentUri = Uri.fromFile(f);
+            mediaScanIntent.setData(contentUri);
+            context.sendBroadcast(mediaScanIntent);
+
+            Helper.toast(context, "Image downloaded to Gallery");
+        }
     }
 }

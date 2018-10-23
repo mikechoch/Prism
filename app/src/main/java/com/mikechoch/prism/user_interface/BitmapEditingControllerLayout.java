@@ -41,24 +41,24 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     private HorizontalScrollView bitmapEditingControllerHorizontalScrollView;
     public LinearLayout bitmapEditingControllerFilterLinearLayout;
     private LinearLayout bitmapEditingControllerEditingLinearLayout;
-    public static LinearLayout filterEditingSeekBarLinearLayout;
+    public LinearLayout filterEditingSeekBarLinearLayout;
     private PhotoEditorView photoEditorView;
     private SeekBar filterEditingSeekBar;
     private TextView filterEditingTextView;
     private TabLayout bitmapEditingControllerTabLayout;
 
-    public static boolean isAdjusting = false;
+    private boolean isAdjusting = false;
     private boolean isFilter = true;
     private Filter currentFilter = Filter.NORMAL;
     public Edit currentEdit = null;
     private ImageView currentFilterImageView;
-    public static Bitmap bitmapPreview;
-    public static Bitmap alteredBitmap;
-    public static Bitmap modifiedBitmap;
+    private Bitmap bitmapPreview;
+    private Bitmap alteredBitmap;
+    private Bitmap modifiedBitmap;
 
-    public static float brightness;
-    public static float contrast;
-    public static float saturation;
+    private float brightness;
+    private float contrast;
+    private float saturation;
 
     boolean isCircularBitmap = false;
 
@@ -67,7 +67,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         super(context);
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        init();
+        initBitmapEdit();
 
     }
 
@@ -75,17 +75,81 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         super(context, attrs, defStyle);
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        init();
+        initBitmapEdit();
     }
 
     public BitmapEditingControllerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        init();
+        initBitmapEdit();
     }
 
-    public void init() {
+    public boolean isIsAdjusting() {
+        return isAdjusting;
+    }
+
+    public boolean isFilter() {
+        return isFilter;
+    }
+
+    public Bitmap getBitmapPreview() {
+        return bitmapPreview;
+    }
+
+    public Bitmap getAlteredBitmap() {
+        return alteredBitmap;
+    }
+
+    public Bitmap getModifiedBitmap() {
+        return modifiedBitmap;
+    }
+
+    public float getBrightness() {
+        return brightness;
+    }
+
+    public float getContrast() {
+        return contrast;
+    }
+
+    public float getSaturation() {
+        return saturation;
+    }
+
+    public void setIsAdjusting(boolean isAdjusting) {
+        this.isAdjusting = isAdjusting;
+    }
+
+    public void setFilter(boolean filter) {
+        this.isFilter = filter;
+    }
+
+    public void setBitmapPreview(Bitmap bitmapPreview) {
+        this.bitmapPreview = bitmapPreview;
+    }
+
+    public void setAlteredBitmap(Bitmap alteredBitmap) {
+        this.alteredBitmap = alteredBitmap;
+    }
+
+    public void setModifiedBitmap(Bitmap modifiedBitmap) {
+        this.modifiedBitmap = modifiedBitmap;
+    }
+
+    public void setBrightness(float brightness) {
+        this.brightness = brightness;
+    }
+
+    public void setContrast(float contrast) {
+        this.contrast = contrast;
+    }
+
+    public void setSaturation(float saturation) {
+        this.saturation = saturation;
+    }
+
+    public void initBitmapEdit() {
         View view = layoutInflater.inflate(R.layout.bitmap_editing_controller_layout, this, true);
 
         bitmapEditingControllerRelativeLayout = view.findViewById(R.id.bitmap_editing_controller_relative_layout);
@@ -167,10 +231,6 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
         cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
-
-        if (isCircularBitmap) {
-//            canvas.drawCircle(alteredBitmap.getWidth() / 2f, alteredBitmap.getHeight() / 2f, alteredBitmap.getWidth() / 2f, paint);
-        }
 
         canvas.drawBitmap(alteredBitmap, matrix, paint);
 
@@ -349,7 +409,22 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                ((TextView) tab.getCustomView()).setTextColor(selectedTabColor);
+                int tabPosition = tab.getPosition();
+                switch (tabPosition) {
+                    case 0:
+                        isAdjusting = false;
+                        isFilter = true;
+                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+                        bitmapEditingControllerFilterLinearLayout.setVisibility(VISIBLE);
+                        break;
+                    case 1:
+                        isAdjusting = false;
+                        isFilter = false;
+                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+                        bitmapEditingControllerEditingLinearLayout.setVisibility(VISIBLE);
+                        break;
+                }
             }
         });
     }

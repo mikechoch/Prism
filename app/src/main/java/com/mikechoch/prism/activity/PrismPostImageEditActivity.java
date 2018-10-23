@@ -114,8 +114,8 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!isSavingImage) {
-            if (bitmapEditingControllerLayout.isAdjusting) {
-                bitmapEditingControllerLayout.isAdjusting = false;
+            if (bitmapEditingControllerLayout.isIsAdjusting()) {
+                bitmapEditingControllerLayout.setIsAdjusting(false);
                 bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
             } else {
                 finish();
@@ -154,25 +154,25 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
 
         switch (pictureUpload) {
             case PRISM_POST:
-                bitmapEditingControllerLayout.modifiedBitmap = tempBitmap.copy(Bitmap.Config.RGB_565, true);
+                bitmapEditingControllerLayout.setModifiedBitmap(tempBitmap.copy(Bitmap.Config.RGB_565, true));
                 break;
             case PROFILE_PICTURE:
-                bitmapEditingControllerLayout.modifiedBitmap = BitmapHelper.getCircledBitmap(tempBitmap.copy(Bitmap.Config.RGB_565, true));
+                bitmapEditingControllerLayout.setModifiedBitmap(BitmapHelper.getCircledBitmap(tempBitmap.copy(Bitmap.Config.RGB_565, true)));
                 break;
         }
 
-        photoEditorView.getSource().setImageBitmap(bitmapEditingControllerLayout.modifiedBitmap);
-        bitmapEditingControllerLayout.bitmapPreview = tempBitmap.copy(Bitmap.Config.RGB_565, true);
+        photoEditorView.getSource().setImageBitmap(bitmapEditingControllerLayout.getModifiedBitmap());
+        bitmapEditingControllerLayout.setBitmapPreview(tempBitmap.copy(Bitmap.Config.RGB_565, true));
 
         maxHeight = 56 * Default.scale;
         Bitmap tinyTempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
         bitmapEditingControllerLayout.setupFilterController(tinyTempBitmap.copy(tinyTempBitmap.getConfig(), true));
 
-        bitmapEditingControllerLayout.brightness = Edit.BRIGHTNESS.getDef();
-        bitmapEditingControllerLayout.contrast = Edit.CONTRAST.getDef();
-        bitmapEditingControllerLayout.saturation = Edit.SATURATION.getDef();
+        bitmapEditingControllerLayout.setBrightness(Edit.BRIGHTNESS.getDef());
+        bitmapEditingControllerLayout.setContrast(Edit.CONTRAST.getDef());
+        bitmapEditingControllerLayout.setSaturation(Edit.SATURATION.getDef());
 
-        bitmapEditingControllerLayout.isAdjusting = false;
+        bitmapEditingControllerLayout.setIsAdjusting(false);
         bitmapEditingControllerLayout.filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
     }
 
@@ -212,9 +212,9 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                 Matrix matrix = new Matrix();
 
                 cm.set(BitmapHelper.createEditMatrix(
-                        bitmapEditingControllerLayout.brightness,
-                        bitmapEditingControllerLayout.contrast,
-                        bitmapEditingControllerLayout.saturation));
+                        bitmapEditingControllerLayout.getBrightness(),
+                        bitmapEditingControllerLayout.getContrast(),
+                        bitmapEditingControllerLayout.getSaturation()));
                 paint.setColorFilter(new ColorMatrixColorFilter(cm));
                 canvas.drawBitmap(outputBitmapCopy, matrix, paint);
 
