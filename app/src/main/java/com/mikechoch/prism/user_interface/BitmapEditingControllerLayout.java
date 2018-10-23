@@ -28,6 +28,7 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
 import com.mikechoch.prism.type.Filter;
+import com.mikechoch.prism.type.ImageEdit;
 
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
@@ -47,20 +48,20 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     private TextView filterEditingTextView;
     private TabLayout bitmapEditingControllerTabLayout;
 
-    private boolean isAdjusting = false;
-    private boolean isFilter = true;
-    private Filter currentFilter = Filter.NORMAL;
-    public Edit currentEdit = null;
     private ImageView currentFilterImageView;
     private Bitmap bitmapPreview;
     private Bitmap alteredBitmap;
     private Bitmap modifiedBitmap;
 
+    boolean isCircularBitmap = false;
+
+    private boolean isAdjusting = false;
+    private boolean isFilter = true;
+    private Filter currentFilter = Filter.NORMAL;
+    public Edit currentEdit = null;
     private float brightness;
     private float contrast;
     private float saturation;
-
-    boolean isCircularBitmap = false;
 
 
     public BitmapEditingControllerLayout(Context context) {
@@ -68,7 +69,6 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
         initBitmapEdit();
-
     }
 
     public BitmapEditingControllerLayout(Context context, AttributeSet attrs, int defStyle) {
@@ -149,6 +149,9 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         this.saturation = saturation;
     }
 
+    /**
+     *
+     */
     public void initBitmapEdit() {
         View view = layoutInflater.inflate(R.layout.bitmap_editing_controller_layout, this, true);
 
@@ -171,22 +174,16 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     filterEditingTextView.setText(String.valueOf(progress - 100));
-
-                    if (isFilter) {
-                        // If you ever want to add filter adjustment it goes here
-                        // Add an OnClick for second filter click
-                    } else {
-                        switch (currentEdit) {
-                            case BRIGHTNESS:
-                                brightness = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
-                                break;
-                            case CONTRAST:
-                                contrast = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
-                                break;
-                            case SATURATION:
-                                saturation = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
-                                break;
-                        }
+                    switch (currentEdit) {
+                        case BRIGHTNESS:
+                            brightness = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            break;
+                        case CONTRAST:
+                            contrast = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            break;
+                        case SATURATION:
+                            saturation = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            break;
                     }
                     applyEffectsToBitmap();
                 }
@@ -208,37 +205,6 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
     /**
      *
-     * @param progress
-     * @return
-     */
-    private float getEditSeekBarValue(int progress, float min, float max) {
-        return (((progress / 200.0f) * (max - min)) + min);
-    }
-
-    /**
-     *
-     */
-    private void applyEffectsToBitmap() {
-        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas canvas = new Canvas(alteredBitmap);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        Matrix matrix = new Matrix();
-
-        cm.reset();
-        paint.reset();
-        matrix.reset();
-
-        cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
-        paint.setColorFilter(new ColorMatrixColorFilter(cm));
-
-        canvas.drawBitmap(alteredBitmap, matrix, paint);
-
-        photoEditorView.getSource().setImageBitmap(alteredBitmap);
-    }
-
-    /**
-     *
      * @param bitmap
      */
     public void setupFilterController(Bitmap bitmap) {
@@ -255,9 +221,12 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             ColorMatrix cm = new ColorMatrix();
             Matrix matrix = new Matrix();
 
-            float b = getEditSeekBarValue(filter.getBrightness(), Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
-            float c = getEditSeekBarValue(filter.getContrast(), Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
-            float s = getEditSeekBarValue(filter.getSaturation(), Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
+            float b = getEditSeekBarValue(filter.getBrightness(),
+                    Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
+            float c = getEditSeekBarValue(filter.getContrast(),
+                    Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
+            float s = getEditSeekBarValue(filter.getSaturation(),
+                    Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
 
             cm.set(BitmapHelper.createEditMatrix(b, c, s));
             paint.setColorFilter(new ColorMatrixColorFilter(cm));
@@ -268,32 +237,19 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                 @Override
                 public void onClick(View v) {
                     if (!currentFilter.equals(filter)) {
-                        CardView.LayoutParams filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
-                        filterPreviewLayoutParams.setMargins(0, 0, 0, 0);
-                        currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
-
-                        currentFilter = filter;
-                        currentFilterImageView = filterPreviewImageView;
-                        filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
-                        // TODO: Highlight ImageView mayne add padding with white background?
-                        filterPreviewLayoutParams.setMargins((int) (2 * Default.scale), (int) (2 * Default.scale), (int) (2 * Default.scale), (int) (2 * Default.scale));
-                        currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
-
-                        // TODO: apply filter to the bitmapPreview
-                        brightness = getEditSeekBarValue(currentFilter.getBrightness(), Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
-                        contrast = getEditSeekBarValue(currentFilter.getContrast(), Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
-                        saturation = getEditSeekBarValue(currentFilter.getSaturation(), Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
-
-                        applyEffectsToBitmap();
+                        handleFilterClick(filter, filterPreviewImageView);
                     }
                 }
             });
+
             if (filter.equals(Filter.NORMAL)) {
                 currentFilterImageView = filterPreviewImageView;
                 CardView.LayoutParams filterPreviewLayoutParams = (CardView.LayoutParams) filterPreviewImageView.getLayoutParams();
-                filterPreviewLayoutParams.setMargins((int) (2 * Default.scale), (int) (2 * Default.scale), (int) (2 * Default.scale), (int) (2 * Default.scale));
+                int outlineMargin = (int) (2 * Default.scale);
+                filterPreviewLayoutParams.setMargins(outlineMargin, outlineMargin, outlineMargin, outlineMargin);
                 currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
             }
+
             TextView filterPreviewTextView = filterPreview.findViewById(R.id.filter_preview_text_view);
             filterPreviewTextView.setText(filter.getTitle());
             filterPreviewTextView.setTypeface(Default.sourceSansProLight);
@@ -302,6 +258,9 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         }
     }
 
+    /**
+     *
+     */
     private void setupEditingController() {
         brightness = Edit.BRIGHTNESS.getDef();
         contrast = Edit.CONTRAST.getDef();
@@ -325,13 +284,16 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                     int progress = 100;
                     switch (currentEdit) {
                         case BRIGHTNESS:
-                            progress = (int) (((brightness - currentEdit.getMin()) / (currentEdit.getMax() - currentEdit.getMin()) * 200));
+                            progress = (int) (((brightness - currentEdit.getMin()) /
+                                    (currentEdit.getMax() - currentEdit.getMin()) * 200));
                             break;
                         case CONTRAST:
-                            progress = (int) (((contrast - currentEdit.getMin()) / (currentEdit.getMax() - currentEdit.getMin()) * 200));
+                            progress = (int) (((contrast - currentEdit.getMin()) /
+                                    (currentEdit.getMax() - currentEdit.getMin()) * 200));
                             break;
                         case SATURATION:
-                            progress = (int) (((saturation - currentEdit.getMin()) / (currentEdit.getMax() - currentEdit.getMin()) * 200));
+                            progress = (int) (((saturation - currentEdit.getMin()) /
+                                    (currentEdit.getMax() - currentEdit.getMin()) * 200));
                             break;
                     }
                     String progressText = String.valueOf(progress - 100);
@@ -350,58 +312,65 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
     /**
      *
+     * @param photoEditorView
+     * @param isCircularBitmap
+     */
+    public void attachPhotoEditorView(PhotoEditorView photoEditorView, boolean isCircularBitmap) {
+        this.photoEditorView = photoEditorView;
+        this.isCircularBitmap = isCircularBitmap;
+    }
+
+    /**
+     *
      * @param bitmapEditingControllerTabLayout
      */
     public void attachTabLayout(TabLayout bitmapEditingControllerTabLayout) {
-        TabLayout.Tab filterTab = bitmapEditingControllerTabLayout.newTab();
-        TextView filterTextView = Helper.createTabTextView(context, "FILTER");
-        filterTextView.setScaleY(-1);
-        filterTab.setCustomView(filterTextView);
-
-        TabLayout.Tab editingTab = bitmapEditingControllerTabLayout.newTab();
-        TextView editingTextView = Helper.createTabTextView(context, "EDIT");
-        editingTextView.setScaleY(-1);
-        editingTab.setCustomView(editingTextView);
-
-        bitmapEditingControllerTabLayout.addTab(filterTab);
-        bitmapEditingControllerTabLayout.addTab(editingTab);
-
         int selectedTabColor = getResources().getColor(R.color.colorAccent);
         int unselectedTabColor = Color.WHITE;
-        ((TextView) bitmapEditingControllerTabLayout.getTabAt(bitmapEditingControllerTabLayout.getSelectedTabPosition()).getCustomView())
-                .setTextColor(selectedTabColor);
+
+        for (ImageEdit imageEdit : ImageEdit.values()) {
+            TabLayout.Tab imageEditTab = bitmapEditingControllerTabLayout.newTab();
+            TextView imageEditTextView = Helper.createTabTextView(context, imageEdit.getTitle());
+            imageEditTextView.setScaleY(-1);
+
+            if (imageEdit.getId() == Default.IMAGE_EDIT_TYPE_VIEW_PAGER_FILTER) {
+                imageEditTextView.setTextColor(selectedTabColor);
+            }
+
+            imageEditTab.setCustomView(imageEditTextView);
+            bitmapEditingControllerTabLayout.addTab(imageEditTab);
+        }
 
         bitmapEditingControllerTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                ((TextView) tab.getCustomView()).setTextColor(selectedTabColor);
+                TextView tabTextView = (TextView) tab.getCustomView();
+                if (tabTextView != null) {
+                    tabTextView.setTextColor(selectedTabColor);
+                }
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
-                    case 0:
-                        isAdjusting = false;
-                        isFilter = true;
-                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-                        bitmapEditingControllerFilterLinearLayout.setVisibility(VISIBLE);
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_FILTER:
+                        handleTabClick(true);
                         break;
-                    case 1:
-                        isAdjusting = false;
-                        isFilter = false;
-                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-                        bitmapEditingControllerEditingLinearLayout.setVisibility(VISIBLE);
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_EDIT:
+                        handleTabClick(false);
                         break;
                 }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                ((TextView) tab.getCustomView()).setTextColor(unselectedTabColor);
-
+                TextView tabTextView = (TextView) tab.getCustomView();
+                if (tabTextView != null) {
+                    tabTextView.setTextColor(unselectedTabColor);
+                }
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
-                    case 0:
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_FILTER:
                         bitmapEditingControllerFilterLinearLayout.setVisibility(GONE);
                         break;
-                    case 1:
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_EDIT:
                         bitmapEditingControllerEditingLinearLayout.setVisibility(GONE);
                         break;
                 }
@@ -409,30 +378,97 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                ((TextView) tab.getCustomView()).setTextColor(selectedTabColor);
+                TextView tabTextView = (TextView) tab.getCustomView();
+                if (tabTextView != null) {
+                    tabTextView.setTextColor(selectedTabColor);
+                }
                 int tabPosition = tab.getPosition();
                 switch (tabPosition) {
-                    case 0:
-                        isAdjusting = false;
-                        isFilter = true;
-                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-                        bitmapEditingControllerFilterLinearLayout.setVisibility(VISIBLE);
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_FILTER:
+                        handleTabClick(true);
                         break;
-                    case 1:
-                        isAdjusting = false;
-                        isFilter = false;
-                        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
-                        bitmapEditingControllerEditingLinearLayout.setVisibility(VISIBLE);
+                    case Default.IMAGE_EDIT_TYPE_VIEW_PAGER_EDIT:
+                        handleTabClick(false);
                         break;
                 }
             }
         });
     }
 
-    public void attachPhotoEditorView(PhotoEditorView photoEditorView, boolean isCircularBitmap) {
-        this.photoEditorView = photoEditorView;
-        this.isCircularBitmap = isCircularBitmap;
+    /**
+     *
+     * @param progress
+     * @param min
+     * @param max
+     * @return
+     */
+    private float getEditSeekBarValue(int progress, float min, float max) {
+        return (((progress / 200.0f) * (max - min)) + min);
     }
 
+    /**
+     *
+     * @param isFilter
+     */
+    private void handleTabClick(boolean isFilter) {
+        isAdjusting = false;
+        this.isFilter = isFilter;
+        filterEditingSeekBarLinearLayout.setVisibility(View.GONE);
+
+        int filterLayoutVisibility = isFilter ? View.VISIBLE : View.GONE;
+        int editLayoutVisibility = isFilter ? View.GONE : View.VISIBLE;
+        bitmapEditingControllerFilterLinearLayout.setVisibility(filterLayoutVisibility);
+        bitmapEditingControllerEditingLinearLayout.setVisibility(editLayoutVisibility);
+    }
+
+    /**
+     *
+     * @param filter
+     * @param filterPreviewImageView
+     */
+    private void handleFilterClick(Filter filter, ImageView filterPreviewImageView) {
+        CardView.LayoutParams filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
+        filterPreviewLayoutParams.setMargins(0, 0, 0, 0);
+        currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
+
+        currentFilter = filter;
+        currentFilterImageView = filterPreviewImageView;
+        filterPreviewLayoutParams = (CardView.LayoutParams) currentFilterImageView.getLayoutParams();
+
+        int outlineMargin = (int) (2 * Default.scale);
+        filterPreviewLayoutParams.setMargins(outlineMargin, outlineMargin, outlineMargin, outlineMargin);
+        currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
+
+        brightness = getEditSeekBarValue(currentFilter.getBrightness(),
+                Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
+        contrast = getEditSeekBarValue(currentFilter.getContrast(),
+                Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
+        saturation = getEditSeekBarValue(currentFilter.getSaturation(),
+                Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
+
+        applyEffectsToBitmap();
+    }
+
+    /**
+     *
+     */
+    private void applyEffectsToBitmap() {
+        alteredBitmap = modifiedBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(alteredBitmap);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        Matrix matrix = new Matrix();
+
+        cm.reset();
+        paint.reset();
+        matrix.reset();
+
+        cm.set(BitmapHelper.createEditMatrix(brightness, contrast, saturation));
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+
+        canvas.drawBitmap(alteredBitmap, matrix, paint);
+
+        photoEditorView.getSource().setImageBitmap(alteredBitmap);
+    }
 
 }

@@ -102,6 +102,10 @@ public class Default {
     public static final int USER_POSTS_VIEW_PAGER_POSTS = 0;
     public static final int USER_POSTS_VIEW_PAGER_LIKES = 1;
 
+    public static final int IMAGE_EDIT_TYPE_VIEW_PAGER_SIZE = 2;
+    public static final int IMAGE_EDIT_TYPE_VIEW_PAGER_FILTER = 0;
+    public static final int IMAGE_EDIT_TYPE_VIEW_PAGER_EDIT = 1;
+
     public static final int SEARCH_TYPE_VIEW_PAGER_SIZE = 2;
     public static final int SEARCH_TYPE_VIEW_PAGER_PEOPLE = 0;
     public static final int SEARCH_TYPE_VIEW_PAGER_TAG = 1;

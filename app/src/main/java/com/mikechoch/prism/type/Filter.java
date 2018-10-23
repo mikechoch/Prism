@@ -4,7 +4,7 @@ public enum Filter {
 
     NORMAL("Normal", 100, 100, 100),
     SHADE("Shade", 70, 150, 80),
-    COLORLESS("Colorless", 100, 140, 0),
+    COLORLESS("Colorless", 100, 100, 0),
     COLORFUL("Colorful", 100, 140, 140);
 
     private final String title;

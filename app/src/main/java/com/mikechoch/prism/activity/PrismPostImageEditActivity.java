@@ -1,5 +1,6 @@
 package com.mikechoch.prism.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -65,7 +67,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     private Bitmap outputBitmap;
 
     private PictureUpload pictureUpload;
-    private boolean isSavingImage = false;
+    private static boolean isSavingImage = false;
 
 
     @Override
@@ -103,7 +105,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         bitmapEditingControllerLayout = findViewById(R.id.prism_post_image_edit_bitmap_editing_controller_layout);
         bitmapEditingControllerTabLayout = findViewById(R.id.prism_post_image_edit_tab_layout);
 
-        photoEditorView.getLayoutParams().height = (int) (Default.screenHeight * 0.59);
+        photoEditorView.getLayoutParams().height = (int) (Default.screenHeight * 0.60);
 
         bitmapEditingControllerLayout.attachTabLayout(bitmapEditingControllerTabLayout);
         bitmapEditingControllerLayout.attachPhotoEditorView(photoEditorView, pictureUpload == PictureUpload.PROFILE_PICTURE);
@@ -149,7 +151,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      * @param bitmap
      */
     private void populatePreviewImageView(Bitmap bitmap) {
-        float maxHeight = Default.screenHeight * 0.5f;
+        float maxHeight = Default.screenHeight * 0.3f;
         Bitmap tempBitmap = BitmapHelper.scaleBitmap(bitmap, true, maxHeight);
 
         switch (pictureUpload) {
@@ -186,23 +188,61 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!isSavingImage) {
-                    new PrismPostImageTask().execute();
+                    try {
+                        isSavingImage = true;
+
+                        String filename = "PrismPostEdit_" + String.valueOf(System.currentTimeMillis());
+                        FileOutputStream fileOutputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+                        Intent[] uploadIntents = new Intent[2];
+                        FileInputStream fileInputStream = null;
+                        switch (pictureUpload) {
+                            case PRISM_POST:
+                                uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
+                                uploadIntents[0].putExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA, filename);
+                                break;
+                            case PROFILE_PICTURE:
+                                uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, MainActivity.class);
+                                uploadIntents[0].setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                uploadIntents[0].putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, filename);
+                                uploadIntents[1] = new Intent(PrismPostImageEditActivity.this, PrismUserProfileActivity.class);
+                                uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, CurrentUser.prismUser);
+                                fileInputStream = openFileInput(uploadIntents[0].getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
+                                break;
+                        }
+
+                        new PrismPostImageTask().execute(PrismPostImageEditActivity.this,
+                                outputBitmap,
+                                bitmapEditingControllerLayout,
+                                filename,
+                                fileOutputStream,
+                                pictureUpload,
+                                uploadIntents,
+                                fileInputStream);
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
     }
 
-    private class PrismPostImageTask extends AsyncTask<Object, String, String> {
+    private static class PrismPostImageTask extends AsyncTask<Object, Object[], Object[]> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            isSavingImage = true;
         }
 
         @Override
-        protected String doInBackground(Object... params) {
-            String filename = String.valueOf(System.currentTimeMillis());
+        protected Object[] doInBackground(Object... params) {
+            Context context = (Context) params[0];
+            Bitmap outputBitmap = (Bitmap) params[1];
+            BitmapEditingControllerLayout bitmapEditingControllerLayout = (BitmapEditingControllerLayout) params[2];
+            String filename = (String) params[3];
+            FileOutputStream fileOutputStream = (FileOutputStream) params[4];
+            PictureUpload pictureUpload = (PictureUpload) params[5];
+
             try {
                 Bitmap outputBitmapCopy = outputBitmap.copy(Bitmap.Config.RGB_565, true);
 
@@ -215,47 +255,44 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                         bitmapEditingControllerLayout.getBrightness(),
                         bitmapEditingControllerLayout.getContrast(),
                         bitmapEditingControllerLayout.getSaturation()));
+
                 paint.setColorFilter(new ColorMatrixColorFilter(cm));
                 canvas.drawBitmap(outputBitmapCopy, matrix, paint);
 
-                FileOutputStream stream = openFileOutput(filename, Context.MODE_PRIVATE);
-                outputBitmapCopy.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                stream.close();
+
+                outputBitmapCopy.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                fileOutputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return filename;
+            return params;
         }
 
         @Override
-        protected void onPostExecute(String filename) {
-            super.onPostExecute(filename);
-            Intent[] uploadIntents = new Intent[2];
+        protected void onPostExecute(Object[] params) {
+            super.onPostExecute(params);
+
+            Context context = (Context) params[0];
+            Bitmap outputBitmap = (Bitmap) params[1];
+            BitmapEditingControllerLayout bitmapEditingControllerLayout = (BitmapEditingControllerLayout) params[2];
+            String filename = (String) params[3];
+            FileOutputStream fileOutputStream = (FileOutputStream) params[4];
+            PictureUpload pictureUpload = (PictureUpload) params[5];
+            Intent[] uploadIntents = (Intent[]) params[6];
+            FileInputStream fileInputStream = (FileInputStream) params[7];
+
             switch (pictureUpload) {
                 case PRISM_POST:
-                    uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
-                    uploadIntents[0].putExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA, filename);
-                    startActivity(uploadIntents[0]);
+                    context.startActivity(uploadIntents[0]);
                     break;
                 case PROFILE_PICTURE:
-                    uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, MainActivity.class);
-                    uploadIntents[0].setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    uploadIntents[0].putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, filename);
-                    uploadIntents[1] = new Intent(PrismPostImageEditActivity.this, PrismUserProfileActivity.class);
-                    uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, CurrentUser.prismUser);
-
-                    try {
-                        FileInputStream fileInputStream = openFileInput(uploadIntents[0].getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
-                        Bitmap bitmap = BitmapFactory.decodeStream(fileInputStream);
-                        Uri profilePictureUri = BitmapHelper.getImageUri(PrismPostImageEditActivity.this, bitmap);
-                        uploadProfilePictureToCloud(profilePictureUri);
-                        startActivities(uploadIntents);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    Bitmap bitmap = BitmapFactory.decodeStream(fileInputStream);
+                    Uri profilePictureUri = BitmapHelper.getImageUri(context, bitmap);
+                    uploadProfilePictureToCloud(context, profilePictureUri);
+                    context.startActivities(uploadIntents);
                     break;
             }
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             isSavingImage = false;
         }
 
@@ -266,7 +303,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      * successfully uploaded to cloud successfully, it adds the profilePicUri to
      * the firebaseUser's profile details section
      */
-    private void uploadProfilePictureToCloud(Uri profilePictureUri) {
+    private static void uploadProfilePictureToCloud(Context context, Uri profilePictureUri) {
         StorageReference profilePicRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePictureUri.getLastPathSegment());
         profilePicRef.putFile(profilePictureUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -278,12 +315,12 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.wtf(Default.TAG_DB, Message.PROFILE_PIC_UPDATE_FAIL, task.getException());
-                            Helper.toast(PrismPostImageEditActivity.this, "Unable to update profile picture");
+                            Helper.toast(context, "Unable to update profile picture");
                         }
                     });
                 } else {
                     Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
-                    Helper.toast(PrismPostImageEditActivity.this, "Unable to update profile picture");
+                    Helper.toast(context, "Unable to update profile picture");
                 }
             }
         });
