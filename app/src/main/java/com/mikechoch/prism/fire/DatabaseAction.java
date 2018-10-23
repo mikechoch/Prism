@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
+import com.mikechoch.prism.BuildConfig;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
@@ -404,8 +405,13 @@ public class DatabaseAction {
             @Override
             public void onDataChange(DataSnapshot appStatusSnapshot) {
                 if (appStatusSnapshot.exists()) {
-                    Boolean isActive = (Boolean) appStatusSnapshot.child(Key.STATUS_IS_ACTIVE).getValue();
-                    if (isActive) {
+                    int appVersion = BuildConfig.VERSION_CODE;
+                    int minRequired = (int) appStatusSnapshot.child(Key.MIN_APP_VERSION).getValue();
+                    boolean isActive = (boolean) appStatusSnapshot.child(Key.STATUS_IS_ACTIVE).getValue();
+
+                    if (appVersion < minRequired) {
+                        callback.onAppVersionTooOld();
+                    } else if (isActive) {
                         callback.onStatusActive();
                     } else {
                         String message = (String) appStatusSnapshot.child(Key.STATUS_MESSAGE).getValue();

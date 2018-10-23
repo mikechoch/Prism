@@ -77,6 +77,11 @@ public class SplashActivity extends AppCompatActivity {
 
                 DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
                     @Override
+                    public void onAppVersionTooOld() {
+                        // TODO Add intentHelper here
+                    }
+
+                    @Override
                     public void onStatusActive() {
                         Intent intent = new Intent(context, MainActivity.class);
                         if (!CurrentUser.isUserSignedIn()) {
@@ -93,6 +98,7 @@ public class SplashActivity extends AppCompatActivity {
                     public void onStatusUnderMaintenance(String message) {
                         IntentHelper.intentToUnderMaintenanceActivity(context, message);
                     }
+
 
                     @Override
                     public void onStatusCheckFailed(Exception e) {
