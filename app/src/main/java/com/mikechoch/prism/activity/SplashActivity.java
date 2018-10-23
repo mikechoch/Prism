@@ -79,7 +79,7 @@ public class SplashActivity extends AppCompatActivity {
                 DatabaseAction.performMaintenanceCheck(new OnMaintenanceCheckCallback() {
                     @Override
                     public void onAppVersionTooOld() {
-                        // TODO Add intentHelper here
+                        IntentHelper.intentToUpdatedAppRequiredActivity(context);
                     }
 
                     @Override

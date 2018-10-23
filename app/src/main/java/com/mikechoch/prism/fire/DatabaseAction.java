@@ -406,7 +406,7 @@ public class DatabaseAction {
             public void onDataChange(DataSnapshot appStatusSnapshot) {
                 if (appStatusSnapshot.exists()) {
                     int appVersion = BuildConfig.VERSION_CODE;
-                    int minRequired = (int) appStatusSnapshot.child(Key.MIN_APP_VERSION).getValue();
+                    long minRequired = (long) appStatusSnapshot.child(Key.MIN_APP_VERSION).getValue();
                     boolean isActive = (boolean) appStatusSnapshot.child(Key.STATUS_IS_ACTIVE).getValue();
 
                     if (appVersion < minRequired) {
