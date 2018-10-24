@@ -302,6 +302,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      * Takes the profilePicUri and stores the image to cloud. Once the image file is
      * successfully uploaded to cloud successfully, it adds the profilePicUri to
      * the firebaseUser's profile details section
+     * TODO put this in DatabaseAction
      */
     private static void uploadProfilePictureToCloud(Context context, Uri profilePictureUri) {
         StorageReference profilePicRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePictureUri.getLastPathSegment());

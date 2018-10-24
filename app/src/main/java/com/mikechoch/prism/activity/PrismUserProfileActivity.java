@@ -227,7 +227,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(ArrayList<PrismPost> prismPosts) {
                 for (PrismPost post : prismPosts) {
-                    post.setIsReposted(true);
+                    post.setReposted(true);
                     prismUserUploadedAndRepostedPostsArrayList.add(post);
                 }
 

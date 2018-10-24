@@ -72,9 +72,10 @@ public class PrismPost implements Parcelable, Comparable<PrismPost> {
         return prismUser;
     }
 
-    public Boolean isReposted() {
-        return isReposted == null ? false : isReposted;
+    public Boolean getReposted() {
+        return isReposted;
     }
+
 
     // Setters for attributes not saved in cloud
     public void setLikes(int likes) {
@@ -93,7 +94,7 @@ public class PrismPost implements Parcelable, Comparable<PrismPost> {
         this.postId = postId;
     }
 
-    public void setIsReposted(boolean isReposted) {
+    public void setReposted(Boolean isReposted) {
         this.isReposted = isReposted;
     }
 
