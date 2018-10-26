@@ -24,6 +24,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
 import com.mikechoch.prism.type.Rotation;
+import com.mikechoch.prism.user_interface.BitmapRotationControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 
@@ -35,7 +36,7 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
     private TextView nextButton;
     private LinearLayout cropImageViewLinearLayout;
     private CropImageView cropImageView;
-    private LinearLayout rotationFabMenuLinearLayout;
+    private BitmapRotationControllerLayout bitmapRotationControllerLayout;
 
     private Uri imageUriExtra;
     private Bitmap outputBitmap;
@@ -72,7 +73,9 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.prism_post_upload_image_selection_toolbar_next_button);
         cropImageViewLinearLayout = findViewById(R.id.prism_post_upload_image_selection_crop_image_view_limiter);
         cropImageView = findViewById(R.id.prism_post_upload_image_selection_crop_image_view);
-        rotationFabMenuLinearLayout = findViewById(R.id.prism_post_upload_image_selection_seek_bar_linear_layout);
+        bitmapRotationControllerLayout = findViewById(R.id.prism_post_upload_image_selection_bitmap_rotation_controller_layout);
+
+        bitmapRotationControllerLayout.attachCropImageView(cropImageView);
 
         cropImageViewLinearLayout.getLayoutParams().height = (int) (Default.screenHeight * 0.75);
 
@@ -182,16 +185,6 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
     }
 
     /**
-     *
-     */
-    private void setupRotationFabMenu() {
-        for (Rotation rotation : Rotation.values()) {
-
-            
-        }
-    }
-
-    /**
      * Setup all interface elements
      */
     private void setupInterfaceElements() {
@@ -201,7 +194,6 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         setupNextButton();
         setupGalleryButton();
         setupCameraButton();
-        setupRotationFabMenu();
     }
 
     /**

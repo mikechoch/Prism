@@ -67,21 +67,28 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     public BitmapEditingControllerLayout(Context context) {
         super(context);
         this.context = context;
-        layoutInflater = LayoutInflater.from(context);
+        this.layoutInflater = LayoutInflater.from(context);
         initBitmapEdit();
     }
 
     public BitmapEditingControllerLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         this.context = context;
-        layoutInflater = LayoutInflater.from(context);
+        this.layoutInflater = LayoutInflater.from(context);
         initBitmapEdit();
     }
 
     public BitmapEditingControllerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        layoutInflater = LayoutInflater.from(context);
+        this.layoutInflater = LayoutInflater.from(context);
+        initBitmapEdit();
+    }
+
+    public BitmapEditingControllerLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        this.context = context;
+        this.layoutInflater = LayoutInflater.from(context);
         initBitmapEdit();
     }
 

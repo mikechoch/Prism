@@ -99,25 +99,13 @@
                 app:cropShape="rectangle"/>
 
         </LinearLayout>
-
-        <HorizontalScrollView
+        
+        <com.mikechoch.prism.user_interface.BitmapRotationControllerLayout
+            android:id="@+id/prism_post_upload_image_selection_bitmap_rotation_controller_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center">
-
-            <LinearLayout
-                android:id="@+id/prism_post_upload_image_selection_seek_bar_linear_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:background="@color/backgroundColor"
-                android:orientation="horizontal">
-
-                <!--Populating with the Rotation enum-->
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
+            android:clipChildren="true"
+            android:clipToPadding="true"/>
 
     </LinearLayout>
 
