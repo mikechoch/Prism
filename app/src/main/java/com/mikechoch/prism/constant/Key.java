@@ -40,13 +40,10 @@ public class Key {
     public static final String DB_REF_ALL_POSTS = "ALL_POSTS";
     public static final String DB_REF_POST_LIKED_USERS = "LIKED_USERS";
     public static final String DB_REF_POST_REPOSTED_USERS = "REPOSTED_USERS";
-    public static final String POST_USERNAME = "username";
     public static final String POST_UID = "uid";
     public static final String POST_IMAGE_URI = "image";
     public static final String POST_DESC = "caption";
     public static final String POST_TIMESTAMP = "timestamp";
-    public static final String POST_LIKES = "likes";
-    public static final String POST_ID = "postId";
 
     /** CONTENT REVIEW **/
     public static final String DB_REF_CONTENT_REVIEW = "CONTENT_REVIEW";

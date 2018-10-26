@@ -10,11 +10,9 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Picture;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -48,7 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.Serializable;
 
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
@@ -205,7 +203,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                                 uploadIntents[0].setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 uploadIntents[0].putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, filename);
                                 uploadIntents[1] = new Intent(PrismPostImageEditActivity.this, PrismUserProfileActivity.class);
-                                uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, CurrentUser.prismUser);
+                                uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, (Serializable) CurrentUser.prismUser);
                                 fileInputStream = openFileInput(uploadIntents[0].getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
                                 break;
                         }

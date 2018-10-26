@@ -91,6 +91,7 @@ public class Helper {
         prismPost.setPostId(postSnapshot.getKey());
         prismPost.setLikes((int) postSnapshot.child(Key.DB_REF_POST_LIKED_USERS).getChildrenCount());
         prismPost.setReposts((int) postSnapshot.child(Key.DB_REF_POST_REPOSTED_USERS).getChildrenCount());
+        prismPost.setIsReposted(CurrentUser.hasReposted(postSnapshot.getKey()));
         return prismPost;
     }
 

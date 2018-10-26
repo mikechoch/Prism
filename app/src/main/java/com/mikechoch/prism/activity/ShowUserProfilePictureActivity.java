@@ -68,7 +68,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
         userProfilePictureZoomControlLinearLayout = findViewById(R.id.user_profile_picture_linear_layout);
         largeUserProfilePictureImageView = findViewById(R.id.large_user_profile_picture_image_view);
 
-        prismUser = getIntent().getParcelableExtra(Default.PRISM_USER_EXTRA);
+        prismUser = (PrismUser) getIntent().getSerializableExtra(Default.PRISM_USER_EXTRA);
 
         setupUIElements();
     }
@@ -111,7 +111,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
 
         Glide.with(this)
                 .asBitmap()
-                .load(prismUser.getProfilePicture().hiResUri)
+                .load(prismUser.getProfilePicture().getHiResProfilePicUri())
                 .apply(new RequestOptions().fitCenter().override((int) (Default.screenWidth * 0.8)))
                 .into(new BitmapImageViewTarget(largeUserProfilePictureImageView) {
                     @Override
@@ -121,7 +121,7 @@ public class ShowUserProfilePictureActivity extends AppCompatActivity {
                                 BitmapHelper.createCircularProfilePicture(
                                         ShowUserProfilePictureActivity.this,
                                         largeUserProfilePictureImageView,
-                                        prismUser.getProfilePicture().isDefault,
+                                        prismUser.getProfilePicture().isDefault(),
                                         resource,
                                         imageViewPadding);
                         largeUserProfilePictureImageView.setImageDrawable(profilePictureDrawable);

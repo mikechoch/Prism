@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,7 +125,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                 Glide.with(context)
                         .asBitmap()
                         .thumbnail(0.05f)
-                        .load(prismUser.getProfilePicture().lowResUri)
+                        .load(prismUser.getProfilePicture().getLowResProfilePicUri())
                         .into(new BitmapImageViewTarget(userProfilePicture) {
                             @Override
                             protected void setResource(Bitmap resource) {
@@ -135,7 +134,7 @@ public class DisplayUsersRecyclerViewAdapter extends RecyclerView.Adapter<Displa
                                         BitmapHelper.createCircularProfilePicture(
                                                 context,
                                                 userProfilePicture,
-                                                prismUser.getProfilePicture().isDefault,
+                                                prismUser.getProfilePicture().isDefault(),
                                                 resource,
                                                 imageViewPadding);
                                 userProfilePicture.setImageDrawable(profilePictureDrawable);

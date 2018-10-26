@@ -4,15 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
@@ -32,9 +28,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -49,9 +43,6 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 
@@ -198,7 +189,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 Glide.with(context)
                         .asBitmap()
                         .thumbnail(0.05f)
-                        .load(prismPost.getPrismUser().getProfilePicture().lowResUri)
+                        .load(prismPost.getPrismUser().getProfilePicture().getLowResProfilePicUri())
                         .apply(new RequestOptions().fitCenter())
                         .into(new BitmapImageViewTarget(userProfilePicImageView) {
                             @Override
@@ -208,7 +199,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                                         BitmapHelper.createCircularProfilePicture(
                                                 context,
                                                 userProfilePicImageView,
-                                                prismPost.getPrismUser().getProfilePicture().isDefault,
+                                                prismPost.getPrismUser().getProfilePicture().isDefault(),
                                                 resource,
                                                 imageViewPadding);
                                 userProfilePicImageView.setImageDrawable(profilePictureDrawable);

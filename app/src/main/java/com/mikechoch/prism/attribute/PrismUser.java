@@ -1,11 +1,10 @@
 package com.mikechoch.prism.attribute;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.mikechoch.prism.helper.ProfileHelper;
 
-public class PrismUser implements Parcelable {
+import java.io.Serializable;
+
+public class PrismUser implements Serializable {
 
     private String uid;
     private String username;
@@ -88,46 +87,6 @@ public class PrismUser implements Parcelable {
     public void setToken(String token) {
         this.token = token;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uid);
-        dest.writeString(username);
-        dest.writeString(fullName);
-        dest.writeInt(followerCount);
-        dest.writeInt(followingCount);
-        dest.writeInt(uploadCount);
-        dest.writeParcelable(profilePicture, 0);
-        dest.writeString(token);
-    }
-
-    protected PrismUser(Parcel in) {
-        uid = in.readString();
-        username = in.readString();
-        fullName = in.readString();
-        followerCount = in.readInt();
-        followingCount = in.readInt();
-        uploadCount = in.readInt();
-        profilePicture = in.readParcelable(ProfilePicture.class.getClassLoader());
-        token = in.readString();
-    }
-
-    public static final Creator<PrismUser> CREATOR = new Creator<PrismUser>() {
-        @Override
-        public PrismUser createFromParcel(Parcel in) {
-            return new PrismUser(in);
-        }
-
-        @Override
-        public PrismUser[] newArray(int size) {
-            return new PrismUser[size];
-        }
-    };
 
 
 }

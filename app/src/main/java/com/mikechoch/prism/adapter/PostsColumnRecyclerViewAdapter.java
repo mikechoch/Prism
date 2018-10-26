@@ -105,7 +105,7 @@ public class PostsColumnRecyclerViewAdapter extends RecyclerView.Adapter<PostsCo
                     })
                     .into(userPostImageView);
 
-            int repostIconVisible = prismPost.getReposted() ? View.VISIBLE : View.GONE;
+            int repostIconVisible = prismPost.isReposted() ? View.VISIBLE : View.GONE;
             userPostRepostedIcon.setVisibility(repostIconVisible);
 
             userPostImageView.setOnClickListener(new View.OnClickListener() {

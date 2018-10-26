@@ -276,7 +276,7 @@ public class OutgoingNotificationController {
         int notificationId = NotificationType.generateLikeRepostPushNotificationId(prismPost, type);
         PushNotification pushNotification = new PushNotification();
         pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
-        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().getProfilePicUri());
         pushNotification.setType(type);
         pushNotification.setActionTimestamp(actionTimestamp);
         pushNotification.setNotificationHashId(notificationId);
@@ -288,7 +288,7 @@ public class OutgoingNotificationController {
         int notificationId = NotificationType.generateFollowPushNotificationId();
         PushNotification pushNotification = new PushNotification();
         pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
-        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().profilePicUri);
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().getProfilePicUri());
         pushNotification.setType(type);
         pushNotification.setActionTimestamp(actionTimestamp);
         pushNotification.setNotificationHashId(notificationId);
