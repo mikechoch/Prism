@@ -1,15 +1,14 @@
 package com.mikechoch.prism.attribute;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-public class PrismPost implements Parcelable, Comparable<PrismPost> {
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.PropertyName;
+import com.mikechoch.prism.constant.Key;
 
-    // --------------------------------------- //
-    // DO NOT CHANGE ANYTHING IN THIS FILE     //
-    // THESE HAVE TO BE SAME AS "POST_*" KEYS  //
-    // --------------------------------------- //
+import java.io.Serializable;
+
+public class PrismPost implements Serializable, Comparable<PrismPost> {
 
     private String image;
     private String caption;
@@ -27,7 +26,6 @@ public class PrismPost implements Parcelable, Comparable<PrismPost> {
     // Empty Constructor required by Firebase to convert DataSnapshot to PrismPost.class
     public PrismPost() { }
 
-    // Constructor used when creating prismPost when firebaseUser uploads the image
     public PrismPost(String image, String caption, String uid, long timestamp) {
         this.image = image;
         this.caption = caption;
@@ -35,125 +33,87 @@ public class PrismPost implements Parcelable, Comparable<PrismPost> {
         this.timestamp = timestamp;
     }
 
-    // Getters
+    public PrismPost(String image, String caption, long timestamp, String uid, Integer likes, Integer reposts, String postId, PrismUser prismUser, Boolean isReposted) {
+        this.image = image;
+        this.caption = caption;
+        this.timestamp = timestamp;
+        this.uid = uid;
+        this.likes = likes;
+        this.reposts = reposts;
+        this.postId = postId;
+        this.prismUser = prismUser;
+        this.isReposted = isReposted;
+    }
+
+    @PropertyName(Key.POST_IMAGE_URI)
     public String getImage() {
         return image;
     }
 
+    @PropertyName(Key.POST_DESC)
     public String getCaption() {
         return caption;
     }
 
+    @PropertyName(Key.POST_TIMESTAMP)
     public long getTimestamp() {
         return timestamp;
     }
 
-    // Try to not use this if possible, use getPrismUser().getUid() instead
-    // if getPrismUser() is not null;
+    @PropertyName(Key.POST_UID)
     public String getUid() {
         return uid;
     }
 
+    @Exclude
     public String getPostId() {
         return postId;
     }
 
-
-    // Getters for attributes not saved in cloud
+    @Exclude
     public Integer getLikes() {
         return likes;
     }
 
+    @Exclude
     public Integer getReposts() {
         return reposts;
     }
 
+    @Exclude
     public PrismUser getPrismUser() {
         return prismUser;
     }
 
+    @Exclude
     public Boolean isReposted() {
-        return isReposted == null ? false : isReposted;
+        return isReposted;
     }
 
-    // Setters for attributes not saved in cloud
+    @Exclude
     public void setLikes(int likes) {
         this.likes = likes;
     }
 
+    @Exclude
     public void setReposts(int reposts) {
         this.reposts = reposts;
     }
 
+    @Exclude
     public void setPrismUser(PrismUser prismUser) {
         this.prismUser = prismUser;
     }
 
+    @Exclude
     public void setPostId(String postId) {
         this.postId = postId;
     }
 
-    public void setIsReposted(boolean isReposted) {
+    @Exclude
+    public void setIsReposted(Boolean isReposted) {
         this.isReposted = isReposted;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(image);
-        dest.writeString(caption);
-        dest.writeLong(timestamp);
-        dest.writeString(uid);
-        if (likes == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(likes);
-        }
-        if (reposts == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(reposts);
-        }
-        dest.writeParcelable(prismUser, 0);
-        dest.writeString(postId);
-    }
-
-    protected PrismPost(Parcel in) {
-        image = in.readString();
-        caption = in.readString();
-        timestamp = in.readLong();
-        uid = in.readString();
-        if (in.readByte() == 0) {
-            likes = null;
-        } else {
-            likes = in.readInt();
-        }
-        if (in.readByte() == 0) {
-            reposts = null;
-        } else {
-            reposts = in.readInt();
-        }
-        prismUser = in.readParcelable(PrismUser.class.getClassLoader());
-        postId = in.readString();
-    }
-
-    public static final Creator<PrismPost> CREATOR = new Creator<PrismPost>() {
-        @Override
-        public PrismPost createFromParcel(Parcel in) {
-            return new PrismPost(in);
-        }
-
-        @Override
-        public PrismPost[] newArray(int size) {
-            return new PrismPost[size];
-        }
-    };
 
     @Override
     public int compareTo(@NonNull PrismPost o) {

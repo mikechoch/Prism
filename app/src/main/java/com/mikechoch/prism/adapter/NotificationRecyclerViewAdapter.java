@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -224,7 +223,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                 Glide.with(context)
                         .asBitmap()
                         .thumbnail(0.05f)
-                        .load(mostRecentPrismUser.getProfilePicture().lowResUri)
+                        .load(mostRecentPrismUser.getProfilePicture().getLowResProfilePicUri())
                         .into(new BitmapImageViewTarget(userProfilePicImageView) {
                             @Override
                             protected void setResource(Bitmap resource) {
@@ -233,7 +232,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                                         BitmapHelper.createCircularProfilePicture(
                                                 context,
                                                 userProfilePicImageView,
-                                                mostRecentPrismUser.getProfilePicture().isDefault,
+                                                mostRecentPrismUser.getProfilePicture().isDefault(),
                                                 resource,
                                                 imageViewPadding);
                                 userProfilePicImageView.setImageDrawable(profilePictureDrawable);

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,11 +28,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
@@ -43,8 +36,6 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -59,8 +50,6 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class PrismUserProfileActivity extends AppCompatActivity {
@@ -150,7 +139,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         // Get prismUser associated with this profile page from Intent
         Intent intent = getIntent();
-        prismUser = intent.getParcelableExtra(Default.PRISM_USER_EXTRA);
+        prismUser = (PrismUser) intent.getSerializableExtra(Default.PRISM_USER_EXTRA);
         if (prismUser != null) {
             setupUIElements();
             fetchUserContent();
@@ -298,7 +287,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)
-                .load(prismUser.getProfilePicture().hiResUri)
+                .load(prismUser.getProfilePicture().getHiResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(userProfilePicImageView) {
                     @Override
@@ -308,7 +297,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                                 BitmapHelper.createCircularProfilePicture(
                                         PrismUserProfileActivity.this,
                                         userProfilePicImageView,
-                                        prismUser.getProfilePicture().isDefault,
+                                        prismUser.getProfilePicture().isDefault(),
                                         resource,
                                         imageViewPadding);
                         userProfilePicImageView.setImageDrawable(profilePictureDrawable);
@@ -330,7 +319,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)
-                .load(prismUser.getProfilePicture().lowResUri)
+                .load(prismUser.getProfilePicture().getLowResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(toolbarUserProfilePicImageView) {
                     @Override
@@ -340,7 +329,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                                 BitmapHelper.createCircularProfilePicture(
                                         PrismUserProfileActivity.this,
                                         toolbarUserProfilePicImageView,
-                                        prismUser.getProfilePicture().isDefault,
+                                        prismUser.getProfilePicture().isDefault(),
                                         resource,
                                         imageViewPadding);
                         toolbarUserProfilePicImageView.setImageDrawable(profilePictureDrawable);

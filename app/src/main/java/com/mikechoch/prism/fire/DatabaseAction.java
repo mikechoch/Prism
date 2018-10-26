@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -27,14 +26,15 @@ import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.BuildConfig;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.action.OnDeletePostCallback;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.callback.action.OnUploadPostCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
-import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.PermissionHelper;
 import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
@@ -154,6 +154,10 @@ public class DatabaseAction {
      *
      */
     public static void uploadPost(Uri uploadImageUri, String imageDescription, OnUploadPostCallback callback) {
+        if (!PermissionHelper.allowUploadPost()) {
+            callback.onPermissionDenied();
+            return;
+        }
         StorageReference postImageReference = Default.STORAGE_REFERENCE
                 .child(Key.STORAGE_POST_IMAGES_REF)
                 .child(uploadImageUri.getLastPathSegment());
@@ -209,50 +213,47 @@ public class DatabaseAction {
      * USER_UPLOADS for the post owner. And then the post itself is
      * deleted from ALL_POSTS. Finally, the mainRecyclerViewAdapter is refreshed
      */
-    public static void deletePost(PrismPost prismPost) {
-        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+    public static void deletePost(PrismPost prismPost, OnDeletePostCallback callback) {
+        // This is a safety backend check
+        if (!PermissionHelper.allowDeletePost(prismPost)) {
+            callback.onPermissionDenied();
+            return;
+        }
+        StorageReference postImageReference = FirebaseStorage.getInstance().getReferenceFromUrl(prismPost.getImage());
+        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
 
-        FirebaseStorage.getInstance().getReferenceFromUrl(prismPost.getImage())
-                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+        postImageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    String postId = prismPost.getPostId();
+            public void onSuccess(Void aVoid) {
+                postReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot postSnapshot) {
+                        if (postSnapshot.exists()) {
+                            DeleteHelper.deleteLikedUsers(postSnapshot, prismPost);
+                            DeleteHelper.deleteRepostedUsers(postSnapshot, prismPost);
+                            DeleteHelper.deletePostFromUserUploads(prismPost);
+                            DeleteHelper.deletePostFromAllPosts(prismPost);
+                            DeleteHelper.deletePostUnderItsHashTags(prismPost);
+                            DeleteHelper.deletePostRelatedNotifications(prismPost);
 
-                    allPostsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot postSnapshot) {
-                            if (postSnapshot.exists()) {
+                            CurrentUser.deletePost(prismPost);
+                            callback.onSuccess();
 
-                                DeleteHelper.deleteLikedUsers(postSnapshot, prismPost);
-                                DeleteHelper.deleteRepostedUsers(postSnapshot, prismPost);
-                                DeleteHelper.deletePostFromUserUploads(prismPost);
-                                DeleteHelper.deletePostFromAllPosts(prismPost);
-                                DeleteHelper.deletePostUnderItsHashTags(prismPost);
-                                DeleteHelper.deletePostRelatedNotifications(prismPost);
-
-                                CurrentUser.deletePost(prismPost);
-
-                                // Update UI after the post is deleted
-                                MainFeedFragment.mainFeedPrismPostArrayList.remove(prismPost);
-                                //TODO: We need to call notify data set changed here
-//                                MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-
-                            } else {
-                                Log.wtf(Default.TAG_DB, Message.NO_DATA);
-                            }
+                        } else {
+                            callback.onPostNotFound();
                         }
+                    }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            databaseError.toException().printStackTrace();
-                            Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-                        }
-                    });
-
-                } else {
-                    Log.e(Default.TAG_DB, Message.POST_DELETE_FAIL);
-                }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        callback.onPostDeleteFail(databaseError.toException());
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onImageDeleteFail(e);
             }
         });
     }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,18 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.attribute.DiscoveryPost;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -170,7 +163,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             Glide.with(context)
                     .asBitmap()
                     .thumbnail(0.05f)
-                    .load(prismUser.getProfilePicture().lowResUri)
+                    .load(prismUser.getProfilePicture().getLowResProfilePicUri())
                     .apply(new RequestOptions().fitCenter())
                     .into(new BitmapImageViewTarget(prismPostUserProfilePicture) {
                         @Override
@@ -180,7 +173,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                                     BitmapHelper.createCircularProfilePicture(
                                             context,
                                             prismPostUserProfilePicture,
-                                            prismUser.getProfilePicture().isDefault,
+                                            prismUser.getProfilePicture().isDefault(),
                                             resource,
                                             imageViewPadding);
                             prismPostUserProfilePicture.setImageDrawable(profilePictureDrawable);
@@ -252,7 +245,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             Glide.with(context)
                     .asBitmap()
                     .thumbnail(0.05f)
-                    .load(prismUser.getProfilePicture().lowResUri)
+                    .load(prismUser.getProfilePicture().getLowResProfilePicUri())
                     .apply(new RequestOptions().fitCenter())
                     .into(new BitmapImageViewTarget(discoverPrismUserImageView) {
                         @Override
@@ -262,7 +255,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                                     BitmapHelper.createCircularProfilePicture(
                                             context,
                                             discoverPrismUserImageView,
-                                            prismUser.getProfilePicture().isDefault,
+                                            prismUser.getProfilePicture().isDefault(),
                                             resource,
                                             imageViewPadding);
                             discoverPrismUserImageView.setImageDrawable(profilePictureDrawable);

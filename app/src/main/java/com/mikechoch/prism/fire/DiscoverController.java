@@ -1,17 +1,15 @@
 package com.mikechoch.prism.fire;
 
-import android.content.Context;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.action.OnInitializeDiscoveryCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.callback.fetch.OnFetchCallback;
-import com.mikechoch.prism.callback.action.OnInitializeDiscoveryCallback;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -19,7 +17,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 public class DiscoverController {
@@ -33,9 +30,6 @@ public class DiscoverController {
      * ONLY OPTION AS THERE IS NOT ENOUGH CONTENT TO PLAY AROUND WITH
      */
 
-    private static DatabaseReference allPostsReference;
-    private static DatabaseReference tagsReference;
-    private static DatabaseReference usersReference;
 
     private static HashMap<String, PrismPost> mapOfPrismPosts;
     private static HashMap<String, PrismUser> mapOfPrismUsers;
@@ -44,118 +38,11 @@ public class DiscoverController {
     public static String randomTag = "";
 
     public static void setupDiscoverContent(OnInitializeDiscoveryCallback callback) {
-        allPostsReference = Default.ALL_POSTS_REFERENCE;
-        usersReference = Default.USERS_REFERENCE;
-        tagsReference = Default.TAGS_REFERENCE;
-
         mapOfPrismPosts = new HashMap<>();
         mapOfPrismUsers = new HashMap<>();
         listOfPostsForRandomHashTag = new ArrayList<>();
 
         fetchEverything(callback);
-//        fetchPostsForRandomTag();
-//        fetchRandomUsers();
-
-    }
-
-    private static void fetchRandomUsers(Context context) {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                HashMap<String, Object> users = new HashMap<>((Map)dataSnapshot.getValue());
-                ArrayList<String> userIds = new ArrayList<>(users.keySet());
-                Collections.shuffle(userIds);
-
-                for (int i = 0; i < 10; i++) {
-                    if (i >= userIds.size()) break;
-                    DataSnapshot userSnapshot = dataSnapshot.child(userIds.get(i));
-                    if (userSnapshot.exists()) {
-                        PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                        if (!Helper.isPrismUserCurrentUser(prismUser) && !CurrentUser.isFollowingPrismUser(prismUser)) {
-                            //listOfRandomPrismUsers.add(prismUser);
-                        }
-                    }
-                }
-
-//                DiscoveryRecyclerView recyclerView = new DiscoveryRecyclerView(Discovery.USER, R.drawable.ic_account_white_36dp, "Users");
-//                SearchFragment.addDiscoveryRecyclerView(context, recyclerView);
-            }
-
-
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
-    }
-
-
-    private static void fetchUserDetails(OnInitializeDiscoveryCallback callback, ArrayList<PrismPost> prismPosts) {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (PrismPost prismPost : prismPosts) {
-                    DataSnapshot postAuthorUserSnapshot = dataSnapshot.child(prismPost.getUid());
-                    if (postAuthorUserSnapshot.exists()) {
-                        PrismUser prismUser = Helper.constructPrismUserObject(postAuthorUserSnapshot);
-                        prismPost.setPrismUser(prismUser);
-                    }
-                }
-
-                callback.onSuccess();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
-    }
-
-
-    private static void fetchPostsForRandomTag(Context context) {
-        tagsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    int tagCount = (int) dataSnapshot.getChildrenCount();
-                    int rand = new Random().nextInt(tagCount);
-                    Iterator itr = dataSnapshot.getChildren().iterator();
-
-                    for (int i = 0; i < rand; i++) { itr.next(); }
-                    DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
-
-                    if (tagSnapshot.exists()) {
-                        randomTag = tagSnapshot.getKey();
-                        HashMap<String, Long> listOfPosts = new HashMap<>((Map) tagSnapshot.getValue());
-                        allPostsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot allPostsSnapshot) {
-                                for (String postId : listOfPosts.keySet()) {
-                                    DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
-                                    if (postSnapshot.exists()) {
-                                        PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                                        //listOfPrismPostsForRandomTag.add(prismPost);
-                                    }
-                                }
-
-//                                ArrayList<DiscoveryRecyclerView> recyclerViews = new ArrayList<DiscoveryRecyclerView>() {{
-//                                    add(new DiscoveryRecyclerView(Discovery.TAG, R.drawable.ic_pound_white_48dp, randomTag));
-//                                }};
-//
-//                                fetchUserDetails(context, listOfPrismPostsForRandomTag, recyclerViews);
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) { }
-                        });
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
     }
 
     /**

@@ -14,7 +14,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -167,7 +166,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            prismPost = extras.getParcelable(Default.PRISM_POST_DETAIL_EXTRA);
+            prismPost = (PrismPost) getIntent().getSerializableExtra(Default.PRISM_POST_DETAIL_EXTRA);
             if (prismPost != null) {
                 parseAllPrismPostData();
                 setupInterfaceElements();
@@ -427,7 +426,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
         Glide.with(this)
                 .asBitmap()
-                .load(prismPost.getPrismUser().getProfilePicture().lowResUri)
+                .load(prismPost.getPrismUser().getProfilePicture().getLowResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(detailUserProfilePictureImageView) {
                     @Override
@@ -437,7 +436,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
                                 BitmapHelper.createCircularProfilePicture(
                                         PrismPostDetailActivity.this,
                                         detailUserProfilePictureImageView,
-                                        prismPost.getPrismUser().getProfilePicture().isDefault,
+                                        prismPost.getPrismUser().getProfilePicture().isDefault(),
                                         resource,
                                         imageViewPadding);
                         detailUserProfilePictureImageView.setImageDrawable(profilePictureDrawable);

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -164,7 +163,11 @@ public class CurrentUser {
      * @return
      */
     public static boolean hasReposted(PrismPost prismPost) {
-        return reposted_posts_map != null && reposted_posts_map.containsKey(prismPost.getPostId());
+        return hasReposted(prismPost.getPostId());
+    }
+
+    public static boolean hasReposted(String prismPostId) {
+        return reposted_posts_map != null && reposted_posts_map.containsKey(prismPostId);
     }
 
     /**
@@ -366,7 +369,7 @@ public class CurrentUser {
         Glide.with(context)
                 .asBitmap()
                 .thumbnail(0.05f)
-                .load(prismUser.getProfilePicture().lowResUri)
+                .load(prismUser.getProfilePicture().getLowResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
@@ -376,7 +379,7 @@ public class CurrentUser {
                                 BitmapHelper.createCircularProfilePicture(
                                         context,
                                         userProfileImageView,
-                                        prismUser.getProfilePicture().isDefault,
+                                        prismUser.getProfilePicture().isDefault(),
                                         resource,
                                         imageViewPadding);
                         userProfileImageView.setImageDrawable(profilePictureDrawable);

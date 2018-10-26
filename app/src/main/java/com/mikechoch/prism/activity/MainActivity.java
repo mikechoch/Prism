@@ -460,6 +460,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
             }
 
             @Override
+            public void onPermissionDenied() {
+                // TODO handle this
+            }
+
+            @Override
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void onProgressUpdate(int progress) {
                 boolean animate = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;

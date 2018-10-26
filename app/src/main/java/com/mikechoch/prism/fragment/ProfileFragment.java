@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)
-                .load(CurrentUser.prismUser.getProfilePicture().lowResUri)
+                .load(CurrentUser.prismUser.getProfilePicture().getLowResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
@@ -83,7 +83,7 @@ public class ProfileFragment extends Fragment {
                                     BitmapHelper.createCircularProfilePicture(
                                             getActivity(),
                                             userProfileImageView,
-                                            CurrentUser.prismUser.getProfilePicture().isDefault,
+                                            CurrentUser.prismUser.getProfilePicture().isDefault(),
                                             resource,
                                             imageViewPadding);
                             userProfileImageView.setImageDrawable(profilePictureDrawable);

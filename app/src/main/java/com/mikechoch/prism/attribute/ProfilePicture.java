@@ -1,25 +1,20 @@
 package com.mikechoch.prism.attribute;
 
 import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-public class ProfilePicture implements Parcelable {
+import java.io.Serializable;
 
+public class ProfilePicture implements Serializable {
 
-    public String profilePicUri;
-    public Uri hiResUri;
-    public Uri lowResUri;
-    public boolean isDefault = true;
+    private String profilePicUri;
+    private boolean isDefault;
 
     public ProfilePicture(String profilePicUri) {
         this.profilePicUri = profilePicUri;
-        isDefault = Character.isDigit(profilePicUri.charAt(0));
-        hiResUri = getHiResProfilePicUri();
-        lowResUri = getLowResProfilePicUri();
+        this.isDefault = Character.isDigit(profilePicUri.charAt(0));
     }
 
-    private Uri getHiResProfilePicUri() {
+    public Uri getHiResProfilePicUri() {
         if (isDefault) {
             int profileIndex = Integer.parseInt(profilePicUri);
             DefaultProfilePicture picture = DefaultProfilePicture.values()[profileIndex];
@@ -28,7 +23,7 @@ public class ProfilePicture implements Parcelable {
         return Uri.parse(profilePicUri);
     }
 
-    private Uri getLowResProfilePicUri() {
+    public Uri getLowResProfilePicUri() {
         if (isDefault) {
             int profileIndex = Integer.parseInt(profilePicUri);
             DefaultProfilePicture picture = DefaultProfilePicture.values()[profileIndex];
@@ -37,36 +32,12 @@ public class ProfilePicture implements Parcelable {
         return Uri.parse(profilePicUri);
     }
 
-
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getProfilePicUri() {
+        return profilePicUri;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(profilePicUri);
-        dest.writeParcelable(hiResUri, flags);
-        dest.writeParcelable(lowResUri, flags);
-        dest.writeByte((byte) (isDefault ? 1 : 0));
+    public boolean isDefault() {
+        return isDefault;
     }
 
-    protected ProfilePicture(Parcel in) {
-        profilePicUri = in.readString();
-        hiResUri = in.readParcelable(Uri.class.getClassLoader());
-        lowResUri = in.readParcelable(Uri.class.getClassLoader());
-        isDefault = in.readByte() != 0;
-    }
-
-    public static final Creator<ProfilePicture> CREATOR = new Creator<ProfilePicture>() {
-        @Override
-        public ProfilePicture createFromParcel(Parcel in) {
-            return new ProfilePicture(in);
-        }
-
-        @Override
-        public ProfilePicture[] newArray(int size) {
-            return new ProfilePicture[size];
-        }
-    };
 }
