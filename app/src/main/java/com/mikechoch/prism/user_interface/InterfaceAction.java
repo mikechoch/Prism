@@ -1,5 +1,6 @@
 package com.mikechoch.prism.user_interface;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -327,6 +328,10 @@ public class InterfaceAction {
                         // Update UI after the post is deleted
                         MainFeedFragment.mainFeedPrismPostArrayList.remove(prismPost);
                         //TODO: We need to call notify data set changed here
+                        RecyclerView mainFeedRecyclerView = ((Activity) context).findViewById(R.id.main_content_recycler_view);
+                        if (mainFeedRecyclerView != null && mainFeedRecyclerView.getAdapter() != null) {
+                            mainFeedRecyclerView.getAdapter().notifyDataSetChanged();
+                        }
 
                     }
 
