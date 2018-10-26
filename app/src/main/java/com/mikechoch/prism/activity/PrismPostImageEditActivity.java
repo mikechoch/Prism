@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -57,6 +58,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TextView nextButton;
+    private ProgressBar nextButtonProgressBar;
     private RelativeLayout uploadedPostImageViewRelativeLayout;
     private PhotoEditorView photoEditorView;
     private BitmapEditingControllerLayout bitmapEditingControllerLayout;
@@ -100,6 +102,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.prism_post_image_edit_toolbar);
         nextButton = findViewById(R.id.prism_post_image_edit_next_button);
+        nextButtonProgressBar = findViewById(R.id.prism_post_image_edit_next_button_progress_bar);
         uploadedPostImageViewRelativeLayout = findViewById(R.id.prism_post_image_edit_photo_editor_view_limiter);
         photoEditorView = findViewById(R.id.prism_post_image_edit_photo_editor_view);
         bitmapEditingControllerLayout = findViewById(R.id.prism_post_image_edit_bitmap_editing_controller_layout);
@@ -190,6 +193,8 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                 if (!isSavingImage) {
                     try {
                         isSavingImage = true;
+                        nextButton.setVisibility(View.GONE);
+                        nextButtonProgressBar.setVisibility(View.VISIBLE);
 
                         String filename = "PrismPostEdit_" + String.valueOf(System.currentTimeMillis());
                         FileOutputStream fileOutputStream = openFileOutput(filename, Context.MODE_PRIVATE);
@@ -217,7 +222,9 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                                 fileOutputStream,
                                 pictureUpload,
                                 uploadIntents,
-                                fileInputStream);
+                                fileInputStream,
+                                nextButton,
+                                nextButtonProgressBar);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -236,12 +243,9 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
 
         @Override
         protected Object[] doInBackground(Object... params) {
-            Context context = (Context) params[0];
             Bitmap outputBitmap = (Bitmap) params[1];
             BitmapEditingControllerLayout bitmapEditingControllerLayout = (BitmapEditingControllerLayout) params[2];
-            String filename = (String) params[3];
             FileOutputStream fileOutputStream = (FileOutputStream) params[4];
-            PictureUpload pictureUpload = (PictureUpload) params[5];
 
             try {
                 Bitmap outputBitmapCopy = outputBitmap.copy(Bitmap.Config.RGB_565, true);
@@ -271,15 +275,12 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object[] params) {
             super.onPostExecute(params);
-
             Context context = (Context) params[0];
-            Bitmap outputBitmap = (Bitmap) params[1];
-            BitmapEditingControllerLayout bitmapEditingControllerLayout = (BitmapEditingControllerLayout) params[2];
-            String filename = (String) params[3];
-            FileOutputStream fileOutputStream = (FileOutputStream) params[4];
             PictureUpload pictureUpload = (PictureUpload) params[5];
             Intent[] uploadIntents = (Intent[]) params[6];
             FileInputStream fileInputStream = (FileInputStream) params[7];
+            TextView nextButton = (TextView) params[8];
+            ProgressBar nextButtonProgressBar = (ProgressBar) params[9];
 
             switch (pictureUpload) {
                 case PRISM_POST:
@@ -293,7 +294,10 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                     break;
             }
             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+
             isSavingImage = false;
+            nextButton.setVisibility(View.VISIBLE);
+            nextButtonProgressBar.setVisibility(View.GONE);
         }
 
     }

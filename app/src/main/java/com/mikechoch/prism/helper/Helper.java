@@ -332,7 +332,7 @@ public class Helper {
     /**
      * Disables the snackBar dismiss on swipe to right
      */
-    public static void disableSnackbarSwipeDismiss(final View snackBarView) {
+    public static void disableSnackBarSwipeDismiss(final View snackBarView) {
         snackBarView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
@@ -341,6 +341,28 @@ public class Helper {
                 return true;
             }
         });
+    }
+
+    /**
+     *
+     * @param progress
+     * @param min
+     * @param max
+     * @return
+     */
+    public static float getEditSeekBarValue(int progress, float min, float max) {
+        return (((progress / 200.0f) * (max - min)) + min);
+    }
+
+    /**
+     *
+     * @param progress
+     * @param min
+     * @param max
+     * @return
+     */
+    public static float getRotationSeekBarValue(int progress, float min, float max) {
+        return (((progress / 100.0f) * (max - min)) + min);
     }
 
     /* TODO use this */

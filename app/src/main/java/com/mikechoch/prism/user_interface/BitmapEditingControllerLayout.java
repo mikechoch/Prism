@@ -40,7 +40,7 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
     private RelativeLayout bitmapEditingControllerRelativeLayout;
     private HorizontalScrollView bitmapEditingControllerHorizontalScrollView;
-    public LinearLayout bitmapEditingControllerFilterLinearLayout;
+    private LinearLayout bitmapEditingControllerFilterLinearLayout;
     private LinearLayout bitmapEditingControllerEditingLinearLayout;
     public LinearLayout filterEditingSeekBarLinearLayout;
     private PhotoEditorView photoEditorView;
@@ -53,12 +53,12 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
     private Bitmap alteredBitmap;
     private Bitmap modifiedBitmap;
 
-    boolean isCircularBitmap = false;
+    private boolean isCircularBitmap = false;
 
     private boolean isAdjusting = false;
     private boolean isFilter = true;
     private Filter currentFilter = Filter.NORMAL;
-    public Edit currentEdit = null;
+    private Edit currentEdit = null;
     private float brightness;
     private float contrast;
     private float saturation;
@@ -176,13 +176,13 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
                     filterEditingTextView.setText(String.valueOf(progress - 100));
                     switch (currentEdit) {
                         case BRIGHTNESS:
-                            brightness = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            brightness = Helper.getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
                             break;
                         case CONTRAST:
-                            contrast = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            contrast = Helper.getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
                             break;
                         case SATURATION:
-                            saturation = getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
+                            saturation = Helper.getEditSeekBarValue(progress, currentEdit.getMin(), currentEdit.getMax());
                             break;
                     }
                     applyEffectsToBitmap();
@@ -221,11 +221,11 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
             ColorMatrix cm = new ColorMatrix();
             Matrix matrix = new Matrix();
 
-            float b = getEditSeekBarValue(filter.getBrightness(),
+            float b = Helper.getEditSeekBarValue(filter.getBrightness(),
                     Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
-            float c = getEditSeekBarValue(filter.getContrast(),
+            float c = Helper.getEditSeekBarValue(filter.getContrast(),
                     Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
-            float s = getEditSeekBarValue(filter.getSaturation(),
+            float s = Helper.getEditSeekBarValue(filter.getSaturation(),
                     Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
 
             cm.set(BitmapHelper.createEditMatrix(b, c, s));
@@ -397,17 +397,6 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
 
     /**
      *
-     * @param progress
-     * @param min
-     * @param max
-     * @return
-     */
-    private float getEditSeekBarValue(int progress, float min, float max) {
-        return (((progress / 200.0f) * (max - min)) + min);
-    }
-
-    /**
-     *
      * @param isFilter
      */
     private void handleTabClick(boolean isFilter) {
@@ -439,11 +428,11 @@ public class BitmapEditingControllerLayout extends RelativeLayout {
         filterPreviewLayoutParams.setMargins(outlineMargin, outlineMargin, outlineMargin, outlineMargin);
         currentFilterImageView.setLayoutParams(filterPreviewLayoutParams);
 
-        brightness = getEditSeekBarValue(currentFilter.getBrightness(),
+        brightness = Helper.getEditSeekBarValue(currentFilter.getBrightness(),
                 Edit.BRIGHTNESS.getMin(), Edit.BRIGHTNESS.getMax());
-        contrast = getEditSeekBarValue(currentFilter.getContrast(),
+        contrast = Helper.getEditSeekBarValue(currentFilter.getContrast(),
                 Edit.CONTRAST.getMin(), Edit.CONTRAST.getMax());
-        saturation = getEditSeekBarValue(currentFilter.getSaturation(),
+        saturation = Helper.getEditSeekBarValue(currentFilter.getSaturation(),
                 Edit.SATURATION.getMin(), Edit.SATURATION.getMax());
 
         applyEffectsToBitmap();

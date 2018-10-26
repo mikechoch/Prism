@@ -71,7 +71,8 @@
         <SeekBar
             android:id="@+id/filter_editing_seek_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:progressTint="@android:color/transparent" />
 
         <TextView
             android:id="@+id/filter_editing_percentage_text_view"

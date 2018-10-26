@@ -40,19 +40,12 @@ import com.androidnetworking.AndroidNetworking;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.util.NetworkStateReceiver;
 import com.mikechoch.prism.adapter.MainViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.action.OnUploadPostCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -62,9 +55,6 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.MainViewPagerTab;
 import com.mikechoch.prism.user_interface.InterfaceAction;
-
-import java.util.ArrayList;
-import java.util.Calendar;
 
 
 public class MainActivity extends FragmentActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
@@ -573,6 +563,6 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 .findViewById(android.support.design.R.id.snackbar_text))
                 .setTypeface(Default.sourceSansProBold);
         networkSnackBar.show();
-        Helper.disableSnackbarSwipeDismiss(networkSnackBar.getView());
+        Helper.disableSnackBarSwipeDismiss(networkSnackBar.getView());
     }
 }
