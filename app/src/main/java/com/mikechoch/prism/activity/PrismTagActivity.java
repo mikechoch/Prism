@@ -189,12 +189,14 @@ public class PrismTagActivity extends AppCompatActivity {
             @Override
             public void onPrismPostsNotFound() {
                 // TODO Log this
+                tagSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Exception e) {
                 // TODO log this
                 e.printStackTrace();
+                tagSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }

@@ -19,8 +19,10 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.callback.action.OnDeletePostCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DatabaseAction;
+import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.helper.AnimationBounceInterpolator;
 import com.mikechoch.prism.type.MoreOption;
 
@@ -317,7 +319,40 @@ public class InterfaceAction {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-                DatabaseAction.deletePost(prismPost);
+                DatabaseAction.deletePost(prismPost, new OnDeletePostCallback() {
+                    @Override
+                    public void onSuccess() {
+                        dialogInterface.cancel();
+                        // TODO Display a toast?
+                        // Update UI after the post is deleted
+                        MainFeedFragment.mainFeedPrismPostArrayList.remove(prismPost);
+                        //TODO: We need to call notify data set changed here
+
+                    }
+
+                    @Override
+                    public void onPostNotFound() {
+                        // TODO Log this and display a toast
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        // TODO Log this and display a toast
+                    }
+
+                    @Override
+                    public void onImageDeleteFail(Exception e) {
+                        dialogInterface.cancel();
+                        // TODO Log this and display a toast
+                    }
+
+                    @Override
+                    public void onPostDeleteFail(Exception e) {
+                        dialogInterface.cancel();
+                        // TODO Log this and display a toast
+                    }
+                });
+
             }
         }).setNegativeButton(Default.BUTTON_CANCEL, new DialogInterface.OnClickListener() {
             @Override
