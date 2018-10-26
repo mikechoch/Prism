@@ -332,7 +332,6 @@ public class InterfaceAction {
                         if (mainFeedRecyclerView != null && mainFeedRecyclerView.getAdapter() != null) {
                             mainFeedRecyclerView.getAdapter().notifyDataSetChanged();
                         }
-
                     }
 
                     @Override

@@ -33,18 +33,6 @@ public class PrismPost implements Serializable, Comparable<PrismPost> {
         this.timestamp = timestamp;
     }
 
-    public PrismPost(String image, String caption, long timestamp, String uid, Integer likes, Integer reposts, String postId, PrismUser prismUser, Boolean isReposted) {
-        this.image = image;
-        this.caption = caption;
-        this.timestamp = timestamp;
-        this.uid = uid;
-        this.likes = likes;
-        this.reposts = reposts;
-        this.postId = postId;
-        this.prismUser = prismUser;
-        this.isReposted = isReposted;
-    }
-
     @PropertyName(Key.POST_IMAGE_URI)
     public String getImage() {
         return image;
@@ -72,12 +60,12 @@ public class PrismPost implements Serializable, Comparable<PrismPost> {
 
     @Exclude
     public Integer getLikes() {
-        return likes;
+        return this.likes == null ? 0 : likes;
     }
 
     @Exclude
     public Integer getReposts() {
-        return reposts;
+        return this.reposts == null ? 0 : reposts;
     }
 
     @Exclude

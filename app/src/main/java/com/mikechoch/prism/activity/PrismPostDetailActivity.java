@@ -58,13 +58,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private int scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED;
     private int noScrollFlags = 0;
 
-    private String postId;
-    private String postDate;
-    private Integer likeCount;
-    private Integer repostCount;
-    private boolean isPostLiked;
-    private boolean isPostReposted;
-
     private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private Toolbar toolbar;
@@ -188,18 +181,20 @@ public class PrismPostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onPostNotFound() {
-                // TODO take user to main activity and display a toast?
+                Helper.toast(PrismPostDetailActivity.this, Message.POST_NOT_FOUND, true);
+                onBackPressed();
             }
 
             @Override
             public void onPostAuthorNotFound() {
-                // TODO this would be messed up, idk what to do here?
+                // This would never happen, the app wouldn't log the user in
+                // if their details do not exist
             }
 
             @Override
             public void onFailure(Exception e) {
-                // TODO log this
-                e.printStackTrace();
+                IntentHelper.resetApplication(PrismPostDetailActivity.this);
+                // TODO Log this
             }
         });
     }
@@ -221,16 +216,6 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             detailImageView.setTransitionName(imageTransitionName);
         }
 
-        // TODO @Mike are these necessary? Why assign them to global variables?
-        postId = this.prismPost.getPostId();
-        postDate = Helper.getFancyDateDifferenceString(prismPost.getTimestamp() * -1);
-        likeCount = this.prismPost.getLikes();
-        repostCount = this.prismPost.getReposts();
-        isPostLiked = CurrentUser.hasLiked(prismPost);
-        isPostReposted = CurrentUser.hasReposted(prismPost);
-
-        if (likeCount == null) likeCount = 0;
-        if (repostCount == null) repostCount = 0;
     }
 
     /**
@@ -462,7 +447,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
      * liked the PrismPost
      */
     private void setupLikeActionButton() {
-        InterfaceAction.setupLikeActionButton(this, null, likeActionButton, isPostLiked);
+        InterfaceAction.setupLikeActionButton(this, null, likeActionButton, CurrentUser.hasLiked(prismPost));
         likeActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -470,7 +455,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             }
         });
 
-        likesCountTextView.setText(String.valueOf(likeCount));
+        likesCountTextView.setText(String.valueOf(prismPost.getLikes()));
         likesCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -509,16 +494,16 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private void performUIActivitiesForLike(boolean performLike) {
         InterfaceAction.startLikeActionButtonAnimation(this, likeActionButton, performLike);
 
-        likeCount = prismPost.getLikes() + (performLike ?  1 : -1);
-        prismPost.setLikes(likeCount);
-        likesCountTextView.setText(String.valueOf(likeCount));
+        int newLikeCount = prismPost.getLikes() + (performLike ?  1 : -1);
+        prismPost.setLikes(newLikeCount);
+        likesCountTextView.setText(String.valueOf(newLikeCount));
     }
 
     /**
      * Setup the repost action button for the PrismPost
      */
     private void setupRepostActionButton() {
-        InterfaceAction.setupRepostActionButton(this, repostActionButton, isPostReposted);
+        InterfaceAction.setupRepostActionButton(this, repostActionButton, CurrentUser.hasReposted(prismPost));
         repostActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -537,7 +522,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             }
         });
 
-        repostCountTextView.setText(String.valueOf(repostCount));
+        repostCountTextView.setText(String.valueOf(prismPost.getReposts()));
         repostCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -576,9 +561,9 @@ public class PrismPostDetailActivity extends AppCompatActivity {
     private void performUIActivitiesForRepost(boolean performRepost) {
         InterfaceAction.startRepostActionButtonAnimation(this, repostActionButton, performRepost);
 
-        repostCount = prismPost.getReposts() + (performRepost ? 1 : -1);
-        prismPost.setReposts(repostCount);
-        repostCountTextView.setText(String.valueOf(repostCount));
+        int newRepostCount = prismPost.getReposts() + (performRepost ? 1 : -1);
+        prismPost.setReposts(newRepostCount);
+        repostCountTextView.setText(String.valueOf(newRepostCount));
     }
 
     /**

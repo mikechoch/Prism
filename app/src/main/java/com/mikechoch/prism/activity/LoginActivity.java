@@ -224,14 +224,14 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onAccountNotFound() {
-                            emailOrUsernameTextInputLayout.setError("Account does not exist");
+                            emailOrUsernameTextInputLayout.setError(Message.ACCOUNT_NOT_FOUND);
                             toggleLoginProgressBar(false);
                         }
 
                         @Override
                         public void onFailure(Exception exception) {
                             toggleLoginProgressBar(false);
-                            // TODO Log this
+                            emailOrUsernameTextInputLayout.setError(Message.FAILED_TO_LOGIN);
                         }
                     });
                 }

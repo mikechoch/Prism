@@ -46,4 +46,12 @@ public class Message {
     // SnackBar messages
     public static final String NO_INTERNET = "No Internet Connection";
 
+    public static final String SEND_VERIFICATION_EMAIL_SENT = "Verification email sent";
+    public static final String SEND_VERIFICATION_EMAIL_FAIL = "Failed to send verification email";
+
+    public static final String FAILED_TO_LOGIN = "Failed to login";
+    public static final String ACCOUNT_NOT_FOUND = "Account does not exist";
+
+    public static final String POST_NOT_FOUND = "Post does not exist";
+
 }

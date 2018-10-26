@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.helper.Helper;
@@ -84,13 +85,14 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
             public void onSuccess() {
                 resendEmailButton.setVisibility(View.GONE);
                 RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
-                Snackbar.make(view, "Email sent again", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, Message.SEND_VERIFICATION_EMAIL_SENT, Snackbar.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Exception e) {
                 e.printStackTrace();
-                // TODO Log this (display toast or something)
+                RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
+                Snackbar.make(view, Message.SEND_VERIFICATION_EMAIL_FAIL, Snackbar.LENGTH_LONG).show();
             }
         });
     }
