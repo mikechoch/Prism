@@ -18,6 +18,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.type.Rotation;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+
 public class BitmapRotationControllerLayout extends RelativeLayout {
 
     private Context context;
@@ -58,9 +59,8 @@ public class BitmapRotationControllerLayout extends RelativeLayout {
         initBitmapEdit();
     }
 
-
     /**
-     *
+     * Inflate the rotation controller layout and initialize all the interface elements
      */
     public void initBitmapEdit() {
         View view = layoutInflater.inflate(R.layout.bitmap_rotation_controller_layout, this, true);
@@ -74,7 +74,8 @@ public class BitmapRotationControllerLayout extends RelativeLayout {
 
 
     /**
-     *
+     * Setup the rotation button controls using the Rotation enum
+     * Creates the FAB and also sets up the on click for each button to handle the CropImageView
      */
     private void setupRotationController() {
         for (Rotation rotation : Rotation.values()) {
@@ -112,12 +113,11 @@ public class BitmapRotationControllerLayout extends RelativeLayout {
     }
 
     /**
-     *
-     * @param cropImageView
+     * Attach the CropImageView from activity requiring rotation
+     * @param cropImageView - CropImageView library being controlled via rotation
      */
     public void attachCropImageView(CropImageView cropImageView) {
         this.cropImageView = cropImageView;
     }
-
 
 }

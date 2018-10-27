@@ -23,6 +23,7 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
+import com.mikechoch.prism.user_interface.BitmapRotationControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
     private TextView nextButton;
     private LinearLayout cropImageViewLinearLayout;
     private CropImageView cropImageView;
+    private BitmapRotationControllerLayout bitmapRotationControllerLayout;
 
     private Uri imageUriExtra;
     private File output;
@@ -72,6 +74,11 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.profile_picture_upload_image_selection_toolbar_next_button);
         cropImageViewLinearLayout = findViewById(R.id.profile_picture_upload_image_selection_crop_image_view_limiter);
         cropImageView = findViewById(R.id.profile_picture_upload_image_selection_crop_image_view);
+        bitmapRotationControllerLayout = findViewById(R.id.profile_picture_upload_image_selection_bitmap_rotation_controller_layout);
+
+        bitmapRotationControllerLayout.attachCropImageView(cropImageView);
+
+        cropImageViewLinearLayout.getLayoutParams().height = (int) (Default.screenHeight * 0.75);
 
         setupInterfaceElements();
 
