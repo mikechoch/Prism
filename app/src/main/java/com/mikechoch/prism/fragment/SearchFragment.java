@@ -24,6 +24,7 @@ import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.DiscoverController;
 import com.mikechoch.prism.callback.fetch.OnFetchCallback;
@@ -137,12 +138,18 @@ public class SearchFragment extends Fragment {
                 DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchCallback);
                 break;
             case TAG:
-                discovery.setTitle(DiscoverController.randomTag);
+                // TODO implement UI for displaying 2 hashtags here - reference code below
                 OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
-                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
-                DiscoverController.generateRandomPostsForHashTag(tagsOnFetchCallback);
-
-                searchLinearLayout.addView(addGoogleAdCardView(context));
+                ArrayList<String> hashtags = DiscoverController.getRandomHashtags();
+                for (String hashTag : hashtags) {
+                    ArrayList<PrismPost> prismPostsForHashtag = DiscoverController.getPrismPostsForHashtag(hashTag);
+                }
+//                discovery.setTitle(DiscoverController.randomTag);
+//                OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
+//                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
+//                DiscoverController.generateRandomPostsForHashTag(tagsOnFetchCallback);
+//
+//                searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;
         }
     }

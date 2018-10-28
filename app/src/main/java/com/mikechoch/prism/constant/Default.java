@@ -54,6 +54,7 @@ public class Default {
     public static final int SIGN_IN_WITH_GOOGLE_REQUEST_CODE = 300;
 
     // Display Users
+    // TODO Can these be enums?
     public static final int DISPLAY_USERS_LIKE_CODE = 0;
     public static final int DISPLAY_USERS_REPOST_CODE = 1;
     public static final int DISPLAY_USERS_FOLLOWER_CODE = 2;
@@ -149,6 +150,7 @@ public class Default {
     public static final String BUTTON_REPORT = "REPORT";
 
     // Display Users
+    // TODO Can these be an enum instead of global static ints?
     public static final int LIKE_USERS = 0;
     public static final int REPOST_USERS = 1;
     public static final int FOLLOWER_USERS = 2;
@@ -160,13 +162,16 @@ public class Default {
     public static final String TAG_DEBUG = "Debug Output";
     public static final String TAG_NOTIFICATION = "Prism NotificationType";
 
+    // Discover
+    public static final int DISCOVER_PAGE_HASHTAGS = 2;
+
     // Timer intervals in milliseconds
     public static final int NOTIFICATION_UPDATE_INTERVAL = 5000;
     public static final int PUSH_NOTIFICATION_HANDLER_WAIT = 2500; // this should be 10 seconds or 30 seconds
 
     public static final String HIDDEN_PASSWORD = "********";
 
-    public static final List<Character> ILLEGAL_TAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
+    public static final List<Character> ILLEGAL_HASHTAG_CHARS = Arrays.asList(' ', '\n', '#', ',');
 
     public static final UserPreference USER_PREFERENCE = new UserPreference(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
 

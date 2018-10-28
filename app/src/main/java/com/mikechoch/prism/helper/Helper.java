@@ -16,7 +16,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
@@ -224,7 +223,7 @@ public class Helper {
             currentChar = description.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < description.length() && !Default.ILLEGAL_TAG_CHARS.contains(description.charAt(i))) {
+                while (i < description.length() && !Default.ILLEGAL_HASHTAG_CHARS.contains(description.charAt(i))) {
                     currentChar = description.charAt(i++);
                     tag.append(currentChar);
                 }
@@ -249,7 +248,7 @@ public class Helper {
             currentChar = string.charAt(i++);
             if (currentChar == '#') {
                 StringBuilder tag = new StringBuilder();
-                while (i < string.length() && !Default.ILLEGAL_TAG_CHARS.contains(string.charAt(i))) {
+                while (i < string.length() && !Default.ILLEGAL_HASHTAG_CHARS.contains(string.charAt(i))) {
                     currentChar = string.charAt(i++);
                     tag.append(currentChar);
                 }

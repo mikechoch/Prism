@@ -33,14 +33,13 @@ public class DiscoverController {
 
     private static HashMap<String, PrismPost> mapOfPrismPosts;
     private static HashMap<String, PrismUser> mapOfPrismUsers;
-    private static ArrayList<PrismPost> listOfPostsForRandomHashTag;
+    private static HashMap<String, ArrayList<PrismPost>> mapOfRandomHashtags;
 
-    public static String randomTag = "";
 
     public static void setupDiscoverContent(OnInitializeDiscoveryCallback callback) {
         mapOfPrismPosts = new HashMap<>();
         mapOfPrismUsers = new HashMap<>();
-        listOfPostsForRandomHashTag = new ArrayList<>();
+        mapOfRandomHashtags = new HashMap<>();
 
         fetchEverything(callback);
     }
@@ -81,17 +80,21 @@ public class DiscoverController {
 
                     // TAGS
                     int tagCount = (int) tagsSnapshot.getChildrenCount();
-                    int rand = new Random().nextInt(tagCount);
-                    Iterator itr = tagsSnapshot.getChildren().iterator();
-                    for (int i = 0; i < rand; i++) { itr.next(); }
-                    DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
-                    if (tagSnapshot.exists()) {
-                        randomTag = tagSnapshot.getKey();
-                        for (DataSnapshot postIdSnapshot : tagSnapshot.getChildren()) {
-                            String postId = postIdSnapshot.getKey();
-                            if (mapOfPrismPosts.containsKey(postId)) {
-                                listOfPostsForRandomHashTag.add(mapOfPrismPosts.get(postId));
+                    for (int tagCtr = 0; tagCtr < Default.DISCOVER_PAGE_HASHTAGS; tagCtr++) {
+                        int rand = new Random().nextInt(tagCount);
+                        Iterator itr = tagsSnapshot.getChildren().iterator();
+                        for (int i = 0; i < rand; i++) itr.next();
+                        DataSnapshot tagSnapshot = (DataSnapshot) itr.next();
+                        if (tagSnapshot.exists()) {
+                            String hashTag = tagSnapshot.getKey();
+                            ArrayList<PrismPost> postsForHashTag = new ArrayList<>();
+                            for (DataSnapshot postIdSnapshot : tagSnapshot.getChildren()) {
+                                String postId = postIdSnapshot.getKey();
+                                if (mapOfPrismPosts.containsKey(postId)) {
+                                    postsForHashTag.add(mapOfPrismPosts.get(postId));
+                                }
                             }
+                            mapOfRandomHashtags.put(hashTag, postsForHashTag);
                         }
                     }
 
@@ -108,8 +111,6 @@ public class DiscoverController {
         });
 
     }
-
-
 
     public static void generateHighestRepostedPosts(OnFetchCallback onFetchCallback) {
         ArrayList<Object> highestRepostedPosts = new ArrayList<>(mapOfPrismPosts.values());
@@ -133,9 +134,13 @@ public class DiscoverController {
         onFetchCallback.onSuccess(highestLikedPosts);
     }
 
-    public static void generateRandomPostsForHashTag(OnFetchCallback onFetchCallback) {
-        Collections.shuffle(listOfPostsForRandomHashTag);
-        onFetchCallback.onSuccess(new ArrayList<>(listOfPostsForRandomHashTag));
+    public static ArrayList<String> getRandomHashtags() {
+        return new ArrayList<>(mapOfRandomHashtags.keySet());
+    }
+
+    public static ArrayList<PrismPost> getPrismPostsForHashtag(String hashTag) {
+        return mapOfRandomHashtags.containsKey(hashTag) ?
+                mapOfRandomHashtags.get(hashTag) : new ArrayList<>();
     }
 
     public static void generateRandomListOfUsers(OnFetchCallback onFetchCallback) {
