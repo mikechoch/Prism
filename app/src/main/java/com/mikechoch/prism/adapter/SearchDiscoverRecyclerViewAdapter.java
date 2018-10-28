@@ -1,6 +1,7 @@
 package com.mikechoch.prism.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -92,6 +94,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         private TextView prismPostUsername;
         private TextView prismPostCount;
         private ImageView prismPostUserProfilePicture;
+        private LinearLayout discoverPrismPostBottomLayout;
 
         private PrismPost prismPost;
 
@@ -103,6 +106,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             prismPostUsername = itemView.findViewById(R.id.discover_prism_post_user_text_view);
             prismPostCount = itemView.findViewById(R.id.discover_prism_post_date_count_text_view);
             prismPostUserProfilePicture = itemView.findViewById(R.id.discover_prism_post_profile_picture_image_view);
+            discoverPrismPostBottomLayout = itemView.findViewById(R.id.discover_prism_post_bottom_linear_layout);
         }
 
         /**
@@ -160,6 +164,13 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 }
             });
 
+            discoverPrismPostBottomLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    IntentHelper.intentToUserProfileActivity(context, prismUser);
+                }
+            });
+
             Glide.with(context)
                     .asBitmap()
                     .thumbnail(0.05f)
@@ -180,12 +191,7 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                         }
                     });
 
-            prismPostUserProfilePicture.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    IntentHelper.intentToUserProfileActivity(context, prismUser);
-                }
-            });
+
         }
 
         /**
@@ -270,6 +276,14 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                     InterfaceAction.handleFollowButtonClick(context, performFollow, discoverPrismUserFollowButton, prismUser);
                 }
             });
+
+            discoverPrismUserCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    IntentHelper.intentToUserProfileActivity(context, prismUser);
+                }
+            });
+
         }
 
         /**

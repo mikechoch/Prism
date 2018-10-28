@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
+    android:foreground="@drawable/image_upload_selector"
     app:cardBackgroundColor="@color/colorPrimaryDark"
     app:cardUseCompatPadding="true">
     

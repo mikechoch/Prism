@@ -181,9 +181,6 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
                         case Default.SETTINGS_OPTION_ABOUT:
                             break;
                         case Default.SETTINGS_OPTION_LOGOUT:
-                            // TODO @Mike: I perform signOut activities here (where I set a bunch of CurrentUser objects to null
-                            // Because they will be recreated after new user signs in. The app crashes after signOut is done
-                            // So either when context.startActivity() or context.finish()
                             CurrentUser.performSignOut();
                             IntentHelper.intentToLoginActivity(context);
                             break;
