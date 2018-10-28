@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -38,10 +38,21 @@
                         android:id="@+id/prism_post_image_edit_next_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
                         android:text="NEXT"
-                        android:textColor="@android:color/white"/>
+                        android:textColor="@android:color/white"
+                        android:visibility="visible"/>
 
-                </LinearLayout>
+                    <ProgressBar
+                        android:id="@+id/prism_post_image_edit_next_button_progress_bar"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:indeterminate="true"
+                        android:indeterminateDrawable="@drawable/circle_progress_foreground"
+                        android:visibility="gone"/>
+
+                </RelativeLayout>
 
             </RelativeLayout>
 

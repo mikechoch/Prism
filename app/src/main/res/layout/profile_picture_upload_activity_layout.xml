@@ -101,6 +101,13 @@
 
         </LinearLayout>
 
+        <com.mikechoch.prism.user_interface.BitmapRotationControllerLayout
+            android:id="@+id/profile_picture_upload_image_selection_bitmap_rotation_controller_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
+
     </LinearLayout>
 
 </RelativeLayout>

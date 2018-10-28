@@ -4,10 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -25,15 +23,12 @@ import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
+import com.mikechoch.prism.type.Rotation;
+import com.mikechoch.prism.user_interface.BitmapRotationControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import java.io.IOException;
 
 
 public class PrismPostImageSelectionActivity extends AppCompatActivity {
-
-    private int activatedColor;
-    private int deactivatedColor;
 
     private Toolbar toolbar;
     private ImageView gallerySelectionButton;
@@ -41,9 +36,11 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
     private TextView nextButton;
     private LinearLayout cropImageViewLinearLayout;
     private CropImageView cropImageView;
+    private BitmapRotationControllerLayout bitmapRotationControllerLayout;
 
     private Uri imageUriExtra;
     private Bitmap outputBitmap;
+    private Bitmap tempBitmap;
 
 
     @Override
@@ -70,15 +67,17 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_post_image_selection_activity_layout);
 
-        activatedColor = this.getResources().getColor(R.color.colorAccent);
-        deactivatedColor = Color.WHITE;
-
         toolbar = findViewById(R.id.prism_post_upload_image_selection_toolbar);
         gallerySelectionButton = findViewById(R.id.prism_post_upload_image_selection_toolbar_gallery_button);
         cameraSelectionButton = findViewById(R.id.prism_post_upload_image_selection_toolbar_camera_button);
         nextButton = findViewById(R.id.prism_post_upload_image_selection_toolbar_next_button);
         cropImageViewLinearLayout = findViewById(R.id.prism_post_upload_image_selection_crop_image_view_limiter);
         cropImageView = findViewById(R.id.prism_post_upload_image_selection_crop_image_view);
+        bitmapRotationControllerLayout = findViewById(R.id.prism_post_upload_image_selection_bitmap_rotation_controller_layout);
+
+        bitmapRotationControllerLayout.attachCropImageView(cropImageView);
+
+        cropImageViewLinearLayout.getLayoutParams().height = (int) (Default.screenHeight * 0.75);
 
         setupInterfaceElements();
 
@@ -236,10 +235,11 @@ public class PrismPostImageSelectionActivity extends AppCompatActivity {
     private void setupCropImageView(Bitmap bitmap) {
         cropImageViewLinearLayout.removeAllViews();
 
-        Bitmap tempBitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
+        tempBitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
         cropImageView.setImageBitmap(tempBitmap);
 
         cropImageViewLinearLayout.addView(cropImageView);
     }
+
 
 }

@@ -568,6 +568,6 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 .findViewById(android.support.design.R.id.snackbar_text))
                 .setTypeface(Default.sourceSansProBold);
         networkSnackBar.show();
-        Helper.disableSnackbarSwipeDismiss(networkSnackBar.getView());
+        Helper.disableSnackBarSwipeDismiss(networkSnackBar.getView());
     }
 }
