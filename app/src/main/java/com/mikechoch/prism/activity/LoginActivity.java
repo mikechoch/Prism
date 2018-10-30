@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private TextInputLayout resetEmailTextInputLayout;
     private EditText resetEmailEditText;
-    private TextView forgotPasswordHeaderTextView;
 
     private Button loginButton;
     private Button forgotPassword;
@@ -56,8 +55,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private ProgressBar loginProgressBar;
     private ProgressBar forgotPasswordProgressBar;
-
-    private CustomAlertDialogBuilder resetPasswordAlertDialog;
 
     private GoogleSignInClient googleSignInClient;
 
@@ -138,21 +135,19 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseProfileAction.sendResetPasswordEmail(email, new OnSendResetPasswordEmailCallback() {
             @Override
             public void onSuccess() {
-                Helper.toast(LoginActivity.this, "Email successfully sent", true);
+                Helper.toast(LoginActivity.this, Message.RESET_PASSWORD_EMAIL_SENT, true);
                 dialog.dismiss();
             }
 
             @Override
             public void onAccountNotFoundForEmail() {
-                Helper.toast(LoginActivity.this, "Email is not registered with Prism", true);
-                Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL);
+                Helper.toast(LoginActivity.this, Message.ACCOUNT_NOT_FOUND, true);
                 dialog.dismiss();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Helper.toast(LoginActivity.this, "Unable to send email. Please try again later", true);
-                Log.e(Default.TAG_DB, Message.PASSWORD_RESET_EMAIL_SEND_FAIL, e);
+                Helper.toast(LoginActivity.this, Message.RESET_PASSWORD_EMAIL_FAIL, true);
                 dialog.dismiss();
             }
         });
@@ -163,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
         View resetPasswordView = getLayoutInflater().inflate(R.layout.reset_password_alert_dialog_layout, null);
         RelativeLayout resetPasswordRelativeLayout = resetPasswordView.findViewById(R.id.reset_password_alert_dialog_relative_layout);
 
-        forgotPasswordHeaderTextView = resetPasswordView.findViewById(R.id.forgot_password_header_text_view);
+        TextView forgotPasswordHeaderTextView = resetPasswordView.findViewById(R.id.forgot_password_header_text_view);
         resetEmailTextInputLayout = resetPasswordView.findViewById(R.id.reset_password_input_email_text_input_layout);
         resetEmailEditText = resetPasswordView.findViewById(R.id.reset_password_input_email_edit_text);
         forgotPasswordProgressBar = resetPasswordView.findViewById(R.id.reset_password_progress_bar);
@@ -172,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         resetEmailTextInputLayout.setTypeface(Default.sourceSansProLight);
         resetEmailEditText.setTypeface(Default.sourceSansProLight);
 
-        resetPasswordAlertDialog = new CustomAlertDialogBuilder(this, resetPasswordRelativeLayout);
+        CustomAlertDialogBuilder resetPasswordAlertDialog = new CustomAlertDialogBuilder(this, resetPasswordRelativeLayout);
         resetPasswordAlertDialog.setView(resetPasswordView);
         resetPasswordAlertDialog.setIsCancelable(true);
         resetPasswordAlertDialog.setCanceledOnTouchOutside(false);
@@ -320,11 +315,10 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidUserException noEmailFound) {
-                                emailOrUsernameTextInputLayout.setError("Account does not exist");
+                                emailOrUsernameTextInputLayout.setError(Message.ACCOUNT_NOT_FOUND);
                             } catch (Exception e) {
-                                passwordTextInputLayout.setError("Invalid email/username or password");
+                                passwordTextInputLayout.setError(Message.INVALID_CREDENTIALS);
                                 toggleLoginProgressBar(false);
-                                Log.i(Default.TAG_DB, Message.LOGIN_ATTEMPT_FAIL, e);
                             }
                         }
                     }

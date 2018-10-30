@@ -27,7 +27,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
@@ -58,9 +57,6 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 
 
 public class MainActivity extends FragmentActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
-
-    private Animation hideFabAnimation;
-    private Animation showFabAnimation;
 
     private AppBarLayout.LayoutParams params;
 
@@ -97,15 +93,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
         FCM_API_KEY = getFirebaseKey();
 
-        // This is a safety check to make sure no user is logged in without an account
-        if (CurrentUser.getFirebaseUser() == null) {
+        // This is a safety check to make sure that user is signed in properly
+        if (!CurrentUser.isUserSignedIn()) {
             IntentHelper.intentToLoginActivity(MainActivity.this);
             return;
         }
-
-        // Create uploadImageFab showing and hiding animations
-        showFabAnimation = createFabShowAnimation(false);
-        hideFabAnimation = createFabShowAnimation(true);
 
         toolbar = findViewById(R.id.toolbar);
         toolbarTextView = findViewById(R.id.prism_toolbar_title);
@@ -254,6 +246,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         }
 
         // Setup the tab selected, unselected, and reselected listener
+        // TODO should we replace below deprecated `setOnTabSelected` with `addOnTabSelected` ?
         prismTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -268,11 +261,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 prismViewPager.setCurrentItem(tab.getPosition(), true);
                 if (tab.getPosition() <= Default.MAIN_VIEW_PAGER_MAIN_FEED && !uploadImageFab.isShown()) {
 //                    toolbar.setLayoutParams(params);
-                    uploadImageFab.startAnimation(showFabAnimation);
+                    uploadImageFab.startAnimation(createFabShowAnimation(false));
                 } else if (tab.getPosition() > Default.MAIN_VIEW_PAGER_MAIN_FEED && uploadImageFab.isShown()) {
 //                    params.setScrollFlags(0);
 //                    toolbar.setLayoutParams(params);
-                    uploadImageFab.startAnimation(hideFabAnimation);
+                    uploadImageFab.startAnimation(createFabShowAnimation(true));
                 }
 
                 // Switch statement handing reselected tabs
@@ -443,12 +436,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
     }
 
     /**
-     *  Takes the uploadedImageUri (which is the image that firebaseUser chooses from local storage)
-     *  and uploads the file to cloud. Once that is successful, the a new post is created in
-     *  ALL_POSTS section and the post details are pushed. Then the postId is added to the
-     *  USER_UPLOADS section for the current firebaseUser
-     *  TODO: Handle case when post upload fails -- this is very important
-     *  TODO Refactor all of this
+     *
      */
     @SuppressLint("SimpleDateFormat")
     private void beginUploadPrismPostToFirebase() {
@@ -461,7 +449,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
             @Override
             public void onPermissionDenied() {
-                // TODO handle this
+                Helper.toast(MainActivity.this, Message.POST_UPDATE_PERMISSION_DENIED);
+                // TODO Should we logout and take user to LoginActivity?
             }
 
             @Override
@@ -473,16 +462,14 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
             @Override
             public void onImageUploadFail(Exception e) {
-                uploadingImageTextView.setText("Failed to upload post");
-                Helper.toast(MainActivity.this, "Failed to upload post");
-                Log.wtf(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, e);
+                uploadingImageTextView.setText(Message.POST_IMAGE_UPLOAD_FAIL);
+                Helper.toast(MainActivity.this, Message.POST_IMAGE_UPLOAD_FAIL);
             }
 
             @Override
             public void onPostUploadFail(Exception e) {
-                uploadingImageTextView.setText("Failed to upload post");
-                Helper.toast(MainActivity.this, "Failed to upload post");
-                Log.wtf(Default.TAG_DB, Message.POST_UPLOAD_FAIL, e);
+                uploadingImageTextView.setText(Message.POST_UPLOAD_FAIL);
+                Helper.toast(MainActivity.this, Message.POST_UPLOAD_FAIL);
             }
 
         });
@@ -513,7 +500,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                uploadingImageTextView.setText("Done");
+                uploadingImageTextView.setText(Message.POST_UPLOAD_DONE);
             }
         }, 1000);
         new Handler().postDelayed(new Runnable() {

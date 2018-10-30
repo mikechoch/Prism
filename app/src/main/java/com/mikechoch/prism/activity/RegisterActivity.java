@@ -3,7 +3,6 @@ package com.mikechoch.prism.activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -15,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
@@ -24,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.callback.action.OnFirebaseUserRegistrationCallback;
@@ -238,7 +236,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(boolean usernameTaken) {
                         if (usernameTaken) {
-                            usernameTextInputLayout.setError("Username is taken. Try again");
+                            usernameTextInputLayout.setError(Message.USERNAME_TAKEN);
                             toggleProgressBar(false);
                             return;
                         }
@@ -252,13 +250,13 @@ public class RegisterActivity extends AppCompatActivity {
                                         DatabaseAction.sendVerificationEmail(firebaseUser, new OnSendVerificationEmailCallback() {
                                             @Override
                                             public void onSuccess() {
-                                                Helper.toast(RegisterActivity.this, "An email has been sent to " + email + ". Please click on the verfication link");
+                                                Helper.toast(RegisterActivity.this, Message.verification_email(email));
                                                 IntentHelper.intentToEmailVerificationActivity(RegisterActivity.this, true);
                                             }
 
                                             @Override
                                             public void onFailure(Exception e) {
-                                                Helper.toast(RegisterActivity.this, "Unable to send verification email");
+                                                Helper.toast(RegisterActivity.this, Message.VERIFICATION_EMAIL_FAIL);
                                             }
                                         });
                                     }
@@ -269,13 +267,13 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onFailure(Object exception) {
                                 toggleProgressBar(false);
                                 if (exception instanceof FirebaseAuthWeakPasswordException) {
-                                    passwordTextInputLayout.setError("Password is too weak");
+                                    passwordTextInputLayout.setError(Message.PASSWORD_TOO_WEAK);
                                 }
                                 if (exception instanceof FirebaseAuthInvalidCredentialsException) {
-                                    emailTextInputLayout.setError("Invalid email");
+                                    emailTextInputLayout.setError(Message.INVALID_EMAIL);
                                 }
                                 if (exception instanceof FirebaseAuthUserCollisionException) {
-                                    emailTextInputLayout.setError("Email already exists");
+                                    emailTextInputLayout.setError(Message.ACCOUNT_ALREADY_EXISTS);
                                 }
                                 if (exception instanceof Exception) {
                                     ((Exception) exception).printStackTrace();
