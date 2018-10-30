@@ -31,11 +31,13 @@ import com.mikechoch.prism.activity.UpdateAppRequiredActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
+import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.DisplayUserType;
 import com.mikechoch.prism.type.PictureUpload;
+import com.mikechoch.prism.type.ProfilePictureOption;
 
 import java.io.File;
 import java.util.Date;
@@ -254,7 +256,7 @@ public class IntentHelper {
      * @param context - Context of current activity app will intent from
      * @param profilePictureType - int directing the user to take a selfie or choose form gallery
      */
-    public static void intentToProfilePictureUploadActivity(Context context, int profilePictureType) {
+    public static void intentToProfilePictureUploadActivity(Context context, ProfilePictureOption profilePictureType) {
         Intent galleryImageUploadIntent = new Intent(context, ProfilePictureUploadActivity.class);
         galleryImageUploadIntent.putExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, profilePictureType);
         ((Activity) context).startActivityForResult(galleryImageUploadIntent, Default.PROFILE_PIC_UPLOAD_INTENT_REQUEST_CODE);

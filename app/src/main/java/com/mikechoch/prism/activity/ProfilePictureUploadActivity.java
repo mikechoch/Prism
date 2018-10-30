@@ -18,11 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.PictureUpload;
+import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.user_interface.BitmapRotationControllerLayout;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -82,15 +84,15 @@ public class ProfilePictureUploadActivity extends AppCompatActivity {
 
         setupInterfaceElements();
 
-        int intentCode = getIntent().getIntExtra(Default.PROFILE_PICTURE_TYPE_EXTRA, -1);
-        switch (intentCode) {
-            case Default.PROFILE_PICTURE_GALLERY:
+        ProfilePictureOption profilePictureOption = (ProfilePictureOption) getIntent().getSerializableExtra(Default.PROFILE_PICTURE_TYPE_EXTRA);
+        switch (profilePictureOption) {
+            case GALLERY:
                 boolean isGalleryAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (isGalleryAllowed) {
                     IntentHelper.selectImageFromGallery(ProfilePictureUploadActivity.this);
                 }
                 break;
-            case Default.PROFILE_PICTURE_SELFIE:
+            case SELFIE:
                 boolean isCameraAllowed = Helper.permissionRequest(ProfilePictureUploadActivity.this, Manifest.permission.CAMERA);
                 if (isCameraAllowed) {
                     imageUriExtra = IntentHelper.takePictureFromCamera(ProfilePictureUploadActivity.this);

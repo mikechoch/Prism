@@ -80,11 +80,6 @@ public class Default {
     public static final String BOTTOM_NAVIGATION_BAR_DEF_TYPE = "dimen";
     public static final String BOTTOM_NAVIGATION_BAR_DEF_PACKAGE = "android";
 
-    // Profile Picture
-    public static final int PROFILE_PICTURE_GALLERY = 0;
-    public static final int PROFILE_PICTURE_SELFIE = 1;
-    public static final int PROFILE_PICTURE_VIEW = 2;
-
     // ViewPager
     public static final int MAIN_VIEW_PAGER_SIZE = 4;
     public static final int MAIN_VIEW_PAGER_MAIN_FEED = 0;

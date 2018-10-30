@@ -333,18 +333,18 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             profilePictureOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int profilePictureOptionId = profilePictureOption.getId();
+
                     if (moreOptionAlertDialog != null) {
                         moreOptionAlertDialog.dismiss();
                     }
-                    switch(profilePictureOptionId) {
-                        case Default.PROFILE_PICTURE_GALLERY:
-                            IntentHelper.intentToProfilePictureUploadActivity(context, Default.PROFILE_PICTURE_GALLERY);
+                    switch(profilePictureOption) {
+                        case GALLERY:
+                            IntentHelper.intentToProfilePictureUploadActivity(context, profilePictureOption);
                             break;
-                        case Default.PROFILE_PICTURE_SELFIE:
-                            IntentHelper.intentToProfilePictureUploadActivity(context, Default.PROFILE_PICTURE_SELFIE);
+                        case SELFIE:
+                            IntentHelper.intentToProfilePictureUploadActivity(context, profilePictureOption);
                             break;
-                        case Default.PROFILE_PICTURE_VIEW:
+                        case VIEW:
                             IntentHelper.intentToShowUserProfilePictureActivity(context, prismUser, userProfilePicImageView);
                             break;
                         default:
