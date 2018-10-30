@@ -104,7 +104,7 @@ public class SplashActivity extends AppCompatActivity {
 
                     @Override
                     public void onStatusCheckFailed(Exception e) {
-                        Helper.toast(context, Message.MAINTENANCE_CHECK_FAILED);
+                        IntentHelper.intentToUnderMaintenanceActivity(context, Message.DEFAULT_UNDER_MAINTENANCE_MESSAGE);
                     }
                 });
             }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
@@ -83,8 +84,7 @@ public class UploadedRepostedPostsFragment extends Fragment {
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
             noPostsTextView.setTypeface(Default.sourceSansProLight);
-            String noUploadedRepostedPostsString = getResources().getString(R.string.no_uploaded_reposted_posts);
-            noPostsTextView.setText(noUploadedRepostedPostsString);
+            noPostsTextView.setText(Message.NO_UPLOADED_OR_REPOSTED_POSTS);
 
             userUploadedPostsLinearLayout.addView(noPostsView);
         }

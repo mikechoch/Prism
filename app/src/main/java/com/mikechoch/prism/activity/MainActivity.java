@@ -174,8 +174,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * @param uploadIntent - Intent to obtain the PrismPost info to upload with
      */
     private void setupUploadPrismPostToFirebase(Intent uploadIntent) {
-        String uploadingImageString = getResources().getString(R.string.uploading_image);
-        uploadingImageTextView.setText(uploadingImageString);
+        uploadingImageTextView.setText(Message.POST_UPLOAD_UPLOADING_IMAGE);
         imageUploadProgressBar.setProgress(0);
         imageUploadProgressBar.setIndeterminate(false);
         uploadingImageRelativeLayout.setVisibility(View.VISIBLE);
@@ -450,7 +449,8 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
             @Override
             public void onPermissionDenied() {
                 Helper.toast(MainActivity.this, Message.POST_UPLOAD_PERMISSION_DENIED);
-                // TODO Should we logout and take user to LoginActivity?
+                CurrentUser.performSignOut();
+                IntentHelper.resetApplication(MainActivity.this);
             }
 
             @Override
@@ -481,8 +481,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      * @param prismPost
      */
     private void updateLocalRecyclerViewWithNewPost(PrismPost prismPost) {
-        String finishingUploadingImageString = getResources().getString(R.string.finishing_up_uploading_image);
-        uploadingImageTextView.setText(finishingUploadingImageString);
+        uploadingImageTextView.setText(Message.POST_UPLOAD_FINISHING_UP);
         prismPost.setPrismUser(CurrentUser.prismUser);
         RecyclerView mainContentRecyclerView = MainActivity.this.findViewById(R.id.main_content_recycler_view);
         LinearLayoutManager layoutManager  = (LinearLayoutManager) mainContentRecyclerView.getLayoutManager();

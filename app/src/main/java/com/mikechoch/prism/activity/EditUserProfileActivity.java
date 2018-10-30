@@ -505,7 +505,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onIncorrectPassword(Exception e) {
                 togglePasswordAlertDialogAttributes(false);
-                oldPasswordAlertDialogTextInputLayout.setError(Message.INCORRECT_PASSWORD);
+                oldPasswordAlertDialogTextInputLayout.setError(Message.INVALID_PASSWORD);
             }
         });
 
@@ -530,7 +530,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onIncorrectPassword(Exception e) {
                 toggleEmailAlertDialogAttributes(false);
-                passwordAlertDialogTextInputLayout.setError(Message.INCORRECT_PASSWORD);
+                passwordAlertDialogTextInputLayout.setError(Message.INVALID_PASSWORD);
             }
 
             @Override

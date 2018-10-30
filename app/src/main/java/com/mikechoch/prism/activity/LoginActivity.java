@@ -9,7 +9,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -317,7 +316,7 @@ public class LoginActivity extends AppCompatActivity {
                             } catch (FirebaseAuthInvalidUserException noEmailFound) {
                                 emailOrUsernameTextInputLayout.setError(Message.ACCOUNT_NOT_FOUND);
                             } catch (Exception e) {
-                                passwordTextInputLayout.setError(Message.INVALID_CREDENTIALS);
+                                passwordTextInputLayout.setError(Message.INVALID_PASSWORD);
                                 toggleLoginProgressBar(false);
                             }
                         }
