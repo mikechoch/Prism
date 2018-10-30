@@ -1,9 +1,7 @@
 package com.mikechoch.prism.adapter;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -16,9 +14,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.EditUserProfileActivity;
-import com.mikechoch.prism.activity.LoginActivity;
-import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -134,7 +129,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         private TextView settingsOptionTextView;
         private ImageView settingsOptionImageView;
 
-        private Setting setting;
+        private Setting settingType;
 
 
         SettingViewHolder(View itemView) {
@@ -149,7 +144,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
          * Set data for the current SettingViewHolder elements
          */
         public void setData(Setting setting) {
-            this.setting = setting;
+            this.settingType = setting;
             populateInterfaceElements();
         }
 
@@ -166,21 +161,21 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
             settingsOptionRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int settingOptionId = setting.getId();
-                    switch(settingOptionId) {
-                        case Default.SETTINGS_OPTION_APP:
+
+                    switch(settingType) {
+                        case APP:
                             break;
-                        case Default.SETTINGS_OPTION_NOTIFICATION:
+                        case NOTIFICATION:
                             IntentHelper.intentToNotificationSettingsActivity(context);
                             break;
-                        case Default.SETTINGS_OPTION_ACCOUNT:
+                        case ACCOUNT:
                             IntentHelper.intentToEditUserProfileActivity(context);
                             break;
-                        case Default.SETTINGS_OPTION_HELP:
+                        case HELP:
                             break;
-                        case Default.SETTINGS_OPTION_ABOUT:
+                        case ABOUT:
                             break;
-                        case Default.SETTINGS_OPTION_LOGOUT:
+                        case LOGOUT:
                             CurrentUser.performSignOut();
                             IntentHelper.intentToLoginActivity(context);
                             break;
@@ -195,14 +190,14 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
          * Get the Setting enum title and populate the settingsOptionTextView
          */
         private void setupSettingsOptionTextView() {
-            settingsOptionTextView.setText(setting.getTitle());
+            settingsOptionTextView.setText(settingType.getTitle());
         }
 
         /**
          * Get the Setting enum icon and populate the profilePictureOptionImageView
          */
         private void setupSettingsOptionImageView() {
-            Drawable settingsIcon = context.getResources().getDrawable(setting.getIcon());
+            Drawable settingsIcon = context.getResources().getDrawable(settingType.getIcon());
             settingsIcon.setTint(Color.WHITE);
             settingsOptionImageView.setImageDrawable(settingsIcon);
         }

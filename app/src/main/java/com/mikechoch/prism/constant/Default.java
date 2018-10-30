@@ -104,13 +104,6 @@ public class Default {
     public static final int SEARCH_TYPE_VIEW_PAGER_PEOPLE = 0;
     public static final int SEARCH_TYPE_VIEW_PAGER_TAG = 1;
 
-    // Setting
-    public static final int SETTINGS_OPTION_APP = 0;
-    public static final int SETTINGS_OPTION_NOTIFICATION = 1;
-    public static final int SETTINGS_OPTION_ACCOUNT = 2;
-    public static final int SETTINGS_OPTION_HELP = 3;
-    public static final int SETTINGS_OPTION_ABOUT = 4;
-    public static final int SETTINGS_OPTION_LOGOUT = 5;
 
     // More Option
     public static final int MORE_OPTION_REPORT = 0;
@@ -132,6 +125,7 @@ public class Default {
     public static final String ADMIN_CHANNEL_ID = "ADMIN_CHANNEL";
 
     // Button Strings
+    // TODO These can be enums
     public static final String BUTTON_OK = "OK";
     public static final String BUTTON_SAVE = "SAVE";
     public static final String BUTTON_UPDATE = "UPDATE";
