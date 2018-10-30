@@ -230,8 +230,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     //TODO: Log success?
-                    String tagPostCountString = (int) dataSnapshot.getChildrenCount() +
-                            Helper.getSingularOrPluralText("posts", (int) dataSnapshot.getChildrenCount());
+                    String tagPostCountString = Helper.getSingularOrPluralText("post", (int) dataSnapshot.getChildrenCount());
                     tagPostCountTextView.setText(tagPostCountString);
                 }
 

@@ -362,7 +362,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         private void setupRepostActionButton() {
             InterfaceAction.setupRepostActionButton(context, repostButton, isPostReposted);
 
-            String repostString = repostCount + Helper.getSingularOrPluralText(" repost", repostCount);
+            String repostString = Helper.getSingularOrPluralText("repost", repostCount);
             repostsCountTextView.setText(repostString);
 
             repostButton.setOnClickListener(new View.OnClickListener() {
@@ -397,7 +397,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         private void setupLikeActionButton() {
             InterfaceAction.setupLikeActionButton(context, likeHeartAnimationImageView, likeButton, isPostLiked);
 
-            String likeString = likeCount + Helper.getSingularOrPluralText(" like", likeCount);
+            String likeString = Helper.getSingularOrPluralText("like", likeCount);
             likesCountTextView.setText(likeString);
 
             likeButton.setOnClickListener(new View.OnClickListener() {
@@ -457,7 +457,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
             likeCount = performLike ? likeCount + 1 : likeCount - 1;
             prismPost.setLikes(likeCount);
-            String likeString = likeCount + Helper.getSingularOrPluralText(" like", likeCount);
+            String likeString = Helper.getSingularOrPluralText("like", likeCount);
             likesCountTextView.setText(likeString);
         }
 
@@ -489,7 +489,7 @@ public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
             repostCount = prismPost.getReposts() + (performRepost ? 1 : -1);
             prismPost.setReposts(repostCount);
-            String repostString = repostCount + Helper.getSingularOrPluralText(" repost", repostCount);
+            String repostString = Helper.getSingularOrPluralText("repost", repostCount);
             repostsCountTextView.setText(repostString);
         }
 

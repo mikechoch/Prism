@@ -146,7 +146,7 @@ public class Helper {
      *
      */
     public static String getSingularOrPluralText(String string, int count) {
-        return count == 1 ? string : string + "s";
+        return String.valueOf(count) + " " + (count == 1 ? string : string + "s");
     }
 
     /**

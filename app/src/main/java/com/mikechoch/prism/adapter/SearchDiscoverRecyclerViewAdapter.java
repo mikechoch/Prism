@@ -134,12 +134,10 @@ public class SearchDiscoverRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             String countString = "";
             switch (discoveryType) {
                 case LIKE:
-                    countString += fancyDate + " • " + prismPost.getLikes() + " " +
-                            Helper.getSingularOrPluralText("like", prismPost.getLikes());
+                    countString += fancyDate + " • " + Helper.getSingularOrPluralText("like", prismPost.getLikes());
                     break;
                 case REPOST:
-                    countString += fancyDate + " • " + prismPost.getReposts() + " " +
-                            Helper.getSingularOrPluralText("repost", prismPost.getReposts());
+                    countString += fancyDate + " • " + Helper.getSingularOrPluralText("repost", prismPost.getReposts());
                     break;
                 case TAG:
                     countString = fancyDate;

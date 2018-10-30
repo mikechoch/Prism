@@ -1,5 +1,7 @@
 package com.mikechoch.prism.fire;
 
+import android.util.Pair;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -134,15 +136,13 @@ public class DiscoverController {
         onFetchCallback.onSuccess(highestLikedPosts);
     }
 
-    public static ArrayList<String> getRandomHashtags() {
-        return new ArrayList<>(mapOfRandomHashtags.keySet());
+    public static Pair<String, ArrayList<PrismPost>> getRandomTagPair() {
+        String randomTag = (String) mapOfRandomHashtags.keySet().toArray()[0];
+        ArrayList<PrismPost> posts = mapOfRandomHashtags.get(randomTag);
+        mapOfRandomHashtags.remove(randomTag);
+        return new Pair<>(randomTag, posts);
     }
-
-    public static ArrayList<PrismPost> getPrismPostsForHashtag(String hashTag) {
-        return mapOfRandomHashtags.containsKey(hashTag) ?
-                mapOfRandomHashtags.get(hashTag) : new ArrayList<>();
-    }
-
+    
     public static void generateRandomListOfUsers(OnFetchCallback onFetchCallback) {
         ArrayList<Object> randomUsers = new ArrayList<>();
         for (PrismUser prismUser : mapOfPrismUsers.values()) {
