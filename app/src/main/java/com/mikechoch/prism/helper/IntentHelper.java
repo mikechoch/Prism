@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewCompat;
 import android.widget.ImageView;
 
@@ -19,7 +18,6 @@ import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.NoInternetActivity;
 import com.mikechoch.prism.activity.NotificationSettingsActivity;
-import com.mikechoch.prism.activity.PrismPostDescriptionActivity;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
 import com.mikechoch.prism.activity.PrismPostImageEditActivity;
 import com.mikechoch.prism.activity.PrismPostImageSelectionActivity;
@@ -28,7 +26,6 @@ import com.mikechoch.prism.activity.PrismUserProfileActivity;
 import com.mikechoch.prism.activity.ProfilePictureUploadActivity;
 import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.activity.ShowUserProfilePictureActivity;
-import com.mikechoch.prism.activity.SplashActivity;
 import com.mikechoch.prism.activity.UnderMaintenanceActivity;
 import com.mikechoch.prism.activity.UpdateAppRequiredActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
@@ -37,6 +34,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.DisplayUserType;
 import com.mikechoch.prism.type.PictureUpload;
 
 import java.io.File;
@@ -212,14 +210,15 @@ public class IntentHelper {
     /**
      * Handle the intent to a DisplayUsersActivity for likes, reposts, followers, or following
      * @param context - Context of current activity app will intent from
-     * @param id - String title to be shown in toolbar TextView
-     * @param displayUsersCode - int handling which type of users are going to be shown in a list
+     * @param id - PrismPost Id or PrismUser Id
+     * @param displayUserType - enum handling which type of users are going to be shown in a list
      *                         ex. Users who Liked, Reposted, Followed, or are Following
      */
-    public static void intentToDisplayUsersActivity(Context context, String id, int displayUsersCode) {
+    public static void intentToDisplayUsersActivity(Context context, String id, DisplayUserType displayUserType) {
         Intent displayUsersIntent = new Intent(context, DisplayUsersActivity.class);
-        displayUsersIntent.putExtra(Default.USERS_INT_EXTRA, displayUsersCode);
-        displayUsersIntent.putExtra(Default.USERS_DATA_ID_EXTRA, id);
+
+        displayUsersIntent.putExtra(Default.DISPLAY_USERS_TYPE, displayUserType);
+        displayUsersIntent.putExtra(Default.DISPLAY_USERS_ITEM_ID, id);
         context.startActivity(displayUsersIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

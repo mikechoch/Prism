@@ -49,6 +49,7 @@ import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
+import com.mikechoch.prism.type.DisplayUserType;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.ToolbarPullDownLayout;
 import com.mikechoch.prism.user_interface.ZoomControlLinearLayout;
@@ -459,7 +460,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         likesCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), Default.DISPLAY_USERS_LIKE_CODE);
+                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), DisplayUserType.LIKED_USERS);
             }
         });
     }
@@ -526,7 +527,7 @@ public class PrismPostDetailActivity extends AppCompatActivity {
         repostCountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), Default.DISPLAY_USERS_REPOST_CODE);
+                IntentHelper.intentToDisplayUsersActivity(PrismPostDetailActivity.this, prismPost.getPostId(), DisplayUserType.REPOSTED_USERS);
             }
         });
     }

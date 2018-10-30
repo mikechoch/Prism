@@ -22,6 +22,7 @@ import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseRead;
+import com.mikechoch.prism.type.DisplayUserType;
 
 import java.util.ArrayList;
 
@@ -35,8 +36,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
     private DisplayUsersRecyclerViewAdapter displayUsersRecyclerViewAdapter;
 
-    private Intent intent;
-    private int activityCode;
     private String toolbarTitle;
     private ArrayList<PrismUser> prismUserArrayList;
 
@@ -75,8 +74,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
         // getIntent and grab the String to populate the Toolbar title
         // This will be "Likes" or "Reposts"
         // Default being "Error"
-        intent = getIntent();
-        activityCode = intent.getIntExtra(Default.USERS_INT_EXTRA, -1);
 
         setupInterfaceElements();
     }
@@ -93,25 +90,24 @@ public class DisplayUsersActivity extends AppCompatActivity {
      * Setup the toolbar and back button to return to MainActivity
      */
     private void setupDisplayUsersPageType() {
-        String id = intent.getStringExtra(Default.USERS_DATA_ID_EXTRA);
-        switch (activityCode) {
-            case Default.LIKE_USERS: {
-                toolbarTitle = "Like";
+        String id = getIntent().getStringExtra(Default.DISPLAY_USERS_ITEM_ID);
+        DisplayUserType displayUserType = (DisplayUserType) getIntent().getSerializableExtra(Default.DISPLAY_USERS_TYPE);
+        toolbarTitle = displayUserType.getToolbarTitle();
+
+        switch (displayUserType) {
+            case LIKED_USERS: {
                 getLikedUsers(id);
                 break;
             }
-            case Default.REPOST_USERS: {
-                toolbarTitle = "Repost";
+            case REPOSTED_USERS: {
                 getRepostedUsers(id);
                 break;
             }
-            case Default.FOLLOWER_USERS: {
-                toolbarTitle = "Follower";
+            case FOLLOWER_USERS: {
                 getFollowers(id);
                 break;
             }
-            case Default.FOLLOWING_USERS: {
-                toolbarTitle = "Following";
+            case FOLLOWING_USERS: {
                 getFollowings(id);
                 break;
             }

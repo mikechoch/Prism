@@ -43,6 +43,7 @@ import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
+import com.mikechoch.prism.type.DisplayUserType;
 import com.mikechoch.prism.type.ProfilePictureOption;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
@@ -264,7 +265,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(), Default.DISPLAY_USERS_FOLLOWER_CODE);
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(), DisplayUserType.FOLLOWER_USERS);
             }
         });
 
@@ -272,7 +273,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followingRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(),Default.DISPLAY_USERS_FOLLOWING_CODE);
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(),DisplayUserType.FOLLOWING_USERS);
             }
         });
     }

@@ -35,8 +35,8 @@ public class Default {
     public static int screenHeight;
     public static int screenWidth;
 
-    public static String sourceSansProLightPath = "fonts/SourceSansPro-Light.ttf";
-    public static String sourceSansProBoldPath = "fonts/SourceSansPro-Black.ttf";
+    private static String sourceSansProLightPath = "fonts/SourceSansPro-Light.ttf";
+    private static String sourceSansProBoldPath = "fonts/SourceSansPro-Black.ttf";
     public static Typeface sourceSansProLight;
     public static Typeface sourceSansProBold;
 
@@ -53,13 +53,6 @@ public class Default {
     // Login Result Request Codes
     public static final int SIGN_IN_WITH_GOOGLE_REQUEST_CODE = 300;
 
-    // Display Users
-    // TODO Can these be enums?
-    public static final int DISPLAY_USERS_LIKE_CODE = 0;
-    public static final int DISPLAY_USERS_REPOST_CODE = 1;
-    public static final int DISPLAY_USERS_FOLLOWER_CODE = 2;
-    public static final int DISPLAY_USERS_FOLLOWING_CODE = 3;
-
     public static final int IMAGE_LOAD_THRESHOLD = 3;
     public static final int IMAGE_LOAD_COUNT = 10;
 
@@ -71,8 +64,8 @@ public class Default {
     public static final String PRISM_POST_DETAIL_TRANSITION_NAME_EXTRA = "PrismPostDetailTransitionName";
     public static final String PRISM_USER_PROFILE_PICTURE_TRANSITION_NAME_EXTRA = "PrismUserProfilePictureTransitionName";
     public static final String PRISM_USER_EXTRA = "PrismUser";
-    public static final String USERS_INT_EXTRA = "UsersInt";
-    public static final String USERS_DATA_ID_EXTRA = "UsersDataId";
+    public static final String DISPLAY_USERS_TYPE = "UsersType";
+    public static final String DISPLAY_USERS_ITEM_ID = "PostOrUserId";
     public static final String IMAGE_URI_EXTRA = "ImageUri";
     public static final String IMAGE_DESCRIPTION_EXTRA = "ImageDescription";
     public static final String CROPPED_PROFILE_PICTURE_EXTRA = "CroppedProfilePicture";
@@ -148,13 +141,6 @@ public class Default {
     public static final String BUTTON_REPOST = "REPOST";
     public static final String BUTTON_UNFOLLOW = "UNFOLLOW";
     public static final String BUTTON_REPORT = "REPORT";
-
-    // Display Users
-    // TODO Can these be an enum instead of global static ints?
-    public static final int LIKE_USERS = 0;
-    public static final int REPOST_USERS = 1;
-    public static final int FOLLOWER_USERS = 2;
-    public static final int FOLLOWING_USERS = 3;
 
     // Log Message Tags
     public static final String TAG_DB = "FirebaseDatabase";
