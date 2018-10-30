@@ -1,7 +1,6 @@
 package com.mikechoch.prism.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,6 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +22,6 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.SearchActivity;
 import com.mikechoch.prism.adapter.SearchDiscoverRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
@@ -42,10 +41,10 @@ public class SearchFragment extends Fragment {
     private CardView searchCardView;
     private TextView searchBarHintTextView;
 
-    private static HashMap<Discovery, SearchDiscoverRecyclerViewAdapter> discoveryHorizontalRecyclerViewAdapterHashMap;
-    private static HashMap<Discovery, LinearLayout> discoveryLinearLayoutHashMap;
+    private static HashMap<String, SearchDiscoverRecyclerViewAdapter> discoveryHorizontalRecyclerViewAdapterHashMap;
+    private static HashMap<String, LinearLayout> discoveryLinearLayoutHashMap;
 
-    private static HashMap<Discovery, OnFetchCallback> discoveryOnFetchListenerHashMap;
+    private static HashMap<String, OnFetchCallback> discoveryOnFetchListenerHashMap;
 
     private static ArrayList<Object> prismUsers;
     private static ArrayList<Object> likedPrismPosts;
@@ -98,7 +97,7 @@ public class SearchFragment extends Fragment {
         DiscoverController.setupDiscoverContent(new OnInitializeDiscoveryCallback() {
             @Override
             public void onSuccess() {
-                for (Discovery discovery : Discovery.values()) {
+                for (Discovery discovery : Discovery.getDiscoveryLayoutItems()) {
                     addDiscoveryRecyclerView(getActivity(), discovery);
                 }
             }
@@ -120,36 +119,30 @@ public class SearchFragment extends Fragment {
         switch (discovery) {
             case LIKE:
                 OnFetchCallback likedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, likedPrismPosts);
-                discoveryOnFetchListenerHashMap.put(discovery, likedPrismPostOnFetchCallback);
+                discoveryOnFetchListenerHashMap.put(discovery.getTitle(), likedPrismPostOnFetchCallback);
                 DiscoverController.generateHighestLikedPosts(likedPrismPostOnFetchCallback);
                 break;
             case USER:
                 OnFetchCallback prismUsersOnFetchCallback = updateDiscoveryItem(context, discovery, prismUsers);
-                discoveryOnFetchListenerHashMap.put(discovery, prismUsersOnFetchCallback);
+                discoveryOnFetchListenerHashMap.put(discovery.getTitle(), prismUsersOnFetchCallback);
                 prismUsersOnFetchCallback.onSuccess(new ArrayList<>());
                 DiscoverController.generateRandomListOfUsers(prismUsersOnFetchCallback);
-
-                searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;
             case REPOST:
                 OnFetchCallback repostedPrismPostOnFetchCallback = updateDiscoveryItem(context, discovery, repostedPrismPosts);
-                discoveryOnFetchListenerHashMap.put(discovery, repostedPrismPostOnFetchCallback);
+                discoveryOnFetchListenerHashMap.put(discovery.getTitle(), repostedPrismPostOnFetchCallback);
                 repostedPrismPostOnFetchCallback.onSuccess(new ArrayList<>());
                 DiscoverController.generateHighestRepostedPosts(repostedPrismPostOnFetchCallback);
                 break;
             case TAG:
-                // TODO implement UI for displaying 2 hashtags here - reference code below
+                Pair<String, ArrayList<PrismPost>> tagPair = DiscoverController.getRandomTagPair();
+                discovery.setTitle(tagPair.first);
+                prismTags = new ArrayList<>(tagPair.second);
                 OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
-                ArrayList<String> hashtags = DiscoverController.getRandomHashtags();
-                for (String hashTag : hashtags) {
-                    ArrayList<PrismPost> prismPostsForHashtag = DiscoverController.getPrismPostsForHashtag(hashTag);
-                }
-//                discovery.setTitle(DiscoverController.randomTag);
-//                OnFetchCallback tagsOnFetchCallback = updateDiscoveryItem(context, discovery, prismTags);
-//                discoveryOnFetchListenerHashMap.put(discovery, tagsOnFetchCallback);
-//                DiscoverController.generateRandomPostsForHashTag(tagsOnFetchCallback);
-//
-//                searchLinearLayout.addView(addGoogleAdCardView(context));
+                discoveryOnFetchListenerHashMap.put(discovery.getTitle(), tagsOnFetchCallback);
+                break;
+            case AD:
+                searchLinearLayout.addView(addGoogleAdCardView(context));
                 break;
         }
     }
@@ -225,7 +218,7 @@ public class SearchFragment extends Fragment {
      * @return - OnFetchCallback to handle on success of Firebase/Async calls
      */
     private OnFetchCallback updateDiscoveryItem(Context context, Discovery discovery, ArrayList<Object> arrayList) {
-        if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery)) {
+        if (!discoveryHorizontalRecyclerViewAdapterHashMap.containsKey(discovery.getTitle())) {
             LinearLayout propertyRecyclerViewLinearLayout = createDiscoveryRecyclerView(context, discovery, arrayList);
             searchLinearLayout.addView(propertyRecyclerViewLinearLayout);
         }
@@ -235,9 +228,9 @@ public class SearchFragment extends Fragment {
             public void onSuccess(ArrayList<Object> fetchResults) {
                 arrayList.clear();
                 arrayList.addAll(fetchResults);
-                discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery).notifyDataSetChanged();
+                discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery.getTitle()).notifyDataSetChanged();
                 int linearLayoutScrollViewVisibility = arrayList.size() > 0 ? View.VISIBLE : View.GONE;
-                discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
+                discoveryLinearLayoutHashMap.get(discovery.getTitle()).setVisibility(linearLayoutScrollViewVisibility);
 //                if (FirebaseAction.loadingCount == 0) {
 //                    searchBarProgressBar.setVisibility(View.GONE);
 //                }
@@ -297,8 +290,8 @@ public class SearchFragment extends Fragment {
 
         SearchDiscoverRecyclerViewAdapter searchDiscoverRecyclerViewAdapter = new SearchDiscoverRecyclerViewAdapter(context, arrayList, discovery);
         prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
-        discoveryHorizontalRecyclerViewAdapterHashMap.put(discovery, searchDiscoverRecyclerViewAdapter);
-        discoveryLinearLayoutHashMap.put(discovery, discoveryRecyclerViewLinearLayout);
+        discoveryHorizontalRecyclerViewAdapterHashMap.put(discovery.getTitle(), searchDiscoverRecyclerViewAdapter);
+        discoveryLinearLayoutHashMap.put(discovery.getTitle(), discoveryRecyclerViewLinearLayout);
         prismPostDiscoveryRecyclerView.setAdapter(searchDiscoverRecyclerViewAdapter);
 
         return discoveryRecyclerViewLinearLayout;
@@ -309,12 +302,12 @@ public class SearchFragment extends Fragment {
      * notifyDataSetChanged on
      */
     public static void refreshDiscoveryAdapters() {
-        for (Discovery discovery : Discovery.values()) {
-            SearchDiscoverRecyclerViewAdapter adapter = discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery);
-            if (adapter != null) {
+        for (Discovery discovery : Discovery.getDiscoveryLayoutItems()) {
+            SearchDiscoverRecyclerViewAdapter adapter = discoveryHorizontalRecyclerViewAdapterHashMap.get(discovery.getTitle());
+            if (adapter != null && !discovery.equals(Discovery.AD)) {
                 adapter.notifyDataSetChanged();
                 int linearLayoutScrollViewVisibility = adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE;
-                discoveryLinearLayoutHashMap.get(discovery).setVisibility(linearLayoutScrollViewVisibility);
+                discoveryLinearLayoutHashMap.get(discovery.getTitle()).setVisibility(linearLayoutScrollViewVisibility);
             }
         }
     }
