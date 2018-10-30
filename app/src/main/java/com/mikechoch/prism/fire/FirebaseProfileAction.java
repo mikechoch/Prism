@@ -121,7 +121,7 @@ public class FirebaseProfileAction {
                     FirebaseUser user = auth.getCurrentUser();
                     callback.onSuccess(user);
                 } else {
-                    Log.e(Default.TAG_DB, Message.USER_ACCOUNT_CREATION_FAIL);
+
                     try {
                         throw task.getException();
                     } catch (FirebaseAuthWeakPasswordException weakPassword) {

@@ -431,11 +431,11 @@ public class DatabaseAction {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Helper.toast(context, "Thank you for reporting this post");
-                    Log.d(Default.TAG_DB, Message.POST_REPORTED_SUCCESS);
+                    Log.d(Default.TAG_DB, Message.POST_REPORT_SUCCESS);
                     Log.e(Default.TAG_DB, prismPost.getUid());
                 } else {
                     Helper.toast(context, "Unable to report post, please try again later");
-                    Log.e(Default.TAG_DB, Message.POST_REPORTED_FAIL, task.getException());
+                    Log.e(Default.TAG_DB, Message.POST_REPORT_FAIL, task.getException());
                 }
             }
         });

@@ -162,7 +162,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
                 Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
@@ -189,7 +188,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
                 Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
@@ -215,7 +213,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
                 Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
@@ -241,7 +238,6 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
                 Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }

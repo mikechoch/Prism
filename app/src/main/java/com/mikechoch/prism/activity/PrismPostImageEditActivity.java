@@ -317,12 +317,10 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                     userRef.setValue(downloadUrl.toString()).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.wtf(Default.TAG_DB, Message.PROFILE_PIC_UPDATE_FAIL, task.getException());
                             Helper.toast(context, "Unable to update profile picture");
                         }
                     });
                 } else {
-                    Log.e(Default.TAG_DB, Message.FILE_UPLOAD_FAIL, task.getException());
                     Helper.toast(context, "Unable to update profile picture");
                 }
             }

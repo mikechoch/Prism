@@ -16,22 +16,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
-import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseRead;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
@@ -166,7 +158,7 @@ public class MainFeedFragment extends Fragment {
 
             @Override
             public void onPrismPostsNotFound() {
-                Log.i(Default.TAG_DB, Message.NO_DATA);
+                Log.i(Default.TAG_DB, Message.FETCH_LATEST_POSTS_FAIL);
                 noMainFeedRelativeLayout.setVisibility(View.VISIBLE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
                 mainFeedProgressBar.setVisibility(View.GONE);
@@ -201,7 +193,7 @@ public class MainFeedFragment extends Fragment {
 
             @Override
             public void onPrismPostsNotFound() {
-                Log.i(Default.TAG_DB, Message.NO_DATA);
+                Log.i(Default.TAG_DB, Message.FETCH_LATEST_POSTS_FAIL);
             }
 
             @Override

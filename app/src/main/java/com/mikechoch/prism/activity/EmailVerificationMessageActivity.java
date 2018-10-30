@@ -85,14 +85,14 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
             public void onSuccess() {
                 resendEmailButton.setVisibility(View.GONE);
                 RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
-                Snackbar.make(view, Message.SEND_VERIFICATION_EMAIL_SENT, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, Message.VERIFICATION_EMAIL_SENT, Snackbar.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Exception e) {
                 e.printStackTrace();
                 RelativeLayout view = findViewById(R.id.email_verification_relative_layout);
-                Snackbar.make(view, Message.SEND_VERIFICATION_EMAIL_FAIL, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, Message.VERIFICATION_EMAIL_FAIL, Snackbar.LENGTH_LONG).show();
             }
         });
     }
