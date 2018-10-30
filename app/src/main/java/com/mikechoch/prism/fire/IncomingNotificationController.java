@@ -117,7 +117,7 @@ public class IncomingNotificationController {
      */
     private static void refreshNotificationRecyclerViewAdapter(Context context) {
         RecyclerView notificationRecyclerView = ((Activity) context).findViewById(R.id.notification_recycler_view);
-        if (notificationRecyclerView != null) {
+        if (notificationRecyclerView != null && notificationRecyclerView.getAdapter() != null) {
             Collections.sort(CurrentUser.getNotifications());
             notificationRecyclerView.getAdapter().notifyDataSetChanged();
         }
@@ -161,7 +161,9 @@ public class IncomingNotificationController {
                         }
                     }
 
-                    @Override public void onCancelled(DatabaseError databaseError) { }
+                    @Override public void onCancelled(DatabaseError databaseError) {
+
+                    }
                 });
                 break;
             case FOLLOW:
@@ -191,7 +193,9 @@ public class IncomingNotificationController {
                 updateNotificationsList(context, isNewNotification, notificationId, notification, refreshAdapter);
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
+            @Override public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
     }
 

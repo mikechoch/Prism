@@ -101,10 +101,8 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
      *
      */
     private void setupTextViews() {
-        String emailVerificationMessageString = "Thank you for registering. We have sent you a " +
-                "verification link to your email at " + CurrentUser.getFirebaseUser().getEmail() +
-                ". Once you verify your account, you can start exploring and sharing your artwork.";
-        messageTextView.setText(emailVerificationMessageString);
+        messageTextView.setText(Message.verification_email_long_message
+                (CurrentUser.getFirebaseUser().getEmail()));
     }
 
     /**
@@ -117,7 +115,7 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
                 Helper.toast(EmailVerificationMessageActivity.this, "Checking...");
                 CurrentUser.getFirebaseUser().reload();
                 if (CurrentUser.getFirebaseUser().isEmailVerified()) {
-                    Snackbar.make(emailVerificationMessageConstraintLayout, "Email successfully verified", Snackbar.LENGTH_SHORT);
+                    Snackbar.make(emailVerificationMessageConstraintLayout, Message.EMAIL_VERIFICATION_SUCCESS, Snackbar.LENGTH_SHORT);
                     IntentHelper.intentToMainActivity(EmailVerificationMessageActivity.this, true);
                 }
                 handler.postDelayed(this, 1500);

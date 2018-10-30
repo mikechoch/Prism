@@ -17,7 +17,6 @@ import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
@@ -416,7 +415,7 @@ public class DatabaseRead {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(Default.TAG_DB, databaseError.getMessage(), databaseError.toException());
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }
@@ -471,8 +470,7 @@ public class DatabaseRead {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(Default.TAG_DB, Message.FETCH_POST_INFO_FAIL, databaseError.toException());
-                callback.onFailure();
+                callback.onFailure(databaseError.toException());
             }
         });
     }

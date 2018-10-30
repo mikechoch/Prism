@@ -15,6 +15,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
@@ -279,7 +280,7 @@ public class CurrentUser {
                 }
 
                 @Override
-                public void onFailure() { }
+                public void onFailure(Exception e) { }
             });
         }
     }

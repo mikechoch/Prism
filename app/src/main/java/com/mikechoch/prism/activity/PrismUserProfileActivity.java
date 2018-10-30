@@ -36,6 +36,7 @@ import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -162,7 +163,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onUserNotFound() {
-
+                Helper.toast(PrismUserProfileActivity.this, Message.USER_NOT_FOUND);
             }
 
             @Override
@@ -235,8 +236,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Exception e) {
-                // TODO Log this
-                e.printStackTrace();
+                Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_REPOSTS_FAIL);
             }
         });
     }

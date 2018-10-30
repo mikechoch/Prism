@@ -18,6 +18,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -188,14 +189,13 @@ public class PrismTagActivity extends AppCompatActivity {
 
             @Override
             public void onPrismPostsNotFound() {
-                // TODO Log this
+                Helper.toast(PrismTagActivity.this, Message.PRISM_POST_NOT_FOUND);
                 tagSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Exception e) {
-                // TODO log this
-                e.printStackTrace();
+                Helper.toast(PrismTagActivity.this, Message.FETCH_POST_INFO_FAIL);
                 tagSwipeRefreshLayout.setRefreshing(false);
             }
         });

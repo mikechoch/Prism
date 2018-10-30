@@ -762,8 +762,8 @@ public class PrismPostDetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 InterfaceAction.startMoreActionButtonAnimation(moreActionButton);
 
-                boolean isCurrentUserThePostCreator = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
-                AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(PrismPostDetailActivity.this, prismPost, isCurrentUserThePostCreator);
+                boolean isCurrentUserPostAuthor = Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
+                AlertDialog morePrismPostAlertDialog = InterfaceAction.createMorePrismPostAlertDialog(PrismPostDetailActivity.this, prismPost, isCurrentUserPostAuthor);
                 morePrismPostAlertDialog.show();
             }
         });

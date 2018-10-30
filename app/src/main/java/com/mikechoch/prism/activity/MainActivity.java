@@ -449,7 +449,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
             @Override
             public void onPermissionDenied() {
-                Helper.toast(MainActivity.this, Message.POST_UPDATE_PERMISSION_DENIED);
+                Helper.toast(MainActivity.this, Message.POST_UPLOAD_PERMISSION_DENIED);
                 // TODO Should we logout and take user to LoginActivity?
             }
 

@@ -27,6 +27,7 @@ import com.mikechoch.prism.adapter.SearchTypeViewPagerAdapter;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.fragment.PeopleSearchFragment;
 import com.mikechoch.prism.fragment.TagSearchFragment;
@@ -142,11 +143,7 @@ public class SearchActivity  extends AppCompatActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    /**
-     * TODO
-     * THIS IS EXTREMELY INEFFICIENT BUT IT'S OK TO DO IT UNTIL
-     * WE HAVE A LOT OF USERS
-     */
+
     private void populateUsersCollection() {
         DatabaseRead.fetchAllUsers(new OnFetchPrismUsersCallback() {
             @Override
@@ -156,12 +153,12 @@ public class SearchActivity  extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-
+                Helper.toast(SearchActivity.this, Message.FETCH_USERS_FAIL);
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                Helper.toast(SearchActivity.this, Message.FETCH_USERS_FAIL);
             }
         });
     }

@@ -15,25 +15,13 @@ public class UserPreference {
         this.allowFollowPushNotification = allowFollowPushNotification;
     }
 
-//    public boolean doesAllowLikePushNotification() {
-//        return allowLikePushNotification;
-//    }
-
     private void setAllowLikePushNotification(boolean allowLikePushNotification) {
         this.allowLikePushNotification = allowLikePushNotification;
     }
 
-//    public boolean doesAllowRepostPushNotification() {
-//        return allowRepostPushNotification;
-//    }
-
     private void setAllowRepostPushNotification(boolean allowRepostPushNotification) {
         this.allowRepostPushNotification = allowRepostPushNotification;
     }
-
-//    public boolean doesAllowFollowPushNotification() {
-//        return allowFollowPushNotification;
-//    }
 
     private void setAllowFollowPushNotification(boolean allowFollowPushNotification) {
         this.allowFollowPushNotification = allowFollowPushNotification;
@@ -51,7 +39,6 @@ public class UserPreference {
         }
         return true;
     }
-
 
     public void setPushNotificationPreference(NotificationType type, boolean allowPushNotification) {
         switch (type) {
