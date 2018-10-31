@@ -14,12 +14,12 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.DisplayUsersActivity;
 import com.mikechoch.prism.activity.EditUserProfileActivity;
 import com.mikechoch.prism.activity.EmailVerificationMessageActivity;
+import com.mikechoch.prism.activity.ImageEditActivity;
 import com.mikechoch.prism.activity.LoginActivity;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.NoInternetActivity;
 import com.mikechoch.prism.activity.NotificationSettingsActivity;
 import com.mikechoch.prism.activity.PrismPostDetailActivity;
-import com.mikechoch.prism.activity.PrismPostImageEditActivity;
 import com.mikechoch.prism.activity.PrismPostImageSelectionActivity;
 import com.mikechoch.prism.activity.PrismTagActivity;
 import com.mikechoch.prism.activity.PrismUserProfileActivity;
@@ -31,7 +31,6 @@ import com.mikechoch.prism.activity.UpdateAppRequiredActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
-import com.mikechoch.prism.attribute.ProfilePicture;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -165,7 +164,7 @@ public class IntentHelper {
      *                      ex. PrismPost or ProfilePicture
      */
     public static void intentToUploadImageEditActivity(Context context, String resultUri, PictureUpload pictureUpload) {
-        Intent uploadImageEditIntent = new Intent(context, PrismPostImageEditActivity.class);
+        Intent uploadImageEditIntent = new Intent(context, ImageEditActivity.class);
         uploadImageEditIntent.putExtra(Default.UPLOAD_IMAGE_SELECTION_URI_EXTRA, resultUri);
         uploadImageEditIntent.putExtra(Default.UPLOAD_IMAGE_SELECTION_TYPE_EXTRA, pictureUpload);
         context.startActivity(uploadImageEditIntent);

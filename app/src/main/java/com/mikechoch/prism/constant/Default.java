@@ -53,8 +53,8 @@ public class Default {
     // Login Result Request Codes
     public static final int SIGN_IN_WITH_GOOGLE_REQUEST_CODE = 300;
 
-    public static final int IMAGE_LOAD_THRESHOLD = 3;
-    public static final int IMAGE_LOAD_COUNT = 10;
+    public static final int IMAGE_LOAD_THRESHOLD = 5;
+    public static final int IMAGE_LOAD_COUNT = 15;
 
     // Extra Strings
     public static final String USERNAME_REGISTRATION_EXTRA = "UsernameRegistration";

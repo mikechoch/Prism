@@ -1,6 +1,8 @@
 package com.mikechoch.prism.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -50,6 +52,7 @@ import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
 import com.mikechoch.prism.fragment.MainFeedFragment;
 import com.mikechoch.prism.fragment.NotificationFragment;
+import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 import com.mikechoch.prism.type.MainViewPagerTab;
@@ -556,5 +559,39 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                 .setTypeface(Default.sourceSansProBold);
         networkSnackBar.show();
         Helper.disableSnackBarSwipeDismiss(networkSnackBar.getView());
+    }
+
+    /**
+     * This method should stay in MainActivity and only be called with Context from MainActivity
+     * This will refresh the CurrentUser data in the name TextView and
+     * user profile picture ImageView for ProfileFragment
+     * @param context - Context from MainActivity
+     */
+    public static void updateProfileFragmentInterface(Context context) {
+        ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
+        TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
+
+        if (userProfileTextView != null && userProfileImageView != null) {
+            userProfileTextView.setText(CurrentUser.prismUser.getFullName());
+            Glide.with(context)
+                    .asBitmap()
+                    .thumbnail(0.05f)
+                    .load(CurrentUser.prismUser.getProfilePicture().getLowResProfilePicUri())
+                    .apply(new RequestOptions().fitCenter())
+                    .into(new BitmapImageViewTarget(userProfileImageView) {
+                        @Override
+                        protected void setResource(Bitmap resource) {
+                            int imageViewPadding = (int) (1 * Default.scale);
+                            RoundedBitmapDrawable profilePictureDrawable =
+                                    BitmapHelper.createCircularProfilePicture(
+                                            context,
+                                            userProfileImageView,
+                                            CurrentUser.prismUser.getProfilePicture().isDefault(),
+                                            resource,
+                                            imageViewPadding);
+                            userProfileImageView.setImageDrawable(profilePictureDrawable);
+                        }
+                    });
+        }
     }
 }

@@ -49,7 +49,7 @@ import java.util.ArrayList;
 
 public class PrismPostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private int RECYCLER_VIEW_AD_THRESHOLD = 5;
+    private int RECYCLER_VIEW_AD_THRESHOLD = 8;
     private final int PRISM_POST_VIEW_TYPE = 0;
     private final int GOOGLE_AD_VIEW_TYPE = 1;
 

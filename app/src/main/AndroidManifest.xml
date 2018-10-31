@@ -49,7 +49,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.PrismPostImageEditActivity"
+            android:name=".activity.ImageEditActivity"
             android:screenOrientation="portrait" />
 
         <activity

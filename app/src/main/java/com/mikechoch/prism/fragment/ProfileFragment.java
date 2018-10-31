@@ -80,7 +80,7 @@ public class ProfileFragment extends Fragment {
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (getActivity() != null) {
+                        if (getActivity() != null && CurrentUser.prismUser != null) {
                             int imageViewPadding = (int) (1 * Default.scale);
                             RoundedBitmapDrawable profilePictureDrawable =
                                     BitmapHelper.createCircularProfilePicture(

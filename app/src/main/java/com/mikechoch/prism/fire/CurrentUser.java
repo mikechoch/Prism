@@ -358,36 +358,6 @@ public class CurrentUser {
     }
 
     /**
-     * TODO @Mike: Can we we put this function inside InterfaceAction?
-     */
-    private static void updateUserProfileFragmentUI(Context context) {
-        ImageView userProfileImageView = ((Activity) context).findViewById(R.id.profile_fragment_user_profile_image_view);
-        TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
-
-        // TODO: Crash on full name using tablet
-        userProfileTextView.setText(prismUser.getFullName());
-        Glide.with(context)
-                .asBitmap()
-                .thumbnail(0.05f)
-                .load(prismUser.getProfilePicture().getLowResProfilePicUri())
-                .apply(new RequestOptions().fitCenter())
-                .into(new BitmapImageViewTarget(userProfileImageView) {
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        int imageViewPadding = (int) (1 * Default.scale);
-                        RoundedBitmapDrawable profilePictureDrawable =
-                                BitmapHelper.createCircularProfilePicture(
-                                        context,
-                                        userProfileImageView,
-                                        prismUser.getProfilePicture().isDefault(),
-                                        resource,
-                                        imageViewPadding);
-                        userProfileImageView.setImageDrawable(profilePictureDrawable);
-                    }
-                });
-    }
-
-    /**
      *
      * @param context
      * @param intent
@@ -400,7 +370,7 @@ public class CurrentUser {
         if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
             //TODO: We need to call notify data set changed here
 //            MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-            updateUserProfileFragmentUI(context);
+            MainActivity.updateProfileFragmentInterface(context);
 
         } else {
             Intent[] intents;

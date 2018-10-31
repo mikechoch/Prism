@@ -52,7 +52,7 @@ import java.io.Serializable;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
 
-public class PrismPostImageEditActivity extends AppCompatActivity {
+public class ImageEditActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TextView nextButton;
@@ -95,7 +95,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         setContentView(R.layout.prism_post_image_edit_activity_layout);
 
         imageUriExtra = Uri.parse(getIntent().getStringExtra(Default.UPLOAD_IMAGE_SELECTION_URI_EXTRA));
-        outputBitmap = BitmapHelper.updateOutputBitmap(PrismPostImageEditActivity.this, imageUriExtra);
+        outputBitmap = BitmapHelper.updateOutputBitmap(ImageEditActivity.this, imageUriExtra);
         pictureUpload = (PictureUpload) getIntent().getSerializableExtra(Default.UPLOAD_IMAGE_SELECTION_TYPE_EXTRA);
 
         toolbar = findViewById(R.id.prism_post_image_edit_toolbar);
@@ -180,7 +180,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
     }
 
     /**
-     * Setup next button in PrismPostImageEditActivity so that it executes an AsyncTask
+     * Setup next button in ImageEditActivity so that it executes an AsyncTask
      * This will grab the current edits and save the current image
      * Then pass the filename through to PrismPostDescriptionActivity
      */
@@ -200,20 +200,20 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
                         FileInputStream fileInputStream = null;
                         switch (pictureUpload) {
                             case PRISM_POST:
-                                uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, PrismPostDescriptionActivity.class);
+                                uploadIntents[0] = new Intent(ImageEditActivity.this, PrismPostDescriptionActivity.class);
                                 uploadIntents[0].putExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA, filename);
                                 break;
                             case PROFILE_PICTURE:
-                                uploadIntents[0] = new Intent(PrismPostImageEditActivity.this, MainActivity.class);
+                                uploadIntents[0] = new Intent(ImageEditActivity.this, MainActivity.class);
                                 uploadIntents[0].setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 uploadIntents[0].putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, filename);
-                                uploadIntents[1] = new Intent(PrismPostImageEditActivity.this, PrismUserProfileActivity.class);
+                                uploadIntents[1] = new Intent(ImageEditActivity.this, PrismUserProfileActivity.class);
                                 uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, (Serializable) CurrentUser.prismUser);
                                 fileInputStream = openFileInput(uploadIntents[0].getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
                                 break;
                         }
 
-                        new PrismPostImageTask().execute(PrismPostImageEditActivity.this,
+                        new ImageTask().execute(ImageEditActivity.this,
                                 outputBitmap,
                                 bitmapEditingControllerLayout,
                                 filename,
@@ -232,7 +232,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
         });
     }
 
-    private static class PrismPostImageTask extends AsyncTask<Object, Object[], Object[]> {
+    private static class ImageTask extends AsyncTask<Object, Object[], Object[]> {
 
         @Override
         protected void onPreExecute() {
@@ -305,6 +305,7 @@ public class PrismPostImageEditActivity extends AppCompatActivity {
      * successfully uploaded to cloud successfully, it adds the profilePicUri to
      * the firebaseUser's profile details section
      * TODO put this in DatabaseAction
+     * TODO call CurrentUser update here so that app has correct CurrentUser info populated
      */
     private static void uploadProfilePictureToCloud(Context context, Uri profilePictureUri) {
         StorageReference profilePicRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePictureUri.getLastPathSegment());
