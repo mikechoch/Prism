@@ -25,9 +25,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.AuthenticationController;
+import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.callback.fetch.OnFetchEmailForUsernameCallback;
 import com.mikechoch.prism.callback.action.OnSendResetPasswordEmailCallback;
@@ -304,7 +306,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             if (task.getResult().getUser().isEmailVerified()) {
-                                IntentHelper.intentToMainActivity(LoginActivity.this, true);
+                                CurrentUser.prepareApp(LoginActivity.this);
                             } else {
                                 IntentHelper.intentToEmailVerificationActivity(LoginActivity.this, true);
                             }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -33,6 +34,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.type.DisplayUserType;
 import com.mikechoch.prism.type.PictureUpload;
@@ -97,14 +99,12 @@ public class IntentHelper {
     /**
      * Travel to the main activity of the application
      * @param context - Context of current activity app will intent from
-     * @param shouldClearBackStack - boolean to handle clearing the back stack after intent
      */
-    public static void intentToMainActivity(Context context, boolean shouldClearBackStack) {
+    public static void intentToMainActivity(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        if (shouldClearBackStack) {
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        }
-        CurrentUser.prepareAppForUser(context, intent);
+        context.startActivity(intent);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        ((Activity) context).finish();
     }
 
     /**
@@ -337,5 +337,33 @@ public class IntentHelper {
         Intent appStoreIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(prismAppStoreUrl));
         context.startActivity(appStoreIntent);
         ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    private static Intent prepareNotificationIntent(Context context) {
+        Bundle extras = ((Activity) context).getIntent().getExtras();
+        if (extras == null) {
+            return null;
+        }
+        Intent intent = null;
+        String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
+        String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
+
+        if (prismPostId != null) {
+            intent = new Intent(context, PrismPostDetailActivity.class);
+            intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
+        } else if (prismUserId != null) {
+            intent = new Intent(context, PrismUserProfileActivity.class);
+            intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
+        }
+        return intent;
+    }
+
+    public static void intentToNotification(Context context) {
+        Intent notificationIntent = prepareNotificationIntent(context);
+        Intent mainIntent = new Intent(context, MainActivity.class);
+        Intent[] intents = new Intent[]{mainIntent, notificationIntent};
+        context.startActivities(intents);
+        ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        ((Activity) context).finish();
     }
 }

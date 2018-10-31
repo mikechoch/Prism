@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -133,7 +134,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess() {
                                 SHOULD_SIGN_OUT = Boolean.FALSE;
-                                IntentHelper.intentToMainActivity(UsernameRegistrationActivity.this, true);
+                                CurrentUser.prepareApp(UsernameRegistrationActivity.this);
                             }
                         });
                     }

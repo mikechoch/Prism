@@ -17,7 +17,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +31,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.change.OnChangeProfilePicCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.helper.BitmapHelper;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.Edit;
@@ -287,45 +288,34 @@ public class ImageEditActivity extends AppCompatActivity {
                 case PROFILE_PICTURE:
                     Bitmap bitmap = BitmapFactory.decodeStream(fileInputStream);
                     Uri profilePictureUri = BitmapHelper.getImageUri(context, bitmap);
-                    uploadProfilePictureToCloud(context, profilePictureUri);
-                    context.startActivities(uploadIntents);
-                    break;
-            }
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
-            isSavingImage = false;
-            nextButton.setVisibility(View.VISIBLE);
-            nextButtonProgressBar.setVisibility(View.GONE);
-        }
-
-    }
-
-    /**
-     * Takes the profilePicUri and stores the image to cloud. Once the image file is
-     * successfully uploaded to cloud successfully, it adds the profilePicUri to
-     * the firebaseUser's profile details section
-     * TODO put this in DatabaseAction
-     * TODO call CurrentUser update here so that app has correct CurrentUser info populated
-     */
-    private static void uploadProfilePictureToCloud(Context context, Uri profilePictureUri) {
-        StorageReference profilePicRef = Default.STORAGE_REFERENCE.child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePictureUri.getLastPathSegment());
-        profilePicRef.putFile(profilePictureUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUrl = task.getResult().getDownloadUrl();
-                    DatabaseReference userRef = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
-                    userRef.setValue(downloadUrl.toString()).addOnFailureListener(new OnFailureListener() {
+                    FirebaseProfileAction.changeProfilePicture(profilePictureUri, new OnChangeProfilePicCallback() {
                         @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Helper.toast(context, "Unable to update profile picture");
+                        public void onSuccess() {
+                            Helper.toast(context, Message.PROFILE_PIC_UPDATE_SUCCESS);
+
+                            context.startActivities(uploadIntents);
+                            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            isSavingImage = false;
+                            nextButton.setVisibility(View.VISIBLE);
+                            nextButtonProgressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Helper.toast(context, Message.PROFILE_PIC_UPDATE_FAIL);
+                            context.startActivities(uploadIntents);
+                            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            isSavingImage = false;
+                            nextButton.setVisibility(View.VISIBLE);
+                            nextButtonProgressBar.setVisibility(View.GONE);
                         }
                     });
-                } else {
-                    Helper.toast(context, "Unable to update profile picture");
-                }
+
+                    break;
             }
-        });
+
+        }
+
     }
 
 }

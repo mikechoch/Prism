@@ -20,6 +20,7 @@ import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -64,7 +65,7 @@ public class MainFeedFragment extends Fragment {
     /**
      * SwipeRefreshLayout OnRefreshListener handles fetching new data from the cloud database
      * Checks that isLoading is false and the totalItemCount is > then the image threshold
-     * Then will call refreshData
+     * Then will call refreshMainPage
      * Otherwise stop refreshing
      */
     private void setupMainFeedRefreshSwipeLayout() {
@@ -73,8 +74,17 @@ public class MainFeedFragment extends Fragment {
             @Override
             public void onRefresh() {
                 if (!isLoading || !(mainFeedRecyclerViewAdapter.getItemCount() < Default.IMAGE_LOAD_THRESHOLD)) {
-                    CurrentUser.refreshUserProfile(getActivity());
-                    refreshData();
+                    CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+                        @Override
+                        public void onSuccess() {
+                            refreshMainPage();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            mainFeedSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 } else {
                     mainFeedSwipeRefreshLayout.setRefreshing(false);
                 }
@@ -124,7 +134,7 @@ public class MainFeedFragment extends Fragment {
         mainFeedRecyclerViewAdapter = new PrismPostRecyclerViewAdapter(getContext(), mainFeedPrismPostArrayList);
         mainFeedRecyclerView.setAdapter(mainFeedRecyclerViewAdapter);
 
-        refreshData();
+        refreshMainPage();
     }
 
     /**
@@ -143,7 +153,7 @@ public class MainFeedFragment extends Fragment {
      *  number of posts and loads them into an ArrayList of postIds and
      *  a HashMap of PrismObjects
      */
-    private void refreshData() {
+    private void refreshMainPage() {
         DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
             public void onSuccess(ArrayList<PrismPost> prismPosts) {

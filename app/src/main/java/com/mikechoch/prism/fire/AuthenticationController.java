@@ -25,8 +25,10 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
 import com.mikechoch.prism.activity.UsernameRegistrationActivity;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.callback.check.OnPrismUserProfileExistCallback;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
@@ -87,7 +89,7 @@ public class AuthenticationController {
             // The ApiException status code indicates the detailed failure reason.
             Log.e(Default.TAG_GOOGLE_CLIENT, "signInResult:failed code=" + e.getStatusCode());
             e.printStackTrace();
-            Helper.toast(context, "Failed to Sign in with Google");
+            Helper.toast(context, Message.GOOGLE_SIGN_IN_FAIL);
         }
     }
 
@@ -156,8 +158,7 @@ public class AuthenticationController {
      * @param context - Used to intent user and clear back stack
      */
     private static void signInUser(Activity context) {
-        Intent intent = new Intent(context, MainActivity.class);
-        CurrentUser.prepareAppForUser(context, intent);
+        CurrentUser.prepareApp(context);
     }
 
     /**

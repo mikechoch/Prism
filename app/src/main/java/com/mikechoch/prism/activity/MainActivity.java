@@ -117,6 +117,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         imageUploadProgressBar = findViewById(R.id.image_upload_progress_bar);
 
         initializeNetworkListener();
+        setupInterfaceElements();
     }
 
     @Override
@@ -539,12 +540,9 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
 
     @Override
     public void onNetworkConnected() {
-//        CurrentUser.refreshUserProfile(this);
         if (networkSnackBar != null && networkSnackBar.isShownOrQueued()) {
             networkSnackBar.dismiss();
             networkSnackBar = null;
-        } else {
-            setupInterfaceElements();
         }
     }
 

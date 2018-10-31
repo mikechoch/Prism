@@ -44,6 +44,8 @@ public class Message {
     public static final String PASSWORD_UPDATE_SUCCESS = "Password successfully updated";
     public static final String EMAIL_UPDATE_FAIL = "Failed to update email";
     public static final String EMAIL_UPDATE_SUCCESS = "Email successfully updated";
+    public static final String PROFILE_PIC_UPDATE_SUCCESS = "Profile picture successfully updated";
+    public static final String PROFILE_PIC_UPDATE_FAIL = "Failed to update profile picture";
 
     // EmailVerificationActivity
     public static final String EMAIL_VERIFICATION_SUCCESS = "Email successfully verified";

@@ -463,7 +463,7 @@ public class DatabaseRead {
                     CurrentUser.repostPosts(userReposts);
                     CurrentUser.uploadPosts(userUploads);
                     CurrentUser.combineUploadsAndReposts();
-                    // TODO: constructNewsFeed();
+                    // CurrentUser.constructNewsFeed();
                 }
                 callback.onSuccess();
             }

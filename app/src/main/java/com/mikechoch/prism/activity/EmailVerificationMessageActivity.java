@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
@@ -116,7 +117,7 @@ public class EmailVerificationMessageActivity extends AppCompatActivity {
                 CurrentUser.getFirebaseUser().reload();
                 if (CurrentUser.getFirebaseUser().isEmailVerified()) {
                     Snackbar.make(emailVerificationMessageConstraintLayout, Message.EMAIL_VERIFICATION_SUCCESS, Snackbar.LENGTH_SHORT);
-                    IntentHelper.intentToMainActivity(EmailVerificationMessageActivity.this, true);
+                    CurrentUser.prepareApp(EmailVerificationMessageActivity.this);
                 }
                 handler.postDelayed(this, 1500);
             }

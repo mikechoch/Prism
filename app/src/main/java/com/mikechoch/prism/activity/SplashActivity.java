@@ -14,6 +14,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
@@ -85,14 +86,26 @@ public class SplashActivity extends AppCompatActivity {
 
                     @Override
                     public void onStatusActive() {
-                        Intent intent = new Intent(context, MainActivity.class);
+
                         if (!CurrentUser.isUserSignedIn()) {
                             IntentHelper.intentToLoginActivity(context);
                         } else {
-                            if (isNotificationIntent((Activity) context)) {
-                                intent = getNotificationIntent(context, (Activity) context, intent);
+                            if (isNotificationIntent(context)) {
+                                CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        IntentHelper.intentToNotification(context);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // TODO Handle this
+                                    }
+                                });
+                            } else {
+                                CurrentUser.prepareApp(context);
                             }
-                            CurrentUser.prepareAppForUser(context, intent);
+
                         }
                     }
 
@@ -123,8 +136,14 @@ public class SplashActivity extends AppCompatActivity {
      * @param context
      * @return
      */
-    private static boolean isNotificationIntent(Activity context) {
-        return context.getIntent().getExtras() != null;
+    private static boolean isNotificationIntent(Context context) {
+        Bundle extras = ((Activity) context).getIntent().getExtras();
+        if (extras == null) {
+            return false;
+        }
+        String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
+        String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
+        return prismPostId != null || prismUserId != null;
     }
 
     /**
@@ -134,21 +153,7 @@ public class SplashActivity extends AppCompatActivity {
      * @param intent
      * @return
      */
-    private static Intent getNotificationIntent(Context context, Activity activity, Intent intent) {
-        Bundle extras = activity.getIntent().getExtras();
-        assert extras != null;
-        String prismPostId = extras.getString(NotificationKey.PRISM_POST_ID);
-        String prismUserId = extras.getString(NotificationKey.PRISM_USER_ID);
-        if (prismPostId != null) {
-            intent = new Intent(context, PrismPostDetailActivity.class);
-            intent.putExtra(NotificationKey.PRISM_POST_ID, prismPostId);
-        } else if (prismUserId != null) {
-            intent = new Intent(context, PrismUserProfileActivity.class);
-            intent.putExtra(NotificationKey.PRISM_USER_ID, prismUserId);
-        }
 
-        return intent;
-    }
 
 
 }

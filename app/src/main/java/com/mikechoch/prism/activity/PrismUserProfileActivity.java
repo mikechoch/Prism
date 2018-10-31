@@ -35,6 +35,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUserCallback;
+import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
@@ -586,7 +587,18 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void setupUserPostsUIElements() {
         if (isCurrentUser) {
-            setupCurrentUserProfilePage();
+            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+                @Override
+                public void onSuccess() {
+                    setupCurrentUserProfilePage();
+                    // TODO call setupProfilePicture here
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
         } else {
             setupOtherUserProfilePage();
         }

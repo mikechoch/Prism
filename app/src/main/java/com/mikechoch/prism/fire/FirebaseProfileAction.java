@@ -1,9 +1,11 @@
 package com.mikechoch.prism.fire;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -20,6 +22,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.mikechoch.prism.callback.change.OnChangeProfilePicCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.Message;
@@ -270,6 +275,35 @@ public class FirebaseProfileAction {
                     }
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    public static void changeProfilePicture(Uri profilePicUri, OnChangeProfilePicCallback callback) {
+        StorageReference profilePicFileReference = Default.STORAGE_REFERENCE
+                .child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePicUri.getLastPathSegment());
+
+        profilePicFileReference.putFile(profilePicUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
+                profilePicReference.setValue(downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callback.onSuccess();;
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onFailure(e);
+            }
+        });
     }
 
     public static void sendResetPasswordEmail(String email, OnSendResetPasswordEmailCallback callback) {

@@ -3,19 +3,11 @@ package com.mikechoch.prism.fire;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Handler;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.MainActivity;
@@ -23,10 +15,10 @@ import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
-import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
-import com.mikechoch.prism.helper.BitmapHelper;
+import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.helper.Helper;
+import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,14 +67,47 @@ public class CurrentUser {
     static HashMap<String, Long> followers;
     static HashMap<String, Long> followings;
 
-    /**
-     *
-     * @param context
-     * @param intent
-     */
-    public static void prepareAppForUser(Context context, Intent intent) {
-        refreshUserProfile(context, intent);
+
+    private CurrentUser() {
+        prismUser = null;
+        preference = null;
+
+        liked_posts = new ArrayList<>();
+        reposted_posts = new ArrayList<>();
+        uploaded_posts = new ArrayList<>();
+        uploaded_and_reposted_posts = new ArrayList<>();
+
+        liked_posts_map = new HashMap<>();
+        reposted_posts_map = new HashMap<>();
+        uploaded_posts_map = new HashMap<>();
+
+        followers = new HashMap<>();
+        followings = new HashMap<>();
+
+        notifications_map = new HashMap<>();
+        notifications = new ArrayList<>();
     }
+
+    public static void prepareApp(Context context) {
+        new CurrentUser();
+        DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
+            @Override
+            public void onSuccess() {
+                IntentHelper.intentToMainActivity(context);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    public static void refreshUser(OnFetchUserProfileCallback callback) {
+        new CurrentUser();
+        DatabaseRead.constructCurrentUserProfile(callback);
+    }
+
 
     /**
      * Returns True if CurrentUser is following given PrismUser
@@ -248,52 +273,6 @@ public class CurrentUser {
         notifications_map.remove(oldNotificationId);
     }
 
-    /**
-     * Creates prismUser for CurrentUser and refreshes/updates the
-     * list of posts uploaded, liked, and reposted by CurrentUser.
-     * Also fetches user's followers and followings.
-     */
-    private static void refreshUserProfile(Context context, Intent intent) {
-        prismUser = null;
-        preference = null;
-
-        liked_posts = new ArrayList<>();
-        reposted_posts = new ArrayList<>();
-        uploaded_posts = new ArrayList<>();
-        uploaded_and_reposted_posts = new ArrayList<>();
-
-        liked_posts_map = new HashMap<>();
-        reposted_posts_map = new HashMap<>();
-        uploaded_posts_map = new HashMap<>();
-
-        followers = new HashMap<>();
-        followings = new HashMap<>();
-
-        notifications_map = new HashMap<>();
-        notifications = new ArrayList<>();
-
-        if (Helper.isNetworkAvailable(context)) {
-            DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
-                @Override
-                public void onSuccess() {
-                    CurrentUser.refreshInterface(context, intent);
-                }
-
-                @Override
-                public void onFailure(Exception e) { }
-            });
-        }
-    }
-
-    /**
-     *
-     * @param context
-     */
-    public static void refreshUserProfile(Context context) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, true);
-        refreshUserProfile(context, intent);
-    }
 
     /**
      * Returns list of CurrentUser.uploaded_posts
@@ -358,35 +337,6 @@ public class CurrentUser {
         return notifications;
     }
 
-    /**
-     *
-     * @param context
-     * @param intent
-     */
-    private static void refreshInterface(Context context, Intent intent) {
-        // Handle notification firebase token related activities
-        DatabaseAction.handleFirebaseTokenRefreshActivities(context);
-        IncomingNotificationController.initializeNotifications(context);
-
-        if (intent.getBooleanExtra(Default.ONLY_PERFORM_REFRESH_EXTRA, false)) {
-            //TODO: We need to call notify data set changed here
-//            MainFeedFragment.mainContentRecyclerViewAdapter.notifyDataSetChanged();
-            MainActivity.updateProfileFragmentInterface(context);
-
-        } else {
-            Intent[] intents;
-            Intent mainIntent = new Intent(context, MainActivity.class);
-            if (intent.filterEquals(mainIntent)) {
-                intents = new Intent[]{intent};
-            } else {
-                intents = new Intent[]{mainIntent, intent};
-            }
-            context.startActivities(intents);
-            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            ((Activity) context).finish();
-        }
-
-    }
 
     /**
      *
