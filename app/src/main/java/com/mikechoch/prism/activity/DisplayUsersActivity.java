@@ -22,6 +22,7 @@ import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.DatabaseRead;
+import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.DisplayUserType;
 
 import java.util.ArrayList;
@@ -161,13 +162,14 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
             }
         });
 
@@ -186,13 +188,14 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
             }
         });
     }
@@ -210,13 +213,14 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
             }
         });
     }
@@ -234,13 +238,14 @@ public class DisplayUsersActivity extends AppCompatActivity {
 
             @Override
             public void onPrismUsersNotFound() {
-                Log.e(Default.TAG_DB, Message.FETCH_USERS_NOT_FOUND);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
                 updateInterfaceElements();
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e(Default.TAG_DB, Message.FETCH_USERS_FAIL, e);
+                Helper.toast(DisplayUsersActivity.this, Message.FETCH_USERS_FAIL);
             }
         });
     }

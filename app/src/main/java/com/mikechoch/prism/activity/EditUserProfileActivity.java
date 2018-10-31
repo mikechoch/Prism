@@ -471,7 +471,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onUsernameTaken() {
-                usernameTextInputLayout.setError("Username is taken. Try again");
+                usernameTextInputLayout.setError(Message.USERNAME_TAKEN);
                 toggleUsernameAlertDialogAttributes(false);
             }
 
@@ -504,9 +504,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onIncorrectPassword(Exception e) {
-                Log.e(Default.TAG_DB, Message.REAUTH_FAIL, e);
                 togglePasswordAlertDialogAttributes(false);
-                oldPasswordAlertDialogTextInputLayout.setError("Incorrect password");
+                oldPasswordAlertDialogTextInputLayout.setError(Message.INVALID_PASSWORD);
             }
         });
 
@@ -531,21 +530,20 @@ public class EditUserProfileActivity extends AppCompatActivity {
             @Override
             public void onIncorrectPassword(Exception e) {
                 toggleEmailAlertDialogAttributes(false);
-                passwordAlertDialogTextInputLayout.setError("Incorrect password");
-                Log.e(Default.TAG_DB, Message.REAUTH_FAIL, e);
+                passwordAlertDialogTextInputLayout.setError(Message.INVALID_PASSWORD);
             }
 
             @Override
             public void onEmailAlreadyExist(FirebaseAuthUserCollisionException existEmail) {
                 toggleEmailAlertDialogAttributes(false);
-                newEmailAlertDialogTextInputLayout.setError("Email already exists");
+                newEmailAlertDialogTextInputLayout.setError(Message.ACCOUNT_ALREADY_EXISTS);
                 Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, existEmail);
             }
 
             @Override
             public void onInvalidEmail(FirebaseAuthInvalidCredentialsException invalidEmail) {
                 toggleEmailAlertDialogAttributes(false);
-                newEmailAlertDialogTextInputLayout.setError("Invalid email");
+                newEmailAlertDialogTextInputLayout.setError(Message.INVALID_EMAIL);
                 Log.e(Default.TAG_DB, Message.EMAIL_UPDATE_FAIL, invalidEmail);
             }
         });

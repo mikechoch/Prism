@@ -267,7 +267,7 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onFailure(Object exception) {
                                 toggleProgressBar(false);
                                 if (exception instanceof FirebaseAuthWeakPasswordException) {
-                                    passwordTextInputLayout.setError(Message.PASSWORD_TOO_WEAK);
+                                    passwordTextInputLayout.setError(Message.PASSWORD_NOT_STRONG);
                                 }
                                 if (exception instanceof FirebaseAuthInvalidCredentialsException) {
                                     emailTextInputLayout.setError(Message.INVALID_EMAIL);

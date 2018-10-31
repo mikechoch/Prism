@@ -99,12 +99,6 @@ public class Default {
     public static final int SEARCH_TYPE_VIEW_PAGER_PEOPLE = 0;
     public static final int SEARCH_TYPE_VIEW_PAGER_TAG = 1;
 
-
-    // More Option
-    public static final int MORE_OPTION_REPORT = 0;
-    public static final int MORE_OPTION_SHARE = 1;
-    public static final int MORE_OPTION_DELETE = 2;
-
     public static final int POSTS_COLUMNS = 3;
 
     public static final int CROP_VALID = 0;
@@ -150,6 +144,7 @@ public class Default {
 
     public static final UserPreference USER_PREFERENCE = new UserPreference(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
 
+    public static final String PRISM_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.mikechoch.prism";
 
     public static void initializeScreenSizeElements(Activity context) {
         Default.scale = context.getResources().getDisplayMetrics().density;

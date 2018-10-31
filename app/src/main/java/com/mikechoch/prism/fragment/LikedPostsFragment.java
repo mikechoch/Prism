@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
@@ -78,8 +79,7 @@ public class LikedPostsFragment extends Fragment {
 
             TextView noPostsTextView = noPostsView.findViewById(R.id.no_posts_text_view);
             noPostsTextView.setTypeface(Default.sourceSansProLight);
-            String noLikedPostsString = getResources().getString(R.string.no_liked_posts);
-            noPostsTextView.setText(noLikedPostsString);
+            noPostsTextView.setText(Message.NO_LIKED_POSTS);
 
             userLikedPostsLinearLayout.addView(noPostsView);
         }

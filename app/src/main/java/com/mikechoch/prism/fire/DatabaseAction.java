@@ -105,25 +105,24 @@ public class DatabaseAction {
      * Performs repost locally on CurrentUser
      */
     public static void performRepost(PrismPost prismPost) {
-        String currentUserId = CurrentUser.prismUser.getUid();
-        long timestamp = Calendar.getInstance().getTimeInMillis();
+        if (PermissionHelper.allowRepost(prismPost)) {
+            String currentUserId = CurrentUser.prismUser.getUid();
+            long timestamp = Calendar.getInstance().getTimeInMillis();
 
-        DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+            DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
+            DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
 
-        postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
-                .child(currentUserId)
-                .setValue(timestamp);
+            postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
+                    .child(currentUserId)
+                    .setValue(timestamp);
 
-        currentUserReference.child(Key.DB_REF_USER_REPOSTS)
-                .child(prismPost.getPostId())
-                .setValue(timestamp);
+            currentUserReference.child(Key.DB_REF_USER_REPOSTS)
+                    .child(prismPost.getPostId())
+                    .setValue(timestamp);
 
-        CurrentUser.repostPost(prismPost);
-
-        if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
-            OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+            CurrentUser.repostPost(prismPost);
         }
+
     }
 
     /**
@@ -431,11 +430,11 @@ public class DatabaseAction {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Helper.toast(context, "Thank you for reporting this post");
-                    Log.d(Default.TAG_DB, Message.POST_REPORTED_SUCCESS);
+                    Log.d(Default.TAG_DB, Message.POST_REPORT_SUCCESS);
                     Log.e(Default.TAG_DB, prismPost.getUid());
                 } else {
                     Helper.toast(context, "Unable to report post, please try again later");
-                    Log.e(Default.TAG_DB, Message.POST_REPORTED_FAIL, task.getException());
+                    Log.e(Default.TAG_DB, Message.POST_REPORT_FAIL, task.getException());
                 }
             }
         });

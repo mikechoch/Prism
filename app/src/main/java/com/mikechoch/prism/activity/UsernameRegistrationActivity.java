@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.FirebaseProfileAction;
 import com.mikechoch.prism.callback.action.OnPrismUserRegistrationCallback;
@@ -107,7 +108,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         if (SHOULD_SIGN_OUT) {
-            Helper.toast(this, "Failed to sign in with Google");
+            Helper.toast(this, Message.GOOGLE_SIGN_IN_FAIL);
             FirebaseAuth.getInstance().signOut();
             finish();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -125,14 +126,12 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
             FirebaseProfileAction.isUsernameTaken(firebaseEncodedUsername, new OnUsernameTakenCallback() {
                 @Override
                 public void onSuccess(boolean usernameTaken) {
-                    //TODO: @Parth Log success
                     if (usernameTaken) {
-                        usernameTextInputLayout.setError("Username is taken");
+                        usernameTextInputLayout.setError(Message.USERNAME_TAKEN);
                     } else {
                         FirebaseProfileAction.createPrismUserInFirebase(CurrentUser.getFirebaseUser(), fullName, firebaseEncodedUsername, new OnPrismUserRegistrationCallback() {
                             @Override
                             public void onSuccess() {
-                                //TODO: @Parth Log success
                                 SHOULD_SIGN_OUT = Boolean.FALSE;
                                 IntentHelper.intentToMainActivity(UsernameRegistrationActivity.this, true);
                             }
@@ -142,7 +141,7 @@ public class UsernameRegistrationActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure() {
-                    //TODO: @Parth Log failure
+                    Helper.toast(UsernameRegistrationActivity.this, Message.USERNAME_REGISTRATION_FAIL);
                 }
             });
         }

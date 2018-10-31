@@ -37,7 +37,7 @@ public class UpdateAppRequiredActivity extends AppCompatActivity {
         updateLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String prismAppStoreUrl = "https://play.google.com/store/apps/details?id=com.mikechoch.prism";
+                String prismAppStoreUrl = Default.PRISM_PLAY_STORE_URL;
                 IntentHelper.intentToAppStoreUrl(UpdateAppRequiredActivity.this, prismAppStoreUrl);
             }
         });

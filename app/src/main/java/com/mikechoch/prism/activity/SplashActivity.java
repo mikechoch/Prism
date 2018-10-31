@@ -15,6 +15,7 @@ import android.widget.ImageView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.constant.NotificationKey;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.fire.DatabaseAction;
@@ -103,7 +104,7 @@ public class SplashActivity extends AppCompatActivity {
 
                     @Override
                     public void onStatusCheckFailed(Exception e) {
-                        Log.e(Default.TAG_DB, "Failed to perform maintenance check", e);
+                        IntentHelper.intentToUnderMaintenanceActivity(context, Message.DEFAULT_UNDER_MAINTENANCE_MESSAGE);
                     }
                 });
             }

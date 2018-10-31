@@ -1,5 +1,6 @@
 package com.mikechoch.prism.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
+import com.mikechoch.prism.constant.Message;
 import com.mikechoch.prism.helper.IntentHelper;
 
 
@@ -36,12 +38,11 @@ public class UnderMaintenanceActivity extends AppCompatActivity {
      * @return alert - alert message String
      */
     private String getAlertMessageString() {
-        String alert = "Prism is currently under maintenance, please come back later. We apologize for the inconvenience.";
-        Bundle incomingBundle = getIntent().getExtras();
-        if (incomingBundle != null) {
-            alert = getIntent().getExtras().getString(Key.STATUS_MESSAGE);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            return bundle.getString(Key.STATUS_MESSAGE, Message.DEFAULT_UNDER_MAINTENANCE_MESSAGE);
         }
-        return alert;
+        return Message.DEFAULT_UNDER_MAINTENANCE_MESSAGE;
     }
 
     /**

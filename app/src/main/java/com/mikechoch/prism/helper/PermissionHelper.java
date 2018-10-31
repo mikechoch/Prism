@@ -16,4 +16,7 @@ public class PermissionHelper {
         return CurrentUser.getFirebaseUser().isEmailVerified();
     }
 
+    public static boolean allowRepost(PrismPost prismPost) {
+        return !Helper.isPrismUserCurrentUser(prismPost.getPrismUser());
+    }
 }

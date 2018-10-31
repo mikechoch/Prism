@@ -250,17 +250,17 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
                     if (moreOptionAlertDialog != null) {
                         moreOptionAlertDialog.dismiss();
                     }
-                    switch (moreOption.getId()) {
-                        case Default.MORE_OPTION_REPORT:
+                    switch (moreOption) {
+                        case REPORT:
                             // Report post
                             AlertDialog reportPostConfirmationAlertDialog = InterfaceAction.createReportPostConfirmationAlertDialog(context, prismPost);
                             reportPostConfirmationAlertDialog.show();
                             break;
-                        case Default.MORE_OPTION_SHARE:
+                        case SHARE:
                             // Share
                             // TODO: Discuss what we should do about Share for now
                             break;
-                        case Default.MORE_OPTION_DELETE:
+                        case DELETE:
                             // Delete
                             AlertDialog deleteConfirmationAlertDialog = InterfaceAction.createDeleteConfirmationAlertDialog(context, prismPost);
                             deleteConfirmationAlertDialog.show();

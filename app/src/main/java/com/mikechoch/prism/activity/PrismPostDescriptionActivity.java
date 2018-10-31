@@ -126,21 +126,13 @@ public class PrismPostDescriptionActivity extends AppCompatActivity {
     }
 
     /**
-     * Get intent data for PrismPostDescriptionActivity (apart of upload process)
-     * @return - String filename of PrismPost image
-     */
-    private String getFilenameIntentData() {
-        return getIntent().getStringExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA);
-    }
-
-    /**
      * Setup elements of current activity
      */
     private void setupInterfaceElements() {
         descriptionEditText.setTypeface(Default.sourceSansProLight);
         nextButton.setTypeface(Default.sourceSansProBold);
 
-        String filename = getFilenameIntentData();
+        String filename = getIntent().getStringExtra(Default.UPLOAD_IMAGE_FILE_PATH_EXTRA);
         setupPrismPostImagePreview(filename);
         setupToolbar();
         setupNextButton();
