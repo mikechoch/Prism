@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,6 +29,7 @@ import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.action.OnDeletePostCallback;
 import com.mikechoch.prism.callback.action.OnSendVerificationEmailCallback;
+import com.mikechoch.prism.callback.action.OnUploadFileCallback;
 import com.mikechoch.prism.callback.action.OnUploadPostCallback;
 import com.mikechoch.prism.callback.check.OnMaintenanceCheckCallback;
 import com.mikechoch.prism.constant.Default;
@@ -157,55 +159,48 @@ public class DatabaseAction {
             callback.onPermissionDenied();
             return;
         }
+
         StorageReference postImageReference = Default.STORAGE_REFERENCE
                 .child(Key.STORAGE_POST_IMAGES_REF)
                 .child(uploadImageUri.getLastPathSegment());
-        postImageReference.putFile(uploadImageUri).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        int progress = (int) ((taskSnapshot.getBytesTransferred() * 100) / taskSnapshot.getTotalByteCount());
-                        callback.onProgressUpdate(progress);
-                    }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+        UploadHelper.uploadFile(postImageReference, uploadImageUri, new OnUploadFileCallback() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot uploadedImageFileSnapshot) {
-                // TODO CHAIN TASKS
-                uploadedImageFileSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            public void onFileUploadSuccess(Uri downloadUri) {
+                PrismPost prismPost = Helper.constructPrismPostObjectForUpload(downloadUri, imageDescription);
+
+                String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
+                Map<String, Object> uploadMap = new HashMap<>();
+
+                UploadHelper.addPathOfPrismPostToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfUserUploadsToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfHashTagsToUploadMap(uploadMap, prismPost, postId);
+                UploadHelper.addPathOfFollowersFeedToUploadMap(uploadMap, prismPost, postId);
+
+                DatabaseReference rootReference = Default.ROOT_REFERENCE;
+                rootReference.updateChildren(uploadMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(Uri uri) {
-                        PrismPost prismPost = Helper.constructPrismPostObjectForUpload(uri, imageDescription);
-
-                        String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
-                        Map<String, Object> uploadMap = new HashMap<>();
-
-                        UploadHelper.addPathOfPrismPostToUploadMap(uploadMap, prismPost, postId);
-                        UploadHelper.addPathOfUserUploadsToUploadMap(uploadMap, prismPost, postId);
-                        UploadHelper.addPathOfHashTagsToUploadMap(uploadMap, prismPost, postId);
-                        UploadHelper.addPathOfFollowersFeedToUploadMap(uploadMap, prismPost, postId);
-
-                        DatabaseReference rootReference = Default.ROOT_REFERENCE;
-                        rootReference.updateChildren(uploadMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                prismPost.setPostId(postId);
-                                prismPost.setPrismUser(CurrentUser.prismUser);
-                                CurrentUser.uploadPost(prismPost);
-                                callback.onSuccess(prismPost);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                callback.onPostUploadFail(e);
-                            }
-                        });
+                    public void onSuccess(Void aVoid) {
+                        prismPost.setPostId(postId);
+                        prismPost.setPrismUser(CurrentUser.prismUser);
+                        CurrentUser.uploadPost(prismPost);
+                        callback.onSuccess(prismPost);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onPostUploadFail(e);
                     }
                 });
-
-
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onProgressUpdate(int progress) {
+                callback.onProgressUpdate(progress);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
                 callback.onImageUploadFail(e);
             }
         });
@@ -497,13 +492,35 @@ public class DatabaseAction {
 
 class UploadHelper {
 
-    /**
-     * postId is passed in because postId is not assigned to prismPost
-     * that is because we don't want postId to go into firebase as a child of prismPost
-     * @param prismPost
-     * @param postId
-     * @return
-     */
+    static void uploadFile(StorageReference reference, Uri fileToUpload, OnUploadFileCallback callback) {
+        reference.putFile(fileToUpload).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                int progress = (int) ((taskSnapshot.getBytesTransferred() * 100) / taskSnapshot.getTotalByteCount());
+                callback.onProgressUpdate(progress);
+            }
+        }).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    callback.onFailure(task.getException());
+                    throw task.getException();
+                }
+                return reference.getDownloadUrl();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                callback.onFileUploadSuccess(uri);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
     static void addPathOfPrismPostToUploadMap(Map<String, Object> uploadMap, PrismPost prismPost, String postId) {
         String pathToPrismPost = Key.DB_REF_ALL_POSTS + "/" + postId;
         uploadMap.put(pathToPrismPost, prismPost);
