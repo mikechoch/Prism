@@ -169,31 +169,38 @@ public class DatabaseAction {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot uploadedImageFileSnapshot) {
-                PrismPost prismPost = Helper.constructPrismPostObjectForUpload(null,/*uploadedImageFileSnapshot.getDownloadUrl(),*/ imageDescription);
-
-                String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
-                Map<String, Object> uploadMap = new HashMap<>();
-
-                UploadHelper.addPathOfPrismPostToUploadMap(uploadMap, prismPost, postId);
-                UploadHelper.addPathOfUserUploadsToUploadMap(uploadMap, prismPost, postId);
-                UploadHelper.addPathOfHashTagsToUploadMap(uploadMap, prismPost, postId);
-                UploadHelper.addPathOfFollowersFeedToUploadMap(uploadMap, prismPost, postId);
-
-                DatabaseReference rootReference = Default.ROOT_REFERENCE;
-                rootReference.updateChildren(uploadMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                // TODO CHAIN TASKS
+                uploadedImageFileSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        prismPost.setPostId(postId);
-                        prismPost.setPrismUser(CurrentUser.prismUser);
-                        CurrentUser.uploadPost(prismPost);
-                        callback.onSuccess(prismPost);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.onPostUploadFail(e);
+                    public void onSuccess(Uri uri) {
+                        PrismPost prismPost = Helper.constructPrismPostObjectForUpload(uri, imageDescription);
+
+                        String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
+                        Map<String, Object> uploadMap = new HashMap<>();
+
+                        UploadHelper.addPathOfPrismPostToUploadMap(uploadMap, prismPost, postId);
+                        UploadHelper.addPathOfUserUploadsToUploadMap(uploadMap, prismPost, postId);
+                        UploadHelper.addPathOfHashTagsToUploadMap(uploadMap, prismPost, postId);
+                        UploadHelper.addPathOfFollowersFeedToUploadMap(uploadMap, prismPost, postId);
+
+                        DatabaseReference rootReference = Default.ROOT_REFERENCE;
+                        rootReference.updateChildren(uploadMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                prismPost.setPostId(postId);
+                                prismPost.setPrismUser(CurrentUser.prismUser);
+                                CurrentUser.uploadPost(prismPost);
+                                callback.onSuccess(prismPost);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                callback.onPostUploadFail(e);
+                            }
+                        });
                     }
                 });
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {

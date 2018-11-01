@@ -284,19 +284,25 @@ public class FirebaseProfileAction {
         profilePicFileReference.putFile(profilePicUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                String downloadUrl = "";//taskSnapshot.getDownloadUrl().toString();
-                DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
-                profilePicReference.setValue(downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+                // TODO Chain Tasks here
+                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        callback.onSuccess();;
+                    public void onSuccess(Uri uri) {
+                        DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
+                        profilePicReference.setValue(uri.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                callback.onSuccess();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                callback.onFailure(e);
+                            }
+                        });
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.onFailure(e);
-                    }
-                });
+                })
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
