@@ -26,6 +26,8 @@ import java.util.ArrayList;
 public class UploadedRepostedPostsFragment extends Fragment {
 
     private LinearLayout userUploadedPostsLinearLayout;
+
+    private ArrayList<PrismPost> userUploadedAndRepostedPosts;
     private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
 
@@ -47,6 +49,14 @@ public class UploadedRepostedPostsFragment extends Fragment {
         setupInterfaceElements();
 
         return view;
+    }
+
+    /**
+     *
+     * @param userUploadedAndRepostedPosts
+     */
+    public void setUserUploadedAndRepostedPosts(ArrayList<PrismPost> userUploadedAndRepostedPosts) {
+        this.userUploadedAndRepostedPosts = userUploadedAndRepostedPosts;
     }
 
     /**
