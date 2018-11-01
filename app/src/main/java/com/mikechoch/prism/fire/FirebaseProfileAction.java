@@ -284,7 +284,7 @@ public class FirebaseProfileAction {
         profilePicFileReference.putFile(profilePicUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                String downloadUrl = "";//taskSnapshot.getDownloadUrl().toString();
                 DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
                 profilePicReference.setValue(downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

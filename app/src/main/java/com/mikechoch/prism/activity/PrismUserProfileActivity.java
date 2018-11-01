@@ -166,8 +166,6 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         profileSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //TODO: PARTH re-pull data for the current prismUser (global) and refresh all interface elements
-                //TODO: MIKE needs to setup a method for refreshing but not instantiating all elements over again
                 refreshPrismUserInterface();
             }
         });
@@ -517,20 +515,48 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      *
      */
     private void refreshPrismUserInterface() {
-        //TODO: Create current prismUser (global) fetch here with a callback
-        //TODO: Add everything below this inside OnSuccess
-
-        setupUserInfo();
-        setupUserStats();
-
         if (isCurrentUser) {
-            //TODO: create viewpager recycler views  refresh method
-            userPostsViewPagerAdapter.refreshViewPagerTabs();
-        } else {
-            prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
-        }
+            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+                @Override
+                public void onSuccess() {
+                    prismUser = CurrentUser.prismUser;
+                    setupUserInfo();
+                    setupUserStats();
+                    userPostsViewPagerAdapter.refreshViewPagerTabs();
+                    profileSwipeRefreshLayout.setRefreshing(false);
+                }
 
-        profileSwipeRefreshLayout.setRefreshing(false);
+                @Override
+                public void onFailure(Exception e) {
+                    profileSwipeRefreshLayout.setRefreshing(false);
+                    Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_INFO_FAIL);
+                }
+
+            });
+        } else {
+            DatabaseRead.fetchPrismUser(prismUser.getUid(), new OnFetchPrismUserCallback() {
+                @Override
+                public void onSuccess(PrismUser user) {
+                    prismUser = user;
+                    setupUserInfo();
+                    setupUserStats();
+                    prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
+                    profileSwipeRefreshLayout.setRefreshing(false);
+                }
+
+                @Override
+                public void onUserNotFound() {
+                    profileSwipeRefreshLayout.setRefreshing(false);
+                    Helper.toast(PrismUserProfileActivity.this, Message.USER_NOT_FOUND);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    profileSwipeRefreshLayout.setRefreshing(false);
+                    Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_INFO_FAIL);
+                }
+            });
+        }
     }
 
 

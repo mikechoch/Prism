@@ -169,7 +169,7 @@ public class DatabaseAction {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot uploadedImageFileSnapshot) {
-                PrismPost prismPost = Helper.constructPrismPostObjectForUpload(uploadedImageFileSnapshot.getDownloadUrl(), imageDescription);
+                PrismPost prismPost = Helper.constructPrismPostObjectForUpload(null,/*uploadedImageFileSnapshot.getDownloadUrl(),*/ imageDescription);
 
                 String postId = Default.ALL_POSTS_REFERENCE.push().getKey();
                 Map<String, Object> uploadMap = new HashMap<>();

@@ -27,7 +27,7 @@ import java.util.HashMap;
 
 public class CurrentUser {
 
-    public static PrismUser prismUser;
+    public static PrismUser prismUser;  //TODO Make private
     public static UserPreference preference;
 
     static ArrayList<PrismPost> news_feed;
