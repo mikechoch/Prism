@@ -62,6 +62,7 @@ public class Message {
     public static final String FETCH_POST_INFO_FAIL = "Failed to fetch post";
 
     // PrismUserProfileActivity
+    public static final String FETCH_USER_UPLOADS_FAIL = "Failed to fetch user uploads";
     public static final String FETCH_USER_REPOSTS_FAIL = "Failed to fetch user reposts";
     public static final String USER_NOT_FOUND = "User not found";
     public static final String NO_LIKED_POSTS = "No liked posts";

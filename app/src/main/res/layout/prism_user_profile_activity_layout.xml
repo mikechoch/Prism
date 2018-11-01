@@ -291,62 +291,72 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:visibility="gone">
+            android:layout_alignParentTop="true">
 
-            <android.support.v4.widget.NestedScrollView
-                android:id="@+id/profile_scroll_view"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="none"
-                android:visibility="gone"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true">
 
-                <ScrollView
+                <android.support.v4.widget.NestedScrollView
+                    android:id="@+id/profile_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scrollbars="none">
+                    android:scrollbars="none"
+                    android:visibility="gone"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                    <LinearLayout
-                        android:id="@+id/user_uploaded_posts_linear_layout"
+                    <ScrollView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|center_horizontal"
-                        android:gravity="top|center_horizontal"
-                        android:padding="4dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:orientation="horizontal"
-                        android:visibility="gone"
-                        android:descendantFocusability="beforeDescendants"
-                        android:focusableInTouchMode="true">
+                        android:layout_height="match_parent"
+                        android:scrollbars="none">
 
-                        <!-- Populates with RecyclerViews being treated as columns-->
-                        <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
+                        <LinearLayout
+                            android:id="@+id/user_uploaded_posts_linear_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|center_horizontal"
+                            android:gravity="top|center_horizontal"
+                            android:padding="4dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            android:descendantFocusability="beforeDescendants"
+                            android:focusableInTouchMode="true">
 
-                    </LinearLayout>
+                            <!-- Populates with RecyclerViews being treated as columns-->
+                            <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
 
-                </ScrollView>
+                        </LinearLayout>
 
-            </android.support.v4.widget.NestedScrollView>
+                    </ScrollView>
+
+                </android.support.v4.widget.NestedScrollView>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/current_user_profile_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top|center_horizontal"
+                    android:visibility="gone"
+                    android:fitsSystemWindows="true"
+                    android:nestedScrollingEnabled="true"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                    <!-- Populates with to Fragments with RecyclerViews being treated as columns-->
+                    <!-- Fragments will be for user posts/ reposts and user liked posts-->
+                    <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
+
+                </android.support.v4.view.ViewPager>
+
+            </LinearLayout>
 
         </android.support.v4.widget.SwipeRefreshLayout>
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/current_user_profile_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="top|center_horizontal"
-            android:visibility="gone"
-            android:fitsSystemWindows="true"
-            android:nestedScrollingEnabled="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <!-- Populates with to Fragments with RecyclerViews being treated as columns-->
-            <!-- Fragments will be for user posts/ reposts and user liked posts-->
-            <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
-
-        </android.support.v4.view.ViewPager>
 
     </RelativeLayout>
 

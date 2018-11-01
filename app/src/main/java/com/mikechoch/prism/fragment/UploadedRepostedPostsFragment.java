@@ -25,8 +25,8 @@ import java.util.ArrayList;
 
 public class UploadedRepostedPostsFragment extends Fragment {
 
-    private SwipeRefreshLayout uploadedRepostedPostsSwipeRefreshLayout;
     private LinearLayout userUploadedPostsLinearLayout;
+    private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
 
     public static UploadedRepostedPostsFragment newInstance() {
@@ -42,7 +42,6 @@ public class UploadedRepostedPostsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.uploaded_reposted_posts_fragment_layout, container, false);
 
-        uploadedRepostedPostsSwipeRefreshLayout = view.findViewById(R.id.uploaded_reposted_posts_swipe_refresh_layout);
         userUploadedPostsLinearLayout = view.findViewById(R.id.current_user_uploaded_posts_linear_layout);
 
         setupInterfaceElements();
@@ -51,17 +50,11 @@ public class UploadedRepostedPostsFragment extends Fragment {
     }
 
     /**
-     * Setup the swipe refresh layout, which will refresh all uploaded/reposted posts by a user
+     *
+     * @return
      */
-    private void setupUploadedRepostedSwipeRefreshLayout() {
-        uploadedRepostedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
-        uploadedRepostedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //TODO: @Parth we need to refresh here
-                uploadedRepostedPostsSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+    public PrismPostStaggeredGridRecyclerView getPrismPostStaggeredGridRecyclerView() {
+        return prismPostStaggeredGridRecyclerView;
     }
 
     /**
@@ -74,7 +67,7 @@ public class UploadedRepostedPostsFragment extends Fragment {
         ArrayList<PrismPost> userUploadedPosts = CurrentUser.getUserUploadsAndReposts();
 
         if (userUploadedPosts.size() > 0) {
-            new PrismPostStaggeredGridRecyclerView(getActivity(), userUploadedPostsLinearLayout, userUploadedPosts);
+            prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(getActivity(), userUploadedPostsLinearLayout, userUploadedPosts);
         } else {
             View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null, false);
 
@@ -94,8 +87,6 @@ public class UploadedRepostedPostsFragment extends Fragment {
      * Setup elements for current fragment
      */
     private void setupInterfaceElements() {
-
-        setupUploadedRepostedSwipeRefreshLayout();
         setupUploadedRepostedRecyclerViewColumns();
     }
 

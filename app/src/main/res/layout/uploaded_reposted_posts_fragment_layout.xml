@@ -6,46 +6,37 @@
     android:layout_centerHorizontal="true"
     android:layout_alignParentTop="true">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/uploaded_reposted_posts_swipe_refresh_layout"
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/uploaded_reposted_posts_nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true">
+        android:scrollbars="none">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/uploaded_reposted_posts_nested_scroll_view"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="none">
 
-            <ScrollView
+            <LinearLayout
+                android:id="@+id/current_user_uploaded_posts_linear_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="none">
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:gravity="top|center_horizontal"
+                android:padding="4dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true">
 
-                <LinearLayout
-                    android:id="@+id/current_user_uploaded_posts_linear_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|center_horizontal"
-                    android:gravity="top|center_horizontal"
-                    android:padding="4dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    android:descendantFocusability="beforeDescendants"
-                    android:focusableInTouchMode="true">
+                <!-- Populates with RecyclerViews being treated as columns-->
+                <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
 
-                    <!-- Populates with RecyclerViews being treated as columns-->
-                    <!-- # of RecyclerViews based off the USER_UPLOADED_POSTS_COLUMNS Default value-->
+            </LinearLayout>
 
-                </LinearLayout>
+        </ScrollView>
 
-            </ScrollView>
-
-        </android.support.v4.widget.NestedScrollView>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.v4.widget.NestedScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

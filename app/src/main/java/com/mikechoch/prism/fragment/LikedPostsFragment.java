@@ -26,9 +26,10 @@ import java.util.ArrayList;
 
 public class LikedPostsFragment extends Fragment {
 
-    private SwipeRefreshLayout likedPostsSwipeRefreshLayout;
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;
+
+    private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
 
     public static LikedPostsFragment newInstance() {
@@ -38,8 +39,7 @@ public class LikedPostsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.liked_posts_fragment_layout, container, false);
-        
-        likedPostsSwipeRefreshLayout = view.findViewById(R.id.liked_posts_swipe_refresh_layout);
+
         likedPostsNestedScrollView = view.findViewById(R.id.liked_posts_nested_scroll_view);
         userLikedPostsLinearLayout = view.findViewById(R.id.current_user_liked_posts_linear_layout);
 
@@ -49,17 +49,11 @@ public class LikedPostsFragment extends Fragment {
     }
 
     /**
-     * Setup the swipe refresh layout, which will refresh all liked posts by a user
+     *
+     * @return
      */
-    private void setupLikedSwipeRefreshLayout() {
-        likedPostsSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
-        likedPostsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //TODO: @Parth we need to refresh here
-                likedPostsSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+    public PrismPostStaggeredGridRecyclerView getPrismPostStaggeredGridRecyclerView() {
+        return prismPostStaggeredGridRecyclerView;
     }
 
     /**
@@ -69,7 +63,7 @@ public class LikedPostsFragment extends Fragment {
     private void setupLikedRecyclerViewColumns() {
         ArrayList<PrismPost> userLikedPosts = CurrentUser.getUserLikes();
         if (userLikedPosts != null && userLikedPosts.size() > 0) {
-            new PrismPostStaggeredGridRecyclerView(getActivity(), userLikedPostsLinearLayout, userLikedPosts);
+            prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(getActivity(), userLikedPostsLinearLayout, userLikedPosts);
         } else {
             View noPostsView = LayoutInflater.from(getActivity()).inflate(R.layout.no_posts_user_profile_layout, null);
 
@@ -89,8 +83,6 @@ public class LikedPostsFragment extends Fragment {
      * Setup elements in current fragment
      */
     private void setupInterfaceElements() {
-
-        setupLikedSwipeRefreshLayout();
         setupLikedRecyclerViewColumns();
     }
 

@@ -1,10 +1,9 @@
 package com.mikechoch.prism.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -18,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -60,14 +60,14 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
 
+    // Shared Current User and Non Current User
     private ImageView toolbarUserProfilePicImageView;
     private TextView toolbarUserUsernameTextView;
-    private Button toolbarFollowButton;
-    private ImageView accountEditInfoButton;
+    private TextView userUsernameTextView;
+    private TextView userFullNameTextView;
     private SwipeRefreshLayout profileSwipeRefreshLayout;
     private NestedScrollView profileNestedScrollView;
     private ImageView userProfilePicImageView;
-    private Button followUserButton;
     private RelativeLayout followersRelativeLayout;
     private TextView followersCountTextView;
     private TextView followersLabelTextView;
@@ -76,17 +76,23 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private RelativeLayout followingRelativeLayout;
     private TextView followingCountTextView;
     private TextView followingLabelTextView;
-    private TextView userUsernameTextView;
-    private TextView userFullNameTextView;
+
+    // Current User
+    private ImageView accountEditInfoButton;
     private TabLayout userPostsTabLayout;
     private ViewPager userPostsViewPager;
+    private ProfileViewPagerAdapter userPostsViewPagerAdapter;
+
+    // Non Current User
+    private Button toolbarFollowButton;
+    private Button followUserButton;
+    private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
     private PrismUser prismUser;
-    private Uri profilePictureUri;
     private boolean isCurrentUser;
+    private boolean[] areUploadedAndRepostedPostsFetched = {false, false};
     private ArrayList<PrismPost> prismUserUploadedAndRepostedPostsArrayList;
 
-    private boolean[] areUploadedAndRepostedPostsFetched = {false, false};
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,19 +118,16 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prism_user_profile_activity_layout);
 
-        // Initialize all toolbar elements
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.app_bar_layout);
 
-        // Initialize all UI elements
         toolbarUserProfilePicImageView = findViewById(R.id.toolbar_user_profile_profile_picture_image_view);
         toolbarUserUsernameTextView = findViewById(R.id.toolbar_user_profile_username_text_view);
-        toolbarFollowButton = findViewById(R.id.toolbar_follow_user_button);
-        accountEditInfoButton = findViewById(R.id.toolbar_edit_account_information_image_view);
         profileSwipeRefreshLayout = findViewById(R.id.profile_swipe_refresh_layout);
         profileNestedScrollView = findViewById(R.id.profile_scroll_view);
+        userUsernameTextView = findViewById(R.id.user_profile_username_text_view);
+        userFullNameTextView = findViewById(R.id.user_profile_full_name_text_view);
         userProfilePicImageView = findViewById(R.id.user_profile_profile_picture_image_view);
-        followUserButton = findViewById(R.id.follow_user_button);
         followersRelativeLayout = findViewById(R.id.followers_relative_layout);
         followersCountTextView = findViewById(R.id.followers_count_text_view);
         followersLabelTextView = findViewById(R.id.followers_label_text_view);
@@ -133,33 +136,168 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followingRelativeLayout = findViewById(R.id.following_relative_layout);
         followingCountTextView = findViewById(R.id.following_count_text_view);
         followingLabelTextView = findViewById(R.id.following_label_text_view);
-        userUsernameTextView = findViewById(R.id.user_profile_username_text_view);
-        userFullNameTextView = findViewById(R.id.user_profile_full_name_text_view);
+
+        accountEditInfoButton = findViewById(R.id.toolbar_edit_account_information_image_view);
         userPostsTabLayout = findViewById(R.id.current_user_profile_tab_layout);
         userPostsViewPager = findViewById(R.id.current_user_profile_view_pager);
 
-        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+        toolbarFollowButton = findViewById(R.id.toolbar_follow_user_button);
+        followUserButton = findViewById(R.id.follow_user_button);
 
-        // Get prismUser associated with this profile page from Intent
-        Intent intent = getIntent();
-        prismUser = (PrismUser) intent.getSerializableExtra(Default.PRISM_USER_EXTRA);
+        prismUser = getPrismUserIntentData();
         if (prismUser != null) {
-            setupUIElements();
-            fetchUserContent();
+            setupInterfaceElements();
         } else {
-            String prismUserId = intent.getExtras().getString(NotificationKey.PRISM_USER_ID);
+            handleIncomingNotificationClick();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    /**
+     *
+     */
+    private void setupSwipeRefreshLayout() {
+        profileSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
+        profileSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //TODO: PARTH re-pull data for the current prismUser (global) and refresh all interface elements
+                //TODO: MIKE needs to setup a method for refreshing but not instantiating all elements over again
+                refreshPrismUserInterface();
+            }
+        });
+    }
+
+    /**
+     * Attempt to get the Serialized PrismUser from incoming Intent
+     * @return - PrismUser to populate profile page interface elements with
+     *           PrismUser could be null if this comes from a notification PendingIntent click
+     */
+    private PrismUser getPrismUserIntentData() {
+        return (PrismUser) getIntent().getSerializableExtra(Default.PRISM_USER_EXTRA);
+    }
+
+    /**
+     * PrismUser will be fetched based off the PrismUser String id got from incoming Intent
+     * If PrismUser String id is null, toast no user found and go back to MainActivity
+     */
+    private void handleIncomingNotificationClick() {
+        String prismUserId = getNotificationIntentData();
+        if (prismUserId != null) {
             pullPrismUserDetails(prismUserId);
+        } else {
+            Helper.toast(PrismUserProfileActivity.this, Message.USER_NOT_FOUND);
+            onBackPressed();
+        }
+    }
+
+    /**
+     * Attempt to get PrismUser String id from notification PendingIntent click
+     * @return - String PrismUser id to fetch PrismUser for
+     */
+    private String getNotificationIntentData() {
+        Bundle bundle = getIntent().getExtras();
+        String notificationPrismUserId = null;
+        if (bundle != null) {
+            notificationPrismUserId = bundle.getString(NotificationKey.PRISM_USER_ID);
+        }
+        return notificationPrismUserId;
+    }
+
+    /**
+     * Setup the toolbar and back button to return to MainActivity
+     */
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    /**
+     * Setup the AppBarLayout knowing when it is fully collapsed/ expanded
+     * The percentage of the collapsed will be used to
+     * set the alpha of the toolbar and collapsingToolbar elements
+     */
+    private void setupAppBarLayout() {
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            private int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(final AppBarLayout appBarLayout, int verticalOffset) {
+                // Initialize the size of the scroll
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+
+                // Based on scrollRange adjust alpha of profile picture ImageViews
+                // As the AppBarLayout is hidden, the large ImageView will hide
+                // and the toolbar ImageView will show
+                // As the AppBarLayout is shown, the large ImageView will show
+                // and the toolbar ImageView will hide
+                float toolbarElementsAlpha = Math.abs(verticalOffset / ((float) scrollRange));
+                toolbarUserProfilePicImageView.setAlpha(toolbarElementsAlpha);
+                toolbarUserUsernameTextView.setAlpha(toolbarElementsAlpha);
+                toolbarFollowButton.setAlpha(toolbarElementsAlpha);
+            }
+        });
+    }
+
+    /**
+     * Setup interface elements of current activity
+     */
+    private void setupInterfaceElements() {
+        toolbarUserUsernameTextView.setTypeface(Default.sourceSansProBold);
+        toolbarFollowButton.setTypeface(Default.sourceSansProLight);
+        followUserButton.setTypeface(Default.sourceSansProLight);
+        followersCountTextView.setTypeface(Default.sourceSansProBold);
+        followersLabelTextView.setTypeface(Default.sourceSansProLight);
+        postsCountTextView.setTypeface(Default.sourceSansProBold);
+        postsLabelTextView.setTypeface(Default.sourceSansProLight);
+        followingCountTextView.setTypeface(Default.sourceSansProBold);
+        followingLabelTextView.setTypeface(Default.sourceSansProLight);
+        userUsernameTextView.setTypeface(Default.sourceSansProBold);
+        userFullNameTextView.setTypeface(Default.sourceSansProLight);
+
+        setupToolbar();
+        setupAppBarLayout();
+
+        isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
+
+        if (isCurrentUser) {
+            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+                @Override
+                public void onSuccess() {
+                    prismUser = CurrentUser.prismUser;
+                    fetchUserContent();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
+        } else {
+            fetchUserContent();
         }
 
     }
 
+    /**
+     * Using PrismUser String id pull PrismUser details for populating the profile page
+     * @param prismUserId - String PrismUser id used to fetch PrismUser from Firebase database
+     */
     private void pullPrismUserDetails(String prismUserId) {
         DatabaseRead.fetchPrismUser(prismUserId, new OnFetchPrismUserCallback() {
             @Override
             public void onSuccess(PrismUser user) {
                 prismUser = user;
-                setupUIElements();
-                fetchUserContent();
+                setupInterfaceElements();
             }
 
             @Override
@@ -174,150 +312,109 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
     /**
-     * TODO: @Parth Comment this
+     * After global PrismUser is defined attempt to fetch user content
+     * If the PrismUser is CurrentUser:
+     * Get the uploaded and reposted PrismPosts from CurrentUser class
+     * If the PrismUser is not CurrentUser:
+     * Use DatabaseRead to fetch uploaded and reposted PrismPosts from Firebase for PrismUser
      */
     private void fetchUserContent() {
+        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+
         if (isCurrentUser) {
             prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
-            setupUserPostsUIElements();
-            return;
+            sortPostsOnUserPage();
+            setupPrismUserInterface();
+        } else {
+            DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
+                @Override
+                public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                    prismUserUploadedAndRepostedPostsArrayList.addAll(prismPosts);
+
+                    areUploadedAndRepostedPostsFetched[0] = true;
+                    if (areUserPostsFetched()) {
+                        sortPostsOnUserPage();
+                        setupPrismUserInterface();
+                    }
+                }
+
+                @Override
+                public void onPrismPostsNotFound() {
+                    // User has not uploaded any posts
+                    // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_UPLOADS_FAIL);
+                }
+            });
+
+            DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
+                @Override
+                public void onSuccess(ArrayList<PrismPost> prismPosts) {
+                    for (PrismPost post : prismPosts) {
+                        post.setIsReposted(true);
+                        prismUserUploadedAndRepostedPostsArrayList.add(post);
+                    }
+
+                    areUploadedAndRepostedPostsFetched[1] = true;
+                    if (areUserPostsFetched()) {
+                        sortPostsOnUserPage();
+                        setupPrismUserInterface();
+                    }
+                }
+
+                @Override
+                public void onPrismPostsNotFound() {
+                    // User has not reposted any posts
+                    // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_REPOSTS_FAIL);
+                }
+            });
         }
+    }
 
+    /**
+     * Check the boolean Array that uploaded (index 0) and reposted (index 1) are both true
+     * This validates that both sets of PrismPosts have been fetched from Firebase
+     * Now the interface setup can continue
+     * @return - boolean representing both indices being true
+     */
+    private boolean areUserPostsFetched() {
+        return areUploadedAndRepostedPostsFetched[0] && areUploadedAndRepostedPostsFetched[1];
+    }
 
-        DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
+    /**
+     * Using the Collection class and a Comparator<PrismPost>, sort the Array by long timestamp
+     */
+    private void sortPostsOnUserPage() {
+        Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                prismUserUploadedAndRepostedPostsArrayList.addAll(prismPosts);
-                areUploadedAndRepostedPostsFetched[0] = true;
-
-                if (areUserRepostedPostsFetched()) {
-                    sortPostsOnUserPage();
-                    setupUserPostsUIElements();
-                }
-            }
-
-            @Override
-            public void onPrismPostsNotFound() {
-                // User has not uploaded any posts
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                // TODO Log this
-                e.printStackTrace();
-            }
-        });
-
-        DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
-            @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                for (PrismPost post : prismPosts) {
-                    post.setIsReposted(true);
-                    prismUserUploadedAndRepostedPostsArrayList.add(post);
-                }
-
-                areUploadedAndRepostedPostsFetched[1] = true;
-                if (areUserUploadedPostsFetched()) {
-                    sortPostsOnUserPage();
-                    setupUserPostsUIElements();
-                }
-            }
-
-            @Override
-            public void onPrismPostsNotFound() {
-                // User has not reposted any posts
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_REPOSTS_FAIL);
+            public int compare(PrismPost p1, PrismPost p2) {
+                return Long.compare(p1.getTimestamp(), p2.getTimestamp());
             }
         });
     }
 
     /**
-     * Setup the toolbar and back button to return to MainActivity
+     * Setup all user info based elements
+     * User full name TextView, username TextView populated, and toolbar username populated
+     * Add click listener for clicking profile picture:
+     * CurrentUser: Show AlertDialog of options
+     * Non-CurrentUser: Show hi-res version of profile picture in ShowUserProfilePictureActivity
      */
-    private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    /**
-     * Setup the userProfilePicImageView so it is populated with a Default or custom picture
-     * When clicked it will show an AlertDialog of options for changing the picture
-     */
-    private void setupUserProfileUIElements() {
+    private void setupUserInfo() {
         userFullNameTextView.setText(prismUser.getFullName());
         userUsernameTextView.setText(prismUser.getUsername());
+        toolbarUserUsernameTextView.setText(prismUser.getUsername());
 
-        setupUserProfilePicture();
-
-        postsCountTextView.setText(String.valueOf(prismUser.getUploadCount()));
-
-        followersCountTextView.setText(String.valueOf(prismUser.getFollowerCount()));
-        followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(), DisplayUserType.FOLLOWER_USERS);
-            }
-        });
-
-        followingCountTextView.setText(String.valueOf(prismUser.getFollowingCount()));
-        followingRelativeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(),DisplayUserType.FOLLOWING_USERS);
-            }
-        });
-    }
-
-    /**
-     * Setup all user profile picture based UI elements
-     * Add onClickListener handling for current user/ other user
-     * Current User: Show AlertDialog of options
-     * Other User: Show hi-res version of profile picture
-     */
-    private void setupUserProfilePicture() {
-        Glide.with(this)
-                .asBitmap()
-                .thumbnail(0.05f)
-                .load(prismUser.getProfilePicture().getHiResProfilePicUri())
-                .apply(new RequestOptions().fitCenter())
-                .into(new BitmapImageViewTarget(userProfilePicImageView) {
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        int imageViewPadding = (int) (2 * Default.scale);
-                        RoundedBitmapDrawable profilePictureDrawable =
-                                BitmapHelper.createCircularProfilePicture(
-                                        PrismUserProfileActivity.this,
-                                        userProfilePicImageView,
-                                        prismUser.getProfilePicture().isDefault(),
-                                        resource,
-                                        imageViewPadding);
-                        userProfilePicImageView.setImageDrawable(profilePictureDrawable);
-                    }
-                });
-
-        userProfilePicImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isCurrentUser) {
-                    AlertDialog setProfilePictureAlertDialog = createSetProfilePictureAlertDialog();
-                    setProfilePictureAlertDialog.show();
-                } else {
-                    IntentHelper.intentToShowUserProfilePictureActivity(PrismUserProfileActivity.this, prismUser, userProfilePicImageView);
-                }
-            }
-        });
-
+        // Using Glide to populate the toolbar ImageView profile picture
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)
@@ -338,53 +435,122 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     }
                 });
 
-        toolbarUserUsernameTextView.setText(prismUser.getUsername());
+        // Using Glide to populate the large ImageView profile picture
+        Glide.with(this)
+                .asBitmap()
+                .thumbnail(0.05f)
+                .load(prismUser.getProfilePicture().getHiResProfilePicUri())
+                .apply(new RequestOptions().fitCenter())
+                .into(new BitmapImageViewTarget(userProfilePicImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        int imageViewPadding = (int) (2 * Default.scale);
+                        RoundedBitmapDrawable profilePictureDrawable =
+                                BitmapHelper.createCircularProfilePicture(
+                                        PrismUserProfileActivity.this,
+                                        userProfilePicImageView,
+                                        prismUser.getProfilePicture().isDefault(),
+                                        resource,
+                                        imageViewPadding);
+                        userProfilePicImageView.setImageDrawable(profilePictureDrawable);
+                    }
+                });
+
+        // Handle large ImageView profile picture click
+        // Intents to ShowUserProfilePictureActivity and shows large scale profile picture
+        userProfilePicImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isCurrentUser) {
+                    AlertDialog setProfilePictureAlertDialog = createSetProfilePictureAlertDialog();
+                    setProfilePictureAlertDialog.show();
+                } else {
+                    IntentHelper.intentToShowUserProfilePictureActivity(PrismUserProfileActivity.this, prismUser, userProfilePicImageView);
+                }
+            }
+        });
     }
 
     /**
-     * Create an AlertDialog for when the userProfilePicImageView is clicked
-     * Gives the option to take a picture or select one from gallery
+     * Setup the userProfilePicImageView so it is populated with a Default or custom picture
+     * When clicked it will show an AlertDialog of options for changing the picture
      */
-    private AlertDialog createSetProfilePictureAlertDialog() {
-        RecyclerView recyclerView = new RecyclerView(this);
+    private void setupUserStats() {
+        postsCountTextView.setText(String.valueOf(prismUser.getUploadCount()));
+        followersCountTextView.setText(String.valueOf(prismUser.getFollowerCount()));
+        followingCountTextView.setText(String.valueOf(prismUser.getFollowingCount()));
 
-        AlertDialog.Builder moreOptionAlertDialogBuilder = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
-        moreOptionAlertDialogBuilder.setView(recyclerView);
-        AlertDialog moreOptionAlertDialog = moreOptionAlertDialogBuilder.create();
+        followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(), DisplayUserType.FOLLOWER_USERS);
+            }
+        });
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(this, ProfilePictureOption.values(), prismUser, userProfilePicImageView, moreOptionAlertDialog);
-        recyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
-
-        return moreOptionAlertDialog;
+        followingRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentHelper.intentToDisplayUsersActivity(PrismUserProfileActivity.this, prismUser.getUid(),DisplayUserType.FOLLOWING_USERS);
+            }
+        });
     }
 
     /**
-     * Toggle on the visibility of current user based UI elements
-     * Call methods for updating data
+     *
      */
-    private void setupCurrentUserProfilePage() {
+    private void setupPrismUserInterface() {
+        setupUserInfo();
+        setupUserStats();
+
+        if (isCurrentUser) {
+            setupEditAccountInformationButton();
+            setupCurrentUserPostsViewPager();
+        } else {
+            setupFollowUserButton();
+            setupUserUploadedPostsRecyclerView();
+        }
+
+        setupSwipeRefreshLayout();
+    }
+
+    /**
+     *
+     */
+    private void refreshPrismUserInterface() {
+        //TODO: Create current prismUser (global) fetch here with a callback
+        //TODO: Add everything below this inside OnSuccess
+
+        setupUserInfo();
+        setupUserStats();
+
+        if (isCurrentUser) {
+            //TODO: create viewpager recycler views  refresh method
+            userPostsViewPagerAdapter.refreshViewPagerTabs();
+        } else {
+            prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
+        }
+
+        profileSwipeRefreshLayout.setRefreshing(false);
+    }
+
+
+
+    /* =====================================
+     * CURRENT USER SETUP: Start
+     * ===================================== */
+
+    /**
+     * If the editAccountInformation button is pressed, Intent to EditUserProfileActivity
+     */
+    private void setupEditAccountInformationButton() {
+        accountEditInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentHelper.intentToEditUserProfileActivity(PrismUserProfileActivity.this);
+            }
+        });
+
         accountEditInfoButton.setVisibility(View.VISIBLE);
-        setupEditAccountInformationButton();
-
-        userPostsTabLayout.setVisibility(View.VISIBLE);
-        userPostsViewPager.setVisibility(View.VISIBLE);
-        setupCurrentUserPostsViewPager();
-    }
-
-    /**
-     * Toggle on the visibility of other user based UI elements
-     * Call methods for updating data
-     */
-    private void setupOtherUserProfilePage() {
-        followUserButton.setVisibility(View.VISIBLE);
-        setupFollowUserButton();
-
-        profileNestedScrollView.setVisibility(View.VISIBLE);
-
-        toolbarFollowButton.setVisibility(View.VISIBLE);
-        setupUserUploadedPostsRecyclerView();
     }
 
     /**
@@ -392,10 +558,24 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Tab 1: Posts (user posts and reposts)
      * Tab 2: Likes (user likes)
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setupCurrentUserPostsViewPager() {
+        userPostsViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                profileSwipeRefreshLayout.setEnabled(false);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_UP:
+                        profileSwipeRefreshLayout.setEnabled(true);
+                        break;
+                }
+                return false;
+            }
+        });
+
         userPostsViewPager.setOffscreenPageLimit(2);
         userPostsViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(userPostsTabLayout));
-        ProfileViewPagerAdapter userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager());
+        userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager());
         userPostsViewPager.setAdapter(userPostsViewPagerAdapter);
         userPostsTabLayout.setupWithViewPager(userPostsViewPager);
 
@@ -421,84 +601,41 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // Switch statement handing reselected tabs
-                int tabPosition = tab.getPosition();
-                switch (tabPosition) {
-                    case 0:
-                        break;
-
-                    case 1:
-                        break;
-
-                    default:
-                        break;
-                }
             }
         });
+
+        userPostsTabLayout.setVisibility(View.VISIBLE);
+        userPostsViewPager.setVisibility(View.VISIBLE);
     }
 
     /**
-     * Setup the RecyclerView for all user uploaded and reposted posts
+     * Create an AlertDialog for when the userProfilePicImageView is clicked
+     * Gives the option to take a picture or select one from gallery
      */
-    private void setupUserUploadedPostsRecyclerView() {
-        profileSwipeRefreshLayout.setVisibility(View.VISIBLE);
-        profileSwipeRefreshLayout.setColorSchemeResources(InterfaceAction.swipeRefreshLayoutColors);
-        profileSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                profileSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+    private AlertDialog createSetProfilePictureAlertDialog() {
+        RecyclerView recyclerView = new RecyclerView(this);
 
-        LinearLayout userUploadedPostsLinearLayout = this.findViewById(R.id.user_uploaded_posts_linear_layout);
-        new PrismPostStaggeredGridRecyclerView(this, userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
-        userUploadedPostsLinearLayout.setVisibility(View.VISIBLE);
+        AlertDialog.Builder moreOptionAlertDialogBuilder = new AlertDialog.Builder(this, R.style.DarkThemAlertDialog);
+        moreOptionAlertDialogBuilder.setView(recyclerView);
+        AlertDialog moreOptionAlertDialog = moreOptionAlertDialogBuilder.create();
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        OptionRecyclerViewAdapter moreOptionsRecyclerViewAdapter = new OptionRecyclerViewAdapter(this, ProfilePictureOption.values(), prismUser, userProfilePicImageView, moreOptionAlertDialog);
+        recyclerView.setAdapter(moreOptionsRecyclerViewAdapter);
+
+        return moreOptionAlertDialog;
     }
 
-    /**
-     * Setup the AppBarLayout knowing when it is fully collapsed/ expanded
-     * The percentage of the collapsed will be used to
-     * set the alpha of the toolbar and collapsingToolbar elements
-     */
-    private void setupAppBarLayout() {
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            private int scrollRange = -1;
+    /* =====================================
+     * CURRENT USER SETUP: End
+     * ===================================== */
 
-            @Override
-            public void onOffsetChanged(final AppBarLayout appBarLayout, int verticalOffset) {
-                //Initialize the size of the scroll
-                if (scrollRange == -1) {
-                    scrollRange = appBarLayout.getTotalScrollRange();
-                }
 
-                float toolbarElementsAlpha = Math.abs(verticalOffset/ ((float) scrollRange));
-                toolbarUserProfilePicImageView.setAlpha(toolbarElementsAlpha);
-                toolbarUserUsernameTextView.setAlpha(toolbarElementsAlpha);
-                toolbarFollowButton.setAlpha(toolbarElementsAlpha);
 
-                // Check if the view is collapsed
-                if (scrollRange + verticalOffset == 0) {
-//                    toolbarUserProfilePicImageView.setVisibility(View.VISIBLE);
-//                    toolbarUserUsernameTextView.setVisibility(View.VISIBLE);
-                } else {
-//                    toolbarUserProfilePicImageView.setVisibility(View.GONE);
-//                    toolbarUserUsernameTextView.setVisibility(View.GONE);
-                }
-            }
-        });
-    }
-
-    /**
-     * If the editAccountInformation button is pressed, Intent to EditUserProfileActivity
-     */
-    private void setupEditAccountInformationButton() {
-        accountEditInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentHelper.intentToEditUserProfileActivity(PrismUserProfileActivity.this);
-            }
-        });
-    }
+    /* =====================================
+     * NON CURRENT USER SETUP: Start
+     * ===================================== */
 
     /**
      *  Setup follow buttons initial state and onClickListener
@@ -524,6 +661,21 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 handleFollowButtonClick(performFollow);
             }
         });
+
+        followUserButton.setVisibility(View.VISIBLE);
+        toolbarFollowButton.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Setup the RecyclerView for all user uploaded and reposted posts
+     */
+    private void setupUserUploadedPostsRecyclerView() {
+        LinearLayout userUploadedPostsLinearLayout = this.findViewById(R.id.user_uploaded_posts_linear_layout);
+        prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(this,
+                userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
+
+        userUploadedPostsLinearLayout.setVisibility(View.VISIBLE);
+        profileNestedScrollView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -541,66 +693,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Setup all UI elements
-     */
-    private void setupUIElements() {
-        isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
+    /* =====================================
+     * NON CURRENT USER SETUP: End
+     * ===================================== */
 
-        setupToolbar();
-        // Setup Typefaces for all text based UI elements
-        toolbarUserUsernameTextView.setTypeface(Default.sourceSansProBold);
-        toolbarFollowButton.setTypeface(Default.sourceSansProLight);
-        followUserButton.setTypeface(Default.sourceSansProLight);
-        followersCountTextView.setTypeface(Default.sourceSansProBold);
-        followersLabelTextView.setTypeface(Default.sourceSansProLight);
-        postsCountTextView.setTypeface(Default.sourceSansProBold);
-        postsLabelTextView.setTypeface(Default.sourceSansProLight);
-        followingCountTextView.setTypeface(Default.sourceSansProBold);
-        followingLabelTextView.setTypeface(Default.sourceSansProLight);
-        userUsernameTextView.setTypeface(Default.sourceSansProBold);
-        userFullNameTextView.setTypeface(Default.sourceSansProLight);
-
-        setupAppBarLayout();
-        setupUserProfileUIElements();
-    }
-
-    private void sortPostsOnUserPage() {
-        Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
-            @Override
-            public int compare(PrismPost p1, PrismPost p2) {
-                return Long.compare(p1.getTimestamp(), p2.getTimestamp());
-            }
-        });
-    }
-
-    private boolean areUserUploadedPostsFetched() {
-        return areUploadedAndRepostedPostsFetched[0];
-    }
-
-    private boolean areUserRepostedPostsFetched() {
-        return areUploadedAndRepostedPostsFetched[0];
-    }
-
-    /**
-     * Current user setup is different then other user UI setup
-     */
-    private void setupUserPostsUIElements() {
-        if (isCurrentUser) {
-            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
-                @Override
-                public void onSuccess() {
-                    setupCurrentUserProfilePage();
-                    // TODO call setupProfilePicture here
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-
-                }
-            });
-        } else {
-            setupOtherUserProfilePage();
-        }
-    }
 }

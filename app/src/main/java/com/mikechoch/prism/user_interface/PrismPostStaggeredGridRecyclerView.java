@@ -17,8 +17,12 @@ import java.util.ArrayList;
 
 public class PrismPostStaggeredGridRecyclerView {
 
+    ArrayList<RecyclerView> staggeredRecyclerViews;
+
 
     public PrismPostStaggeredGridRecyclerView(Context context, LinearLayout recyclerViewContainer, ArrayList<PrismPost> prismPostArrayList) {
+        staggeredRecyclerViews = new ArrayList<>();
+
         recyclerViewContainer.removeAllViews();
         recyclerViewContainer.setWeightSum((float) Default.POSTS_COLUMNS);
 
@@ -37,17 +41,30 @@ public class PrismPostStaggeredGridRecyclerView {
             LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1f);
             recyclerViewLinearLayout.setLayoutParams(one_params);
 
-            RecyclerView tagPostsRecyclerView = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.posts_recycler_view, null);
-            tagPostsRecyclerView.setNestedScrollingEnabled(false);
+            RecyclerView postsRecyclerView = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.posts_recycler_view, null);
+            postsRecyclerView.setNestedScrollingEnabled(false);
             LinearLayoutManager recyclerViewLinearLayoutManager = new LinearLayoutManager(context);
-            tagPostsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
+            postsRecyclerView.setLayoutManager(recyclerViewLinearLayoutManager);
             PostsColumnRecyclerViewAdapter tagPostsColumnRecyclerViewAdapter = new PostsColumnRecyclerViewAdapter(context, prismTagPostsArrayLists.get(i));
-            tagPostsRecyclerView.setAdapter(tagPostsColumnRecyclerViewAdapter);
+            postsRecyclerView.setAdapter(tagPostsColumnRecyclerViewAdapter);
 
-            recyclerViewLinearLayout.addView(tagPostsRecyclerView);
+            recyclerViewLinearLayout.addView(postsRecyclerView);
             recyclerViewContainer.addView(recyclerViewLinearLayout);
+
+            staggeredRecyclerViews.add(postsRecyclerView);
         }
 
+    }
+
+    /**
+     *
+     */
+    public void refreshStaggeredRecyclerViews() {
+        for (RecyclerView recyclerView : staggeredRecyclerViews) {
+            if (recyclerView != null && recyclerView.getAdapter() != null) {
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+        }
     }
 
 }

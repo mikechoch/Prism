@@ -8,13 +8,17 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.LikedPostsFragment;
 import com.mikechoch.prism.fragment.UploadedRepostedPostsFragment;
 
+import java.util.ArrayList;
+
 public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private int NUM_ITEMS = Default.USER_POSTS_VIEW_PAGER_SIZE;
+    private ArrayList<Fragment> fragments;
 
 
     public ProfileViewPagerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
+        fragments = new ArrayList<>();
     }
 
     @Override
@@ -26,9 +30,13 @@ public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return UploadedRepostedPostsFragment.newInstance();
+                UploadedRepostedPostsFragment uploadedRepostedPostsFragment = UploadedRepostedPostsFragment.newInstance();
+                fragments.add(uploadedRepostedPostsFragment);
+                return uploadedRepostedPostsFragment;
             case 1:
-                return LikedPostsFragment.newInstance();
+                LikedPostsFragment likedPostsFragment = LikedPostsFragment.newInstance();
+                fragments.add(likedPostsFragment);
+                return likedPostsFragment;
             default:
                 return null;
         }
@@ -39,4 +47,16 @@ public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
         return "";
     }
 
+    /**
+     *
+     */
+    public void refreshViewPagerTabs() {
+        for (Fragment fragment : fragments) {
+            if (fragment instanceof UploadedRepostedPostsFragment) {
+                ((UploadedRepostedPostsFragment) fragment).getPrismPostStaggeredGridRecyclerView().refreshStaggeredRecyclerViews();
+            } else if (fragment instanceof LikedPostsFragment) {
+                ((LikedPostsFragment) fragment).getPrismPostStaggeredGridRecyclerView().refreshStaggeredRecyclerViews();
+            }
+        }
+    }
 }
