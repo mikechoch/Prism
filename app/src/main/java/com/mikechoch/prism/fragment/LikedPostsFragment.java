@@ -29,6 +29,7 @@ public class LikedPostsFragment extends Fragment {
     private NestedScrollView likedPostsNestedScrollView;
     private LinearLayout userLikedPostsLinearLayout;
 
+    private ArrayList<PrismPost> userLikedPosts;
     private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
 
@@ -50,6 +51,14 @@ public class LikedPostsFragment extends Fragment {
 
     /**
      *
+     * @param userLikedPosts
+     */
+    public void setUserLikedPosts(ArrayList<PrismPost> userLikedPosts) {
+        this.userLikedPosts = userLikedPosts;
+    }
+
+    /**
+     *
      * @return
      */
     public PrismPostStaggeredGridRecyclerView getPrismPostStaggeredGridRecyclerView() {
@@ -61,7 +70,6 @@ public class LikedPostsFragment extends Fragment {
      * If no posts have been liked, show the no liked posts text and icon
      */
     private void setupLikedRecyclerViewColumns() {
-        ArrayList<PrismPost> userLikedPosts = CurrentUser.getUserLikes();
         if (userLikedPosts != null && userLikedPosts.size() > 0) {
             prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(getActivity(), userLikedPostsLinearLayout, userLikedPosts);
         } else {

@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fragment.LikedPostsFragment;
 import com.mikechoch.prism.fragment.UploadedRepostedPostsFragment;
@@ -14,11 +15,15 @@ public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private int NUM_ITEMS = Default.USER_POSTS_VIEW_PAGER_SIZE;
     private ArrayList<Fragment> fragments;
+    private ArrayList<PrismPost> userUploadedRepostedPosts;
+    private ArrayList<PrismPost> userLikedPosts;
 
 
-    public ProfileViewPagerAdapter(FragmentManager fragmentManager) {
+    public ProfileViewPagerAdapter(FragmentManager fragmentManager, ArrayList<PrismPost> uploadedAndReposted, ArrayList<PrismPost> liked) {
         super(fragmentManager);
         fragments = new ArrayList<>();
+        this.userUploadedRepostedPosts = uploadedAndReposted;
+        this.userLikedPosts = liked;
     }
 
     @Override
@@ -31,10 +36,12 @@ public class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 UploadedRepostedPostsFragment uploadedRepostedPostsFragment = UploadedRepostedPostsFragment.newInstance();
+                uploadedRepostedPostsFragment.setUserUploadedAndRepostedPosts(userUploadedRepostedPosts);
                 fragments.add(uploadedRepostedPostsFragment);
                 return uploadedRepostedPostsFragment;
             case 1:
                 LikedPostsFragment likedPostsFragment = LikedPostsFragment.newInstance();
+                likedPostsFragment.setUserLikedPosts(userLikedPosts);
                 fragments.add(likedPostsFragment);
                 return likedPostsFragment;
             default:

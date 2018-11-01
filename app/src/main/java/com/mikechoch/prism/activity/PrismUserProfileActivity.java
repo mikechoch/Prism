@@ -601,7 +601,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         userPostsViewPager.setOffscreenPageLimit(2);
         userPostsViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(userPostsTabLayout));
-        userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager());
+        userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager(), CurrentUser.getUserUploadsAndReposts(), CurrentUser.getUserLikes());
         userPostsViewPager.setAdapter(userPostsViewPagerAdapter);
         userPostsTabLayout.setupWithViewPager(userPostsViewPager);
 
