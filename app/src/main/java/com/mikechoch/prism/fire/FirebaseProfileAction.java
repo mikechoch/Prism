@@ -301,7 +301,7 @@ public class FirebaseProfileAction {
                             }
                         });
                     }
-                })
+                });
 
             }
         }).addOnFailureListener(new OnFailureListener() {
