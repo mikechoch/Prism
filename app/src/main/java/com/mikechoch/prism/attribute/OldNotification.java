@@ -4,26 +4,35 @@ import android.support.annotation.NonNull;
 
 import com.mikechoch.prism.type.NotificationType;
 
-public class Notification implements Comparable<Notification> {
+public class OldNotification implements Comparable<OldNotification> {
 
+    private String notificationId;
     private NotificationType type;
     private PrismPost prismPost;
     private long actionTimestamp;
     private PrismUser mostRecentUser;
     private boolean viewed;
 
-
-    public Notification() {
+    public OldNotification() {
 
     }
 
-    public Notification(NotificationType type, PrismPost prismPost, PrismUser mostRecentUser, long actionTimestamp, boolean viewed) {
+    public OldNotification(String notificationId, NotificationType type, PrismPost prismPost, PrismUser mostRecentUser, long actionTimestamp, boolean viewed) {
+        this.notificationId = notificationId;
         this.type = type;
         this.prismPost = prismPost;
         this.mostRecentUser = mostRecentUser;
         this.actionTimestamp = actionTimestamp;
         this.viewed = viewed;
 
+    }
+
+    public String getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 
     public NotificationType getType() {
@@ -58,7 +67,6 @@ public class Notification implements Comparable<Notification> {
         this.viewed = viewed;
     }
 
-
     public PrismUser getMostRecentUser() {
         return mostRecentUser;
     }
@@ -66,6 +74,21 @@ public class Notification implements Comparable<Notification> {
     public void setMostRecentUser(PrismUser mostRecentUser) {
         this.mostRecentUser = mostRecentUser;
     }
+
+    public String getNotificationPostId() {
+        if (this.type == NotificationType.LIKE || this.type == NotificationType.REPOST) {
+            return notificationId.replace(this.type.getNotifIdSuffix(), "");
+        }
+        return "";
+    }
+
+    public String getNotificationUserId() {
+        if (this.type == NotificationType.FOLLOW) {
+            return notificationId.replace(this.type.getNotifIdSuffix(), "");
+        }
+        return "";
+    }
+
 
     public Integer getOtherUserCount() {
         switch (type) {
@@ -79,7 +102,16 @@ public class Notification implements Comparable<Notification> {
     }
 
     @Override
-    public int compareTo(@NonNull Notification o) {
+    public int compareTo(@NonNull OldNotification o) {
         return Long.compare(o.getActionTimestamp(), this.getActionTimestamp());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OldNotification) {
+            OldNotification oldNotification = (OldNotification) obj;
+            return this.notificationId.equals(oldNotification.notificationId);
+        }
+        return false;
     }
 }

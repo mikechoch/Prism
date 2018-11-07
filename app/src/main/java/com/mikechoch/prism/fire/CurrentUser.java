@@ -1,23 +1,14 @@
 package com.mikechoch.prism.fire;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
-import com.mikechoch.prism.R;
-import com.mikechoch.prism.activity.MainActivity;
-import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.OldNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
-import com.mikechoch.prism.constant.Default;
-import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
@@ -32,10 +23,6 @@ public class CurrentUser {
 
     static ArrayList<PrismPost> news_feed;
 
-    static DatabaseReference notificationsReference;
-    static ChildEventListener notificationsListener;
-    static Handler notificationsHandler;
-    static Runnable notificationsRunnable;
 
     /**
      * Key: String postId
@@ -51,14 +38,8 @@ public class CurrentUser {
     private static ArrayList<PrismPost> uploaded_posts;
     private static ArrayList<PrismPost> uploaded_and_reposted_posts;
 
-    /**
-     * Key: String notificationId
-     * Value: NotificationType object
-     */
-    private static HashMap<String, Notification> notifications_map;
-
     /** ArrayList of NotificationType objects for above structures **/
-    private static ArrayList<Notification> notifications;
+    static ArrayList<OldNotification> oldNotifications;
 
     /**
      * Key: String uid
@@ -84,8 +65,6 @@ public class CurrentUser {
         followers = new HashMap<>();
         followings = new HashMap<>();
 
-        notifications_map = new HashMap<>();
-        notifications = new ArrayList<>();
     }
 
     public static void prepareApp(Context context) {
@@ -93,6 +72,7 @@ public class CurrentUser {
         DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
             @Override
             public void onSuccess() {
+                IncomingNotificationController.fetchCurrentNotifications(context);
                 IntentHelper.intentToMainActivity(context);
             }
 
@@ -103,7 +83,7 @@ public class CurrentUser {
         });
     }
 
-    public static void refreshUser(OnFetchUserProfileCallback callback) {
+    public static void refreshUser(Context context, OnFetchUserProfileCallback callback) {
         new CurrentUser();
         DatabaseRead.constructCurrentUserProfile(callback);
     }
@@ -170,7 +150,7 @@ public class CurrentUser {
      * Adds list of liked prismPosts to CurrentUser's liked_posts list
      * @param likedPosts
      */
-    static void likePosts(ArrayList<PrismPost> likedPosts) {
+    static void addLikedPosts(ArrayList<PrismPost> likedPosts) {
         liked_posts.addAll(likedPosts);
     }
 
@@ -209,7 +189,7 @@ public class CurrentUser {
      * Adds the list of reposted prismPosts to CurrentUser's reposted_posts list
      * @param repostedPosts
      */
-    static void repostPosts(ArrayList<PrismPost> repostedPosts) {
+    static void addRepostedPosts(ArrayList<PrismPost> repostedPosts) {
         reposted_posts.addAll(repostedPosts);
         for (PrismPost prismPost : repostedPosts) {
             prismPost.setIsReposted(true);
@@ -238,7 +218,7 @@ public class CurrentUser {
      * Adds the list of uploaded prismPosts to CurrentUser's uploaded_posts list and hashMap
      * @param uploadedPosts
      */
-    static void uploadPosts(ArrayList<PrismPost> uploadedPosts) {
+    static void addUploadPosts(ArrayList<PrismPost> uploadedPosts) {
         uploaded_posts.addAll(uploadedPosts);
     }
 
@@ -251,26 +231,18 @@ public class CurrentUser {
         uploaded_posts_map.remove(prismPost.getPostId());
     }
 
-    /**
-     *
-     * @param notification
-     * @param notificationId
-     */
-    static void addNotification(Notification notification, String notificationId) {
-        if (!notifications_map.containsKey(notificationId)) {
-            notifications.add(0, notification);
-            notifications_map.put(notificationId, notification);
-        }
-    }
 
     /**
      *
-     * @param oldNotificationId
+     * @param oldNotification
      */
-    static void removeNotification(String oldNotificationId) {
-        Notification oldNotification = notifications_map.get(oldNotificationId);
-        notifications.remove(oldNotification);
-        notifications_map.remove(oldNotificationId);
+    static void addNotification(OldNotification oldNotification) {
+        oldNotifications.add(0, oldNotification);
+    }
+
+
+    static void removeNotification(OldNotification oldNotification) {
+        oldNotifications.remove(oldNotification);
     }
 
 
@@ -333,8 +305,8 @@ public class CurrentUser {
      *
      * @return
      */
-    public static ArrayList<Notification> getNotifications() {
-        return notifications;
+    public static ArrayList<OldNotification> getOldNotifications() {
+        return oldNotifications;
     }
 
 
@@ -362,16 +334,13 @@ public class CurrentUser {
         return true;
     }
 
+
     /**
      *
      */
     public static void performSignOut() {
-        if (CurrentUser.notificationsListener != null) {
-            CurrentUser.notificationsReference.removeEventListener(CurrentUser.notificationsListener);
-        }
-        if (CurrentUser.notificationsRunnable != null) {
-            CurrentUser.notificationsHandler.removeCallbacks(CurrentUser.notificationsRunnable);
-        }
+
+        IncomingNotificationController.clearNotifications();
 
         CurrentUser.prismUser = null;
         CurrentUser.preference = null;

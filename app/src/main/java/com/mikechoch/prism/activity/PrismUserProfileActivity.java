@@ -268,7 +268,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
 
         if (isCurrentUser) {
-            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+            CurrentUser.refreshUser(PrismUserProfileActivity.this, new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
                     prismUser = CurrentUser.prismUser;
@@ -516,7 +516,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void refreshPrismUserInterface() {
         if (isCurrentUser) {
-            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
+            CurrentUser.refreshUser(PrismUserProfileActivity.this, new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
                     prismUser = CurrentUser.prismUser;

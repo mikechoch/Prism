@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!--Populate the notification description TextViews-->
+                <!--Populate the oldNotification description TextViews-->
 
             </LinearLayout>
 

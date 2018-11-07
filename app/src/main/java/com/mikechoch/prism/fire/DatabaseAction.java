@@ -123,8 +123,11 @@ public class DatabaseAction {
                     .setValue(timestamp);
 
             CurrentUser.repostPost(prismPost);
-        }
 
+            if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
+                OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+            }
+        }
     }
 
     /**

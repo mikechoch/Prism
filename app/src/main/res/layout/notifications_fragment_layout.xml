@@ -52,7 +52,7 @@
             android:layout_below="@+id/no_notification_image_view"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="36dp"
-            android:text="No notifications"
+            android:text="No oldNotifications"
             android:textColor="@android:color/white"/>
 
     </RelativeLayout>

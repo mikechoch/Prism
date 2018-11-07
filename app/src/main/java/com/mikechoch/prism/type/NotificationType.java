@@ -65,9 +65,6 @@ public enum NotificationType {
         return null;
     }
 
-    public String decodeNotificationPostId(String notificationId) {
-        return notificationId.replace(this.getNotifIdSuffix(), "");
-    }
 
     public static String createLikeRepostNotificationId(PrismPost prismPost, NotificationType type) {
         return prismPost.getPostId() + type.getNotifIdSuffix();

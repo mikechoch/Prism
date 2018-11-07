@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.OldNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.constant.Default;
@@ -33,12 +34,12 @@ import java.util.ArrayList;
 public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<NotificationRecyclerViewAdapter.NotificationViewHolder> {
 
     private Context context;
-    private ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList;
+    private ArrayList<OldNotification> oldNotificationArrayList;
 
 
-    public NotificationRecyclerViewAdapter(Context context, ArrayList<com.mikechoch.prism.attribute.Notification> notificationArrayList) {
+    public NotificationRecyclerViewAdapter(Context context, ArrayList<OldNotification> oldNotificationArrayList) {
         this.context = context;
-        this.notificationArrayList = notificationArrayList;
+        this.oldNotificationArrayList = oldNotificationArrayList;
     }
 
     @Override
@@ -55,12 +56,12 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
-        holder.setData(notificationArrayList.get(position));
+        holder.setData(oldNotificationArrayList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return notificationArrayList.size();
+        return oldNotificationArrayList.size();
     }
 
 
@@ -73,7 +74,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private TextView notificationTypeTextView;
         private ImageView prismPostThumbnailImageView;
 
-        private com.mikechoch.prism.attribute.Notification notification;
+        private OldNotification oldNotification;
 
 
         NotificationViewHolder(View itemView) {
@@ -90,8 +91,8 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         /**
          * Set data the data for the current NotificationViewHolder elements
          */
-        public void setData(com.mikechoch.prism.attribute.Notification notificationObject) {
-            this.notification = notificationObject;
+        public void setData(OldNotification oldNotificationObject) {
+            this.oldNotification = oldNotificationObject;
             populateInterfaceElements();
         }
 
@@ -104,14 +105,14 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             notificationRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    switch (notification.getType()) {
+                    switch (oldNotification.getType()) {
                         case LIKE:
                             // Fall through
                         case REPOST:
-                            IntentHelper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
+                            IntentHelper.intentToPrismPostDetailActivity(context, oldNotification.getPrismPost());
                             break;
                         case FOLLOW:
-                            IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                            IntentHelper.intentToUserProfileActivity(context, oldNotification.getMostRecentUser());
                             break;
                         default:
                             break;
@@ -124,7 +125,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
             populateProfilePic();
 
             prismPostThumbnailImageView.setImageDrawable(null);
-            if (!notification.getType().equals(NotificationType.FOLLOW)) {
+            if (!oldNotification.getType().equals(NotificationType.FOLLOW)) {
                 populatePrismPostThumbnail();
             }
         }
@@ -132,18 +133,18 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         /**
          * Populates the notificationDescriptionLinearLayout, notificationTypeTextView, and notificationTypeImageView
          * notificationDescriptionLinearLayout gets the user and # of others who performed the action
-         * notificationTypeTextView gets the notification type and time since the action occurred
+         * notificationTypeTextView gets the oldNotification type and time since the action occurred
          * notificationTypeImageView gets the icon of the NotificationType
          */
         private void populateNotificationInfoFields() {
-            String notificationTypeAndTime = notification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(notification.getActionTimestamp());
+            String notificationTypeAndTime = oldNotification.getType().toString() + " • " + Helper.getFancyDateDifferenceString(oldNotification.getActionTimestamp());
             notificationTypeTextView.setText(notificationTypeAndTime.toLowerCase());
 
-            notificationTypeImageView.setImageDrawable(context.getResources().getDrawable(notification.getType().getNotifIcon()));
+            notificationTypeImageView.setImageDrawable(context.getResources().getDrawable(oldNotification.getType().getNotifIcon()));
         }
 
         /**
-         * Construct the appropriate notification TextViews
+         * Construct the appropriate oldNotification TextViews
          * Handles the string description of the user that performed the latest action and
          * how many others have also performed this action
          * ex. mikechoch and 2 others
@@ -152,21 +153,21 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
         private void constructNotificationTextViews() {
             notificationDescriptionLinearLayout.removeAllViews();
 
-            String mostRecentUsername = notification.getMostRecentUser().getUsername();
+            String mostRecentUsername = oldNotification.getMostRecentUser().getUsername();
             TextView usernameTextView = new TextView(context);
             usernameTextView.setText(mostRecentUsername);
             usernameTextView.setTextSize(16);
             usernameTextView.setTextColor(Color.WHITE);
-            Typeface notificationTypeface = notification.isViewed() ? Default.sourceSansProLight : Default.sourceSansProBold;
+            Typeface notificationTypeface = oldNotification.isViewed() ? Default.sourceSansProLight : Default.sourceSansProBold;
             usernameTextView.setTypeface(notificationTypeface);
             usernameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                    IntentHelper.intentToUserProfileActivity(context, oldNotification.getMostRecentUser());
                 }
             });
 
-            int otherCount = notification.getOtherUserCount();
+            int otherCount = oldNotification.getOtherUserCount();
             TextView userCountTextView = new TextView(context);
             if (otherCount > 0) {
                 userCountTextView.setTextSize(16);
@@ -175,7 +176,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                 userCountTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        IntentHelper.intentToDisplayUsersActivity(context, notification.getPrismPost().getPostId(), notification.getType().getNotifUserDisplayCode());
+                        IntentHelper.intentToDisplayUsersActivity(context, oldNotification.getPrismPost().getPostId(), oldNotification.getType().getNotifUserDisplayCode());
                     }
                 });
 
@@ -190,11 +191,11 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
 
         /**
          * Using Glide populate the PrismPost ImageView
-         * Validates that the notification has a PrismPost attached to it
+         * Validates that the oldNotification has a PrismPost attached to it
          * When clicked will intent the user to the PrismPostDetailActivity of the PrismPost
          */
         private void populatePrismPostThumbnail() {
-            PrismPost notificationPost = notification.getPrismPost();
+            PrismPost notificationPost = oldNotification.getPrismPost();
             if (notificationPost != null) {
                 Glide.with(context)
                         .asBitmap()
@@ -206,19 +207,19 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                 prismPostThumbnailImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        IntentHelper.intentToPrismPostDetailActivity(context, notification.getPrismPost());
+                        IntentHelper.intentToPrismPostDetailActivity(context, oldNotification.getPrismPost());
                     }
                 });
             }
         }
 
         /**
-         * Using Glide populate the profile picture of the person who performed the notification action
+         * Using Glide populate the profile picture of the person who performed the oldNotification action
          * Validates that the PrismUser has a profile picture attached
          * When profile picture ImageView is clicked intent to UserProfileActivity of PrismUser
          */
         private void populateProfilePic() {
-            PrismUser mostRecentPrismUser = notification.getMostRecentUser();
+            PrismUser mostRecentPrismUser = oldNotification.getMostRecentUser();
             if (mostRecentPrismUser.getProfilePicture() != null) {
                 Glide.with(context)
                         .asBitmap()
@@ -242,7 +243,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
                 userProfilePicImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        IntentHelper.intentToUserProfileActivity(context, notification.getMostRecentUser());
+                        IntentHelper.intentToUserProfileActivity(context, oldNotification.getMostRecentUser());
                     }
                 });
             }

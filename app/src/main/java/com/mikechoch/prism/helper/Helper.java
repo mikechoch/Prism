@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismTagActivity;
+import com.mikechoch.prism.attribute.OldNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
@@ -32,6 +33,7 @@ import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.TimeUnit;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.NotificationType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -128,6 +130,27 @@ public class Helper {
         prismUser.setUploadCount(uploadCount);
 
         return prismUser;
+    }
+
+    public static OldNotification constructNotification(DataSnapshot notificationSnapshot) {
+        OldNotification oldNotification = new OldNotification();
+        String notificationId = notificationSnapshot.getKey();
+        NotificationType notificationType = NotificationType.getType(notificationId);
+        long actionTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_ACTION_TIMESTAMP).getValue();
+        long viewedTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
+        String mostRecentUserId = (String) notificationSnapshot.child(Key.NOTIFICATION_MOST_RECENT_USER).getValue();
+        PrismUser mostRecentPrismUser = new PrismUser();
+        mostRecentPrismUser.setUid(mostRecentUserId);
+        boolean viewed = viewedTimestamp > actionTimestamp;
+
+        oldNotification.setNotificationId(notificationId);
+        oldNotification.setActionTimestamp(actionTimestamp);
+        oldNotification.setMostRecentUser(mostRecentPrismUser);
+        oldNotification.setPrismPost(null);
+        oldNotification.setType(notificationType);
+        oldNotification.setViewed(viewed);
+
+        return oldNotification;
     }
 
     /**
