@@ -28,6 +28,7 @@ import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainFeedFragment extends Fragment {
@@ -156,13 +157,13 @@ public class MainFeedFragment extends Fragment {
     private void refreshMainPage() {
         DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
                 noMainFeedRelativeLayout.setVisibility(View.GONE);
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
                 mainFeedPrismPostArrayList.clear();
-                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedPrismPostArrayList.addAll(prismPostsMap.values());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 
@@ -193,11 +194,11 @@ public class MainFeedFragment extends Fragment {
 
         DatabaseRead.fetchMorePrismPosts(lastPostTimestamp, new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
-                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedPrismPostArrayList.addAll(prismPostsMap.values());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 

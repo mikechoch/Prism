@@ -26,6 +26,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.DisplayUserType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class DisplayUsersActivity extends AppCompatActivity {
@@ -155,8 +156,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getLikedUsers(String postId) {
         DatabaseRead.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
+                prismUserArrayList.addAll(prismUsersMap.values());
                 updateInterfaceElements();
             }
 
@@ -181,8 +182,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getRepostedUsers(String postId) {
         DatabaseRead.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
+                prismUserArrayList.addAll(prismUsersMap.values());
                 updateInterfaceElements();
             }
 
@@ -206,8 +207,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getFollowings(String userId) {
         DatabaseRead.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
+                prismUserArrayList.addAll(prismUsersMap.values());
                 updateInterfaceElements();
             }
 
@@ -231,8 +232,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getFollowers(String userId) {
         DatabaseRead.fetchPrismUserFollowers(userId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
+                prismUserArrayList.addAll(prismUsersMap.values());
                 updateInterfaceElements();
             }
 

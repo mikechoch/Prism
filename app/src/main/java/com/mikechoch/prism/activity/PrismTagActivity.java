@@ -25,6 +25,7 @@ import com.mikechoch.prism.user_interface.InterfaceAction;
 import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class PrismTagActivity extends AppCompatActivity {
@@ -181,9 +182,9 @@ public class PrismTagActivity extends AppCompatActivity {
         tagSwipeRefreshLayout.setRefreshing(true);
         DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
                 prismTagPostsArrayList.clear();
-                prismTagPostsArrayList.addAll(prismPosts);
+                prismTagPostsArrayList.addAll(prismPostsMap.values());
                 setupTagPageLayout();
             }
 

@@ -35,6 +35,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class SearchActivity  extends AppCompatActivity {
@@ -147,8 +148,8 @@ public class SearchActivity  extends AppCompatActivity {
     private void populateUsersCollection() {
         DatabaseRead.fetchAllUsers(new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
+                prismUserArrayList.addAll(prismUsersMap.values());
             }
 
             @Override

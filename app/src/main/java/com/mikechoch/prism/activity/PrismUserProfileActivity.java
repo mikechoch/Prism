@@ -53,6 +53,7 @@ import com.mikechoch.prism.user_interface.PrismPostStaggeredGridRecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 
 public class PrismUserProfileActivity extends AppCompatActivity {
@@ -327,8 +328,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         } else {
             DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                    prismUserUploadedAndRepostedPostsArrayList.addAll(prismPosts);
+                public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
+                    prismUserUploadedAndRepostedPostsArrayList.addAll(prismPostsMap.values());
 
                     areUploadedAndRepostedPostsFetched[0] = true;
                     if (areUserPostsFetched()) {
@@ -351,8 +352,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
             DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                    for (PrismPost post : prismPosts) {
+                public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
+                    for (PrismPost post : prismPostsMap.values()) {
                         post.setIsReposted(true);
                         prismUserUploadedAndRepostedPostsArrayList.add(post);
                     }
