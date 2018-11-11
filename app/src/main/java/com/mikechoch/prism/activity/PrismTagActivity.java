@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikechoch.prism.R;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.constant.Default;
@@ -182,9 +183,9 @@ public class PrismTagActivity extends AppCompatActivity {
         tagSwipeRefreshLayout.setRefreshing(true);
         DatabaseRead.fetchPrismPostsForTag(tag, new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
+            public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
                 prismTagPostsArrayList.clear();
-                prismTagPostsArrayList.addAll(prismPostsMap.values());
+                prismTagPostsArrayList.addAll(linkedPrismPosts.getPrismPosts());
                 setupTagPageLayout();
             }
 

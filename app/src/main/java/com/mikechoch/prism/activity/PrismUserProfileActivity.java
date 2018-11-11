@@ -31,6 +31,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
@@ -328,8 +329,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         } else {
             DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
-                    prismUserUploadedAndRepostedPostsArrayList.addAll(prismPostsMap.values());
+                public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
+                    prismUserUploadedAndRepostedPostsArrayList.addAll(linkedPrismPosts.getPrismPosts());
 
                     areUploadedAndRepostedPostsFetched[0] = true;
                     if (areUserPostsFetched()) {
@@ -352,8 +353,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
             DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
-                    for (PrismPost post : prismPostsMap.values()) {
+                public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
+                    for (PrismPost post : linkedPrismPosts.getPrismPosts()) {
                         post.setIsReposted(true);
                         prismUserUploadedAndRepostedPostsArrayList.add(post);
                     }

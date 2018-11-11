@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
@@ -157,13 +158,13 @@ public class MainFeedFragment extends Fragment {
     private void refreshMainPage() {
         DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
+            public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
                 noMainFeedRelativeLayout.setVisibility(View.GONE);
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
                 mainFeedPrismPostArrayList.clear();
-                mainFeedPrismPostArrayList.addAll(prismPostsMap.values());
+                mainFeedPrismPostArrayList.addAll(linkedPrismPosts.getPrismPosts());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 
@@ -194,11 +195,11 @@ public class MainFeedFragment extends Fragment {
 
         DatabaseRead.fetchMorePrismPosts(lastPostTimestamp, new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(HashMap<String, PrismPost> prismPostsMap) {
+            public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
-                mainFeedPrismPostArrayList.addAll(prismPostsMap.values());
+                mainFeedPrismPostArrayList.addAll(linkedPrismPosts.getPrismPosts());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 

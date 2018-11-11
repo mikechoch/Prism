@@ -7,6 +7,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
+import com.mikechoch.prism.attribute.LinkedPrismUsers;
 import com.mikechoch.prism.attribute.OldNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
@@ -69,9 +71,9 @@ public class DatabaseRead {
 
         likedUsersReference.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot likedUsersSnapshot) {
-                if (likedUsersSnapshot.exists()) {
-                    Map<String, Long> likedUsers =  (HashMap<String, Long>) likedUsersSnapshot.getValue();
+            public void onDataChange(DataSnapshot usersSnapshot) {
+                if (usersSnapshot.exists()) {
+                    Map<String, Long> likedUsers =  (HashMap<String, Long>) usersSnapshot.getValue();
                     fetchPrismUsers(new ArrayList<>(likedUsers.keySet()), callback);
                 } else {
                     callback.onPrismUsersNotFound();
@@ -209,17 +211,18 @@ public class DatabaseRead {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
                 if (usersSnapshot.exists()) {
-                    LinkedHashMap<String, PrismUser> prismUsersHashMap = new LinkedHashMap<>();
+                    //LinkedHashMap<String, PrismUser> prismUsersHashMap = new LinkedHashMap<>();
+                    LinkedPrismUsers linkedPrismUsers = new LinkedPrismUsers();
                     for (String prismUserId : prismUserIds) {
                         DataSnapshot userSnapshot = usersSnapshot.child(prismUserId);
                         if (userSnapshot.exists()) {
                             PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                            prismUsersHashMap.put(prismUserId, prismUser);
+                            linkedPrismUsers.addPrismUser(prismUser);
                         } else {
                             prismUserIds.remove(prismUserId); // TODO Log this - this shouldn't happen
                         }
                     }
-                    callback.onSuccess(prismUsersHashMap);
+                    callback.onSuccess(linkedPrismUsers);
                 } else {
                     callback.onPrismUsersNotFound();
                 }
@@ -238,24 +241,17 @@ public class DatabaseRead {
             @Override
             public void onDataChange(DataSnapshot allPostsSnapshot) {
                 if (allPostsSnapshot.exists()) {
-                    LinkedHashMap<String, PrismPost> prismPostHashMap = new LinkedHashMap<>();
-                    ArrayList<String> prismUserIds = new ArrayList<>();
+                    LinkedPrismPosts linkedPrismPosts = new LinkedPrismPosts();
                     for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
                         PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                        prismPostHashMap.put(prismPost.getPostId(), prismPost);
-                        prismUserIds.add(prismPost.getUid());
+                        linkedPrismPosts.addPrismPost(prismPost);
                     }
 
-                    fetchPrismUsers(prismUserIds, new OnFetchPrismUsersCallback() {
+                    fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
-                        public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
-                            for (Map.Entry<String, PrismPost> entry : prismPostHashMap.entrySet()) {
-                                String postUid = entry.getValue().getUid();
-                                if (prismUsersMap.containsKey(postUid)) {
-                                    entry.getValue().setPrismUser(prismUsersMap.get(postUid));
-                                }
-                            }
-                            callback.onSuccess(prismPostHashMap);
+                        public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            callback.onSuccess(linkedPrismPosts);
                         }
 
                         @Override
@@ -284,23 +280,16 @@ public class DatabaseRead {
             @Override
             public void onDataChange(DataSnapshot allPostsSnapshot) {
                 if (allPostsSnapshot.exists()) {
-                    LinkedHashMap<String, PrismPost> prismPostHashMap = new LinkedHashMap<>();
-                    ArrayList<String> prismUserIds = new ArrayList<>();
+                    LinkedPrismPosts linkedPrismPosts = new LinkedPrismPosts();
                     for (DataSnapshot postSnapshot : allPostsSnapshot.getChildren()) {
                         PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                        prismPostHashMap.put(prismPost.getPostId(), prismPost);
-                        prismUserIds.add(prismPost.getUid());
+                        linkedPrismPosts.addPrismPost(prismPost);
                     }
-                    fetchPrismUsers(prismUserIds, new OnFetchPrismUsersCallback() {
+                    fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
-                        public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
-                            for (Map.Entry<String, PrismPost> entry : prismPostHashMap.entrySet()) {
-                                String postUid = entry.getValue().getUid();
-                                if (prismUsersMap.containsKey(postUid)) {
-                                    entry.getValue().setPrismUser(prismUsersMap.get(postUid));
-                                }
-                            }
-                            callback.onSuccess(prismPostHashMap);
+                        public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            callback.onSuccess(linkedPrismPosts);
                         }
 
                         @Override
@@ -329,27 +318,20 @@ public class DatabaseRead {
             @Override
             public void onDataChange(DataSnapshot allPostsSnapshot) {
                 if (allPostsSnapshot.exists()) {
-                    LinkedHashMap<String, PrismPost> prismPostHashMap = new LinkedHashMap<>();
-                    ArrayList<String> prismUserIds = new ArrayList<>();
+                    LinkedPrismPosts linkedPrismPosts = new LinkedPrismPosts();
                     for (String postId : prismPostIds) {
                         DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
                         if (postSnapshot.exists()) {
                             PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
-                            prismPostHashMap.put(postId, prismPost);
-                            prismUserIds.add(prismPost.getUid());
+                            linkedPrismPosts.addPrismPost(prismPost);
                         }
                     }
 
-                    fetchPrismUsers(prismUserIds, new OnFetchPrismUsersCallback() {
+                    fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
-                        public void onSuccess(HashMap<String, PrismUser> prismUsersMap) {
-                            for (Map.Entry<String, PrismPost> entry : prismPostHashMap.entrySet()) {
-                                String postUid = entry.getValue().getUid();
-                                if (prismUsersMap.containsKey(postUid)) {
-                                    entry.getValue().setPrismUser(prismUsersMap.get(postUid));
-                                }
-                            }
-                            callback.onSuccess(prismPostHashMap);
+                        public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            callback.onSuccess(linkedPrismPosts);
                         }
 
                         @Override
@@ -469,12 +451,12 @@ public class DatabaseRead {
             @Override
             public void onDataChange(DataSnapshot usersSnapshot) {
                 if (usersSnapshot.exists()) {
-                    LinkedHashMap<String, PrismUser> prismUsersHashMap = new LinkedHashMap<>();
+                    LinkedPrismUsers linkedPrismUsers = new LinkedPrismUsers();
                     for (DataSnapshot userSnapshot : usersSnapshot.getChildren()) {
                         PrismUser prismUser = Helper.constructPrismUserObject(userSnapshot);
-                        prismUsersHashMap.put(prismUser.getUid(), prismUser);
+                        linkedPrismUsers.addPrismUser(prismUser);
                     }
-                    callback.onSuccess(prismUsersHashMap);
+                    callback.onSuccess(linkedPrismUsers);
                 } else {
                     callback.onPrismUsersNotFound();
                 }
