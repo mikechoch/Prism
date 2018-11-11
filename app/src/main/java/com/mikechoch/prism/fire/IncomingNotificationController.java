@@ -75,7 +75,7 @@ public class IncomingNotificationController {
 
     private static void initializeNotificationsListener(Context context) {
         notificationsReference = Default.USERS_REFERENCE
-                .child(CurrentUser.prismUser.getUid())
+                .child(CurrentUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS);
 
         notificationsListener = new ChildEventListener() {

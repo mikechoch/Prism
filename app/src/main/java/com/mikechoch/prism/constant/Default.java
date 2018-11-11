@@ -23,7 +23,7 @@ public class Default {
 
     public static final DatabaseReference ROOT_REFERENCE = databaseReference;
     public static final DatabaseReference ALL_POSTS_REFERENCE = databaseReference.child(Key.DB_REF_ALL_POSTS);
-    public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);
+    public static final DatabaseReference USERS_REFERENCE = databaseReference.child(Key.DB_REF_USER_PROFILES);  //TODO make a CURRENT_USER_REFERENCE method
     public static final DatabaseReference TAGS_REFERENCE = databaseReference.child(Key.DB_REF_TAGS);
     public static final DatabaseReference ACCOUNTS_REFERENCE = databaseReference.child(Key.DB_REF_ACCOUNTS);
     public static final DatabaseReference CONTENT_REVIEW_REFERENCE = databaseReference.child(Key.DB_REF_CONTENT_REVIEW);

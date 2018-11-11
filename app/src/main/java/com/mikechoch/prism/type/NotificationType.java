@@ -71,7 +71,7 @@ public enum NotificationType {
     }
 
     public static String createFollowNotificationId() {
-        return CurrentUser.prismUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
+        return CurrentUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
     }
 
     public static int generateLikeRepostPushNotificationId(PrismPost prismPost, NotificationType type) {

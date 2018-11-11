@@ -91,7 +91,7 @@ public class SplashActivity extends AppCompatActivity {
                             IntentHelper.intentToLoginActivity(context);
                         } else {
                             if (isNotificationIntent(context)) {
-                                CurrentUser.refreshUser(context, new OnFetchUserProfileCallback() {
+                                CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                                     @Override
                                     public void onSuccess() {
                                         IntentHelper.intentToNotification(context);

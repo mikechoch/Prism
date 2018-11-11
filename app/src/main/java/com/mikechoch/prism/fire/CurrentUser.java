@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class CurrentUser {
 
-    public static PrismUser prismUser;  //TODO Make private
+    private static PrismUser prismUser;
     public static UserPreference preference;
 
     static ArrayList<PrismPost> news_feed;
@@ -83,7 +83,7 @@ public class CurrentUser {
         });
     }
 
-    public static void refreshUser(Context context, OnFetchUserProfileCallback callback) {
+    public static void refreshUser(OnFetchUserProfileCallback callback) {
         new CurrentUser();
         DatabaseRead.constructCurrentUserProfile(callback);
     }
@@ -309,6 +309,17 @@ public class CurrentUser {
         return oldNotifications;
     }
 
+    public static PrismUser getPrismUser() {
+        return prismUser;
+    }
+
+    public static void setPrismUser(PrismUser prismUser) {
+        CurrentUser.prismUser = prismUser;
+    }
+
+    public static String getUid() {
+        return getPrismUser().getUid();
+    }
 
     /**
      *

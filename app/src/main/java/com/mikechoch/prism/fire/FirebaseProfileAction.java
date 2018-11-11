@@ -198,7 +198,7 @@ public class FirebaseProfileAction {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             DatabaseReference accountReference = Default.ACCOUNTS_REFERENCE;
-                                            accountReference.child(CurrentUser.prismUser.getUsername())
+                                            accountReference.child(CurrentUser.getPrismUser().getUsername())
                                                     .setValue(newEmail);
                                             callback.onSuccess();
                                         } else {
@@ -230,7 +230,7 @@ public class FirebaseProfileAction {
                 } else {
                     String oldUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + oldFirebaseEncodedUsername;
                     String newUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + newFirebaseEncodedUsername;
-                    String newUsernameProfilePath = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.prismUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
+                    String newUsernameProfilePath = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
 
                     HashMap<String, Object> usernamePaths = new HashMap<String, Object>() {{
                         put(oldUsernameAccountPath, null);
@@ -249,7 +249,7 @@ public class FirebaseProfileAction {
                                                     .setDisplayName(newFirebaseEncodedUsername)
                                                     .build());
 
-                                    CurrentUser.prismUser.setUsername(newUsername);
+                                    CurrentUser.getPrismUser().setUsername(newUsername);
 
                                     callback.onSuccess();
                                 }
@@ -264,14 +264,14 @@ public class FirebaseProfileAction {
     }
 
     public static void changeFullName(String newFullName, OnChangeFullNameCallback callback) {
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getPrismUser().getUid());
         currentUserReference
                 .child(Key.USER_PROFILE_FULL_NAME)
                 .setValue(newFullName)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        CurrentUser.prismUser.setFullName(newFullName);
+                        CurrentUser.getPrismUser().setFullName(newFullName);
                         callback.onSuccess();
                     }
                 })
@@ -285,7 +285,7 @@ public class FirebaseProfileAction {
         UploadHelper.uploadFile(profilePicFileReference, profilePicUri, new OnUploadFileCallback() {
             @Override
             public void onFileUploadSuccess(Uri downloadUri) {
-                DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
+                DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.getPrismUser().getUid()).child(Key.USER_PROFILE_PIC);
                 profilePicReference.setValue(downloadUri.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

@@ -157,11 +157,11 @@ public class Helper {
      *
      */
     public static boolean isPrismUserCurrentUser(PrismUser prismUser) {
-        return CurrentUser.prismUser.getUid().equals(prismUser.getUid());
+        return CurrentUser.getUid().equals(prismUser.getUid());
     }
 
     public static boolean isPrismUserCurrentUser(String prismUserId) {
-        return CurrentUser.prismUser.getUid().equals(prismUserId);
+        return CurrentUser.getUid().equals(prismUserId);
     }
 
 

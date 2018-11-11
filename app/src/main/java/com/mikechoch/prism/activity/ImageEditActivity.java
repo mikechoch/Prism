@@ -209,7 +209,7 @@ public class ImageEditActivity extends AppCompatActivity {
                                 uploadIntents[0].setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 uploadIntents[0].putExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA, filename);
                                 uploadIntents[1] = new Intent(ImageEditActivity.this, PrismUserProfileActivity.class);
-                                uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, (Serializable) CurrentUser.prismUser);
+                                uploadIntents[1].putExtra(Default.PRISM_USER_EXTRA, CurrentUser.getPrismUser());
                                 fileInputStream = openFileInput(uploadIntents[0].getStringExtra(Default.CROPPED_PROFILE_PICTURE_EXTRA));
                                 break;
                         }

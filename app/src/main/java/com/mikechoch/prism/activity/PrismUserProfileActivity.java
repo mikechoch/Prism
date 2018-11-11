@@ -270,10 +270,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         isCurrentUser = Helper.isPrismUserCurrentUser(prismUser);
 
         if (isCurrentUser) {
-            CurrentUser.refreshUser(PrismUserProfileActivity.this, new OnFetchUserProfileCallback() {
+            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
-                    prismUser = CurrentUser.prismUser;
+                    prismUser = CurrentUser.getPrismUser();
                     fetchUserContent();
                 }
 
@@ -518,10 +518,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void refreshPrismUserInterface() {
         if (isCurrentUser) {
-            CurrentUser.refreshUser(PrismUserProfileActivity.this, new OnFetchUserProfileCallback() {
+            CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
-                    prismUser = CurrentUser.prismUser;
+                    prismUser = CurrentUser.getPrismUser();
                     setupUserInfo();
                     setupUserStats();
                     userPostsViewPagerAdapter.refreshViewPagerTabs();

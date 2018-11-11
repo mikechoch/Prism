@@ -227,7 +227,7 @@ public class OutgoingNotificationController {
                     viewedTimestamp = (long) dataSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
                 }
                 HashMap<String, Object> notification = new HashMap<>();
-                notification.put(Key.NOTIFICATION_MOST_RECENT_USER, CurrentUser.prismUser.getUid());
+                notification.put(Key.NOTIFICATION_MOST_RECENT_USER, CurrentUser.getUid());
                 notification.put(Key.NOTIFICATION_ACTION_TIMESTAMP, actionTimestamp);
                 notification.put(Key.NOTIFICATION_VIEWED_TIMESTAMP, viewedTimestamp);
                 notificationReference.setValue(notification);
@@ -275,8 +275,8 @@ public class OutgoingNotificationController {
     private static PushNotification constructPushNotification(NotificationType type, PrismPost prismPost, long actionTimestamp) {
         int notificationId = NotificationType.generateLikeRepostPushNotificationId(prismPost, type);
         PushNotification pushNotification = new PushNotification();
-        pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
-        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().getProfilePicUri());
+        pushNotification.setMostRecentUsername(CurrentUser.getPrismUser().getUsername());
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.getPrismUser().getProfilePicture().getProfilePicUri());
         pushNotification.setType(type);
         pushNotification.setActionTimestamp(actionTimestamp);
         pushNotification.setNotificationHashId(notificationId);
@@ -287,8 +287,8 @@ public class OutgoingNotificationController {
     private static PushNotification constructPushNotification(NotificationType type, PrismUser prismUser, long actionTimestamp) {
         int notificationId = NotificationType.generateFollowPushNotificationId();
         PushNotification pushNotification = new PushNotification();
-        pushNotification.setMostRecentUsername(CurrentUser.prismUser.getUsername());
-        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.prismUser.getProfilePicture().getProfilePicUri());
+        pushNotification.setMostRecentUsername(CurrentUser.getPrismUser().getUsername());
+        pushNotification.setMostRecentUserProfilePicUri(CurrentUser.getPrismUser().getProfilePicture().getProfilePicUri());
         pushNotification.setType(type);
         pushNotification.setActionTimestamp(actionTimestamp);
         pushNotification.setNotificationHashId(notificationId);

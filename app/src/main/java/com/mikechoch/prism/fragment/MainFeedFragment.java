@@ -76,7 +76,7 @@ public class MainFeedFragment extends Fragment {
             @Override
             public void onRefresh() {
                 if (!isLoading || !(mainFeedRecyclerViewAdapter.getItemCount() < Default.IMAGE_LOAD_THRESHOLD)) {
-                    CurrentUser.refreshUser(getContext(), new OnFetchUserProfileCallback() {
+                    CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                         @Override
                         public void onSuccess() {
                             refreshMainPage();

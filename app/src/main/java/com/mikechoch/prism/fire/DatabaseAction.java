@@ -54,14 +54,13 @@ public class DatabaseAction {
      * Performs like locally on CurrentUser
      */
     public static void performLike(PrismPost prismPost) {
-        String currentUserId = CurrentUser.prismUser.getUid();
         long actionTimestamp = Calendar.getInstance().getTimeInMillis();
 
         DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         postReference.child(Key.DB_REF_POST_LIKED_USERS)
-                .child(currentUserId)
+                .child(CurrentUser.getUid())
                 .setValue(actionTimestamp);
 
         currentUserReference.child(Key.DB_REF_USER_LIKES)
@@ -82,13 +81,11 @@ public class DatabaseAction {
      * Performs unlike locally on CurrentUser*
      */
     public static void performUnlike(PrismPost prismPost) {
-        String currentUserId = CurrentUser.prismUser.getUid();
-
         DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         postReference.child(Key.DB_REF_POST_LIKED_USERS)
-                .child(currentUserId)
+                .child(CurrentUser.getUid())
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_LIKES)
@@ -108,14 +105,13 @@ public class DatabaseAction {
      */
     public static void performRepost(PrismPost prismPost) {
         if (PermissionHelper.allowRepost(prismPost)) {
-            String currentUserId = CurrentUser.prismUser.getUid();
             long timestamp = Calendar.getInstance().getTimeInMillis();
 
             DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
-            DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+            DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
             postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
-                    .child(currentUserId)
+                    .child(CurrentUser.getUid())
                     .setValue(timestamp);
 
             currentUserReference.child(Key.DB_REF_USER_REPOSTS)
@@ -136,13 +132,11 @@ public class DatabaseAction {
      * Performs unrepost locally on CurrentUser
      */
     public static void performUnrepost(PrismPost prismPost) {
-        String currentUserId = CurrentUser.prismUser.getUid();
-
         DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
-                .child(currentUserId)
+                .child(CurrentUser.getUid())
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_REPOSTS)
@@ -185,7 +179,7 @@ public class DatabaseAction {
                     @Override
                     public void onSuccess(Void aVoid) {
                         prismPost.setPostId(postId);
-                        prismPost.setPrismUser(CurrentUser.prismUser);
+                        prismPost.setPrismUser(CurrentUser.getPrismUser());
                         CurrentUser.uploadPost(prismPost);
                         callback.onSuccess(prismPost);
                     }
@@ -267,14 +261,13 @@ public class DatabaseAction {
      * adds CurrentUser's uid to prismUser's FOLLOWINGS section
      */
     public static void followUser(PrismUser prismUser) {
-        String currentUserId = CurrentUser.prismUser.getUid();
         long timestamp = Calendar.getInstance().getTimeInMillis();
 
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
         DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUser.getUid());
 
         userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                .child(currentUserId)
+                .child(CurrentUser.getUid())
                 .setValue(timestamp);
 
         currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
@@ -293,13 +286,11 @@ public class DatabaseAction {
      * removes CurrentUser's uid from prismUser's FOLLOWINGS section
      */
     public static void unfollowUser(PrismUser prismUser) {
-        String currentUserId = CurrentUser.prismUser.getUid();
-
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(currentUserId);
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
         DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUser.getUid());
 
         userReference.child(Key.DB_REF_USER_FOLLOWERS)
-                .child(currentUserId)
+                .child(CurrentUser.getUid())
                 .removeValue();
 
         currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
@@ -318,7 +309,7 @@ public class DatabaseAction {
      * @param allowPushNotification
      */
     public static void updatePreferenceForPushNotification(NotificationType type, boolean allowPushNotification) {
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         currentUserReference.child(Key.DB_REF_USER_PREFERENCES)
                 .child(type.getdbUserNotifPrefKey())
@@ -332,7 +323,7 @@ public class DatabaseAction {
      */
     public static void updateViewedTimestampForAllNotifications() {
         long timestamp = System.currentTimeMillis();
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -416,7 +407,7 @@ public class DatabaseAction {
         preferences.edit().putString(Default.FIREBASE_TOKEN, firebaseToken).apply();
 
         // Update token in cloud
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
         currentUserReference.child(Key.USER_TOKEN).setValue(firebaseToken);
     }
 
@@ -429,7 +420,7 @@ public class DatabaseAction {
         DatabaseReference contentReviewReference = Default.CONTENT_REVIEW_REFERENCE;
         contentReviewReference
                 .child(prismPost.getUid())
-                .child(CurrentUser.prismUser.getUid())
+                .child(CurrentUser.getUid())
                 .setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

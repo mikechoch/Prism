@@ -422,7 +422,7 @@ public class DatabaseRead {
             public void onDataChange(DataSnapshot usersSnapshot) {
                 DataSnapshot currentUserSnapshot = usersSnapshot.child(CurrentUser.getFirebaseUser().getUid());
                 if (currentUserSnapshot.exists()) {
-                    CurrentUser.prismUser = Helper.constructPrismUserObject(currentUserSnapshot);
+                    CurrentUser.setPrismUser(Helper.constructPrismUserObject(currentUserSnapshot));
                     CurrentUser.preference = ProfileBuilder.fetchUserPreferences(currentUserSnapshot);
 
                     CurrentUser.liked_posts_map = ProfileBuilder.fetchLikedPosts(currentUserSnapshot);
@@ -500,7 +500,7 @@ public class DatabaseRead {
 
     public static void fetchCurrentNotifications(OnFetchNotificationsCallback callback) {
         Query notificationsReference = Default.USERS_REFERENCE
-                .child(CurrentUser.prismUser.getUid())
+                .child(CurrentUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS)
                 .orderByChild(Key.NOTIFICATION_ACTION_TIMESTAMP);
 

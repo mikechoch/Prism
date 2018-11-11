@@ -71,22 +71,22 @@ public class ProfileFragment extends Fragment {
      * When clicked it will take the user to the PrismUser profile activity
      */
     private void populateCurrentUserCardView() {
-        userFullNameTextView.setText(CurrentUser.prismUser.getFullName());
+        userFullNameTextView.setText(CurrentUser.getPrismUser().getFullName());
         Glide.with(this)
                 .asBitmap()
                 .thumbnail(0.05f)
-                .load(CurrentUser.prismUser.getProfilePicture().getLowResProfilePicUri())
+                .load(CurrentUser.getPrismUser().getProfilePicture().getLowResProfilePicUri())
                 .apply(new RequestOptions().fitCenter())
                 .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
-                        if (getActivity() != null && CurrentUser.prismUser != null) {
+                        if (getActivity() != null && CurrentUser.getPrismUser() != null) {
                             int imageViewPadding = (int) (1 * Default.scale);
                             RoundedBitmapDrawable profilePictureDrawable =
                                     BitmapHelper.createCircularProfilePicture(
                                             getActivity(),
                                             userProfileImageView,
-                                            CurrentUser.prismUser.getProfilePicture().isDefault(),
+                                            CurrentUser.getPrismUser().getProfilePicture().isDefault(),
                                             resource,
                                             imageViewPadding);
                             userProfileImageView.setImageDrawable(profilePictureDrawable);
@@ -97,7 +97,7 @@ public class ProfileFragment extends Fragment {
         viewProfileCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentHelper.intentToUserProfileActivity(getActivity(), CurrentUser.prismUser);
+                IntentHelper.intentToUserProfileActivity(getActivity(), CurrentUser.getPrismUser());
             }
         });
     }
