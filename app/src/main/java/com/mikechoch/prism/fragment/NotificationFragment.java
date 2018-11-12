@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.NotificationRecyclerViewAdapter;
-import com.mikechoch.prism.attribute.OldNotification;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.fire.CurrentUser;
 import com.mikechoch.prism.user_interface.InterfaceAction;
@@ -37,7 +37,7 @@ public class NotificationFragment extends Fragment {
     private RecyclerView notificationRecyclerView;
     private NotificationRecyclerViewAdapter notificationRecyclerViewAdapter;
 
-    public static ArrayList<OldNotification> oldNotificationArrayList;
+    public static ArrayList<Notification> notificationArrayList;
 
 
     public static NotificationFragment newInstance() {
@@ -54,8 +54,7 @@ public class NotificationFragment extends Fragment {
         noNotificationsRelativeLayout = view.findViewById(R.id.no_notification_relative_layout);
         noNotificationsTextView = view.findViewById(R.id.no_notification_text_view);
 
-        oldNotificationArrayList = new ArrayList<>();
-        oldNotificationArrayList = CurrentUser.getOldNotifications();
+        notificationArrayList = CurrentUser.getNotifications();
 
         setupInterfaceElements();
 
@@ -66,8 +65,8 @@ public class NotificationFragment extends Fragment {
      * Iterate over all notifications and set all of them to viewed as True
      */
     public static void clearAllNotifications() {
-        for (OldNotification oldNotification : NotificationFragment.oldNotificationArrayList) {
-            oldNotification.setViewed(true);
+        for (Notification notification : NotificationFragment.notificationArrayList) {
+            notification.setViewed(true);
         }
     }
 
@@ -102,7 +101,7 @@ public class NotificationFragment extends Fragment {
         notificationRecyclerView.addItemDecoration(dividerItemDecoration);
         notificationRecyclerView.setItemViewCacheSize(20);
 
-        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), oldNotificationArrayList);
+        notificationRecyclerViewAdapter = new NotificationRecyclerViewAdapter(getContext(), notificationArrayList);
         notificationRecyclerView.setAdapter(notificationRecyclerViewAdapter);
     }
 

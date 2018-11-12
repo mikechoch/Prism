@@ -3,20 +3,16 @@ package com.mikechoch.prism.fire;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 
 import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
-import com.mikechoch.prism.attribute.OldNotification;
+import com.mikechoch.prism.attribute.LinkedNotifications;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.callback.fetch.OnFetchNotificationsCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
-import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +25,7 @@ public class IncomingNotificationController {
     private static Handler notificationsHandler;
     private static Runnable notificationsRunnable;
 
-    private static HashMap<String, OldNotification> notificationsMap;  // Key: notificationId, Value: OldNotification Object
+    private static HashMap<String, Notification> notificationsMap;  // Key: notificationId, Value: OldNotification Object
 
 
     static void initializeNotifications() {
@@ -49,27 +45,26 @@ public class IncomingNotificationController {
 //        initializeNotificationEventHandler(context);
 //    }
 
-    static void fetchCurrentNotifications(Context context) {
-        CurrentUser.oldNotifications = new ArrayList<>();
-        notificationsMap = new HashMap<>();
+    static void fetchCuvvrrentNotifications(Context context) {
+        CurrentUser.notifications = new ArrayList<>();
         DatabaseRead.fetchCurrentNotifications(new OnFetchNotificationsCallback() {
             @Override
-            public void onSuccess(ArrayList<OldNotification> oldNotifications) {
-                for (OldNotification oldNotification : oldNotifications) {
-                    if (!notificationsMap.containsKey(oldNotification.getNotificationId())) {
-                        CurrentUser.addNotification(oldNotification);
-                    }
-                }
-                refreshNotificationRecyclerViewAdapter(context);
+            public void onSuccess(LinkedNotifications linkedNotifications) {
+                notificationsMap = new HashMap<>(linkedNotifications.getNotificationsHashMap());
+                CurrentUser.addNotifications(linkedNotifications.getNotifications());
 
                 initializeNotificationsListener(context);
             }
 
             @Override
-            public void onNotificationsNotFound() { }
+            public void onNotificationsNotFound() {
+                /* User got no notifications */
+            }
 
             @Override
-            public void onFailure(Exception e) { }
+            public void onFailure(Exception e) {
+                // TODO Log this and display toast
+            }
         });
     }
 
@@ -78,44 +73,44 @@ public class IncomingNotificationController {
                 .child(CurrentUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS);
 
-        notificationsListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
-                OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
-                if (!notificationsMap.containsKey(oldNotification.getNotificationId())) {
-                    DatabaseRead.fetchNotificationDetails(oldNotification);
-                    CurrentUser.addNotification(oldNotification);
-                    refreshNotificationRecyclerViewAdapter(context);
-                }
-            }
+//        notificationsListener = new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
+//                Notification notification = Helper.constructNotification(notificationSnapshot);
+//                if (!notificationsMap.containsKey(notification.getNotificationId())) {
+//                    DatabaseRead.fetchNotificationDetails(notification);
+//                    CurrentUser.addNotification(notification);
+//                    refreshNotificationRecyclerViewAdapter(context);
+//                }
+//            }
+//
+//            @Override
+//            public void onChildChanged(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
+//                OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
+//                DatabaseRead.fetchNotificationDetails(oldNotification);
+//                CurrentUser.removeNotification(oldNotification);
+//                CurrentUser.addNotification(oldNotification);
+//                refreshNotificationRecyclerViewAdapter(context);
+//            }
+//
+//            @Override
+//            public void onChildRemoved(@NonNull DataSnapshot notificationSnapshot) {
+//                OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
+//                CurrentUser.removeNotification(oldNotification);
+//            }
+//
+//            @Override
+//            public void onChildMoved(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        };
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
-                OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
-                DatabaseRead.fetchNotificationDetails(oldNotification);
-                CurrentUser.removeNotification(oldNotification);
-                CurrentUser.addNotification(oldNotification);
-                refreshNotificationRecyclerViewAdapter(context);
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot notificationSnapshot) {
-                OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
-                CurrentUser.removeNotification(oldNotification);
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot notificationSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-
-        notificationsReference.addChildEventListener(notificationsListener);
+//        notificationsReference.addChildEventListener(notificationsListener);
 
     }
 
@@ -134,7 +129,7 @@ public class IncomingNotificationController {
         notificationsHandler = null;
         notificationsRunnable = null;
 
-        CurrentUser.oldNotifications = new ArrayList<>();
+        CurrentUser.notifications = new ArrayList<>();
         notificationsMap = new HashMap<>();
     }
 

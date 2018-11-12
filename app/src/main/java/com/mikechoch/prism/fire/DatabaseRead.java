@@ -1,5 +1,6 @@
 package com.mikechoch.prism.fire;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -7,9 +8,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mikechoch.prism.attribute.LinkedNotifications;
 import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.LinkedPrismUsers;
-import com.mikechoch.prism.attribute.OldNotification;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
@@ -24,8 +26,8 @@ import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.helper.Helper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatabaseRead {
@@ -205,7 +207,7 @@ public class DatabaseRead {
                 });
     }
 
-    public static void fetchPrismUsers(ArrayList<String> prismUserIds, OnFetchPrismUsersCallback callback) {
+    public static void fetchPrismUsers(Collection<String> prismUserIds, OnFetchPrismUsersCallback callback) {
         DatabaseReference usersReference = Default.USERS_REFERENCE;
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -250,7 +252,7 @@ public class DatabaseRead {
                     fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
                         public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
-                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            linkedPrismPosts.updatePrismUsersForPosts(linkedPrismUsers);
                             callback.onSuccess(linkedPrismPosts);
                         }
 
@@ -288,7 +290,7 @@ public class DatabaseRead {
                     fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
                         public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
-                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            linkedPrismPosts.updatePrismUsersForPosts(linkedPrismUsers);
                             callback.onSuccess(linkedPrismPosts);
                         }
 
@@ -312,7 +314,7 @@ public class DatabaseRead {
         });
     }
 
-    public static void fetchPrismPosts(ArrayList<String> prismPostIds, OnFetchPrismPostsCallback callback) {
+    public static void fetchPrismPosts(Collection<String> prismPostIds, OnFetchPrismPostsCallback callback) {
         DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
         allPostsReference.orderByChild(Key.POST_TIMESTAMP).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -330,7 +332,7 @@ public class DatabaseRead {
                     fetchPrismUsers(linkedPrismPosts.getPrismUserIds(), new OnFetchPrismUsersCallback() {
                         @Override
                         public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
-                            linkedPrismPosts.updatePrismUsersForPost(linkedPrismUsers);
+                            linkedPrismPosts.updatePrismUsersForPosts(linkedPrismUsers);
                             callback.onSuccess(linkedPrismPosts);
                         }
 
@@ -353,6 +355,47 @@ public class DatabaseRead {
             }
         });
     }
+
+//    public static void fetchPrismPosts(ArrayList<Notification> notifications, OnFetchNotificationsCallback callback) {
+//        DatabaseReference allPostsReference = Default.ALL_POSTS_REFERENCE;
+//        allPostsReference.orderByChild(Key.POST_TIMESTAMP).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot allPostsSnapshot) {
+//                if (allPostsSnapshot.exists()) {
+//                    for (Notification notification : notifications) {
+//                        if (notification instanceof UserBasedNotification) {
+//                            PostBasedNotification postBasedNotification = (PostBasedNotification) notification;
+//                            String postId = postBasedNotification.getPostId();
+//                            DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+//                            if (postSnapshot.exists()) {
+//                                PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+//
+//                            }
+//                        }
+//                    }
+//                }
+//                if (allPostsSnapshot.exists()) {
+//                    ArrayList<PrismPost> prismPosts = new ArrayList<>();
+//                    for (String )
+//                    for (String postId : prismPostIds) {
+//                        DataSnapshot postSnapshot = allPostsSnapshot.child(postId);
+//                        if (postSnapshot.exists()) {
+//                            PrismPost prismPost = Helper.constructPrismPostObject(postSnapshot);
+//                            prismPosts.add(prismPost);
+//                        }
+//                    }
+//                    fetchPrismUsers(prismPosts, callback);
+//                } else {
+//                    callback.onPrismPostsNotFound();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                callback.onFailure(databaseError.toException());
+//            }
+//        });
+//    }
 
     public static void fetchPrismPost(String prismPostId, OnFetchPrismPostCallback callback) {
         DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPostId);
@@ -488,7 +531,25 @@ public class DatabaseRead {
                     CurrentUser.combineUploadsAndReposts();
                     // CurrentUser.constructNewsFeed();
                 }
-                callback.onSuccess();
+                fetchCurrentNotifications(new OnFetchNotificationsCallback() {
+                    @Override
+                    public void onSuccess(LinkedNotifications linkedNotifications) {
+                        CurrentUser.addNotifications(linkedNotifications.getNotifications());
+                        callback.onSuccess();
+                    }
+
+                    @Override
+                    public void onNotificationsNotFound() {
+                        /* User got no notifications */
+                        callback.onSuccess();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // TODO Log this and display toast
+                        callback.onFailure(e);
+                    }
+                });
             }
 
             @Override
@@ -499,103 +560,166 @@ public class DatabaseRead {
     }
 
     public static void fetchCurrentNotifications(OnFetchNotificationsCallback callback) {
-        Query notificationsReference = Default.USERS_REFERENCE
+        Query notificationReference = Default.USERS_REFERENCE
                 .child(CurrentUser.getUid())
                 .child(Key.DB_REF_USER_NOTIFICATIONS)
                 .orderByChild(Key.NOTIFICATION_ACTION_TIMESTAMP);
 
-        notificationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        notificationReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot notificationsSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot notificationsSnapshot) {
                 if (notificationsSnapshot.exists()) {
-                    ArrayList<OldNotification> oldNotifications = new ArrayList<>();
-
+                    LinkedNotifications linkedNotifications = new LinkedNotifications();
                     for (DataSnapshot notificationSnapshot : notificationsSnapshot.getChildren()) {
-                        OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
-                        oldNotifications.add(oldNotification);
+                        Notification notification = Helper.constructNotification(notificationSnapshot);
+                        linkedNotifications.addNotification(notification);
                     }
-
-                    for (OldNotification oldNotification : oldNotifications) {
-                        fetchNotificationDetails(oldNotification);
-                    }
-                    callback.onSuccess(oldNotifications);
-
-
+                    fetchNotificationDetails(linkedNotifications, callback);
                 } else {
                     callback.onNotificationsNotFound();
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 callback.onFailure(databaseError.toException());
             }
         });
-
     }
 
-    static void fetchNotificationDetails(OldNotification oldNotification) {
-        switch (oldNotification.getType()) {
-            case LIKE:
-            case REPOST:
-                String postId = oldNotification.getNotificationPostId();
-                fetchPrismPost(postId, new OnFetchPrismPostCallback() {
+    private static void fetchNotificationDetails(LinkedNotifications linkedNotifications, OnFetchNotificationsCallback callback) {
+
+        fetchPrismUsers(linkedNotifications.getMostRecentUserIds(), new OnFetchPrismUsersCallback() {
+            @Override
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                linkedNotifications.updateMostRecentPrismUsersForNotifications(linkedPrismUsers);
+
+                fetchPrismPosts(linkedNotifications.getPostBasedNotificationPostIds(), new OnFetchPrismPostsCallback() {
                     @Override
-                    public void onSuccess(PrismPost prismPost) {
-                        oldNotification.setPrismPost(prismPost);
-                        String mostRecentUserId = oldNotification.getMostRecentUser().getUid();
-                        fetchPrismUser(mostRecentUserId, new OnFetchPrismUserCallback() {
-                            @Override
-                            public void onSuccess(PrismUser prismUser) {
-                                oldNotification.setMostRecentUser(prismUser);
-                            }
-
-                            @Override
-                            public void onUserNotFound() { }
-
-                            @Override
-                            public void onFailure(Exception e) { }
-                        });
-
+                    public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
+                        linkedNotifications.updatePrismPostForPostBasedNotifications(linkedPrismPosts);
+                        callback.onSuccess(linkedNotifications);
                     }
 
                     @Override
-                    public void onPostNotFound() {
-                        oldNotification.setPrismPost(null);
-                    }
-
-                    @Override
-                    public void onPostAuthorNotFound() { /* Wouldn't happen */}
+                    public void onPrismPostsNotFound() { }
 
                     @Override
                     public void onFailure(Exception e) {
-                        oldNotification.setPrismPost(null);
+                        callback.onFailure(e);
                     }
                 });
 
-                break;
+            }
 
-            case FOLLOW:
-                String userId = oldNotification.getNotificationUserId();
-                fetchPrismUser(userId, new OnFetchPrismUserCallback() {
-                    @Override
-                    public void onSuccess(PrismUser prismUser) {
-                        oldNotification.setMostRecentUser(prismUser);
-                    }
+            @Override
+            public void onPrismUsersNotFound() { }
 
-                    @Override
-                    public void onUserNotFound() {
-                        oldNotification.setMostRecentUser(null);
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        oldNotification.setMostRecentUser(null);
-                    }
-                });
-
-        }
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
     }
+
+//    public static void fetchCurrentNotifications(OnFetchNotificationsCallback callback) {
+//        Query notificationsReference = Default.USERS_REFERENCE
+//                .child(CurrentUser.getUid())
+//                .child(Key.DB_REF_USER_NOTIFICATIONS)
+//                .orderByChild(Key.NOTIFICATION_ACTION_TIMESTAMP);
+//
+//        notificationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot notificationsSnapshot) {
+//                if (notificationsSnapshot.exists()) {
+//                    ArrayList<OldNotification> oldNotifications = new ArrayList<>();
+//
+//                    for (DataSnapshot notificationSnapshot : notificationsSnapshot.getChildren()) {
+//                        OldNotification oldNotification = Helper.constructNotification(notificationSnapshot);
+//                        oldNotifications.add(oldNotification);
+//                    }
+//
+//                    for (OldNotification oldNotification : oldNotifications) {
+//                        fetchNotificationDetails(oldNotification);
+//                    }
+//                    callback.onSuccess(oldNotifications);
+//
+//
+//                } else {
+//                    callback.onNotificationsNotFound();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                callback.onFailure(databaseError.toException());
+//            }
+//        });
+//
+//    }
+
+//    static void fetchNotificationDetails(OldNotification oldNotification) {
+//        switch (oldNotification.getType()) {
+//            case LIKE:
+//            case REPOST:
+//                String postId = oldNotification.getNotificationPostId();
+//                fetchPrismPost(postId, new OnFetchPrismPostCallback() {
+//                    @Override
+//                    public void onSuccess(PrismPost prismPost) {
+//                        oldNotification.setPrismPost(prismPost);
+//                        String mostRecentUserId = oldNotification.getMostRecentUser().getUid();
+//                        fetchPrismUser(mostRecentUserId, new OnFetchPrismUserCallback() {
+//                            @Override
+//                            public void onSuccess(PrismUser prismUser) {
+//                                oldNotification.setMostRecentUser(prismUser);
+//                            }
+//
+//                            @Override
+//                            public void onUserNotFound() { }
+//
+//                            @Override
+//                            public void onFailure(Exception e) { }
+//                        });
+//
+//                    }
+//
+//                    @Override
+//                    public void onPostNotFound() {
+//                        oldNotification.setPrismPost(null);
+//                    }
+//
+//                    @Override
+//                    public void onPostAuthorNotFound() { /* Wouldn't happen */}
+//
+//                    @Override
+//                    public void onFailure(Exception e) {
+//                        oldNotification.setPrismPost(null);
+//                    }
+//                });
+//
+//                break;
+//
+//            case FOLLOW:
+//                String userId = oldNotification.getNotificationUserId();
+//                fetchPrismUser(userId, new OnFetchPrismUserCallback() {
+//                    @Override
+//                    public void onSuccess(PrismUser prismUser) {
+//                        oldNotification.setMostRecentUser(prismUser);
+//                    }
+//
+//                    @Override
+//                    public void onUserNotFound() {
+//                        oldNotification.setMostRecentUser(null);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Exception e) {
+//                        oldNotification.setMostRecentUser(null);
+//                    }
+//                });
+//
+//        }
+//    }
 
 
 }

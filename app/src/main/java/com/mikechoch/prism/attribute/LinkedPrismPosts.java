@@ -22,11 +22,11 @@ public class LinkedPrismPosts {
 
     public Collection<PrismPost> getPrismPosts() {
         return prismPostsHashMap.values();
-        //return new ArrayList<>(prismPostsHashMap.values())
     }
 
-    public ArrayList<String> getPrismUserIds() {
-        return new ArrayList<>(prismUserIds);
+    public Collection<String> getPrismUserIds() {
+        //return new ArrayList<>(prismUserIds);
+        return prismUserIds;
     }
 
     public PrismPost getPrismPost(String prismPostId) {
@@ -41,7 +41,7 @@ public class LinkedPrismPosts {
         prismPostsHashMap.remove(prismPost.getPostId());
     }
 
-    public void updatePrismUsersForPost(LinkedPrismUsers linkedPrismUsers) {
+    public void updatePrismUsersForPosts(LinkedPrismUsers linkedPrismUsers) {
         for (PrismPost prismPost : prismPostsHashMap.values()) {
             PrismUser prismUser = linkedPrismUsers.getPrismUser(prismPost.getUid());
             if (prismUser != null) {

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.mikechoch.prism.attribute.OldNotification;
+import com.mikechoch.prism.attribute.Notification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.UserPreference;
@@ -12,6 +12,7 @@ import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
 import com.mikechoch.prism.helper.IntentHelper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class CurrentUser {
     private static ArrayList<PrismPost> uploaded_and_reposted_posts;
 
     /** ArrayList of NotificationType objects for above structures **/
-    static ArrayList<OldNotification> oldNotifications;
+    static ArrayList<Notification> notifications;
 
     /**
      * Key: String uid
@@ -72,13 +73,12 @@ public class CurrentUser {
         DatabaseRead.constructCurrentUserProfile(new OnFetchUserProfileCallback() {
             @Override
             public void onSuccess() {
-                IncomingNotificationController.fetchCurrentNotifications(context);
                 IntentHelper.intentToMainActivity(context);
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                // TODO
             }
         });
     }
@@ -231,18 +231,17 @@ public class CurrentUser {
         uploaded_posts_map.remove(prismPost.getPostId());
     }
 
+    static void addNotifications(Collection<Notification> userNotifications) {
+        notifications = new ArrayList<>(userNotifications);
+    }
 
-    /**
-     *
-     * @param oldNotification
-     */
-    static void addNotification(OldNotification oldNotification) {
-        oldNotifications.add(0, oldNotification);
+    static void addNotification(Notification notification) {
+        notifications.add(0, notification);
     }
 
 
-    static void removeNotification(OldNotification oldNotification) {
-        oldNotifications.remove(oldNotification);
+    static void removeNotification(Notification notification) {
+        notifications.remove(notification);
     }
 
 
@@ -305,8 +304,8 @@ public class CurrentUser {
      *
      * @return
      */
-    public static ArrayList<OldNotification> getOldNotifications() {
-        return oldNotifications;
+    public static ArrayList<Notification> getNotifications() {
+        return notifications;
     }
 
     public static PrismUser getPrismUser() {

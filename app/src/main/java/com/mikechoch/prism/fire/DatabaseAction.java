@@ -54,7 +54,7 @@ public class DatabaseAction {
      * Performs like locally on CurrentUser
      */
     public static void performLike(PrismPost prismPost) {
-        long actionTimestamp = Calendar.getInstance().getTimeInMillis();
+        long actionTimestamp = Helper.getNegativeCurrentTimestamp();
 
         DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
@@ -105,23 +105,23 @@ public class DatabaseAction {
      */
     public static void performRepost(PrismPost prismPost) {
         if (PermissionHelper.allowRepost(prismPost)) {
-            long timestamp = Calendar.getInstance().getTimeInMillis();
+            long actionTimestamp = Helper.getNegativeCurrentTimestamp();
 
             DatabaseReference postReference = Default.ALL_POSTS_REFERENCE.child(prismPost.getPostId());
             DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
             postReference.child(Key.DB_REF_POST_REPOSTED_USERS)
                     .child(CurrentUser.getUid())
-                    .setValue(timestamp);
+                    .setValue(actionTimestamp);
 
             currentUserReference.child(Key.DB_REF_USER_REPOSTS)
                     .child(prismPost.getPostId())
-                    .setValue(timestamp);
+                    .setValue(actionTimestamp);
 
             CurrentUser.repostPost(prismPost);
 
             if (!Helper.isPrismUserCurrentUser(prismPost.getUid())) {
-                OutgoingNotificationController.prepareRepostNotification(prismPost, timestamp);
+                OutgoingNotificationController.prepareRepostNotification(prismPost, actionTimestamp);
             }
         }
     }
@@ -261,23 +261,23 @@ public class DatabaseAction {
      * adds CurrentUser's uid to prismUser's FOLLOWINGS section
      */
     public static void followUser(PrismUser prismUser) {
-        long timestamp = Calendar.getInstance().getTimeInMillis();
+        long actionTimestamp = Helper.getNegativeCurrentTimestamp();
 
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
         DatabaseReference userReference = Default.USERS_REFERENCE.child(prismUser.getUid());
 
         userReference.child(Key.DB_REF_USER_FOLLOWERS)
                 .child(CurrentUser.getUid())
-                .setValue(timestamp);
+                .setValue(actionTimestamp);
 
         currentUserReference.child(Key.DB_REF_USER_FOLLOWINGS)
                 .child(prismUser.getUid())
-                .setValue(timestamp);
+                .setValue(actionTimestamp);
 
-        CurrentUser.followUser(prismUser, timestamp);
+        CurrentUser.followUser(prismUser, actionTimestamp);
 
         if (!Helper.isPrismUserCurrentUser(prismUser.getUid())) {
-            OutgoingNotificationController.prepareFollowNotification(prismUser, timestamp);
+            OutgoingNotificationController.prepareFollowNotification(prismUser, actionTimestamp);
         }
     }
 
@@ -322,7 +322,7 @@ public class DatabaseAction {
      *
      */
     public static void updateViewedTimestampForAllNotifications() {
-        long timestamp = System.currentTimeMillis();
+        long viewedTimestamp = Helper.getNegativeCurrentTimestamp();
         DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getUid());
 
         currentUserReference.child(Key.DB_REF_USER_NOTIFICATIONS)
@@ -333,7 +333,7 @@ public class DatabaseAction {
                             for (DataSnapshot notificationSnapshot : allNotificationSnapshots.getChildren()) {
                                 notificationSnapshot
                                         .child(Key.NOTIFICATION_VIEWED_TIMESTAMP)
-                                        .getRef().setValue(timestamp);
+                                        .getRef().setValue(viewedTimestamp);
                             }
                         }
                     }
@@ -421,7 +421,7 @@ public class DatabaseAction {
         contentReviewReference
                 .child(prismPost.getUid())
                 .child(CurrentUser.getUid())
-                .setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .setValue(Helper.getNegativeCurrentTimestamp()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {

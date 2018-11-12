@@ -1,12 +1,10 @@
 package com.mikechoch.prism.callback.fetch;
 
-import com.mikechoch.prism.attribute.OldNotification;
-
-import java.util.ArrayList;
+import com.mikechoch.prism.attribute.LinkedNotifications;
 
 public interface OnFetchNotificationsCallback {
 
-    void onSuccess(ArrayList<OldNotification> oldNotifications);
+    void onSuccess(LinkedNotifications linkedNotifications);
     void onNotificationsNotFound();
     void onFailure(Exception e);
 

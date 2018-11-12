@@ -25,10 +25,12 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismTagActivity;
-import com.mikechoch.prism.attribute.OldNotification;
+import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.PostBasedNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
+import com.mikechoch.prism.attribute.UserBasedNotification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.TimeUnit;
@@ -78,7 +80,7 @@ public class Helper {
         String imageUri = downloadUrl.toString();
         String description = imageDescription;
         String userId = CurrentUser.getFirebaseUser().getUid();
-        Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
+        Long timestamp = Helper.getNegativeCurrentTimestamp();
         return new PrismPost(imageUri, description, userId, timestamp);
     }
 
@@ -132,25 +134,34 @@ public class Helper {
         return prismUser;
     }
 
-    public static OldNotification constructNotification(DataSnapshot notificationSnapshot) {
-        OldNotification oldNotification = new OldNotification();
+    public static Notification constructNotification(DataSnapshot notificationSnapshot) {
+        Notification notification = null;
+
         String notificationId = notificationSnapshot.getKey();
         NotificationType notificationType = NotificationType.getType(notificationId);
         long actionTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_ACTION_TIMESTAMP).getValue();
         long viewedTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
         String mostRecentUserId = (String) notificationSnapshot.child(Key.NOTIFICATION_MOST_RECENT_USER).getValue();
-        PrismUser mostRecentPrismUser = new PrismUser();
-        mostRecentPrismUser.setUid(mostRecentUserId);
+
         boolean viewed = viewedTimestamp > actionTimestamp;
 
-        oldNotification.setNotificationId(notificationId);
-        oldNotification.setActionTimestamp(actionTimestamp);
-        oldNotification.setMostRecentUser(mostRecentPrismUser);
-        oldNotification.setPrismPost(null);
-        oldNotification.setType(notificationType);
-        oldNotification.setViewed(viewed);
+        switch (notificationType) {
+            case LIKE:
+            case REPOST:
+                notification = new PostBasedNotification();
+                break;
+            case FOLLOW:
+                notification = new UserBasedNotification();
+                break;
+        }
 
-        return oldNotification;
+        notification.setNotificationId(notificationId);
+        notification.setNotificationType(notificationType);
+        notification.setActionTimestamp(actionTimestamp);
+        notification.setMostRecentUid(mostRecentUserId);
+        notification.setViewed(viewed);
+
+        return notification;
     }
 
     /**
@@ -183,6 +194,9 @@ public class Helper {
      * September 18, 2017           (else)
      */
     public static String getFancyDateDifferenceString(long time) {
+        if (time < 0) {
+            time *= -1;
+        }
         // Create a calendar object and calculate the timeFromStart
         Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
         long timeFromCurrent = calendar.getTimeInMillis() - time;
@@ -375,6 +389,11 @@ public class Helper {
      */
     public static float getEditSeekBarValue(int progress, float min, float max) {
         return (((progress / 200.0f) * (max - min)) + min);
+    }
+
+
+    public static long getNegativeCurrentTimestamp() {
+        return -1 * System.currentTimeMillis();
     }
 
     /**
