@@ -486,7 +486,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
      */
     private void updateLocalRecyclerViewWithNewPost(PrismPost prismPost) {
         uploadingImageTextView.setText(Message.POST_UPLOAD_FINISHING_UP);
-        prismPost.setPrismUser(CurrentUser.prismUser);
+        prismPost.setPrismUser(CurrentUser.getPrismUser());
         RecyclerView mainContentRecyclerView = MainActivity.this.findViewById(R.id.main_content_recycler_view);
         LinearLayoutManager layoutManager  = (LinearLayoutManager) mainContentRecyclerView.getLayoutManager();
         RelativeLayout noMainPostsRelativeLayout = MainActivity.this.findViewById(R.id.no_main_posts_relative_layout);
@@ -569,11 +569,11 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
         TextView userProfileTextView = ((Activity) context).findViewById(R.id.profile_fragment_user_full_name_text_view);
 
         if (userProfileTextView != null && userProfileImageView != null) {
-            userProfileTextView.setText(CurrentUser.prismUser.getFullName());
+            userProfileTextView.setText(CurrentUser.getPrismUser().getFullName());
             Glide.with(context)
                     .asBitmap()
                     .thumbnail(0.05f)
-                    .load(CurrentUser.prismUser.getProfilePicture().getLowResProfilePicUri())
+                    .load(CurrentUser.getPrismUser().getProfilePicture().getLowResProfilePicUri())
                     .apply(new RequestOptions().fitCenter())
                     .into(new BitmapImageViewTarget(userProfileImageView) {
                         @Override
@@ -583,7 +583,7 @@ public class MainActivity extends FragmentActivity implements NetworkStateReceiv
                                     BitmapHelper.createCircularProfilePicture(
                                             context,
                                             userProfileImageView,
-                                            CurrentUser.prismUser.getProfilePicture().isDefault(),
+                                            CurrentUser.getPrismUser().getProfilePicture().isDefault(),
                                             resource,
                                             imageViewPadding);
                             userProfileImageView.setImageDrawable(profilePictureDrawable);

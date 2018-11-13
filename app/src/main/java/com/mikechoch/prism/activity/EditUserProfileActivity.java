@@ -421,8 +421,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
         emailTextInputLayout.setTypeface(Default.sourceSansProLight);
         emailEditText.setTypeface(Default.sourceSansProLight);
 
-        fullNameEditText.setText(CurrentUser.prismUser.getFullName());
-        usernameEditText.setText(CurrentUser.prismUser.getUsername());
+        fullNameEditText.setText(CurrentUser.getPrismUser().getFullName());
+        usernameEditText.setText(CurrentUser.getPrismUser().getUsername());
         passwordEditText.setText(Default.HIDDEN_PASSWORD);
         emailEditText.setText(CurrentUser.getFirebaseUser().getEmail());
     }

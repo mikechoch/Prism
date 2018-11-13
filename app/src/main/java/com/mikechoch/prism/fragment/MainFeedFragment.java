@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.PrismPostRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
 import com.mikechoch.prism.callback.fetch.OnFetchUserProfileCallback;
@@ -28,6 +29,7 @@ import com.mikechoch.prism.fire.DatabaseRead;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainFeedFragment extends Fragment {
@@ -156,13 +158,13 @@ public class MainFeedFragment extends Fragment {
     private void refreshMainPage() {
         DatabaseRead.fetchLatestPrismPosts(new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+            public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
                 noMainFeedRelativeLayout.setVisibility(View.GONE);
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
                 mainFeedPrismPostArrayList.clear();
-                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedPrismPostArrayList.addAll(linkedPrismPosts.getPrismPosts());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 
@@ -193,11 +195,11 @@ public class MainFeedFragment extends Fragment {
 
         DatabaseRead.fetchMorePrismPosts(lastPostTimestamp, new OnFetchPrismPostsCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismPost> prismPosts) {
+            public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
                 mainFeedProgressBar.setVisibility(View.GONE);
                 mainFeedSwipeRefreshLayout.setRefreshing(false);
 
-                mainFeedPrismPostArrayList.addAll(prismPosts);
+                mainFeedPrismPostArrayList.addAll(linkedPrismPosts.getPrismPosts());
                 mainFeedRecyclerViewAdapter.notifyDataSetChanged();
             }
 

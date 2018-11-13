@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/notification_relative_layout"
+    android:id="@+id/notification_prism_post_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="4dp"
@@ -17,13 +17,13 @@
         android:gravity="center_vertical">
 
         <RelativeLayout
-            android:id="@+id/notification_item_profile_picture_relative_layout"
+            android:id="@+id/notification_prism_post_profile_picture_relative_layout"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginEnd="12dp">
 
             <ImageView
-                android:id="@+id/notification_item_prism_profile_image_view"
+                android:id="@+id/notification_prism_post_profile_picture_image_view"
                 android:transitionName="user_profile_picture"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -31,7 +31,7 @@
                 android:scaleType="fitCenter"/>
 
             <ImageView
-                android:id="@+id/notification_item_type_image_view"
+                android:id="@+id/notification_prism_post_type_image_view"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_alignParentBottom="true"
@@ -43,23 +43,20 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/notification_item_text_linear_layout"
+            android:id="@+id/notification_prism_post_text_linear_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/notification_item_description_linear_layout"
+            <TextView
+                android:id="@+id/notification_prism_post_description_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <!--Populate the notification description TextViews-->
-
-            </LinearLayout>
+                android:textSize="17sp"
+                android:textColor="@android:color/white"/>
 
             <TextView
-                android:id="@+id/notification_item_type_text_view"
+                android:id="@+id/notification_prism_post_type_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
@@ -70,7 +67,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/notification_item_post_thumbnail_image_view"
+        android:id="@+id/notification_prism_post_thumbnail_image_view"
         android:transitionName="prism_post_image"
         android:layout_width="48dp"
         android:layout_height="48dp"

@@ -38,7 +38,7 @@ public class PrismPostStaggeredGridRecyclerView {
 
         for (int i = 0; i < Default.POSTS_COLUMNS; i++) {
             LinearLayout recyclerViewLinearLayout = new LinearLayout(context);
-            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1f);
+            LinearLayout.LayoutParams one_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
             recyclerViewLinearLayout.setLayoutParams(one_params);
 
             RecyclerView postsRecyclerView = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.posts_recycler_view, null);

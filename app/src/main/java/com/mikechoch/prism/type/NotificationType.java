@@ -65,16 +65,13 @@ public enum NotificationType {
         return null;
     }
 
-    public String decodeNotificationPostId(String notificationId) {
-        return notificationId.replace(this.getNotifIdSuffix(), "");
-    }
 
     public static String createLikeRepostNotificationId(PrismPost prismPost, NotificationType type) {
         return prismPost.getPostId() + type.getNotifIdSuffix();
     }
 
     public static String createFollowNotificationId() {
-        return CurrentUser.prismUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
+        return CurrentUser.getUid() + NotificationType.FOLLOW.getNotifIdSuffix();
     }
 
     public static int generateLikeRepostPushNotificationId(PrismPost prismPost, NotificationType type) {

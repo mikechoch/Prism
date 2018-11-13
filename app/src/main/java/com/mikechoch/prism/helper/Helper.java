@@ -6,14 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.icu.text.RelativeDateTimeFormatter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.format.DateFormat;
 import android.text.style.ClickableSpan;
 import android.view.View;
@@ -25,14 +30,19 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.activity.PrismTagActivity;
+import com.mikechoch.prism.attribute.Notification;
+import com.mikechoch.prism.attribute.PostBasedNotification;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.attribute.ProfilePicture;
+import com.mikechoch.prism.attribute.UserBasedNotification;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
 import com.mikechoch.prism.constant.TimeUnit;
 import com.mikechoch.prism.fire.CurrentUser;
+import com.mikechoch.prism.type.NotificationType;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -69,6 +79,54 @@ public class Helper {
     }
 
     /**
+     *
+     * @param message
+     * @param splitIndex
+     * @return
+     */
+    public static SpannableString createUsernameClickableSpan(Context context, PostBasedNotification postBasedNotification, String message, int splitIndex) {
+        SpannableString spannableString = new SpannableString(message);
+
+        ClickableSpan usernameClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                IntentHelper.intentToUserProfileActivity(context, postBasedNotification.getPrismPost().getPrismUser());
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(Color.WHITE);
+                Typeface typeface = postBasedNotification.isViewed() ? Default.sourceSansProLight : Default.sourceSansProBold;
+                ds.setUnderlineText(false);
+                ds.setTypeface(typeface);
+            }
+        };
+        spannableString.setSpan(usernameClickableSpan, 0, splitIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (message.length() >= splitIndex + 1) {
+            ClickableSpan othersClickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    IntentHelper.intentToDisplayUsersActivity(context, postBasedNotification.getPrismPost().getPostId(), postBasedNotification.getNotificationType().getNotifUserDisplayCode());
+                }
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setColor(Color.WHITE);
+                    Typeface typeface = postBasedNotification.isViewed() ? Default.sourceSansProLight : Default.sourceSansProBold;
+                    ds.setUnderlineText(false);
+                    ds.setTypeface(typeface);
+                }
+            };
+            spannableString.setSpan(othersClickableSpan, splitIndex + 1, message.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+
+        return spannableString;
+    }
+
+    /**
      * Takes in the downloadUrl that was create in cloud and reference to the post that
      * got created in cloud and prepares the PrismPost object that will be pushed
      */
@@ -76,7 +134,7 @@ public class Helper {
         String imageUri = downloadUrl.toString();
         String description = imageDescription;
         String userId = CurrentUser.getFirebaseUser().getUid();
-        Long timestamp = -1 * Calendar.getInstance().getTimeInMillis();
+        Long timestamp = Helper.getNegativeCurrentTimestamp();
         return new PrismPost(imageUri, description, userId, timestamp);
     }
 
@@ -130,15 +188,45 @@ public class Helper {
         return prismUser;
     }
 
+    public static Notification constructNotification(DataSnapshot notificationSnapshot) {
+        Notification notification = null;
+
+        String notificationId = notificationSnapshot.getKey();
+        NotificationType notificationType = NotificationType.getType(notificationId);
+        long actionTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_ACTION_TIMESTAMP).getValue();
+        long viewedTimestamp = (long) notificationSnapshot.child(Key.NOTIFICATION_VIEWED_TIMESTAMP).getValue();
+        String mostRecentUserId = (String) notificationSnapshot.child(Key.NOTIFICATION_MOST_RECENT_USER).getValue();
+
+        boolean viewed = viewedTimestamp > actionTimestamp;
+
+        switch (notificationType) {
+            case LIKE:
+            case REPOST:
+                notification = new PostBasedNotification();
+                break;
+            case FOLLOW:
+                notification = new UserBasedNotification();
+                break;
+        }
+
+        notification.setNotificationId(notificationId);
+        notification.setNotificationType(notificationType);
+        notification.setActionTimestamp(actionTimestamp);
+        notification.setMostRecentUid(mostRecentUserId);
+        notification.setViewed(viewed);
+
+        return notification;
+    }
+
     /**
      *
      */
     public static boolean isPrismUserCurrentUser(PrismUser prismUser) {
-        return CurrentUser.prismUser.getUid().equals(prismUser.getUid());
+        return CurrentUser.getUid().equals(prismUser.getUid());
     }
 
     public static boolean isPrismUserCurrentUser(String prismUserId) {
-        return CurrentUser.prismUser.getUid().equals(prismUserId);
+        return CurrentUser.getUid().equals(prismUserId);
     }
 
 
@@ -160,6 +248,9 @@ public class Helper {
      * September 18, 2017           (else)
      */
     public static String getFancyDateDifferenceString(long time) {
+        if (time < 0) {
+            time *= -1;
+        }
         // Create a calendar object and calculate the timeFromStart
         Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
         long timeFromCurrent = calendar.getTimeInMillis() - time;
@@ -352,6 +443,11 @@ public class Helper {
      */
     public static float getEditSeekBarValue(int progress, float min, float max) {
         return (((progress / 200.0f) * (max - min)) + min);
+    }
+
+
+    public static long getNegativeCurrentTimestamp() {
+        return -1 * System.currentTimeMillis();
     }
 
     /**

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notification_prism_user_relative_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:foreground="@drawable/row_item_selector">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical">
+
+        <RelativeLayout
+            android:id="@+id/notification_prism_user_profile_picture_relative_layout"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="12dp">
+
+            <ImageView
+                android:id="@+id/notification_prism_user_profile_picture_image_view"
+                android:transitionName="user_profile_picture"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerInParent="true"
+                android:scaleType="fitCenter"/>
+
+            <ImageView
+                android:id="@+id/notification_prism_user_type_image_view"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:padding="3dp"
+                android:tint="@android:color/white"
+                android:background="@drawable/circular_background_frame"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/notification_prism_user_text_linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/notification_prism_user_description_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:textSize="17sp"
+                android:textColor="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/notification_prism_user_type_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/hintTextColor"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/notification_prism_user_thumbnail_image_view"
+        android:transitionName="prism_user_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="4dp"
+        android:scaleType="fitCenter" />
+
+</RelativeLayout>

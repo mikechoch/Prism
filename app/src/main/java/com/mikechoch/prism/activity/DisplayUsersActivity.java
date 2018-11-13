@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.DisplayUsersRecyclerViewAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismUsers;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
@@ -26,6 +27,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.type.DisplayUserType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class DisplayUsersActivity extends AppCompatActivity {
@@ -155,8 +157,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getLikedUsers(String postId) {
         DatabaseRead.fetchLikedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                prismUserArrayList.addAll(linkedPrismUsers.getPrismUsers());
                 updateInterfaceElements();
             }
 
@@ -181,8 +183,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getRepostedUsers(String postId) {
         DatabaseRead.fetchRepostedUsers(postId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                prismUserArrayList.addAll(linkedPrismUsers.getPrismUsers());
                 updateInterfaceElements();
             }
 
@@ -206,8 +208,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getFollowings(String userId) {
         DatabaseRead.fetchPrismUserFollowings(userId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                prismUserArrayList.addAll(linkedPrismUsers.getPrismUsers());
                 updateInterfaceElements();
             }
 
@@ -231,8 +233,8 @@ public class DisplayUsersActivity extends AppCompatActivity {
     private void getFollowers(String userId) {
         DatabaseRead.fetchPrismUserFollowers(userId, new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                prismUserArrayList.addAll(linkedPrismUsers.getPrismUsers());
                 updateInterfaceElements();
             }
 

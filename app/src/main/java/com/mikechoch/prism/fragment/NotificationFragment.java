@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseReference;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.NotificationRecyclerViewAdapter;
 import com.mikechoch.prism.attribute.Notification;
@@ -55,7 +54,6 @@ public class NotificationFragment extends Fragment {
         noNotificationsRelativeLayout = view.findViewById(R.id.no_notification_relative_layout);
         noNotificationsTextView = view.findViewById(R.id.no_notification_text_view);
 
-        notificationArrayList = new ArrayList<>();
         notificationArrayList = CurrentUser.getNotifications();
 
         setupInterfaceElements();

@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikechoch.prism.callback.action.OnUploadFileCallback;
 import com.mikechoch.prism.callback.change.OnChangeProfilePicCallback;
 import com.mikechoch.prism.constant.Default;
 import com.mikechoch.prism.constant.Key;
@@ -197,7 +198,7 @@ public class FirebaseProfileAction {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             DatabaseReference accountReference = Default.ACCOUNTS_REFERENCE;
-                                            accountReference.child(CurrentUser.prismUser.getUsername())
+                                            accountReference.child(CurrentUser.getPrismUser().getUsername())
                                                     .setValue(newEmail);
                                             callback.onSuccess();
                                         } else {
@@ -229,7 +230,7 @@ public class FirebaseProfileAction {
                 } else {
                     String oldUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + oldFirebaseEncodedUsername;
                     String newUsernameAccountPath = Key.DB_REF_ACCOUNTS + "/" + newFirebaseEncodedUsername;
-                    String newUsernameProfilePath = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.prismUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
+                    String newUsernameProfilePath = Key.DB_REF_USER_PROFILES + "/" + CurrentUser.getUid() + "/" + Key.USER_PROFILE_USERNAME;
 
                     HashMap<String, Object> usernamePaths = new HashMap<String, Object>() {{
                         put(oldUsernameAccountPath, null);
@@ -248,7 +249,7 @@ public class FirebaseProfileAction {
                                                     .setDisplayName(newFirebaseEncodedUsername)
                                                     .build());
 
-                                    CurrentUser.prismUser.setUsername(newUsername);
+                                    CurrentUser.getPrismUser().setUsername(newUsername);
 
                                     callback.onSuccess();
                                 }
@@ -263,14 +264,14 @@ public class FirebaseProfileAction {
     }
 
     public static void changeFullName(String newFullName, OnChangeFullNameCallback callback) {
-        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid());
+        DatabaseReference currentUserReference = Default.USERS_REFERENCE.child(CurrentUser.getPrismUser().getUid());
         currentUserReference
                 .child(Key.USER_PROFILE_FULL_NAME)
                 .setValue(newFullName)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        CurrentUser.prismUser.setFullName(newFullName);
+                        CurrentUser.getPrismUser().setFullName(newFullName);
                         callback.onSuccess();
                     }
                 })
@@ -281,32 +282,28 @@ public class FirebaseProfileAction {
         StorageReference profilePicFileReference = Default.STORAGE_REFERENCE
                 .child(Key.STORAGE_USER_PROFILE_IMAGE_REF).child(profilePicUri.getLastPathSegment());
 
-        profilePicFileReference.putFile(profilePicUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        UploadHelper.uploadFile(profilePicFileReference, profilePicUri, new OnUploadFileCallback() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // TODO Chain Tasks here
-                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            public void onFileUploadSuccess(Uri downloadUri) {
+                DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.getPrismUser().getUid()).child(Key.USER_PROFILE_PIC);
+                profilePicReference.setValue(downloadUri.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(Uri uri) {
-                        DatabaseReference profilePicReference = Default.USERS_REFERENCE.child(CurrentUser.prismUser.getUid()).child(Key.USER_PROFILE_PIC);
-                        profilePicReference.setValue(uri.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                callback.onSuccess();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                callback.onFailure(e);
-                            }
-                        });
+                    public void onSuccess(Void aVoid) {
+                        callback.onSuccess();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
                     }
                 });
-
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onProgressUpdate(int progress) { }
+
+            @Override
+            public void onFailure(Exception e) {
                 callback.onFailure(e);
             }
         });

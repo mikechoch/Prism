@@ -45,7 +45,7 @@ public class PrismFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Setting up Notification channels for android O and above
+        // Setting up OldNotification channels for android O and above
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             setupChannels();
         }

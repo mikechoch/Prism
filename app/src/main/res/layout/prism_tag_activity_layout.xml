@@ -57,7 +57,6 @@
                     android:id="@+id/prism_tag_posts_count_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="--"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
@@ -68,7 +67,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="posts"
                     android:textSize="15sp"
                     android:textColor="@android:color/white"
                     android:textAlignment="center"/>

@@ -24,6 +24,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.SearchTypeViewPagerAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismUsers;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismUsersCallback;
 import com.mikechoch.prism.constant.Default;
@@ -35,6 +36,7 @@ import com.mikechoch.prism.helper.Helper;
 import com.mikechoch.prism.user_interface.InterfaceAction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class SearchActivity  extends AppCompatActivity {
@@ -147,8 +149,8 @@ public class SearchActivity  extends AppCompatActivity {
     private void populateUsersCollection() {
         DatabaseRead.fetchAllUsers(new OnFetchPrismUsersCallback() {
             @Override
-            public void onSuccess(ArrayList<PrismUser> prismUsers) {
-                prismUserArrayList.addAll(prismUsers);
+            public void onSuccess(LinkedPrismUsers linkedPrismUsers) {
+                prismUserArrayList.addAll(linkedPrismUsers.getPrismUsers());
             }
 
             @Override

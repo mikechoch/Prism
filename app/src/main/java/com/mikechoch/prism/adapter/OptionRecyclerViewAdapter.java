@@ -233,7 +233,7 @@ public class OptionRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         /**
-         * Set data for the NotificationViewHolder interface elements
+         * Set data for the PrismPostNotificationViewHolder interface elements
          */
         public void setData(MoreOption moreOption) {
             this.moreOption = moreOption;

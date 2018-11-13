@@ -4,42 +4,39 @@ import android.support.annotation.NonNull;
 
 import com.mikechoch.prism.type.NotificationType;
 
-public class Notification implements Comparable<Notification> {
+public abstract class Notification implements Comparable<Notification> {
 
-    private NotificationType type;
-    private PrismPost prismPost;
+    private String notificationId;
+    private PrismUser mostRecentPrismUser;
+    private String mostRecentUid;
+    protected NotificationType notificationType;
     private long actionTimestamp;
-    private PrismUser mostRecentUser;
     private boolean viewed;
 
+    abstract String notificationMessage();
 
-    public Notification() {
-
+    public NotificationType getNotificationType() {
+        return notificationType;
     }
 
-    public Notification(NotificationType type, PrismPost prismPost, PrismUser mostRecentUser, long actionTimestamp, boolean viewed) {
-        this.type = type;
-        this.prismPost = prismPost;
-        this.mostRecentUser = mostRecentUser;
-        this.actionTimestamp = actionTimestamp;
-        this.viewed = viewed;
-
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
     }
 
-    public NotificationType getType() {
-        return type;
+    public String getNotificationId() {
+        return notificationId;
     }
 
-    public void setType(NotificationType type) {
-        this.type = type;
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 
-    public PrismPost getPrismPost() {
-        return prismPost;
+    public PrismUser getMostRecentPrismUser() {
+        return mostRecentPrismUser;
     }
 
-    public void setPrismPost(PrismPost prismPost) {
-        this.prismPost = prismPost;
+    public void setMostRecentPrismUser(PrismUser mostRecentPrismUser) {
+        this.mostRecentPrismUser = mostRecentPrismUser;
     }
 
     public long getActionTimestamp() {
@@ -58,28 +55,25 @@ public class Notification implements Comparable<Notification> {
         this.viewed = viewed;
     }
 
-
-    public PrismUser getMostRecentUser() {
-        return mostRecentUser;
+    public String getMostRecentUid() {
+        return mostRecentUid;
     }
 
-    public void setMostRecentUser(PrismUser mostRecentUser) {
-        this.mostRecentUser = mostRecentUser;
-    }
-
-    public Integer getOtherUserCount() {
-        switch (type) {
-            case LIKE:
-                return prismPost.getLikes() > 1 ? prismPost.getLikes() - 1 : 0;
-            case REPOST:
-                return  prismPost.getReposts() > 1 ? prismPost.getReposts() -1 : 0;
-            default:
-                return 0;
-        }
+    public void setMostRecentUid(String mostRecentUid) {
+        this.mostRecentUid = mostRecentUid;
     }
 
     @Override
     public int compareTo(@NonNull Notification o) {
         return Long.compare(o.getActionTimestamp(), this.getActionTimestamp());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Notification) {
+            Notification notification = (Notification) obj;
+            return this.notificationId.equals(notification.notificationId);
+        }
+        return false;
     }
 }

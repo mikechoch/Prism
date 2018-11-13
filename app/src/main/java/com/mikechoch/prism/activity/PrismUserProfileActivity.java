@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -31,6 +30,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.mikechoch.prism.R;
 import com.mikechoch.prism.adapter.OptionRecyclerViewAdapter;
 import com.mikechoch.prism.adapter.ProfileViewPagerAdapter;
+import com.mikechoch.prism.attribute.LinkedPrismPosts;
 import com.mikechoch.prism.attribute.PrismPost;
 import com.mikechoch.prism.attribute.PrismUser;
 import com.mikechoch.prism.callback.fetch.OnFetchPrismPostsCallback;
@@ -68,14 +68,16 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private SwipeRefreshLayout profileSwipeRefreshLayout;
     private NestedScrollView profileNestedScrollView;
     private ImageView userProfilePicImageView;
-    private RelativeLayout followersRelativeLayout;
+    private LinearLayout followersRelativeLayout;
     private TextView followersCountTextView;
     private TextView followersLabelTextView;
     private TextView postsCountTextView;
     private TextView postsLabelTextView;
-    private RelativeLayout followingRelativeLayout;
+    private LinearLayout followingRelativeLayout;
     private TextView followingCountTextView;
     private TextView followingLabelTextView;
+    private LinearLayout noUploadsOrRepostsLinearLayout;
+    private TextView noUploadsOrRepostsTextView;
 
     // Current User
     private ImageView accountEditInfoButton;
@@ -130,14 +132,16 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         userUsernameTextView = findViewById(R.id.user_profile_username_text_view);
         userFullNameTextView = findViewById(R.id.user_profile_full_name_text_view);
         userProfilePicImageView = findViewById(R.id.user_profile_profile_picture_image_view);
-        followersRelativeLayout = findViewById(R.id.followers_relative_layout);
+        followersRelativeLayout = findViewById(R.id.followers_linear_layout);
         followersCountTextView = findViewById(R.id.followers_count_text_view);
         followersLabelTextView = findViewById(R.id.followers_label_text_view);
         postsCountTextView = findViewById(R.id.posts_count_text_view);
         postsLabelTextView = findViewById(R.id.posts_label_text_view);
-        followingRelativeLayout = findViewById(R.id.following_relative_layout);
+        followingRelativeLayout = findViewById(R.id.following_linear_layout);
         followingCountTextView = findViewById(R.id.following_count_text_view);
         followingLabelTextView = findViewById(R.id.following_label_text_view);
+        noUploadsOrRepostsLinearLayout = findViewById(R.id.prism_user_profile_no_uploads_or_reposts_linear_layout);
+        noUploadsOrRepostsTextView = findViewById(R.id.prism_user_profile_no_uploads_or_reposts_text_view);
 
         accountEditInfoButton = findViewById(R.id.toolbar_edit_account_information_image_view);
         userPostsTabLayout = findViewById(R.id.current_user_profile_tab_layout);
@@ -266,6 +270,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followingLabelTextView.setTypeface(Default.sourceSansProLight);
         userUsernameTextView.setTypeface(Default.sourceSansProBold);
         userFullNameTextView.setTypeface(Default.sourceSansProLight);
+        noUploadsOrRepostsTextView.setTypeface(Default.sourceSansProBold);
 
         setupToolbar();
         setupAppBarLayout();
@@ -276,7 +281,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
-                    prismUser = CurrentUser.prismUser;
+                    prismUser = CurrentUser.getPrismUser();
                     fetchUserContent();
                 }
 
@@ -335,8 +340,8 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         } else {
             DatabaseRead.fetchPrismUserUploadedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                    prismUserUploadedAndRepostedPostsArrayList.addAll(prismPosts);
+                public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
+                    prismUserUploadedAndRepostedPostsArrayList.addAll(linkedPrismPosts.getPrismPosts());
 
                     areUploadedAndRepostedPostsFetched[0] = true;
                     if (areUserPostsFetched()) {
@@ -349,18 +354,22 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 public void onPrismPostsNotFound() {
                     // User has not uploaded any posts
                     // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
+                    areUploadedAndRepostedPostsFetched[0] = true;
+                    setupPrismUserInterface();
                 }
 
                 @Override
                 public void onFailure(Exception e) {
+                    areUploadedAndRepostedPostsFetched[0] = true;
                     Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_UPLOADS_FAIL);
+                    setupPrismUserInterface();
                 }
             });
 
             DatabaseRead.fetchPrismUserRepostedPosts(prismUser, new OnFetchPrismPostsCallback() {
                 @Override
-                public void onSuccess(ArrayList<PrismPost> prismPosts) {
-                    for (PrismPost post : prismPosts) {
+                public void onSuccess(LinkedPrismPosts linkedPrismPosts) {
+                    for (PrismPost post : linkedPrismPosts.getPrismPosts()) {
                         post.setIsReposted(true);
                         prismUserUploadedAndRepostedPostsArrayList.add(post);
                     }
@@ -376,11 +385,15 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 public void onPrismPostsNotFound() {
                     // User has not reposted any posts
                     // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
+                    areUploadedAndRepostedPostsFetched[1] = true;
+                    setupPrismUserInterface();
                 }
 
                 @Override
                 public void onFailure(Exception e) {
+                    areUploadedAndRepostedPostsFetched[1] = true;
                     Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_REPOSTS_FAIL);
+                    setupPrismUserInterface();
                 }
             });
         }
@@ -493,6 +506,10 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         followersCountTextView.setText(String.valueOf(prismUser.getFollowerCount()));
         followingCountTextView.setText(String.valueOf(prismUser.getFollowingCount()));
 
+        followersLabelTextView.setText("followers");
+        postsLabelTextView.setText("posts");
+        followingLabelTextView.setText("following");
+
         followersRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -534,15 +551,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
             CurrentUser.refreshUser(new OnFetchUserProfileCallback() {
                 @Override
                 public void onSuccess() {
-                    prismUser = CurrentUser.prismUser;
-
-                    prismUserUploadedAndRepostedPostsArrayList.clear();
-                    prismUserLikedPostsArrayList.clear();
-                    prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
-                    prismUserLikedPostsArrayList.addAll(CurrentUser.getUserLikes());
-
-                    sortPostsOnUserPage();
-
+                    prismUser = CurrentUser.getPrismUser();
                     setupUserInfo();
                     setupUserStats();
 
@@ -570,7 +579,9 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
                     //TODO: Do not think the refresh like this will work properly
                     //TODO: May have to recreate the views on this activity instead
-                    prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
+                    if (prismPostStaggeredGridRecyclerView != null) {
+                        prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
+                    }
 
                     profileSwipeRefreshLayout.setRefreshing(false);
                 }
@@ -728,8 +739,11 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void setupUserUploadedPostsRecyclerView() {
         LinearLayout userUploadedPostsLinearLayout = this.findViewById(R.id.user_uploaded_posts_linear_layout);
-        prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(this,
-                userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
+        if (prismUserUploadedAndRepostedPostsArrayList.size() > 0) {
+            noUploadsOrRepostsLinearLayout.setVisibility(View.GONE);
+            prismPostStaggeredGridRecyclerView = new PrismPostStaggeredGridRecyclerView(this,
+                    userUploadedPostsLinearLayout, prismUserUploadedAndRepostedPostsArrayList);
+        }
 
         userUploadedPostsLinearLayout.setVisibility(View.VISIBLE);
         profileNestedScrollView.setVisibility(View.VISIBLE);
