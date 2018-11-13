@@ -153,6 +153,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
         prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
         prismUserLikedPostsArrayList = new ArrayList<>();
 
+        profileSwipeRefreshLayout.setRefreshing(true);
         prismUser = getPrismUserIntentData();
         if (prismUser != null) {
             setupInterfaceElements();
@@ -328,12 +329,12 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Use DatabaseRead to fetch uploaded and reposted PrismPosts from Firebase for PrismUser
      */
     private void fetchUserContent() {
-
         if (isCurrentUser) {
             prismUserUploadedAndRepostedPostsArrayList.clear();
             prismUserLikedPostsArrayList.clear();
             prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
             prismUserLikedPostsArrayList.addAll(CurrentUser.getUserLikes());
+            profileSwipeRefreshLayout.setRefreshing(false);
 
             sortPostsOnUserPage();
             setupPrismUserInterface();
@@ -345,6 +346,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
                     areUploadedAndRepostedPostsFetched[0] = true;
                     if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
                         sortPostsOnUserPage();
                         setupPrismUserInterface();
                     }
@@ -355,14 +357,20 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     // User has not uploaded any posts
                     // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
                     areUploadedAndRepostedPostsFetched[0] = true;
-                    setupPrismUserInterface();
+                    if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
+                        setupPrismUserInterface();
+                    }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
                     areUploadedAndRepostedPostsFetched[0] = true;
                     Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_UPLOADS_FAIL);
-                    setupPrismUserInterface();
+                    if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
+                        setupPrismUserInterface();
+                    }
                 }
             });
 
@@ -376,6 +384,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
                     areUploadedAndRepostedPostsFetched[1] = true;
                     if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
                         sortPostsOnUserPage();
                         setupPrismUserInterface();
                     }
@@ -386,14 +395,20 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     // User has not reposted any posts
                     // This interface is shown by default and if the ArrayList is not empty will be handled appropriately
                     areUploadedAndRepostedPostsFetched[1] = true;
-                    setupPrismUserInterface();
+                    if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
+                        setupPrismUserInterface();
+                    }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
                     areUploadedAndRepostedPostsFetched[1] = true;
                     Helper.toast(PrismUserProfileActivity.this, Message.FETCH_USER_REPOSTS_FAIL);
-                    setupPrismUserInterface();
+                    if (areUserPostsFetched()) {
+                        profileSwipeRefreshLayout.setRefreshing(false);
+                        setupPrismUserInterface();
+                    }
                 }
             });
         }
