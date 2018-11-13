@@ -88,10 +88,12 @@ public class PrismUserProfileActivity extends AppCompatActivity {
     private Button followUserButton;
     private PrismPostStaggeredGridRecyclerView prismPostStaggeredGridRecyclerView;
 
+    private ArrayList<PrismPost> prismUserUploadedAndRepostedPostsArrayList;
+    private ArrayList<PrismPost> prismUserLikedPostsArrayList;
+
     private PrismUser prismUser;
     private boolean isCurrentUser;
     private boolean[] areUploadedAndRepostedPostsFetched = {false, false};
-    private ArrayList<PrismPost> prismUserUploadedAndRepostedPostsArrayList;
 
 
     @Override
@@ -143,6 +145,9 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         toolbarFollowButton = findViewById(R.id.toolbar_follow_user_button);
         followUserButton = findViewById(R.id.follow_user_button);
+
+        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
+        prismUserLikedPostsArrayList = new ArrayList<>();
 
         prismUser = getPrismUserIntentData();
         if (prismUser != null) {
@@ -318,10 +323,13 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      * Use DatabaseRead to fetch uploaded and reposted PrismPosts from Firebase for PrismUser
      */
     private void fetchUserContent() {
-        prismUserUploadedAndRepostedPostsArrayList = new ArrayList<>();
 
         if (isCurrentUser) {
+            prismUserUploadedAndRepostedPostsArrayList.clear();
+            prismUserLikedPostsArrayList.clear();
             prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
+            prismUserLikedPostsArrayList.addAll(CurrentUser.getUserLikes());
+
             sortPostsOnUserPage();
             setupPrismUserInterface();
         } else {
@@ -393,6 +401,13 @@ public class PrismUserProfileActivity extends AppCompatActivity {
      */
     private void sortPostsOnUserPage() {
         Collections.sort(prismUserUploadedAndRepostedPostsArrayList, new Comparator<PrismPost>() {
+            @Override
+            public int compare(PrismPost p1, PrismPost p2) {
+                return Long.compare(p1.getTimestamp(), p2.getTimestamp());
+            }
+        });
+
+        Collections.sort(prismUserLikedPostsArrayList, new Comparator<PrismPost>() {
             @Override
             public int compare(PrismPost p1, PrismPost p2) {
                 return Long.compare(p1.getTimestamp(), p2.getTimestamp());
@@ -520,9 +535,21 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess() {
                     prismUser = CurrentUser.prismUser;
+
+                    prismUserUploadedAndRepostedPostsArrayList.clear();
+                    prismUserLikedPostsArrayList.clear();
+                    prismUserUploadedAndRepostedPostsArrayList.addAll(CurrentUser.getUserUploadsAndReposts());
+                    prismUserLikedPostsArrayList.addAll(CurrentUser.getUserLikes());
+
+                    sortPostsOnUserPage();
+
                     setupUserInfo();
                     setupUserStats();
+
+                    //TODO: Do not think the refresh like this will work properly
+                    //TODO: May have to recreate the views on this activity instead
                     userPostsViewPagerAdapter.refreshViewPagerTabs();
+
                     profileSwipeRefreshLayout.setRefreshing(false);
                 }
 
@@ -540,7 +567,11 @@ public class PrismUserProfileActivity extends AppCompatActivity {
                     prismUser = user;
                     setupUserInfo();
                     setupUserStats();
+
+                    //TODO: Do not think the refresh like this will work properly
+                    //TODO: May have to recreate the views on this activity instead
                     prismPostStaggeredGridRecyclerView.refreshStaggeredRecyclerViews();
+
                     profileSwipeRefreshLayout.setRefreshing(false);
                 }
 
@@ -601,7 +632,7 @@ public class PrismUserProfileActivity extends AppCompatActivity {
 
         userPostsViewPager.setOffscreenPageLimit(2);
         userPostsViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(userPostsTabLayout));
-        userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager(), CurrentUser.getUserUploadsAndReposts(), CurrentUser.getUserLikes());
+        userPostsViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager(), prismUserUploadedAndRepostedPostsArrayList, prismUserLikedPostsArrayList);
         userPostsViewPager.setAdapter(userPostsViewPagerAdapter);
         userPostsTabLayout.setupWithViewPager(userPostsViewPager);
 
